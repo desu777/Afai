@@ -23,13 +23,13 @@ def load_product_names(state: ConversationState) -> ConversationState:
         state["product_names"] = []
     return state
 
+# ZMIANA: Calculator też idzie do format_response zamiast escalate_support
 def route_intent(state: ConversationState) -> str:
     """Route based on detected intent"""
     intent = state.get("intent", Intent.OTHER)
-    if intent in [Intent.GREETING, Intent.BUSINESS, Intent.COMPETITOR, Intent.CENSORED, Intent.PURCHASE_INQUIRY]:
+    if intent in [Intent.GREETING, Intent.BUSINESS, Intent.COMPETITOR, 
+                  Intent.CENSORED, Intent.PURCHASE_INQUIRY, Intent.CALCULATOR]:
         return "format_response"
-    elif intent == Intent.CALCULATOR:
-        return "escalate_support"
     elif intent == Intent.PRODUCT_QUERY:
         return "optimize_query"
     elif intent == Intent.FOLLOW_UP:

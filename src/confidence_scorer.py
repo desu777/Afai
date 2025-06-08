@@ -1,5 +1,5 @@
 """
-Confidence Scoring Module - Wersja 2.0 (LLM-first)
+Confidence Scoring Module - Wersja 2.1 (LLM with context awareness)
 """
 from typing import List, Dict, Any
 import json
@@ -11,34 +11,55 @@ class ConfidenceScorer:
     def __init__(self):
         self.client = OpenAI(api_key=OPENAI_API_KEY)
         
-    def _create_evaluation_prompt(self, query: str, results: List[Dict]) -> str:
+    def _create_evaluation_prompt(self, query: str, results: List[Dict], chat_history: List[Dict]) -> str:
+        # Format conversation context
+        context_summary = ""
+        if chat_history:
+            recent_exchanges = chat_history[-6:]  # Last 3 exchanges
+            context_summary = "\n".join([f"{msg['role'].upper()}: {msg['content']}" for msg in recent_exchanges])
+        
         formatted_results = []
         for i, result in enumerate(results[:15]):
             meta = result.get('metadata', {})
             formatted_results.append(
                 f"Result {i+1}: Name: {meta.get('product_name', 'Unknown')}, "
+                f"Domain: {meta.get('domain', 'N/A')}, "
+                f"Type: {meta.get('content_type', 'N/A')}, "
                 f"Score: {result.get('score', 0):.3f}, "
                 f"Description: {meta.get('title_en', '')[:100]}...\n"
             )
         
         return f"""
-Evaluate how well these search results answer the user's query.
+Evaluate how well these search results answer the user's query IN THE CONTEXT of the conversation.
 
-User Query: "{query}"
+{'--- CONVERSATION CONTEXT ---' if context_summary else ''}
+{context_summary}
+{'---' if context_summary else ''}
+
+CURRENT USER QUERY: "{query}"
 
 Top Search Results:
 {''.join(formatted_results)}
 
-Evaluate based on relevance, problem-solution fit, and score quality. Return JSON with:
+CRITICAL EVALUATION CRITERIA:
+1. **Context Coherence**: Do results match the conversation context? (e.g., if discussing freshwater, are results for freshwater?)
+2. **Direct Relevance**: Do results directly answer the user's question?
+3. **Domain Match**: Are product domains appropriate for the discussed aquarium type?
+4. **Problem-Solution Fit**: Do products solve the user's stated problem?
+
+IMPORTANT: If user references previous context (like "such aquarium" or "those products") but results don't match that context, significantly lower the confidence!
+
+Return JSON with:
 {{
     "confidence": 0.0-1.0,
-    "reasoning": "brief explanation",
-    "best_matches": ["list of best matching product names"]
+    "reasoning": "detailed explanation including context analysis",
+    "best_matches": ["list of best matching product names"],
+    "context_mismatch": "describe any context mismatches if found"
 }}
 """
     
     def calculate_confidence(self, state: ConversationState) -> ConversationState:
-        """Calculate confidence score for search results using only LLM evaluation."""
+        """Calculate confidence score for search results using LLM evaluation with context."""
         if not state.get("search_results"):
             state["confidence"] = 0.0
             if TEST_ENV: print("\n🤔 [DEBUG ConfidenceScorer] Brak wyników, pewność: 0.0")
@@ -53,7 +74,8 @@ Evaluate based on relevance, problem-solution fit, and score quality. Return JSO
                         "role": "system",
                         "content": self._create_evaluation_prompt(
                             state["original_query"],
-                            state["search_results"]
+                            state["search_results"],
+                            state.get("chat_history", [])
                         )
                     }
                 ],
@@ -64,9 +86,13 @@ Evaluate based on relevance, problem-solution fit, and score quality. Return JSO
             state["confidence"] = evaluation.get("confidence", 0.0)
             state["evaluation_reasoning"] = evaluation.get("reasoning", "")
             
+            # Add context mismatch warning if found
+            if evaluation.get("context_mismatch"):
+                state["context_warning"] = evaluation["context_mismatch"]
+            
             if TEST_ENV:
-                print(f"\n🤖 [DEBUG ConfidenceScorer] Ocena LLM: {evaluation}")
-                print(f"✅ [DEBUG ConfidenceScorer] Finalna obliczona pewność (tylko LLM): {state['confidence']:.4f}")
+                print(f"\n🤖 [DEBUG ConfidenceScorer] Ocena LLM z kontekstem: {evaluation}")
+                print(f"✅ [DEBUG ConfidenceScorer] Finalna obliczona pewność: {state['confidence']:.4f}")
 
         except Exception as e:
             print(f"LLM evaluation error: {e}")

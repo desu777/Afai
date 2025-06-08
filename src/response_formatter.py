@@ -1,10 +1,11 @@
 """
-Response Formatting Module - Wersja 2.1
+Response Formatting Module - Wersja 2.2
 Formats final response with proper language and structure
+Enhanced with special intent handlers
 """
 from typing import List, Dict, Any
 from openai import OpenAI
-from models import ConversationState, ProductInfo
+from models import ConversationState, ProductInfo, Intent
 from config import OPENAI_API_KEY, OPENAI_MODEL, OPENAI_TEMPERATURE, TEST_ENV
 
 class ResponseFormatter:
@@ -21,9 +22,24 @@ class ResponseFormatter:
         lang = state.get("detected_language", "en")
         intent = state.get("intent", "product_query")
         
+        # Handle special intents first
+        if intent in [Intent.GREETING, Intent.BUSINESS, Intent.CALCULATOR, 
+                     Intent.PURCHASE_INQUIRY, Intent.COMPETITOR, Intent.CENSORED]:
+            return self._create_special_intent_prompt(state)
+        
+        # Format conversation history for context
+        chat_history_formatted = ""
+        if state.get("chat_history"):
+            chat_history_formatted = "\n".join([
+                f"{msg['role'].upper()}: {msg['content']}" 
+                for msg in state.get("chat_history", [])[-6:]  # Last 3 exchanges
+            ])
+        
+        # Original product query handling
         results_info = []
         if state.get("search_results"):
-            for i, p in enumerate(state["search_results"][:5]):
+            # Show all 15 results to give LLM more context
+            for i, p in enumerate(state["search_results"][:15]):
                 meta = p.get('metadata', {})
                 url = self._get_product_url(p, lang)
                 results_info.append(
@@ -41,17 +57,39 @@ class ResponseFormatter:
         return f"""
 You are AF AI, a friendly and professional assistant for Aquaforest. Your responses must be helpful, accurate, and always in the detected language: "{lang}".
 
---- CONTEXT ---
+--- CONVERSATION HISTORY ---
+{chat_history_formatted}
+---
+
+--- CURRENT CONTEXT ---
 User's Query: "{state.get('original_query', '')}"
 Detected Language: "{lang}"
 Search Results Confidence (from your own evaluation): {state.get('confidence', 0.0):.2f}
 Your Reasoning: "{state.get('evaluation_reasoning', 'N/A')}"
 
---- SEARCH RESULTS ---
+--- ALL 15 SEARCH RESULTS ---
 {formatted_search_results}
 ---
 
-TASK: Generate the best possible response based on the context.
+TASK: Generate the best possible response based on the context and conversation history.
+
+--- CRITICAL THINKING RULES ---
+
+1. **ALWAYS analyze the conversation history** to understand what the user is referring to. For example:
+   - "such aquarium" = check what type was discussed before
+   - "the second product" = refer to previous recommendations
+   - Any reference to prior context MUST be properly understood
+
+2. **Domain Awareness**: 
+   - If discussing freshwater aquarium, recommend ONLY freshwater or universal products
+   - If discussing marine/saltwater, recommend marine or universal products
+   - NEVER mix domains unless explicitly comparing
+
+3. **Smart Filtering of 15 Results**:
+   - You have 15 results - use them wisely!
+   - Filter out irrelevant domains first
+   - Consider all relevant products, not just top 5
+   - Group similar products logically
 
 --- RESPONSE RULES (VERY IMPORTANT) ---
 
@@ -83,6 +121,89 @@ Your primary goal is to act as an expert Aquaforest consultant. You must synthes
 
 --- FINAL RESPONSE (in {lang} only) ---
 """
+
+    def _create_special_intent_prompt(self, state: ConversationState) -> str:
+        """Create prompts for special intents"""
+        lang = state.get("detected_language", "en")
+        intent = state.get("intent", "other")
+        user_query = state.get("user_query", "")
+        
+        intent_instructions = {
+            Intent.GREETING: f"""
+You are AF AI, Aquaforest's friendly assistant. The user just greeted you.
+User said: "{user_query}" in language: {lang}
+
+Respond warmly in {lang}:
+- Greet them back and introduce yourself as AF AI assistant
+- Ask how you can help them today
+- Suggest they can ask about specific products or aquarium problems they're facing
+- Keep it friendly, concise (2-3 sentences)
+""",
+
+            Intent.BUSINESS: f"""
+You are AF AI. The user is interested in business cooperation.
+User said: "{user_query}" in language: {lang}
+
+Respond professionally in {lang}:
+- Thank them warmly for their interest in cooperation
+- Provide the contact form link:
+  {"https://aquaforest.eu/pl/kontakt/" if lang == "pl" else "https://aquaforest.eu/en/contact-us/"}
+- Mention our business hotline: (+48) 14 691 79 79 (Monday-Friday, 8:00-16:00)
+- Note that our specialists are ready to provide full support
+- Be encouraging and professional
+""",
+
+            Intent.CALCULATOR: f"""
+You are AF AI. The user is asking about dosage calculations.
+User said: "{user_query}" in language: {lang}
+
+Respond in {lang}:
+- Acknowledge their interest in dosage calculations
+- Inform them that we're building something special/deep for this feature
+- Express that it's coming soon
+- Be positive and build anticipation
+""",
+
+            Intent.PURCHASE_INQUIRY: f"""
+You are AF AI. The user is asking about purchasing/buying products.
+User said: "{user_query}" in language: {lang}
+
+Respond helpfully in {lang}:
+- Explain that Aquaforest doesn't sell directly, only through authorized dealers
+- Direct them to our dealer map:
+  {"https://aquaforest.eu/pl/gdzie-kupic/" if lang == "pl" else "https://aquaforest.eu/en/where-to-buy/"}
+- Be helpful and informative
+""",
+
+            Intent.COMPETITOR: f"""
+You are AF AI. The user mentioned a competitor.
+User said: "{user_query}" in language: {lang}
+
+Respond playfully in {lang} with just: "Who is this? ;)"
+Keep it light and humorous.
+""",
+
+            Intent.CENSORED: f"""
+You are AF AI. The user is asking about proprietary information (formulas, production secrets).
+User said: "{user_query}" in language: {lang}
+
+Respond politely in {lang}:
+- Explain that this information is a company secret
+- Be polite but firm
+- You can suggest they contact support for general product information
+"""
+        }
+        
+        base_prompt = f"""
+You are AF AI, a friendly and professional assistant for Aquaforest.
+Your response MUST be in {lang} language.
+
+{intent_instructions.get(intent, "Respond helpfully to the user's query.")}
+
+Generate your response in {lang}:
+"""
+        
+        return base_prompt
 
     def format_response(self, state: ConversationState) -> ConversationState:
         try:

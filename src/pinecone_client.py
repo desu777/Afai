@@ -1,5 +1,5 @@
 """
-Pinecone Search Module
+Pinecone Search Module - Enhanced with smart domain detection
 Handles all interactions with Pinecone vector database
 """
 from typing import List, Dict, Any, Optional
@@ -26,22 +26,62 @@ class PineconeSearchClient:
         )
         return response.data[0].embedding
     
+    def _detect_domain_from_context(self, state: ConversationState) -> Optional[Domain]:
+        """Detect domain from conversation context"""
+        if state.get("domain_filter"):
+            return state["domain_filter"]
+        
+        # Analyze recent conversation for domain clues
+        context_text = ""
+        if state.get("chat_history"):
+            recent_messages = state["chat_history"][-6:]  # Last 3 exchanges
+            context_text = " ".join([msg["content"].lower() for msg in recent_messages])
+        
+        # Add current query
+        context_text += " " + state.get("user_query", "").lower()
+        
+        # Domain detection rules
+        freshwater_keywords = ["słodkowod", "freshwater", "gupik", "neon", "złota rybka", "fresh water", "tropical fish"]
+        marine_keywords = ["morsk", "marine", "saltwater", "reef", "coral", "salt water", "koral"]
+        
+        freshwater_score = sum(1 for keyword in freshwater_keywords if keyword in context_text)
+        marine_score = sum(1 for keyword in marine_keywords if keyword in context_text)
+        
+        if TEST_ENV and (freshwater_score > 0 or marine_score > 0):
+            print(f"\n🔍 [DEBUG Domain Detection] Freshwater score: {freshwater_score}, Marine score: {marine_score}")
+        
+        if freshwater_score > marine_score:
+            return Domain.FRESHWATER
+        elif marine_score > freshwater_score:
+            return Domain.SEAWATER
+        
+        return None  # No clear domain detected
+    
     def search(
         self, 
         queries: List[str], 
         k: int = DEFAULT_K_VALUE,
-        domain_filter: Optional[Domain] = None
+        state: Optional[ConversationState] = None
     ) -> List[SearchResult]:
         """
         Search Pinecone with multiple queries and merge results
+        Now with smart domain filtering based on context
         """
+        # Auto-detect domain if not explicitly set
+        domain_filter = None
+        if state:
+            domain_filter = self._detect_domain_from_context(state)
+            if TEST_ENV and domain_filter:
+                print(f"🎯 [DEBUG PineconeSearch] Auto-detected domain filter: {domain_filter.value}")
+        
         all_results = {}
         for query in queries:
             try:
                 embedding = self._get_embedding(query)
                 filter_dict = {}
                 if domain_filter:
-                    filter_dict["domain"] = domain_filter.value
+                    # Include both specific domain and universal products
+                    filter_dict["domain"] = {"$in": [domain_filter.value, Domain.UNIVERSAL.value]}
                 
                 response = self.index.query(
                     vector=embedding,
@@ -74,23 +114,26 @@ class PineconeSearchClient:
             print(f"\n🌲 [DEBUG PineconeSearch] Zwrócono {len(sorted_results)} wyników. Top 5:")
             for i, res in enumerate(sorted_results[:5]):
                 product_name = res.metadata.get('product_name', 'Brak nazwy')
+                domain = res.metadata.get('domain', 'N/A')
                 score = res.score
-                print(f"   {i+1}. '{product_name}' (Score: {score:.4f})")
+                print(f"   {i+1}. '{product_name}' [Domain: {domain}] (Score: {score:.4f})")
         
         return sorted_results
     
     def _check_domain_conflict(self, results: List[SearchResult]) -> Optional[str]:
         """Check if results contain mixed domains"""
         domains = {r.metadata.get("domain") for r in results if r.metadata.get("domain")}
+        # Don't warn if we have universal products
+        domains.discard(Domain.UNIVERSAL.value)
         return "⚠️ Found products for both marine and freshwater aquariums. Please specify which type!" if len(domains) > 1 else None
 
 def search_products_k15(state: ConversationState) -> ConversationState:
-    """Search with k=15 (initial search)"""
+    """Search with k=15 (initial search) with smart domain detection"""
     client = PineconeSearchClient()
     results = client.search(
         queries=state["optimized_queries"],
         k=DEFAULT_K_VALUE,
-        domain_filter=state.get("domain_filter")
+        state=state  # Pass the full state for context analysis
     )
     
     # First, check for domain conflicts using the model instances

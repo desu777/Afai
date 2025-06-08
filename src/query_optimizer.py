@@ -1,6 +1,6 @@
 """
-Query Optimization Module - Wersja 2.0
-Optimizes user queries for better search results
+Query Optimization Module - Wersja 2.1
+Optimizes user queries for better search results with conversation context
 """
 import json
 from typing import List, Dict
@@ -31,11 +31,21 @@ class QueryOptimizer:
             print(f"Error loading products: {e}")
             return []
     
-    def _create_optimization_prompt(self, query: str, language: str) -> str:
+    def _create_optimization_prompt(self, query: str, language: str, chat_history: List[Dict]) -> str:
+        # Format recent conversation for context
+        recent_context = ""
+        if chat_history:
+            recent_exchanges = chat_history[-4:]  # Last 2 exchanges
+            recent_context = "\n".join([f"{msg['role'].upper()}: {msg['content']}" for msg in recent_exchanges])
+        
         return f"""
 You are an expert query analysis system for the Aquaforest search engine. Your task is to extract key information from the user's query and generate a set of highly effective, English-only search queries.
 
-USER'S ORIGINAL QUERY: "{query}"
+{'--- CONVERSATION CONTEXT ---' if recent_context else ''}
+{recent_context}
+{'---' if recent_context else ''}
+
+USER'S CURRENT QUERY: "{query}"
 DETECTED LANGUAGE: {language}
 LIST OF AVAILABLE AQUAFOREST PRODUCT NAMES:
 ---
@@ -44,55 +54,45 @@ LIST OF AVAILABLE AQUAFOREST PRODUCT NAMES:
 
 YOUR TASK (follow these steps precisely):
 
-1.  **Analyze the User's Intent:** What is the user's core question or problem? (e.g., "what is the dosage?", "how to solve high nitrates?", "what is this product for?").
+1.  **Analyze Context**: If the query contains references like "such", "that", "those", check the conversation history to understand what the user is referring to.
 
-2.  **Detect and Correct Product Name:**
+2.  **Identify Domain Context**: From the conversation, determine if discussing:
+    - Freshwater aquarium → add "freshwater" to queries
+    - Marine/saltwater aquarium → add "marine" or "saltwater" to queries
+    - General aquarium → no domain modifier needed
+
+3.  **Detect and Correct Product Name:**
     - Scan the original query for any mention of a product name.
-    - Use the provided list of product names to find the EXACT, CORRECT product name. Correct any typos, abbreviations, or variations (e.g., "amino mix" -> "AF Amino Mix", "ca +" -> "Ca plus").
+    - Use the provided list of product names to find the EXACT, CORRECT product name.
     - If no product name is mentioned, this is fine.
 
-3.  **Generate Optimized Search Queries (English ONLY):**
-    - Based on your analysis, generate a JSON array of 3-4 concise, effective search queries.
-    - **Follow this logic:**
-        - **IF a product name WAS DETECTED:**
-            - Your FIRST query should be the exact, corrected product name and nothing else.
-            - The other queries should combine the product name with the user's intent (e.g., "AF Amino Mix dosage", "AF Amino Mix how to use", "AF Amino Mix coral browning").
-        - **IF NO product name was detected:**
-            - Generate 3-4 variations of the user's problem in English (e.g., "how to reduce nitrates in reef tank", "nitrate reduction solutions", "best product for high nitrates").
+4.  **Generate Optimized Search Queries (English ONLY):**
+    - Generate 3-5 highly targeted queries based on context
+    - Include domain modifiers when context is clear
+    - For references like "such aquarium", expand based on conversation history
+    
+    Examples:
+    - If user discussed freshwater and asks about "supplements for such aquarium"
+      → ["freshwater aquarium supplements", "freshwater tank additives", "supplements for freshwater fish", "freshwater aquarium water conditioners"]
+    - If user asks about specific problem in context
+      → Include both general and context-specific queries
 
-4.  **Output Format:**
-    - Return ONLY a single, valid JSON object. Do not add any text before or after the JSON.
-    - The JSON object should have a single key "optimized_queries" containing an array of strings.
-
-EXAMPLE 1:
-User Query: "Jakie jest dawkowanie dla AF Amino Mix?"
-Your Output:
-{{
-    "optimized_queries": [
-        "AF Amino Mix",
-        "AF Amino Mix dosage",
-        "how to dose AF Amino Mix"
-    ]
-}}
-
-EXAMPLE 2:
-User Query: "Moje korale brązowieją"
-Your Output:
-{{
-    "optimized_queries": [
-        "corals turning brown",
-        "how to fix brown corals",
-        "coral browning problem solution"
-    ]
-}}
+5.  **Output Format:**
+    - Return ONLY a single, valid JSON object:
+    {{
+        "optimized_queries": ["query1", "query2", "query3", "query4"]
+    }}
 """
 
     def optimize(self, state: ConversationState) -> ConversationState:
         """Optimize query for better search results"""
         query = state["user_query"]
+        chat_history = state.get("chat_history", [])
         
         if TEST_ENV:
             print(f"\n🕵️ [DEBUG QueryOptimizer] Oryginalne zapytanie: '{query}'")
+            if chat_history:
+                print(f"📚 [DEBUG QueryOptimizer] Kontekst: ostatnie {len(chat_history[-4:])} wiadomości")
         
         try:
             response = self.client.chat.completions.create(
@@ -101,7 +101,7 @@ Your Output:
                 messages=[
                     {
                         "role": "system", 
-                        "content": self._create_optimization_prompt(query, state["detected_language"])
+                        "content": self._create_optimization_prompt(query, state["detected_language"], chat_history)
                     }
                 ],
                 response_format={"type": "json_object"}
