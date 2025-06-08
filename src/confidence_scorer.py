@@ -18,7 +18,7 @@ class ConfidenceScorer:
     def _create_evaluation_prompt(self, query: str, results: List[Dict]) -> str:
         # Format results for evaluation
         formatted_results = []
-        for i, result in enumerate(results[:5]):  # Top 5 for evaluation
+        for i, result in enumerate(results[:15]):  # Top 5 for evaluation
             meta = result['metadata']
             formatted_results.append(f"""
 Product {i+1}: {meta.get('product_name', 'Unknown')}
@@ -58,7 +58,7 @@ Return JSON with:
             return state
         
         # Factor 1: Semantic scores
-        scores = [r['score'] for r in state["search_results"][:5]]
+        scores = [r['score'] for r in state["search_results"][:15]]
         avg_score = sum(scores) / len(scores) if scores else 0
         
         # Quick confidence based on scores

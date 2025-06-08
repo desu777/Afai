@@ -11,28 +11,44 @@ from config import OPENAI_API_KEY, OPENAI_MODEL, OPENAI_TEMPERATURE
 class IntentDetector:
     def __init__(self):
         self.client = OpenAI(api_key=OPENAI_API_KEY)
-        self.system_prompt = """
-You are an intent and language detection system for Aquaforest aquarium products support.
+    
+    def _create_intent_prompt(self, state: ConversationState) -> str:
+        
+        chat_history_formatted = "\n".join([f"{msg['role']}: {msg['content']}" for msg in state.get("chat_history", [])])
 
-Detect the intent and language from user messages.
+        return f"""
+You are an intent and language detection system for Aquaforest aquarium products support.
+Your task is to analyze the user's LATEST message in the context of the conversation history.
+
+--- CONVERSATION HISTORY (for context) ---
+{chat_history_formatted}
+---
+LATEST USER MESSAGE: "{state['user_query']}"
+---
 
 INTENTS:
-1. "greeting" - greetings like "cześć", "siema", "hello", "hi", "dzień dobry"
-2. "business" - business inquiries: "współpraca", "partnership", "b2b", "dealer", "wholesale", "distributor"
-3. "calculator" - dosage calculations: "oblicz", "calculate", "ile potrzebuję", "how much do I need"
-4. "product_query" - questions about products, problems, solutions, symptoms in aquarium
-5. "competitor" - mentions of competitor brands: "Red Sea", "Seachem", "Brightwell", "Tropic Marin"
-6. "censored" - production methods, ingredients, formulas: "jak produkujecie", "składniki", "recepta", "formula", "production process"
-7. "other" - anything else that doesn't fit above categories
+1. "greeting": Standard greetings (e.g., "hello", "hi", "good morning").
+2. "business": Business inquiries (e.g., "partnership", "b2b", "wholesale").
+3. "calculator": Requests for dosage calculations (e.g., "calculate", "how much do I need").
+4. "product_query": Specific questions about products, aquarium problems, symptoms, or solutions. This is the most common intent.
+5. "purchase_inquiry": The user is asking where, how, or for how much they can buy a product (e.g., "how to buy", "price", "where can I get", "kupić", "cena", "zamówienie").
+6. "competitor": Mentions of competitor brands (e.g., "Red Sea", "Seachem", "Tropic Marin").
+7. "censored": Questions about proprietary information like product formulas or production processes.
+8. "follow_up": The user is asking a direct follow-up question about the assistant's PREVIOUS response. Examples:
+    - "Can you give me the link for that?"
+    - "What about the second product you mentioned?"
+    - "Tell me more."
+    - "Why do you recommend that one?"
+9. "other": Anything that doesn't fit the categories above.
 
-LANGUAGES: pl, en, de, fr, es, it (detect the primary language)
+LANGUAGES: Detect the primary language of the LATEST USER MESSAGE (pl, en, de, fr, es, it, etc.).
 
-Return ONLY valid JSON:
-{
+Return ONLY a valid JSON object with your analysis of the LATEST USER MESSAGE:
+{{
     "intent": "one_of_the_intents",
     "language": "detected_language_code",
     "confidence": 0.0-1.0
-}
+}}
 """
 
     def detect(self, state: ConversationState) -> ConversationState:
@@ -42,8 +58,7 @@ Return ONLY valid JSON:
                 model=OPENAI_MODEL,
                 temperature=OPENAI_TEMPERATURE,
                 messages=[
-                    {"role": "system", "content": self.system_prompt},
-                    {"role": "user", "content": state["user_query"]}
+                    {"role": "system", "content": self._create_intent_prompt(state)}
                 ],
                 response_format={"type": "json_object"}
             )

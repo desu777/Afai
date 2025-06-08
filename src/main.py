@@ -37,31 +37,18 @@ class AquaforestAssistant:
             print(f"Error processing query: {e}")
             return "I apologize, but I encountered an error. Please try again or contact support@aquaforest.eu"
     
-    def process_query_sync(self, user_query: str, debug: bool = False) -> str:
-        """Synchronous version for easier testing"""
-        # Initialize state
-        initial_state: ConversationState = {
-            "user_query": user_query,
-            "detected_language": "en",
-            "intent": "other",
-            "product_names": [],
-            "original_query": user_query,
-            "optimized_queries": [],
-            "search_results": [],
-            "confidence": 0.0,
-            "iteration": 0,
-            "final_response": "",
-            "escalate": False,
-            "domain_filter": None
-        }
-        
+    def process_query_sync(self, state: ConversationState, debug: bool = False) -> ConversationState:
+        """
+        Synchronous version for easier testing.
+        Accepts the full conversation state and returns the updated state.
+        """
         try:
+            # The user query is already in the state passed to this method
             if debug:
                 print("\n--- [WORKFLOW START] ---")
-                result = {}
                 final_chunk = None
                 # Use stream to get step-by-step execution
-                for chunk in self.workflow.stream(initial_state):
+                for chunk in self.workflow.stream(state):
                     node_name = list(chunk.keys())[0]
                     print(f"-> Executed node: '{node_name}'")
                     final_chunk = chunk
@@ -70,30 +57,56 @@ class AquaforestAssistant:
                     result = final_chunk["__end__"]
                 else:
                     print("[ERROR] Workflow did not finish correctly.")
-                    return "I apologize, but an error occurred during the workflow."
+                    state["final_response"] = "I apologize, but an error occurred during the workflow."
+                    return state
 
                 print("--- [WORKFLOW END] ---\n")
 
             else:
                 # Run the workflow without streaming logs
-                result = self.workflow.invoke(initial_state)
+                result = self.workflow.invoke(state)
             
-            return result["final_response"]
+            # Before returning, update the chat history with the latest turn
+            result["chat_history"].append({"role": "user", "content": state["user_query"]})
+            result["chat_history"].append({"role": "assistant", "content": result["final_response"]})
+            
+            return result
         except Exception as e:
             print(f"Error processing query: {e}")
             import traceback
             traceback.print_exc()
-            return "I apologize, but I encountered an error. Please try again or contact support@aquaforest.eu"
+            state["final_response"] = "I apologize, but I encountered an error. Please try again or contact support@aquaforest.eu"
+            return state
 
 def main():
     """Main entry point for testing"""
     assistant = AquaforestAssistant()
     
     print("🐠 Aquaforest AI Assistant")
-    print("Type 'quit' to exit, 'debug' to toggle debug mode\n")
+    print("Type 'quit' to exit, 'debug' to toggle debug mode, 'new' to start a new conversation\n")
     
     debug_mode = False
     
+    def get_new_state() -> ConversationState:
+        return {
+            "user_query": "",
+            "detected_language": "en",
+            "intent": "other",
+            "product_names": [],
+            "original_query": "",
+            "optimized_queries": [],
+            "search_results": [],
+            "confidence": 0.0,
+            "iteration": 0,
+            "final_response": "",
+            "escalate": False,
+            "domain_filter": None,
+            "chat_history": [],
+            "context_cache": []
+        }
+
+    conversation_state = get_new_state()
+
     while True:
         user_input = input("You: ").strip()
         
@@ -103,15 +116,31 @@ def main():
             
         if user_input.lower() == 'debug':
             debug_mode = not debug_mode
-            print(f"Debug mode: {'ON' if debug_mode else 'OFF'}")
+            print(f"Debug mode is now {'ON' if debug_mode else 'OFF'}")
             continue
-            
+
+        if user_input.lower() == 'new':
+            print("\n--- Starting new conversation ---")
+            conversation_state = get_new_state()
+            continue
+
         if not user_input:
             continue
             
+        # Update state for the new turn
+        conversation_state["user_query"] = user_input
+        # Reset iteration count for the new turn
+        conversation_state["iteration"] = 0
+
         print("\nAssistant: ", end="", flush=True)
-        response = assistant.process_query_sync(user_input, debug=debug_mode)
-        print(response)
+        
+        # Process the query using the current state and get the updated state back
+        updated_state = assistant.process_query_sync(conversation_state, debug=debug_mode)
+        
+        # The new state for the next turn is the result of the previous one
+        conversation_state = updated_state
+        
+        print(conversation_state.get("final_response", "No response generated."))
         print("\n" + "-"*50 + "\n")
 
 async def async_main():

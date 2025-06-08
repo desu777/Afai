@@ -11,8 +11,10 @@ class Intent(str, Enum):
     BUSINESS = "business"
     CALCULATOR = "calculator"
     PRODUCT_QUERY = "product_query"
+    PURCHASE_INQUIRY = "purchase_inquiry"
     COMPETITOR = "competitor"
     CENSORED = "censored"
+    FOLLOW_UP = "follow_up"
     OTHER = "other"
 
 class Domain(str, Enum):
@@ -33,6 +35,8 @@ class ConversationState(TypedDict):
     final_response: str
     escalate: bool
     domain_filter: Optional[Domain]
+    chat_history: List[Dict[str, str]]
+    context_cache: List[Dict[str, Any]]
 
 class SearchResult(BaseModel):
     """Pinecone search result with metadata"""
