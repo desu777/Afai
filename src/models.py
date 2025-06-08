@@ -20,6 +20,7 @@ class Intent(str, Enum):
 class Domain(str, Enum):
     SEAWATER = "seawater"
     FRESHWATER = "freshwater"
+    UNIVERSAL = "universal"
 
 class ConversationState(TypedDict):
     """State object that flows through the LangGraph workflow"""
@@ -31,6 +32,7 @@ class ConversationState(TypedDict):
     optimized_queries: List[str]
     search_results: List[Dict[str, Any]]
     confidence: float
+    evaluation_reasoning: str
     iteration: int
     final_response: str
     escalate: bool
@@ -62,6 +64,8 @@ class IntentDetectionResult(BaseModel):
     language: str
     confidence: float = Field(ge=0, le=1)
 
+# --- BRAKUJĄCA KLASA ---
+# Ta definicja została przez pomyłkę usunięta
 class ProductInfo(BaseModel):
     """Product information from search results"""
     content_type: str
@@ -80,6 +84,7 @@ class ProductInfo(BaseModel):
     url_en: str
     url_pl: Optional[str] = None
     score: float = Field(ge=0, le=1)
+# --- KONIEC BRAKUJĄCEJ KLASY ---
 
 class QueryOptimizationResult(BaseModel):
     """Result from query optimization"""

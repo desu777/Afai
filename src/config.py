@@ -8,6 +8,11 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+# --- DEBUG ---
+# Add test environment flag
+TEST_ENV = os.getenv("TEST_ENV", "false").lower() == "true"
+# --- END DEBUG ---
+
 # Pinecone Configuration
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "aqua")
@@ -23,8 +28,8 @@ OPENAI_TEMPERATURE = float(os.getenv("OPENAI_TEMPERATURE", "0.3"))
 # App Configuration
 DEFAULT_K_VALUE = int(os.getenv("DEFAULT_K_VALUE", "15"))
 ENHANCED_K_VALUE = int(os.getenv("ENHANCED_K_VALUE", "20"))
-CONFIDENCE_THRESHOLD_HIGH = float(os.getenv("CONFIDENCE_THRESHOLD_HIGH", "0.65"))
-CONFIDENCE_THRESHOLD_LOW = float(os.getenv("CONFIDENCE_THRESHOLD_LOW", "0.5"))
+# Ten próg jest teraz używany w nowej, uproszczonej logice routingu
+CONFIDENCE_THRESHOLD = float(os.getenv("CONFIDENCE_THRESHOLD", "0.6"))
 SUPPORTED_LANGUAGES = os.getenv("SUPPORTED_LANGUAGES", "pl,en,de,fr,es,it").split(",")
 
 # Paths

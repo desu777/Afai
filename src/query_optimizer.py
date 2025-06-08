@@ -1,33 +1,23 @@
 """
-Query Optimization Module
+Query Optimization Module - Wersja 2.0
 Optimizes user queries for better search results
 """
 import json
 from typing import List, Dict
 from openai import OpenAI
 from models import ConversationState, QueryOptimizationResult
-from config import OPENAI_API_KEY, OPENAI_MODEL, OPENAI_TEMPERATURE, PRODUCTS_FILE_PATH
+from config import OPENAI_API_KEY, OPENAI_MODEL, OPENAI_TEMPERATURE, PRODUCTS_FILE_PATH, TEST_ENV
 
 class QueryOptimizer:
     def __init__(self):
         self.client = OpenAI(api_key=OPENAI_API_KEY)
         self.product_names = self._load_product_names()
         self.common_mistakes = {
-            # Common user mistakes → correct product names
-            "bio s": "Pro Bio S",
-            "np pro": "-NP Pro",
-            "amino mix": "AF Amino Mix",
-            "ca+": "Ca plus",
-            "ca +": "Ca plus",
-            "nitraphos": "AF NitraPhos Minus",
+            "bio s": "Pro Bio S", "np pro": "-NP Pro", "amino mix": "AF Amino Mix",
+            "ca+": "Ca plus", "ca +": "Ca plus", "nitraphos": "AF NitraPhos Minus",
             "component abc": ["Component A", "Component B", "Component C"],
-            # Polish translations
-            "wapń": "calcium",
-            "azotany": "nitrates", 
-            "fosforany": "phosphates",
-            "glony": "algae",
-            "koralowce": "corals",
-            "brązowieją": "brown turning brown",
+            "wapń": "calcium", "azotany": "nitrates", "fosforany": "phosphates",
+            "glony": "algae", "koralowce": "corals", "brązowieją": "brown turning brown",
             "brązowe": "brown",
         }
         
@@ -36,49 +26,64 @@ class QueryOptimizer:
         try:
             with open(PRODUCTS_FILE_PATH, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                return data  # Now it's a simple array of strings
+                return data
         except Exception as e:
             print(f"Error loading products: {e}")
             return []
     
     def _create_optimization_prompt(self, query: str, language: str) -> str:
-        # Convert common_mistakes to a readable string format for the prompt
-        mistakes_examples = "\n".join([f'- "{k}" -> "{v if not isinstance(v, list) else " ".join(v)}"' for k, v in self.common_mistakes.items()])
-
         return f"""
-You are an intelligent query optimizer for the Aquaforest aquarium products search system.
-Your goal is to correct, translate, and expand the user's query to improve search accuracy.
+You are an expert query analysis system for the Aquaforest search engine. Your task is to extract key information from the user's query and generate a set of highly effective, English-only search queries.
 
 USER'S ORIGINAL QUERY: "{query}"
 DETECTED LANGUAGE: {language}
-
-Here is the complete list of AVAILABLE AQUAFOREST PRODUCT NAMES:
+LIST OF AVAILABLE AQUAFOREST PRODUCT NAMES:
 ---
 {', '.join(self.product_names)}
 ---
 
-TASK:
-1.  **Analyze the original query:** Understand the user's core problem (e.g., high nitrates, algae, coral health).
-2.  **Translate to English:** If the query is not in English, translate the problem description, but NEVER translate the product names.
-3.  **Correct and Normalize Product Names:**
-    -   If you see a product name mentioned, ensure it EXACTLY matches one from the provided list.
-    -   Fix common typos, abbreviations, or mistakes. Here are some examples of corrections:
-{mistakes_examples}
-4.  **Enrich General Queries:** For broad, non-product-specific questions, add descriptive hints to guide the search. For example:
-    - If the user asks "how to set up an aquarium" or "getting started guide", enrich the query with terms like `(guide, tutorial, how to start, setup)`.
-    - If the user asks "what aquariums do you offer" or "aquarium models", enrich the query with terms like `(AF OceanGuard Aquarium Set, aquarium models and versions)`.
-    - If the user asks about "supplements for corals", enrich with `(supplements, coral care, dosing)`.
-5.  **Create Optimized Queries:** Generate 2-3 concise, optimized search queries in English. These queries should focus on the core problem and the corrected product names.
-    -   Good queries are 2-6 words long.
-    -   Combine problems with solutions (e.g., "nitrate reduction -NP Pro", "boost coral color AF Amino Mix").
+YOUR TASK (follow these steps precisely):
 
-OUTPUT FORMAT:
-Return a single, valid JSON object with the following structure. Do not add any text before or after the JSON.
+1.  **Analyze the User's Intent:** What is the user's core question or problem? (e.g., "what is the dosage?", "how to solve high nitrates?", "what is this product for?").
+
+2.  **Detect and Correct Product Name:**
+    - Scan the original query for any mention of a product name.
+    - Use the provided list of product names to find the EXACT, CORRECT product name. Correct any typos, abbreviations, or variations (e.g., "amino mix" -> "AF Amino Mix", "ca +" -> "Ca plus").
+    - If no product name is mentioned, this is fine.
+
+3.  **Generate Optimized Search Queries (English ONLY):**
+    - Based on your analysis, generate a JSON array of 3-4 concise, effective search queries.
+    - **Follow this logic:**
+        - **IF a product name WAS DETECTED:**
+            - Your FIRST query should be the exact, corrected product name and nothing else.
+            - The other queries should combine the product name with the user's intent (e.g., "AF Amino Mix dosage", "AF Amino Mix how to use", "AF Amino Mix coral browning").
+        - **IF NO product name was detected:**
+            - Generate 3-4 variations of the user's problem in English (e.g., "how to reduce nitrates in reef tank", "nitrate reduction solutions", "best product for high nitrates").
+
+4.  **Output Format:**
+    - Return ONLY a single, valid JSON object. Do not add any text before or after the JSON.
+    - The JSON object should have a single key "optimized_queries" containing an array of strings.
+
+EXAMPLE 1:
+User Query: "Jakie jest dawkowanie dla AF Amino Mix?"
+Your Output:
 {{
-    "original_query": "{query}",
-    "optimized_queries": ["english_query_1", "english_query_2", "english_query_3"],
-    "detected_products": ["list of exact product names found in the query"],
-    "detected_problems": ["list of key problems/symptoms identified"]
+    "optimized_queries": [
+        "AF Amino Mix",
+        "AF Amino Mix dosage",
+        "how to dose AF Amino Mix"
+    ]
+}}
+
+EXAMPLE 2:
+User Query: "Moje korale brązowieją"
+Your Output:
+{{
+    "optimized_queries": [
+        "corals turning brown",
+        "how to fix brown corals",
+        "coral browning problem solution"
+    ]
 }}
 """
 
@@ -86,8 +91,8 @@ Return a single, valid JSON object with the following structure. Do not add any 
         """Optimize query for better search results"""
         query = state["user_query"]
         
-        # The string replacement logic is now removed.
-        # The LLM will handle corrections based on the improved prompt.
+        if TEST_ENV:
+            print(f"\n🕵️ [DEBUG QueryOptimizer] Oryginalne zapytanie: '{query}'")
         
         try:
             response = self.client.chat.completions.create(
@@ -104,19 +109,18 @@ Return a single, valid JSON object with the following structure. Do not add any 
             
             result = json.loads(response.choices[0].message.content)
             
-            # Update state
             state["original_query"] = query
             state["optimized_queries"] = result.get("optimized_queries", [query])
             
-            # Add the original query if not in English
-            if state["detected_language"] != "en":
-                state["optimized_queries"].append(query)
+            if TEST_ENV:
+                print(f"✅ [DEBUG QueryOptimizer] Zoptymalizowane zapytania do Pinecone: {state['optimized_queries']}")
                 
         except Exception as e:
             print(f"Query optimization error: {e}")
-            # Fallback
             state["original_query"] = query
             state["optimized_queries"] = [query]
+            if TEST_ENV:
+                print(f"⚠️ [DEBUG QueryOptimizer] Błąd optymalizacji, użyto oryginalnego zapytania: {[query]}")
             
         return state
 
