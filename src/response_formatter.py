@@ -1,7 +1,7 @@
 """
-Response Formatting Module - Wersja 2.2
+Response Formatting Module - Wersja 2.3 with Debug
 Formats final response with proper language and structure
-Enhanced with special intent handlers
+Enhanced with special intent handlers and debugging
 """
 from typing import List, Dict, Any
 from openai import OpenAI
@@ -22,9 +22,14 @@ class ResponseFormatter:
         lang = state.get("detected_language", "en")
         intent = state.get("intent", "product_query")
         
+        if TEST_ENV:
+            print(f"\n📝 [DEBUG ResponseFormatter] Formatting response for intent='{intent}', language='{lang}'")
+        
         # Handle special intents first
         if intent in [Intent.GREETING, Intent.BUSINESS, Intent.CALCULATOR, 
                      Intent.PURCHASE_INQUIRY, Intent.COMPETITOR, Intent.CENSORED]:
+            if TEST_ENV:
+                print(f"🎭 [DEBUG ResponseFormatter] Handling special intent: {intent}")
             return self._create_special_intent_prompt(state)
         
         # Format conversation history for context
@@ -38,6 +43,9 @@ class ResponseFormatter:
         # Original product query handling
         results_info = []
         if state.get("search_results"):
+            if TEST_ENV:
+                print(f"📊 [DEBUG ResponseFormatter] Formatting {len(state.get('search_results', []))} search results")
+            
             # Show all 15 results to give LLM more context
             for i, p in enumerate(state["search_results"][:15]):
                 meta = p.get('metadata', {})
@@ -47,15 +55,20 @@ class ResponseFormatter:
                     f"  - Name: {meta.get('product_name', 'N/A')}\n"
                     f"  - Type: {meta.get('content_type', 'N/A')}\n"
                     f"  - Domain: {meta.get('domain', 'N/A')}\n"
-                    f"  - Description: {meta.get(f'title_{lang}', meta.get('title_en', ''))}\n"
+                    f"  - Description: {meta.get('title_en', '')}\n"
                     f"  - Dosage: {meta.get('dosage_amount', 'N/A')} per {meta.get('dosage_volume', 'N/A')} {meta.get('dosage_frequency', '').replace('_', ' ')}\n"
                     f"  - URL: {url}\n"
                     f"  - Score: {p.get('score', 0):.3f}\n"
                 )
         formatted_search_results = "\n".join(results_info) if results_info else "No search results found."
 
+        if TEST_ENV:
+            print(f"💭 [DEBUG ResponseFormatter] Confidence: {state.get('confidence', 0.0):.2f}")
+            if state.get('evaluation_reasoning'):
+                print(f"🧐 [DEBUG ResponseFormatter] Reasoning: {state.get('evaluation_reasoning', 'N/A')[:100]}...")
+
         return f"""
-You are AF AI, a friendly and professional assistant for Aquaforest. Your responses must be helpful, accurate, and always in the detected language: "{lang}".
+You are AF AI, a friendly and professional assistant for Aquaforest. Generate response in {lang} language.
 
 --- CONVERSATION HISTORY ---
 {chat_history_formatted}
@@ -63,9 +76,9 @@ You are AF AI, a friendly and professional assistant for Aquaforest. Your respon
 
 --- CURRENT CONTEXT ---
 User's Query: "{state.get('original_query', '')}"
-Detected Language: "{lang}"
-Search Results Confidence (from your own evaluation): {state.get('confidence', 0.0):.2f}
-Your Reasoning: "{state.get('evaluation_reasoning', 'N/A')}"
+Response Language: "{lang}"
+Search Results Confidence: {state.get('confidence', 0.0):.2f}
+Evaluation Reasoning: "{state.get('evaluation_reasoning', 'N/A')}"
 
 --- ALL 15 SEARCH RESULTS ---
 {formatted_search_results}
@@ -95,31 +108,22 @@ TASK: Generate the best possible response based on the context and conversation 
 
 Your primary goal is to act as an expert Aquaforest consultant. You must synthesize a helpful, structured, and comprehensive answer from the provided search results.
 
-1.  **Content-Type Priority (Non-Negotiable Rule):**
-    -   Your recommendations **MUST** be based on items with `content_type: 'product'`.
-    -   If you find a relevant result with `content_type: 'knowledge'`, you may mention it at the very end of your response as "Warto również przeczytać:" or "For further reading:", but **NEVER** list it as if it's a purchasable product.
+1. **Content-Type Priority**:
+   - Your recommendations MUST be based on items with content_type: 'product'
+   - If you find relevant 'knowledge' content, mention it at the end as "For further reading:"
 
-2.  **Synthesizing Answers for High Confidence (>= 0.6):**
-    -   **For "list" or "what do you have" queries (e.g., "jakie macie sole?"):**
-        -   List **ALL** relevant products found in the search results.
-        -   **Structure your answer by grouping similar products.** For example: "Oferujemy kilka rodzajów soli, które można podzielić na następujące kategorie:".
-        -   For each product, state its name in **bold**, briefly explain its primary use, and provide the URL.
-    -   **For "comparison" queries (e.g., "czym się różnią?"):**
-        -   You **MUST** synthesize a comparison based on the `Description` of each relevant product found in the results.
-        -   Explain the key differences. Example: "**Sea Salt** to nasza podstawowa sól, idealna do..., podczas gdy **Reef Salt** zawiera dodatkowo..., co sprawia, że jest lepsza dla...".
-    -   **Nuanced Framing (Add-ons & Alternatives):**
-        -   If a product is related but not a direct answer (e.g., user asks for dry salt mix, and you find ready-to-use water like **AF Perfect Water**), you MUST frame it correctly.
-        -   Present it at the end of the relevant list as a "Wygodna alternatywa:" or a "Ciekawy produkt dodatkowy:".
+2. **For High Confidence (>= 0.6)**:
+   - List ALL relevant products found in search results
+   - Structure answers by grouping similar products
+   - For each product: name in **bold**, brief explanation, and URL
+   - For comparisons: synthesize based on product descriptions
 
-3.  **Handling Low Confidence (< 0.6) or Escalation:**
-    -   Do NOT recommend any products.
-    -   Politely inform the user that you couldn't find a certain answer.
-    -   Provide the official support channels: Email `support@aquaforest.eu` and Phone `+48 14 691 79 79`.
+3. **For Low Confidence (< 0.6) or Escalation**:
+   - Do NOT recommend any products
+   - Politely inform user you couldn't find a certain answer
+   - Provide support channels: support@aquaforest.eu and +48 14 691 79 79
 
-4.  **Handling Special Intents (Highest Priority):**
-    -   Follow the specific instructions for `greeting`, `business`, `purchase_inquiry`, `calculator`, etc., as defined previously.
-
---- FINAL RESPONSE (in {lang} only) ---
+--- GENERATE RESPONSE IN {lang.upper()} ---
 """
 
     def _create_special_intent_prompt(self, state: ConversationState) -> str:
@@ -128,85 +132,107 @@ Your primary goal is to act as an expert Aquaforest consultant. You must synthes
         intent = state.get("intent", "other")
         user_query = state.get("user_query", "")
         
+        if TEST_ENV:
+            print(f"🎯 [DEBUG ResponseFormatter] Creating prompt for special intent: {intent}")
+            if state.get('context_cache'):
+                print(f"📦 [DEBUG ResponseFormatter] Context cache contains {len(state.get('context_cache', []))} products")
+                for i, item in enumerate(state.get('context_cache', [])[:3]):
+                    print(f"   - {item.get('product_name', 'Unknown')}")
+        
         intent_instructions = {
             Intent.GREETING: f"""
 You are AF AI, Aquaforest's friendly assistant. The user just greeted you.
-User said: "{user_query}" in language: {lang}
+User said: "{user_query}"
 
-Respond warmly in {lang}:
+Respond warmly:
 - Greet them back and introduce yourself as AF AI assistant
 - Ask how you can help them today
-- Suggest they can ask about specific products or aquarium problems they're facing
+- Suggest they can ask about specific products or aquarium problems
 - Keep it friendly, concise (2-3 sentences)
+
+Generate greeting in {lang} language.
 """,
 
             Intent.BUSINESS: f"""
 You are AF AI. The user is interested in business cooperation.
-User said: "{user_query}" in language: {lang}
+User said: "{user_query}"
 
-Respond professionally in {lang}:
+Respond professionally:
 - Thank them warmly for their interest in cooperation
 - Provide the contact form link:
   {"https://aquaforest.eu/pl/kontakt/" if lang == "pl" else "https://aquaforest.eu/en/contact-us/"}
 - Mention our business hotline: (+48) 14 691 79 79 (Monday-Friday, 8:00-16:00)
 - Note that our specialists are ready to provide full support
-- Be encouraging and professional
+
+Generate response in {lang} language.
 """,
 
             Intent.CALCULATOR: f"""
 You are AF AI. The user is asking about dosage calculations.
-User said: "{user_query}" in language: {lang}
+User said: "{user_query}"
 
-Respond in {lang}:
+Respond:
 - Acknowledge their interest in dosage calculations
-- Inform them that we're building something special/deep for this feature
+- Inform them that we're building something special for this feature
 - Express that it's coming soon
 - Be positive and build anticipation
+
+Generate response in {lang} language.
 """,
 
             Intent.PURCHASE_INQUIRY: f"""
 You are AF AI. The user is asking about purchasing/buying products.
-User said: "{user_query}" in language: {lang}
+User said: "{user_query}"
 
-Respond helpfully in {lang}:
+IMPORTANT: Analyze the conversation history to understand what product they want to buy!
+{f"Recent context shows discussion about: {state.get('context_cache', [{}])[0].get('product_name', 'products')}" if state.get('context_cache') else ""}
+
+Respond helpfully:
+- First, acknowledge what specific product they want to purchase (based on conversation context)
 - Explain that Aquaforest doesn't sell directly, only through authorized dealers
 - Direct them to our dealer map:
   {"https://aquaforest.eu/pl/gdzie-kupic/" if lang == "pl" else "https://aquaforest.eu/en/where-to-buy/"}
-- Be helpful and informative
+- Be helpful and specific about the product they're interested in
+
+Generate response in {lang} language.
 """,
 
             Intent.COMPETITOR: f"""
 You are AF AI. The user mentioned a competitor.
-User said: "{user_query}" in language: {lang}
+User said: "{user_query}"
 
-Respond playfully in {lang} with just: "Who is this? ;)"
+Respond playfully with just: "Who is this? ;)"
 Keep it light and humorous.
+
+Generate response in {lang} language.
 """,
 
             Intent.CENSORED: f"""
-You are AF AI. The user is asking about proprietary information (formulas, production secrets).
-User said: "{user_query}" in language: {lang}
+You are AF AI. The user is asking about proprietary information.
+User said: "{user_query}"
 
-Respond politely in {lang}:
+Respond politely:
 - Explain that this information is a company secret
 - Be polite but firm
 - You can suggest they contact support for general product information
+
+Generate response in {lang} language.
 """
         }
         
         base_prompt = f"""
 You are AF AI, a friendly and professional assistant for Aquaforest.
-Your response MUST be in {lang} language.
 
 {intent_instructions.get(intent, "Respond helpfully to the user's query.")}
-
-Generate your response in {lang}:
 """
         
         return base_prompt
 
     def format_response(self, state: ConversationState) -> ConversationState:
         try:
+            if TEST_ENV:
+                print(f"\n🔨 [DEBUG ResponseFormatter] Generating final response...")
+                
             prompt = self._create_universal_prompt(state)
             response = self.client.chat.completions.create(
                 model=OPENAI_MODEL,
@@ -214,18 +240,30 @@ Generate your response in {lang}:
                 messages=[{"role": "system", "content": prompt}]
             )
             state["final_response"] = response.choices[0].message.content
+            
+            if TEST_ENV:
+                print(f"✅ [DEBUG ResponseFormatter] Response generated ({len(state['final_response'])} characters)")
+            
             if state.get("search_results"):
                 state["context_cache"] = [r['metadata'] for r in state["search_results"][:5]]
+                if TEST_ENV:
+                    print(f"💾 [DEBUG ResponseFormatter] Saved {len(state['context_cache'])} products to cache")
+                    
         except Exception as e:
             print(f"Universal formatting error: {e}")
+            if TEST_ENV:
+                print(f"❌ [DEBUG ResponseFormatter] Formatting error: {e}")
             state["final_response"] = "I apologize, but I encountered an error while formulating my response. Please contact our support team at support@aquaforest.eu for assistance."
         return state
 
-# --- UZUPEŁNIONA FUNKCJA ---
 def _create_follow_up_prompt(state: ConversationState) -> str:
     """Creates a prompt to answer a follow-up question using cached context."""
     lang = state.get("detected_language", "en")
     chat_history_formatted = "\n".join([f"{msg['role']}: {msg['content']}" for msg in state.get("chat_history", [])])
+    
+    if TEST_ENV:
+        print(f"\n🔄 [DEBUG Follow-up] Creating prompt for follow-up in language: {lang}")
+        print(f"📦 [DEBUG Follow-up] Cache contains {len(state.get('context_cache', []))} items")
     
     # Format the cache to be more readable for the LLM
     cached_context_info = []
@@ -235,12 +273,12 @@ def _create_follow_up_prompt(state: ConversationState) -> str:
                 f"Item {i+1}:\n"
                 f"  - Name: {meta.get('product_name', 'N/A')}\n"
                 f"  - Domain: {meta.get('domain', 'N/A')}\n"
-                f"  - Description: {meta.get(f'title_{lang}', meta.get('title_en', ''))}\n"
+                f"  - Description: {meta.get('title_en', '')}\n"
             )
     cached_context_formatted = "\n".join(cached_context_info)
 
     return f"""
-You are AF AI, an Aquaforest assistant. Your task is to answer a follow-up question based on the provided conversation history and cached information from the previous turn.
+You are AF AI, an Aquaforest assistant. Answer a follow-up question based on conversation history and cached information.
 
 --- CONVERSATION HISTORY ---
 {chat_history_formatted}
@@ -253,12 +291,12 @@ LATEST USER MESSAGE: "{state['user_query']}"
 ---
 
 TASK:
-1.  Analyze the "LATEST USER MESSAGE". It's a direct response to your previous question.
-2.  Filter the "CACHED INFORMATION" based on the user's new input. For example, if the user says "freshwater", filter for items where Domain is 'freshwater' or 'universal'.
-3.  Generate a concise and helpful response in the user's language ({lang}), recommending the filtered products.
-4.  If the cached information is insufficient, politely say that you don't have enough details and suggest rephrasing or asking a new question.
+1. Analyze the LATEST USER MESSAGE as a direct response to your previous question
+2. Filter the CACHED INFORMATION based on user's new input
+3. Generate a helpful response, recommending the filtered products
+4. If cached information is insufficient, politely suggest rephrasing
 
---- FINAL RESPONSE (in {lang} only) ---
+Generate response in {lang} language.
 """
 
 def format_final_response(state: ConversationState) -> ConversationState:
@@ -266,12 +304,17 @@ def format_final_response(state: ConversationState) -> ConversationState:
     return formatter.format_response(state)
 
 def escalate_to_human(state: ConversationState) -> ConversationState:
+    if TEST_ENV:
+        print(f"\n🚨 [DEBUG Escalate] Escalating to support (confidence < threshold)")
     state["escalate"] = True
     formatter = ResponseFormatter()
     return formatter.format_response(state)
 
 def handle_follow_up(state: ConversationState) -> ConversationState:
     """Node function for LangGraph - handles follow-up questions using cached context."""
+    if TEST_ENV:
+        print(f"\n🔄 [DEBUG Follow-up Handler] Handling follow-up question")
+        
     try:
         client = OpenAI(api_key=OPENAI_API_KEY)
         prompt = _create_follow_up_prompt(state)
@@ -283,8 +326,14 @@ def handle_follow_up(state: ConversationState) -> ConversationState:
             ]
         )
         state["final_response"] = response.choices[0].message.content
+        
+        if TEST_ENV:
+            print(f"✅ [DEBUG Follow-up Handler] Response generated")
+            
     except Exception as e:
         print(f"Follow-up handling error: {e}")
+        if TEST_ENV:
+            print(f"❌ [DEBUG Follow-up Handler] Error: {e}")
         state["final_response"] = "I'm sorry, I had trouble processing that. Could you please rephrase?"
         
     return state

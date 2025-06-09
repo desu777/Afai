@@ -9,8 +9,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # --- DEBUG ---
-# Add test environment flag
+# Add test environment flag - can be dynamically changed
 TEST_ENV = os.getenv("TEST_ENV", "false").lower() == "true"
+
+# Debug print function
+def debug_print(message: str, emoji: str = "🔍"):
+    """Print debug message if TEST_ENV is True"""
+    if TEST_ENV:
+        print(f"{emoji} {message}")
 # --- END DEBUG ---
 
 # Pinecone Configuration
@@ -40,3 +46,17 @@ if not PINECONE_API_KEY:
     raise ValueError("PINECONE_API_KEY is required")
 if not OPENAI_API_KEY:
     raise ValueError("OPENAI_API_KEY is required")
+
+# Print configuration status on import (only in debug mode)
+if TEST_ENV:
+    print("\n" + "="*60)
+    print("🔧 CONFIGURATION LOADED")
+    print("="*60)
+    print(f"📍 Debug Mode: ENABLED")
+    print(f"📍 OpenAI Model: {OPENAI_MODEL}")
+    print(f"📍 Embedding Model: {OPENAI_EMBEDDING_MODEL}")
+    print(f"📍 Pinecone Index: {PINECONE_INDEX_NAME}")
+    print(f"📍 Default K Value: {DEFAULT_K_VALUE}")
+    print(f"📍 Confidence Threshold: {CONFIDENCE_THRESHOLD}")
+    print(f"📍 Supported Languages: {', '.join(SUPPORTED_LANGUAGES)}")
+    print("="*60 + "\n")

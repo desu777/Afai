@@ -62,8 +62,12 @@ Return JSON with:
         """Calculate confidence score for search results using LLM evaluation with context."""
         if not state.get("search_results"):
             state["confidence"] = 0.0
-            if TEST_ENV: print("\n🤔 [DEBUG ConfidenceScorer] Brak wyników, pewność: 0.0")
+            if TEST_ENV: 
+                print("\n🤔 [DEBUG ConfidenceScorer] No search results, confidence: 0.0")
             return state
+        
+        if TEST_ENV:
+            print(f"\n📊 [DEBUG ConfidenceScorer] Evaluating {len(state.get('search_results', []))} results for query: '{state.get('original_query', '')}'")
         
         try:
             response = self.client.chat.completions.create(
@@ -91,11 +95,17 @@ Return JSON with:
                 state["context_warning"] = evaluation["context_mismatch"]
             
             if TEST_ENV:
-                print(f"\n🤖 [DEBUG ConfidenceScorer] Ocena LLM z kontekstem: {evaluation}")
-                print(f"✅ [DEBUG ConfidenceScorer] Finalna obliczona pewność: {state['confidence']:.4f}")
+                print(f"\n🤖 [DEBUG ConfidenceScorer] LLM evaluation with context:")
+                print(f"   - Confidence: {evaluation.get('confidence', 0.0)}")
+                print(f"   - Best matches: {evaluation.get('best_matches', [])}")
+                if evaluation.get('context_mismatch'):
+                    print(f"   - Context mismatch: {evaluation['context_mismatch']}")
+                print(f"✅ [DEBUG ConfidenceScorer] Final calculated confidence: {state['confidence']:.4f}")
 
         except Exception as e:
             print(f"LLM evaluation error: {e}")
+            if TEST_ENV:
+                print(f"❌ [DEBUG ConfidenceScorer] LLM evaluation error: {e}")
             state["confidence"] = 0.0
         
         return state
@@ -109,8 +119,10 @@ def route_based_on_confidence(state: ConversationState) -> str:
     confidence = state.get("confidence", 0.0)
     
     if confidence >= CONFIDENCE_THRESHOLD:
-        if TEST_ENV: print(f"🗺️ [DEBUG] Decyzja routingu: 'format_response' (pewność {confidence:.2f} >= {CONFIDENCE_THRESHOLD})")
+        if TEST_ENV: 
+            print(f"🗺️ [DEBUG] Routing decision: 'format_response' (confidence {confidence:.2f} >= {CONFIDENCE_THRESHOLD})")
         return "format_response"
     else:
-        if TEST_ENV: print(f"🗺️ [DEBUG] Decyzja routingu: 'escalate_support' (pewność {confidence:.2f} < {CONFIDENCE_THRESHOLD})")
+        if TEST_ENV: 
+            print(f"🗺️ [DEBUG] Routing decision: 'escalate_support' (confidence {confidence:.2f} < {CONFIDENCE_THRESHOLD})")
         return "escalate_support"
