@@ -103,7 +103,6 @@ Return JSON with:
                 print(f"✅ [DEBUG ConfidenceScorer] Final calculated confidence: {state['confidence']:.4f}")
 
         except Exception as e:
-            print(f"LLM evaluation error: {e}")
             if TEST_ENV:
                 print(f"❌ [DEBUG ConfidenceScorer] LLM evaluation error: {e}")
             state["confidence"] = 0.0

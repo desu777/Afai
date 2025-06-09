@@ -57,9 +57,10 @@ class AquaforestAssistant:
             
             return result
         except Exception as e:
-            print(f"\n❌ Error processing query: {e}")
-            import traceback
-            traceback.print_exc()
+            if debug:  # Only show errors in debug mode
+                print(f"\n❌ [DEBUG Main] Error processing query: {e}")
+                import traceback
+                traceback.print_exc()
             state["final_response"] = "I apologize, but I encountered an error. Please try again or contact support@aquaforest.eu"
             return state
         finally:
@@ -147,10 +148,13 @@ def main():
             print("\n\n⚠️  Interrupted by user. Type 'quit' to exit properly.")
             continue
         except Exception as e:
-            print(f"\n❌ Unexpected error: {e}")
-            import traceback
-            traceback.print_exc()
-            print("\nTrying to continue...")
+            if debug_mode:  # Only show errors in debug mode
+                print(f"\n❌ [DEBUG Main] Unexpected error: {e}")
+                import traceback
+                traceback.print_exc()
+                print("\nTrying to continue...")
+            else:
+                print("\nAn error occurred. Trying to continue...")
 
 if __name__ == "__main__":
     main()

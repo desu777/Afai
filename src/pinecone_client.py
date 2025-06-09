@@ -9,7 +9,7 @@ from models import ConversationState, SearchResult, Domain
 from config import (
     PINECONE_API_KEY, PINECONE_INDEX_NAME, PINECONE_ENVIRONMENT,
     OPENAI_API_KEY, OPENAI_EMBEDDING_MODEL,
-    DEFAULT_K_VALUE, ENHANCED_K_VALUE, TEST_ENV
+    DEFAULT_K_VALUE, ENHANCED_K_VALUE, TEST_ENV, debug_print
 )
 
 class PineconeSearchClient:
@@ -29,7 +29,17 @@ class PineconeSearchClient:
     def _detect_domain_from_context(self, state: ConversationState) -> Optional[Domain]:
         """Detect domain from conversation context"""
         if state.get("domain_filter"):
-            return state["domain_filter"]
+            # Handle both string and Domain enum from business_reasoner
+            domain_value = state["domain_filter"]
+            if isinstance(domain_value, str):
+                if domain_value.lower() == "freshwater":
+                    return Domain.FRESHWATER
+                elif domain_value.lower() in ["seawater", "marine"]:
+                    return Domain.SEAWATER
+                elif domain_value.lower() == "universal":
+                    return Domain.UNIVERSAL
+            else:
+                return domain_value  # Already Domain enum
         
         # Analyze recent conversation for domain clues
         context_text = ""
@@ -47,8 +57,7 @@ class PineconeSearchClient:
         freshwater_score = sum(1 for keyword in freshwater_keywords if keyword in context_text)
         marine_score = sum(1 for keyword in marine_keywords if keyword in context_text)
         
-        if TEST_ENV and (freshwater_score > 0 or marine_score > 0):
-            print(f"\n🔍 [DEBUG Domain Detection] Freshwater score: {freshwater_score}, Marine score: {marine_score}")
+        debug_print(f"🔍 [PineconeSearch] Freshwater score: {freshwater_score}, Marine score: {marine_score}")
         
         if freshwater_score > marine_score:
             return Domain.FRESHWATER
@@ -71,8 +80,8 @@ class PineconeSearchClient:
         domain_filter = None
         if state:
             domain_filter = self._detect_domain_from_context(state)
-            if TEST_ENV and domain_filter:
-                print(f"🎯 [DEBUG PineconeSearch] Auto-detected domain filter: {domain_filter.value}")
+            if domain_filter:
+                debug_print(f"🎯 [PineconeSearch] Auto-detected domain filter: {domain_filter.value}")
         
         all_results = {}
         for query in queries:
@@ -101,7 +110,8 @@ class PineconeSearchClient:
                             metadata=match.get('metadata', {})
                         )
             except Exception as e:
-                print(f"Search error for query '{query}': {e}")
+                if TEST_ENV:
+                    print(f"❌ [DEBUG PineconeSearch] Search error for query '{query}': {e}")
                 continue
         
         sorted_results = sorted(
@@ -110,13 +120,12 @@ class PineconeSearchClient:
             reverse=True
         )[:k]
 
-        if TEST_ENV:
-            print(f"\n🌲 [DEBUG PineconeSearch] Zwrócono {len(sorted_results)} wyników. Top 5:")
-            for i, res in enumerate(sorted_results[:5]):
-                product_name = res.metadata.get('product_name', 'Brak nazwy')
-                domain = res.metadata.get('domain', 'N/A')
-                score = res.score
-                print(f"   {i+1}. '{product_name}' [Domain: {domain}] (Score: {score:.4f})")
+        debug_print(f"🌲 [PineconeSearch] Zwrócono {len(sorted_results)} wyników. Top 5:")
+        for i, res in enumerate(sorted_results[:5]):
+            product_name = res.metadata.get('product_name', 'Brak nazwy')
+            domain = res.metadata.get('domain', 'N/A')
+            score = res.score
+            debug_print(f"   {i+1}. '{product_name}' [Domain: {domain}] (Score: {score:.4f})")
         
         return sorted_results
     

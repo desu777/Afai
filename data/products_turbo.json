@@ -1,0 +1,1112 @@
+[
+  {
+    "product_name": "-NP Pro",
+    "category": "supplements",
+    "keywords": ["probiotic medium", "carbon source", "nitrate reduction", "phosphate reduction", "pro-bio s"],
+    "solves_problems": ["high nitrates", "high phosphates", "no3 reduction", "po4 reduction", "brown coral discoloration", "algae outbreak", "cyanobacteria"],
+    "use_case": "A probiotic medium for bacteria that reduces nitrate (NO3) and phosphate (PO4) in reef aquariums."
+  },
+  {
+    "product_name": "AF Air Scrubber",
+    "category": "equipment",
+    "keywords": ["co2 reactor", "ph stabilization", "co2 scrubber", "aquarium equipment", "protein skimmer"],
+    "solves_problems": ["low ph", "ph fluctuations", "ph drops", "unstable dkh", "acidification"],
+    "use_case": "A CO2 reactor that connects to a protein skimmer to raise and stabilize pH by removing CO2 from the air."
+  },
+  {
+    "product_name": "AF Air Scrubber Hose",
+    "category": "equipment",
+    "keywords": ["silicone hose", "co2 scrubber", "equipment accessory", "aquarium plumbing", "protein skimmer connection"],
+    "solves_problems": ["connecting air scrubber", "replacing old hose", "ensuring proper airflow"],
+    "use_case": "A flexible silicone hose for connecting the AF Air Scrubber to a protein skimmer."
+  },
+  {
+    "product_name": "AF Air Scrubber Media",
+    "category": "water_treatment",
+    "keywords": ["co2 absorption", "ph stabilization", "co2 scrubbing media", "color changing media", "consumable"],
+    "solves_problems": ["low ph", "ph fluctuations", "acidification", "unstable dkh", "inhibited coral calcification"],
+    "use_case": "CO2 absorption media for the AF Air Scrubber that raises and stabilizes pH levels in a reef aquarium."
+  },
+  {
+    "product_name": "AF Algae Feed",
+    "category": "foods_and_supplementation",
+    "keywords": ["fish food", "herbivorous fish", "tangs", "sinking pellets", "algae", "spirulina"],
+    "solves_problems": ["feeding herbivorous fish", "poor fish coloration", "weak immune system", "improving digestion"],
+    "use_case": "An algae-based sinking pellet food for herbivorous and omnivorous marine fish."
+  },
+  {
+    "product_name": "AF Amino Mix",
+    "category": "foods_and_supplementation",
+    "keywords": ["amino acids", "coral nutrition", "sps", "lps", "coral feeding"],
+    "solves_problems": ["coral bleaching", "pale coral coloration", "amino acid deficiency", "slow coral growth", "brown corals"],
+    "use_case": "A complex amino acid supplement to prevent coral bleaching, improve coloration, and boost growth."
+  },
+  {
+    "product_name": "AF Bio Sand",
+    "category": "aquascaping",
+    "keywords": ["natural sand", "aquarium substrate", "nitrifying bacteria", "live sand", "cycling"],
+    "solves_problems": ["new tank setup", "slow tank cycling", "long maturation period", "high ammonia/nitrite"],
+    "use_case": "Natural white sand enriched with nitrifying bacteria to accelerate the maturation and nitrogen cycle in new reef tanks."
+  },
+  {
+    "product_name": "AF Build",
+    "category": "foods_and_supplementation",
+    "keywords": ["calcium", "carbonate", "hard corals", "sps", "lps", "calcification"],
+    "solves_problems": ["slow calcification", "poor coral growth", "low ph", "ph fluctuations", "carbonate deficiency"],
+    "use_case": "Accelerates calcium and carbonate absorption to boost growth and calcification in hard corals, while also raising and stabilizing pH."
+  },
+  {
+    "product_name": "AF Calanidae Clip",
+    "category": "foods_and_supplementation",
+    "keywords": ["fish food", "clip-on food", "calanus", "fatty acids", "amino acids"],
+    "solves_problems": ["fish won't eat dry food", "feeding picky eaters", "adapting fish to dry food"],
+    "use_case": "A clip-on fish food rich in fatty acids to encourage natural grazing and help fish adapt to dry food."
+  },
+  {
+    "product_name": "AF Color Up",
+    "category": "foods_and_supplementation",
+    "keywords": ["fish food", "color enhancement", "pellet food", "carotenoids", "paprika extract"],
+    "solves_problems": ["pale fish coloration", "dull colors", "improving fish vibrancy"],
+    "use_case": "A color-boosting pellet food with natural carotenoids to enhance and maintain vibrant fish coloration."
+  },
+  {
+    "product_name": "AF Easy Gloss",
+    "category": "equipment",
+    "keywords": ["glass cleaner", "aquarium maintenance", "non-toxic", "safe for fish", "lavender scent"],
+    "solves_problems": ["saltwater stains", "greasy marks", "limescale on glass", "dirty glass"],
+    "use_case": "A non-toxic, fish-safe glass cleaner for removing stains and limescale from aquarium surfaces."
+  },
+  {
+    "product_name": "AF Energy",
+    "category": "supplements",
+    "keywords": ["sps corals", "coral food", "high nutrition", "fatty acids", "zooplankton"],
+    "solves_problems": ["pale coral coloration", "poor coral growth", "nutrient deficiency", "lack of energy"],
+    "use_case": "A high-nutrition food concentrate for SPS corals to enhance pastel coloration and provide energy."
+  },
+  {
+    "product_name": "AF Filter Floss",
+    "category": "equipment",
+    "keywords": ["mechanical filtration", "filter floss", "water clarity", "sump filter", "canister filter"],
+    "solves_problems": ["cloudy water", "suspended particles", "detritus", "uneaten food", "water pollution"],
+    "use_case": "A dense mechanical filtration floss to remove visible contaminants and particles from aquarium water."
+  },
+  {
+    "product_name": "AF Filter Sock",
+    "category": "equipment",
+    "keywords": ["mechanical filtration", "filter sock", "sump prefilter", "200 micron", "detritus removal"],
+    "solves_problems": ["dirty water", "suspended particles", "debris in sump", "clogged media"],
+    "use_case": "A mechanical filtration sock (200 micron) used as a prefilter in sumps to improve water clarity."
+  },
+  {
+    "product_name": "AF Filter Sock XL",
+    "category": "equipment",
+    "keywords": ["large filter sock", "mechanical filtration", "high-capacity", "sump prefilter", "200 micron"],
+    "solves_problems": ["high-volume filtration needs", "frequent sock changes", "large debris", "suspended particles"],
+    "use_case": "A large, high-capacity mechanical filtration sock (200 micron) for sump pre-filtration in larger systems."
+  },
+  {
+    "product_name": "AF Frag Rocks",
+    "category": "aquascaping",
+    "keywords": ["frag mounts", "coral propagation", "frag plugs", "porous rock", "aquascaping"],
+    "solves_problems": ["mounting coral frags", "unstable frags", "creating natural-looking frag bases"],
+    "use_case": "Porous, rock-like mounts for attaching and growing coral frags in an aquarium."
+  },
+  {
+    "product_name": "AF Gel Fix",
+    "category": "aquascaping",
+    "keywords": ["coral glue", "gel adhesive", "cyanoacrylate", "fast setting", "underwater glue"],
+    "solves_problems": ["attaching coral frags", "securing decorations", "minor equipment repairs"],
+    "use_case": "A fast-setting, non-toxic gel glue for attaching coral frags and small decorations, usable underwater."
+  },
+  {
+    "product_name": "AF Growth Boost",
+    "category": "supplements",
+    "keywords": ["coral supplement", "rapid growth", "amino acids", "polyp extension", "calcification"],
+    "solves_problems": ["slow coral growth", "weak skeleton formation", "poor polyp extension", "stress during fragging"],
+    "use_case": "A supplement with amino acids and calcium carbonate to support rapid growth and metabolism in all corals."
+  },
+  {
+    "product_name": "AF Life Source",
+    "category": "water_treatment",
+    "keywords": ["biological booster", "fiji mud", "microbiology", "refugium", "dsb"],
+    "solves_problems": ["unstable biological balance", "lack of beneficial bacteria", "poor coral vitality"],
+    "use_case": "100% natural mud from Fiji to enrich and stabilize the microbiology in a marine aquarium."
+  },
+  {
+    "product_name": "AF Liquid Artemia",
+    "category": "foods_and_supplementation",
+    "keywords": ["liquid food", "artemia", "fish food", "coral food", "frozen food alternative"],
+    "solves_problems": ["feeding small fish", "feeding corals", "finding preservative-free food"],
+    "use_case": "A concentrated liquid food based on Artemia, serving as a natural alternative to frozen foods for fish and corals."
+  },
+  {
+    "product_name": "AF Liquid Mysis",
+    "category": "foods_and_supplementation",
+    "keywords": ["liquid food", "mysis", "fish food", "lps corals", "frozen food alternative"],
+    "solves_problems": ["feeding picky eaters", "feeding lps corals", "improving fish immunity"],
+    "use_case": "A nutritious liquid food made from Mysis shrimp, enriched with garlic, for demanding fish and corals."
+  },
+  {
+    "product_name": "AF Liquid Rotifers",
+    "category": "foods_and_supplementation",
+    "keywords": ["liquid food", "zooplankton", "rotifers", "sps corals", "coral food"],
+    "solves_problems": ["feeding sps corals", "slow coral growth", "poor coloration", "lack of natural zooplankton"],
+    "use_case": "A zooplankton-based liquid food for fish and corals, especially beneficial for SPS coral nutrition."
+  },
+  {
+    "product_name": "AF Liquid Vege",
+    "category": "foods_and_supplementation",
+    "keywords": ["liquid food", "herbivore fish", "vegetable diet", "nori algae", "spinach"],
+    "solves_problems": ["feeding herbivorous fish", "lack of vegetable matter in diet", "poor digestion for herbivores"],
+    "use_case": "A liquid food made from nori algae and spinach for herbivorous fish and corals."
+  },
+  {
+    "product_name": "AF LPS Food",
+    "category": "foods_and_supplementation",
+    "keywords": ["lps corals", "coral food", "granular food", "high protein", "targeted feeding"],
+    "solves_problems": ["feeding lps corals", "poor lps growth", "weak coloration in lps"],
+    "use_case": "A high-protein granular food specifically for the targeted feeding of LPS corals."
+  },
+  {
+    "product_name": "AF Marine Flakes",
+    "category": "foods_and_supplementation",
+    "keywords": ["flake food", "herbivorous fish", "omnivorous fish", "nori algae", "spirulina"],
+    "solves_problems": ["daily feeding for community tank", "providing a balanced diet", "feeding herbivorous fish"],
+    "use_case": "A flake food with nori algae and spirulina for daily feeding of herbivorous and omnivorous marine fish."
+  },
+  {
+    "product_name": "AF Marine Mix M",
+    "category": "foods_and_supplementation",
+    "keywords": ["granulated food", "carnivorous fish", "omnivorous fish", "clownfish", "high protein"],
+    "solves_problems": ["feeding medium-sized carnivorous fish", "protein deficiency", "poor muscle development"],
+    "use_case": "A high-protein granulated food (2mm) for medium-sized carnivorous and omnivorous fish."
+  },
+  {
+    "product_name": "AF Marine Mix S",
+    "category": "foods_and_supplementation",
+    "keywords": ["granulated food", "small fish", "carnivorous fish", "clownfish", "high protein"],
+    "solves_problems": ["feeding small carnivorous fish", "feeding juvenile fish", "protein deficiency"],
+    "use_case": "A high-protein granulated food (1mm) for small and juvenile carnivorous and omnivorous fish."
+  },
+  {
+    "product_name": "AF Media Bag",
+    "category": "equipment",
+    "keywords": ["filter bag", "mesh bag", "filtration media", "activated carbon", "resins"],
+    "solves_problems": ["containing loose filter media", "media escaping into tank", "clogged filters"],
+    "use_case": "A reusable mesh bag with a drawstring to hold granular filter media like carbon or resins."
+  },
+  {
+    "product_name": "AF Media Sock",
+    "category": "equipment",
+    "keywords": ["filter sock", "media sock", "filtration media", "carbon", "phosphate remover"],
+    "solves_problems": ["inefficient media use", "poor water flow through media", "media channeling"],
+    "use_case": "A fine mesh (500 micron) filter sock designed to hold and force water through filter media."
+  },
+  {
+    "product_name": "AF Mini Rocks",
+    "category": "aquascaping",
+    "keywords": ["frag mounts", "small frags", "coral propagation", "porous rock", "frag plugs"],
+    "solves_problems": ["mounting small coral frags", "creating a natural look", "finding stable bases for frags"],
+    "use_case": "Small, porous, rock-like mounts for attaching and growing small coral frags."
+  },
+    {
+      "product_name": "AF NitraPhos Minus",
+      "category": "water_treatment",
+      "keywords": ["nitrate removal", "phosphate removal", "no3 po4 reduction", "carbon source", "probiotic method", "bacterial food", "usuwanie azotanów", "redukcja fosforanów", "źródło węgla organicznego"],
+      "solves_problems": ["high nitrates", "high phosphates", "algae outbreak", "cyanobacteria problem", "brown coral discoloration", "unstable water chemistry", "nadmiar azotanów i fosforanów", "plaga glonów"],
+      "use_case": "A specialist agent designed to biologically reduce excess nitrate, nitrite, and phosphate in marine aquariums."
+    },
+    {
+      "product_name": "AF Perfect Water",
+      "category": "water_treatment",
+      "keywords": ["ready-made saltwater", "water change", "new tank setup", "pre-mixed saltwater", "gotowa woda morska", "podmiana wody", "start akwarium"],
+      "solves_problems": ["contaminated tap water", "time-consuming salt mixing", "unstable parameters after water change", "lack of essential minerals", "problem z mieszaniem soli", "niestabilne parametry"],
+      "use_case": "A laboratory-produced, ready-to-use saltwater designed for marine aquarium water changes and new tank setup."
+    },
+    {
+      "product_name": "AF Phyto Mix",
+      "category": "foods_and_supplementation",
+      "keywords": ["liquid coral food", "phytoplankton", "zooplankton", "soft coral food", "non-photosynthetic coral food", "pokarm w płynie dla korali", "fitoplankton", "zooplankton"],
+      "solves_problems": ["feeding soft corals", "feeding gorgonians", "poor polyp extension", "pale coral coloration", "problem z karmieniem korali niefotosyntezujących", "słabe wybarwienie"],
+      "use_case": "A high-quality liquid food blend of phytoplankton and zooplankton, designed for soft corals, gorgonians, non-photosynthetic corals, filter feeders, and small fish."
+    },
+    {
+      "product_name": "AF Plankton Elixir",
+      "category": "foods_and_supplementation",
+      "keywords": ["liquid food", "zooplankton", "LPS coral food", "fish nutrition", "omega-3", "astaxanthin", "pokarm dla lps", "płynny zooplankton"],
+      "solves_problems": ["feeding LPS corals", "poor fish coloration", "low immunity in fish", "difficulty feeding picky eaters", "słaby wzrost LPS", "blade kolory ryb"],
+      "use_case": "A highly efficient liquid food formulated from the highest quality natural ingredients."
+    },
+    {
+      "product_name": "AF Plug Rocks",
+      "category": "aquascaping",
+      "keywords": ["frag plugs", "coral propagation", "frag mounts", "podstawki pod szczepki", "fragowanie korali", "biologically neutral"],
+      "solves_problems": ["mounting coral frags", "unstable frags", "unnatural look of frag plugs", "frag rack compatibility", "problem ze stabilnością szczepek", "mocowanie korali"],
+      "use_case": "High-quality, biologically neutral frag plugs designed for stable coral propagation in marine aquariums."
+    },
+    {
+      "product_name": "AF Poly Glue",
+      "category": "aquascaping",
+      "keywords": ["polymer glue", "biodegradable adhesive", "coral glue", "rock glue", "reusable glue", "klej polimerowy", "klejenie skał i korali"],
+      "solves_problems": ["attaching corals to rock", "building aquascape structures", "securing rocks", "gluing plants", "klejenie korali", "problem z mocowaniem skał"],
+      "use_case": "A biodegradable polymer glue in granules, dedicated for saltwater and freshwater aquariums."
+    },
+    {
+      "product_name": "AF Power Elixir",
+      "category": "foods_and_supplementation",
+      "keywords": ["amino acids", "vitamin supplement", "coral growth", "coral coloration", "dosing pump compatible", "aminokwasy dla korali", "witaminy", "suplement na wzrost"],
+      "solves_problems": ["slow coral growth", "pale coral colors", "poor polyp extension", "stress recovery", "blade kolory korali", "słaby wzrost SPS"],
+      "use_case": "An advanced liquid supplement for marine aquariums, designed for continuous dosing and perfect for dosing pumps."
+    },
+    {
+      "product_name": "AF Power Food",
+      "category": "foods_and_supplementation",
+      "keywords": ["powdered coral food", "SPS food", "LPS food", "high nutrition", "pokarm w proszku dla korali", "karmienie sps"],
+      "solves_problems": ["feeding demanding SPS corals", "slow coral growth", "pale coloration", "lack of nutrients", "problem z karmieniem wymagających korali", "słabe przyrosty"],
+      "use_case": "A highly nutritious powdered food formulated for all types of corals, with a special focus on SPS and demanding species."
+    },
+    {
+      "product_name": "AF Protect Dip",
+      "category": "water_treatment",
+      "keywords": ["coral dip", "pest prevention", "quarantine", "AEFW", "brown jelly", "kąpiel dla korali", "preparat odkażający"],
+      "solves_problems": ["acropora eating flatworms (AEFW)", "brown jelly syndrome", "parasites on new corals", "bacterial infections", "risk of introducing pests", "pasożyty na korali"],
+      "use_case": "A preventive coral dip solution designed to thoroughly cleanse coral surfaces and protect against parasites, protozoa, and bacterial/fungal infections."
+    },
+    {
+      "product_name": "AF Protein Power",
+      "category": "foods_and_supplementation",
+      "keywords": ["fish food", "juvenile fish", "high protein", "soft granules", "pokarm dla młodych ryb", "wysokobiałkowy granulat"],
+      "solves_problems": ["feeding young or small fish", "slow fish growth", "adapting fish to dry food", "developmental issues", "problem z karmieniem narybku", "słaby wzrost ryb"],
+      "use_case": "A high-quality, soft and fine granulated fish food formulated for young and juvenile marine fish."
+    },
+    {
+      "product_name": "AF Pure Food",
+      "category": "foods_and_supplementation",
+      "keywords": ["powdered coral food", "calcium carbonate", "natural supplement", "pokarm dla korali", "węglan wapnia", "naturalny pokarm"],
+      "solves_problems": ["slow coral growth", "weak skeleton formation", "unstable pH", "lack of micro and macroelements", "słaba kalcyfikacja", "niestabilne pH"],
+      "use_case": "A 100% natural powdered coral food based on calcium carbonate to support healthy coral growth, skeleton building, and stable pH."
+    },
+    {
+      "product_name": "AF Rock",
+      "category": "aquascaping",
+      "keywords": ["synthetic rock", "live rock alternative", "porous rock", "aquascaping", "skała syntetyczna", "sztuczna skała", "aranżacja akwarium"],
+      "solves_problems": ["pest introduction (aiptasia, valonia)", "hitchhikers from live rock", "unstable aquascape", "pH and kH stabilization", "plagi z żywej skały", "problem z pasożytami"],
+      "use_case": "A hand-made, highly porous premium rock designed for marine aquariums."
+    },
+    {
+      "product_name": "AF Silicone Lubricant",
+      "category": "equipment",
+      "keywords": ["silicone grease", "equipment maintenance", "o-ring lubricant", "aquarium-safe", "smar silikonowy", "konserwacja sprzętu", "smar do uszczelek"],
+      "solves_problems": ["leaking filter gaskets", "hardened o-rings", "pump maintenance", "cracking rubber seals", "przeciekający filtr", "twardniejące uszczelki"],
+      "use_case": "A top-quality, aquarium-safe silicone lubricant designed for use on gaskets, seals, and moving parts in all types of aquarium equipment."
+    },
+    {
+      "product_name": "AF Tiny Fish Feed",
+      "category": "foods_and_supplementation",
+      "keywords": ["fry food", "small fish food", "soft pellets", "high-protein", "pokarm dla narybku", "drobny granulat"],
+      "solves_problems": ["feeding very small fish", "fry nutrition", "developmental issues in fry", "poor growth in small species", "problem z karmieniem małych ryb", "wysoka śmiertelność narybku"],
+      "use_case": "A complete, balanced feed for small marine fish and fry, in the form of 1 mm soft granules."
+    },
+    {
+      "product_name": "AF UltraBlades",
+      "category": "equipment",
+      "keywords": ["replacement blades", "algae scraper", "stainless steel", "ostrza wymienne", "czyścik do szyb", "stal nierdzewna"],
+      "solves_problems": ["dull scraper blade", "ineffective algae cleaning", "rusting blades", "scratching glass", "tępe ostrze w czyściku", "problem z usunięciem glonów wapiennych"],
+      "use_case": "Premium replacement blades made of high-quality stainless steel, designed for AF Ultrascrape L and AF Ultrascrape XL magnetic aquarium cleaners."
+    },
+    {
+      "product_name": "AF Ultrascrape",
+      "category": "equipment",
+      "keywords": ["magnetic cleaner", "algae scraper", "floating cleaner", "stainless steel blade", "czyścik magnetyczny", "skrobak do glonów"],
+      "solves_problems": ["stubborn algae", "coralline algae removal", "difficulty cleaning glass", "cleaner sinking to bottom", "problem z twardymi glonami", "usuwanie glonów wapiennych"],
+      "use_case": "A premium magnetic glass cleaner designed for both freshwater and saltwater aquariums."
+    },
+    {
+      "product_name": "AF Vege Clip",
+      "category": "foods_and_supplementation",
+      "keywords": ["herbivore food", "algae food", "feeding clip", "tangs", "rabbitfish", "pokarm dla roślinożernych", "pokarm na klipsie"],
+      "solves_problems": ["feeding herbivorous fish", "tangs are always hungry", "providing vegetable matter", "natural grazing behavior", "problem z karmieniem pokolców", "ciągle głodne ryby"],
+      "use_case": "A high-quality, nutritious food for herbivorous and omnivorous fish, delivered as algae-based discs with an included durable glass clip for easy feeding."
+    },
+    {
+      "product_name": "AF Vege Strength",
+      "category": "foods_and_supplementation",
+      "keywords": ["herbivore food", "vegetable pellets", "spirulina", "high-fiber", "pokarm roślinny", "granulat dla roślinożerców"],
+      "solves_problems": ["digestive issues in herbivorous fish", "lack of fiber in diet", "poor coloration", "balanced diet for tangs", "problemy trawienne u ryb roślinożernych", "brak błonnika"],
+      "use_case": "A plant-based, easily digestible fish food in the form of 1.5 mm pellets for larger herbivorous and omnivorous fish and invertebrates."
+    },
+    {
+      "product_name": "AF Vitality",
+      "category": "foods_and_supplementation",
+      "keywords": ["vitamin supplement", "coral health", "coloration", "B vitamins", "suplement witaminowy", "witaminy dla korali", "wybarwienie"],
+      "solves_problems": ["pale coral coloration", "vitamin deficiency from skimming", "slow coral growth", "low immunity", "blade kolory korali", "niedobory witamin"],
+      "use_case": "A concentrated vitamin supplement designed to support coral health, immunity, and vibrant coloration in marine aquariums."
+    },
+    {
+      "product_name": "AF Zoa Food",
+      "category": "foods_and_supplementation",
+      "keywords": ["zoanthus food", "mushroom coral food", "powdered food", "ricordea", "pokarm dla zoanthusów", "karmienie grzybowieńców"],
+      "solves_problems": ["feeding zoanthus and mushroom corals", "poor growth of zoas", "pale colors in polyps", "lack of specific nutrients for polyps", "problem z karmieniem zoa", "słabe wybarwienie"],
+      "use_case": "A carefully crafted powdered plant food developed to meet the nutritional needs of Zoanthus, Ricordea, Rhodactis and other mushroom corals."
+    },
+    {
+      "product_name": "Aquaforest Reactor Hose",
+      "category": "equipment",
+      "keywords": ["silicone hose", "reactor tubing", "aquarium plumbing", "purple hose", "wąż silikonowy", "podłączenie reaktora"],
+      "solves_problems": ["leaking hose connections", "cracked or hard tubing", "algae growth inside hoses", "connecting media reactors", "pękający wąż", "nieszczelne połączenia"],
+      "use_case": "Ultra-flexible, highly durable silicone hoses dedicated for use with Aquaforest Media Reactors (AF 90, AF 110, AF 130)."
+    },
+    {
+      "product_name": "AF Sump Series",
+      "category": "equipment",
+      "keywords": ["filtration sump", "multi-chamber sump", "PVC sump", "silent overflow", "sump do akwarium", "filtracja", "cichy spływ"],
+      "solves_problems": ["loud gurgling noise from overflow", "not enough space for equipment", "inefficient filtration", "messy cabinet", "hałas z komina", "brak miejsca w szafce"],
+      "use_case": "Top-quality, highly durable multi-chamber sumps made of scratch-resistant PVC, designed for even the most demanding marine aquariums."
+    },
+    {
+      "product_name": "AF Media Reactor Series",
+      "category": "equipment",
+      "keywords": ["fluidized bed reactor", "media reactor", "carbon reactor", "phosphate reactor", "reaktor na media", "filtr fluidyzacyjny"],
+      "solves_problems": ["inefficient use of filter media", "media clumping", "poor water flow through media", "high nutrient levels", "zbite złoże w reaktorze", "wysokie nutrienty"],
+      "use_case": "Premium universal fluidization (flow) filters designed for high-efficiency aquarium filtration with a wide range of media."
+    },
+    {
+      "product_name": "AFix Glue",
+      "category": "aquascaping",
+      "keywords": ["two-part epoxy", "coral glue", "rock bonding", "aquascaping adhesive", "klej epoksydowy", "klej do korali i skały"],
+      "solves_problems": ["attaching coral frags securely", "bonding rocks together", "creating stable aquascape", "corals falling over", "problem z mocowaniem szczepek", "klejenie konstrukcji skalnych"],
+      "use_case": "A unique two-part adhesive designed for bonding small aquarium components, especially corals, frags, and rocks."
+    },
+    {
+      "product_name": "Aiptasia Shot",
+      "category": "water_treatment",
+      "keywords": ["aiptasia remover", "pest anemone control", "manjano remover", "preparat na aiptazję", "zwalczanie szkodników"],
+      "solves_problems": ["aiptasia outbreak", "manjano infestation", "pest anemones stinging corals", "rapid spread of aiptasia", "plaga aiptasii", "parzydełkowce w akwarium"],
+      "use_case": "A ready-to-use, fast-acting solution designed for effective control and removal of pest anemones, including Aiptasia and Manjano, in marine aquariums."
+    },
+    {
+      "product_name": "Alkanity Test Kit",
+      "category": "water_tests",
+      "keywords": ["KH test", "alkalinity test", "carbonate hardness", "drop test", "test na kH", "pomiar zasadowości"],
+      "solves_problems": ["unstable pH", "low KH levels", "poor coral growth", "difficulty dosing Balling", "wahania pH", "niski poziom kH"],
+      "use_case": "A complete, high-precision test kit for rapid measurement of carbonate hardness (KH/alkalinity) in marine aquariums."
+    },
+    {
+      "product_name": "Anthias Pro Feed",
+      "category": "foods_and_supplementation",
+      "keywords": ["anthias food", "carnivore fish food", "omega-3", "soft granules", "pokarm dla anthiasów", "ryby mięsożerne"],
+      "solves_problems": ["feeding picky anthias", "poor coloration in fish", "low immunity", "slow growth", "problem z karmieniem antiasów", "blade kolory"],
+      "use_case": "A specialist, highly nutritious soft granulated food designed for marine Anthias and other carnivorous and omnivorous fish, also suitable for corals."
+    },
+    {
+      "product_name": "Bio S",
+      "category": "supplements",
+      "keywords": ["nitrifying bacteria", "aquarium cycling", "ammonia removal", "water clarity", "bakterie nitryfikacyjne", "dojrzewanie akwarium"],
+      "solves_problems": ["high ammonia/nitrite in new tank", "long cycling period", "cloudy water", "organic waste buildup", "wysoki amoniak i azotyny", "długie dojrzewanie zbiornika"],
+      "use_case": "A specialized formula containing selected strains of nitrifying bacteria for rapid and effective elimination of ammonia and nitrogen compounds in marine aquariums."
+    },
+    {
+      "product_name": "Bottom Strainer",
+      "category": "equipment",
+      "keywords": ["media reactor part", "replacement strainer", "filter sponge", "część zamienna do reaktora", "sitko dolne", "gąbka filtracyjna"],
+      "solves_problems": ["filter media escaping reactor", "clogged reactor", "worn out parts", "poor reactor performance", "uciekanie mediów z reaktora", "zapchany reaktor"],
+      "use_case": "A replaceable bottom filter designed specifically for Aquaforest media reactors (such as AF 90, AF 110, AF 130)."
+    },
+    {
+      "product_name": "Bypass AF275 AF435",
+      "category": "equipment",
+      "keywords": ["flow bypass", "filtration upgrade", "OceanGuard accessory", "fluidized filter connection", "bypass do filtracji", "rozbudowa filtracji"],
+      "solves_problems": ["need for additional filtration", "connecting a media reactor", "improving nutrient export", "optimizing filtration efficiency", "potrzeba dodatkowego filtra", "podłączenie reaktora fluidyzacyjnego"],
+      "use_case": "A dedicated accessory for Aquaforest OceanGuard 275 and 435 aquariums that enables the installation of an additional fluidization (fluidized bed) filter."
+    },
+    {
+      "product_name": "Ca Plus",
+      "category": "water_treatment",
+      "keywords": ["calcium supplement", "liquid calcium", "raise calcium", "coral growth", "suplement wapnia", "płynny wapń", "podnoszenie Ca"],
+      "solves_problems": ["low calcium levels", "sudden Ca drops", "slow coral calcification", "calcium deficiency", "niski poziom wapnia", "nagłe spadki Ca"],
+      "use_case": "A highly concentrated liquid formula designed to rapidly raise and maintain calcium levels in marine aquariums."
+    },
+    {
+      "product_name": "Calcium",
+      "category": "water_treatment",
+      "keywords": ["calcium chloride", "Balling method", "calcium granulate", "raise Ca", "chlorek wapnia", "metoda ballinga", "suplementacja wapnia"],
+      "solves_problems": ["maintaining stable calcium", "low calcium in reef tank", "Balling method component", "poor coral skeletal growth", "utrzymanie stałego poziomu wapnia", "niski wapń"],
+      "use_case": "A concentrated, laboratory-grade calcium chloride granulate designed to maintain stable calcium levels and regulate pH in reef aquariums."
+    },
+    {
+      "product_name": "Calcium Test Kit",
+      "category": "water_tests",
+      "keywords": ["calcium test", "drop test", "Ca measurement", "water testing", "test na wapń", "pomiar Ca"],
+      "solves_problems": ["unknown calcium level", "incorrect calcium dosing", "monitoring coral consumption", "unstable parameters", "problem ze sprawdzeniem poziomu wapnia", "kontrola suplementacji"],
+      "use_case": "A complete and easy-to-use drop test kit for fast, accurate measurement of calcium levels in marine aquariums."
+    },
+    {
+      "product_name": "Carbon",
+      "category": "water_treatment",
+      "keywords": ["activated carbon", "filtration media", "water clarity", "removes medication", "węgiel aktywowany", "media filtracyjne", "klarowność wody"],
+      "solves_problems": ["yellow or discolored water", "water turbidity", "medication residue after treatment", "organic impurities", "żółta woda", "pozostałości po lekach"],
+      "use_case": "A high-quality, steam-activated granular activated carbon designed for immediate removal of impurities, discolorations, medication residues, and water turbidity from aquarium water."
+    },
+    {
+      "product_name": "Component 1+2+3+ Concentrate",
+      "category": "water_treatment",
+      "keywords": ["Balling method", "concentrate", "calcium", "magnesium", "KH", "trace elements", "metoda Ballinga", "koncentrat"],
+      "solves_problems": ["space-saving supplementation", "easy preparation of Balling solutions", "maintaining all major elements", "oszczędność miejsca", "łatwe przygotowanie roztworów Ballinga"],
+      "use_case": "A modern, easy-to-use set for marine aquarists, based on the proven Balling method, allowing you to quickly prepare three essential solutions in a concentrated form."
+    },
+    {
+      "product_name": "Component 1+2+3+",
+      "category": "water_treatment",
+      "keywords": ["Balling method", "complete supplement", "ionic balance", "trace elements", "metoda Ballinga", "kompletna suplementacja", "równowaga jonowa"],
+      "solves_problems": ["ionic imbalance", "trace element depletion", "maintaining stable Ca, Mg, KH", "hidden ionic drift", "zaburzona równowaga jonowa", "niedobory mikroelementów"],
+      "use_case": "A three-part, precisely balanced supplement for marine aquariums, based on the original Balling method and enriched with essential trace elements."
+    },
+    {
+      "product_name": "Component 3 in 1",
+      "category": "water_treatment",
+      "keywords": ["all-in-one supplement", "Balling method", "easy dosing", "single component", "suplement wszystko w jednym", "proste dawkowanie"],
+      "solves_problems": ["complex dosing schedules", "multiple dosing pumps needed", "risk of dosing errors", "lack of space for containers", "skomplikowane dawkowanie", "ryzyko pomyłki w dozowaniu"],
+      "use_case": "A comprehensive, all-in-one supplement for marine aquariums, combining highly concentrated calcium, magnesium, KH (alkalinity), and essential trace elements in a single, space-saving formula."
+    },
+    
+        {
+          "product_name": "Component A",
+          "category": "water_treatment",
+          "keywords": ["strontium supplement", "barium supplement", "trace elements", "SPS corals", "LPS corals", "Balling method", "suplement strontu i baru", "mikroelementy"],
+          "solves_problems": ["strontium and barium deficiency", "poor calcium uptake", "slow coral skeletal formation", "trace elements removed by skimmer", "niedobory strontu i baru", "słabe przyswajanie wapnia"],
+          "use_case": "A specialized liquid supplement designed to correct minor deficiencies of strontium and barium in marine aquariums."
+        },
+        {
+          "product_name": "Component B",
+          "category": "water_treatment",
+          "keywords": ["heavy metal supplement", "trace elements", "cobalt", "copper", "manganese", "zinc", "suplement metali ciężkich", "wybarwienie korali"],
+          "solves_problems": ["heavy metal deficiency", "poor coral coloration", "trace elements removed by skimmer", "faded coral colors", "blade wybarwienie korali", "niedobory mikroelementów"],
+          "use_case": "A specialized liquid supplement designed to replenish minor deficiencies of essential heavy metals in marine aquariums, including cobalt, copper, chrome, manganese, zinc, nickel, and iron."
+        },
+        {
+          "product_name": "Component C",
+          "category": "water_treatment",
+          "keywords": ["iodine supplement", "fluorine supplement", "SPS coloration", "polyp extension", "suplement jodu i fluoru", "niebieskie i fioletowe wybarwienie"],
+          "solves_problems": ["iodine and fluorine deficiency", "faded blue and violet colors", "poor polyp extension", "trace elements removed by skimmer", "blade niebieskie i fioletowe kolory", "słabe polipowanie"],
+          "use_case": "A liquid supplement designed to replenish minor deficiencies of iodine and fluorine in marine aquariums."
+        },
+        {
+          "product_name": "Components Strong",
+          "category": "water_treatment",
+          "keywords": ["concentrated trace elements", "Balling method supplement", "strontium", "heavy metals", "iodine", "potassium", "skoncentrowane mikroelementy", "dodatek do Ballinga"],
+          "solves_problems": ["rapid trace element consumption", "faded coral colors in high-demand tanks", "maintaining specific element levels", "szybkie zużycie mikroelementów", "blaknięcie kolorów w zbiorniku SPS"],
+          "use_case": "A complete set of four concentrated trace element supplements formulated for advanced reef aquariums maintained with the Balling method."
+        },
+        {
+          "product_name": "Di Resin",
+          "category": "water_treatment",
+          "keywords": ["demineralization resin", "RO/DI filter", "0 ppm TDS", "silicate removal", "żywica demineralizująca", "filtr RO/DI", "usuwanie krzemianów"],
+          "solves_problems": ["high TDS after RO membrane", "silicates in RO water", "contaminants in tap water", "brown algae (diatoms)", "wysoki TDS po membranie", "krzemiany w wodzie"],
+          "use_case": "A ready-to-use, high-quality demineralization resin in the form of fine beads, designed specifically for use as the final stage in reverse osmosis (RO/DI) filters."
+        },
+        {
+          "product_name": "Fish V",
+          "category": "foods_and_supplementation",
+          "keywords": ["fish vitamins", "immunity booster", "stress recovery", "frozen food supplement", "witaminy dla ryb", "wzmacnianie odporności"],
+          "solves_problems": ["fish stress after transport", "disease recovery", "lack of vitamins in frozen food", "poor appetite", "stres u ryb po transporcie", "rekonwalescencja po chorobie"],
+          "use_case": "A specialist multivitamin supplement designed for all ornamental fish, both freshwater and marine."
+        },
+        {
+          "product_name": "Fluorine",
+          "category": "water_treatment",
+          "keywords": ["fluorine supplement", "fluoride", "SPS color enhancer", "blue and white colors", "suplement fluoru", "wybarwienie SPS"],
+          "solves_problems": ["fluoride deficiency", "faded blue and white SPS colors", "poor coral fluorescence", "slow calcification", "blade niebieskie i białe kolory", "słaba fluorescencja"],
+          "use_case": "A highly concentrated supplement formulated to replenish fluoride in marine aquariums, ensuring balanced microelement levels for SPS corals and other demanding reef organisms."
+        },
+        {
+          "product_name": "Garlic Essence",
+          "category": "foods_and_supplementation",
+          "keywords": ["garlic supplement", "fish immunity", "appetite stimulant", "omega-3", "preparat czosnkowy", "odporność ryb", "pobudzenie apetytu"],
+          "solves_problems": ["fish not eating", "supporting disease treatment", "parasite prevention", "stress during quarantine", "ryby nie chcą jeść", "wsparcie podczas leczenia"],
+          "use_case": "A natural supplement for all aquarium fish, marine and freshwater, formulated from garlic extract, omega-3 fatty acids, vitamins, vegetable oils, and cod liver oil."
+        },
+        {
+          "product_name": "Garlic Oil",
+          "category": "foods_and_supplementation",
+          "keywords": ["garlic oil", "fish immunity", "natural antibiotic", "parasite prevention", "olejek czosnkowy", "naturalny antybiotyk"],
+          "solves_problems": ["support during disease treatment", "parasite infections", "bacterial infections", "strengthening immunity during quarantine", "wsparcie leczenia", "infekcje pasożytnicze"],
+          "use_case": "A natural supplement for aquarium fish, made from garlic extract, vitamins, omega-3 fatty acids, fish oil, and natural antibiotics."
+        },
+        {
+          "product_name": "Hybrid Pro Salt",
+          "category": "marine_salts",
+          "keywords": ["probiotic salt", "hybrid salt", "natural sea salt", "nitrate reduction", "phosphate reduction", "sól probiotyczna", "sól hybrydowa"],
+          "solves_problems": ["high nitrate and phosphate", "poor coral coloration", "difficulty maintaining low nutrients", "unstable water parameters", "wysokie NO3 i PO4", "problem z utrzymaniem niskich nutrientów"],
+          "use_case": "Aquaforest’s most advanced reef salt, designed for the most demanding marine aquariums, combining ultra-pure synthetic salt with natural sea salt flakes and probiotics."
+        },
+        {
+          "product_name": "Iodum",
+          "category": "water_treatment",
+          "keywords": ["iodine supplement", "coral coloration", "blue and purple colors", "shrimp molting", "suplement jodu", "wybarwienie na niebiesko"],
+          "solves_problems": ["iodine deficiency", "faded dark blue and purple colors", "problems with shrimp molting", "lack of UV protection for corals", "niedobór jodu", "blade kolory"],
+          "use_case": "A concentrated iodine supplement for marine aquariums, formulated to maintain natural seawater iodine levels and support coral growth, color, and shrimp molting."
+        },
+        {
+          "product_name": "Iron",
+          "category": "water_treatment",
+          "keywords": ["iron supplement", "green coral color", "SPS color enhancer", "zooxanthellae support", "suplement żaza", "zielone wybarwienie korali"],
+          "solves_problems": ["faded green colors in corals", "iron deficiency", "poor photosynthesis", "lack of vitality", "blade zielone kolory", "niedobór żaza"],
+          "use_case": "A highly concentrated iron supplement for marine and reef aquariums."
+        },
+        {
+          "product_name": "Kalium",
+          "category": "water_treatment",
+          "keywords": ["potassium supplement", "pink and red coral color", "SPS color", "suplement potasu", "czerwone i różowe wybarwienie"],
+          "solves_problems": ["faded pink and red colors", "potassium deficiency due to zeolites", "poor coral metabolism", "blade różowe i czerwone kolory", "niedobór potasu"],
+          "use_case": "A highly concentrated liquid potassium supplement designed for marine and reef aquariums."
+        },
+        {
+          "product_name": "KalkMedia",
+          "category": "water_treatment",
+          "keywords": ["calcium reactor media", "kalkwasser", "pH stabilization", "wkład do reaktora wapnia", "stabilizacja pH"],
+          "solves_problems": ["low pH", "low calcium", "unstable kH", "reactor clogging", "problem z zapychaniem reaktora", "niskie pH w akwarium"],
+          "use_case": "A premium-quality calcium reactor media developed for demanding marine aquariums."
+        },
+        {
+          "product_name": "KH Buffer",
+          "category": "water_treatment",
+          "keywords": ["KH buffer", "alkalinity", "carbonate hardness", "Balling method", "bufor kH", "podnoszenie twardości węglanowej"],
+          "solves_problems": ["low KH", "unstable pH", "difficulty maintaining alkalinity", "poor calcium absorption", "niski poziom kH", "wahania pH"],
+          "use_case": "A high-purity agent for maintaining stable carbonate hardness (KH/Alkalinity) in marine and reef aquariums."
+        },
+        {
+          "product_name": "KH Plus",
+          "category": "water_treatment",
+          "keywords": ["liquid KH booster", "raise alkalinity", "rapid KH correction", "płynny bufor KH", "szybkie podnoszenie KH"],
+          "solves_problems": ["sudden KH drops", "low alkalinity", "emergency parameter correction", "nagłe spadki KH", "potrzeba szybkiej korekty parametrów"],
+          "use_case": "A concentrated liquid solution for raising carbonate hardness (KH/alkalinity) in marine aquariums, essential for healthy coral growth and skeleton formation."
+        },
+        {
+          "product_name": "KH Pro",
+          "category": "water_treatment",
+          "keywords": ["ultra-concentrated KH", "potassium booster", "advanced reef buffer", "wysoko skoncentrowane KH", "bufor z potasem"],
+          "solves_problems": ["emergency KH drops", "need for rapid and precise KH correction", "low potassium levels", "space-saving for dosing pumps", "nagłe załamanie kH", "niskie stężenie potasu"],
+          "use_case": "An ultra-concentrated, ready-to-use liquid formula designed for rapid and precise restoration of carbonate hardness (KH) in marine aquariums."
+        },
+        {
+          "product_name": "Life Bio Fil",
+          "category": "water_treatment",
+          "keywords": ["biological media", "seeded bacteria", "instant cycling", "ammonia removal", "medium biologiczne", "zasiedlone bakterie", "szybki start akwarium"],
+          "solves_problems": ["long aquarium cycling time", "high ammonia in new tanks", "inefficient biological filtration", "unstable water parameters", "długi czas dojrzewania akwarium", "wysoki amoniak na starcie"],
+          "use_case": "An innovative biological filtration media pre-seeded with a carefully selected population of beneficial bacteria, designed for both marine and freshwater aquariums."
+        },
+        {
+          "product_name": "Liquid Foods Pack",
+          "category": "foods_and_supplementation",
+          "keywords": ["liquid food set", "artemia", "mysis", "vege", "phyto mix", "zestaw pokarmów w płynie", "kompletne karmienie"],
+          "solves_problems": ["providing a varied diet", "feeding diverse tank inhabitants", "finding pathogen-free food", "alternative to frozen food", "problem z urozmaiconą dietą", "karmienie różnych organizmów"],
+          "use_case": "A complete set of four premium liquid foods designed to meet the diverse dietary needs of marine aquarium inhabitants: fish, corals, and clams."
+        },
+        {
+          "product_name": "Liquid Vege",
+          "category": "foods_and_supplementation",
+          "keywords": ["herbivorous fish food", "liquid plant food", "tangs", "nori", "spinach", "pokarm dla roślinożerców", "płynny pokarm roślinny"],
+          "solves_problems": ["feeding herbivorous fish like tangs", "providing essential vitamins for herbivores", "lack of vegetable matter in diet", "problem z karmieniem pokolców", "niedobory witamin u roślinożerców"],
+          "use_case": "A high-quality plant-based liquid food crafted for marine herbivorous fish, developed using advanced laboratory methods and top-grade natural ingredients."
+        },
+        {
+          "product_name": "Magnesium",
+          "category": "water_treatment",
+          "keywords": ["magnesium supplement", "powdered magnesium", "Balling method", "raise Mg", "suplement magnezu", "proszek magnezowy"],
+          "solves_problems": ["low magnesium levels", "unstable calcium and pH", "rapid calcium depletion", "poor coral calcification", "niski magnez", "niestabilny wapń i pH"],
+          "use_case": "A concentrated powdered supplement designed for stabilizing and raising magnesium levels in marine and reef aquariums."
+        },
+        {
+          "product_name": "Magnesium Test Kit",
+          "category": "water_tests",
+          "keywords": ["magnesium test", "Mg test kit", "drop test", "water testing", "test na magnez", "pomiar Mg"],
+          "solves_problems": ["unknown magnesium level", "unstable calcium and KH", "troubleshooting coral growth issues", "incorrect magnesium dosing", "problem z weryfikacją poziomu magnezu", "niestabilne parametry Ca i KH"],
+          "use_case": "A complete drop test kit for fast, precise measurement of magnesium (Mg) concentration in marine aquariums."
+        },
+        {
+          "product_name": "Mg Plus",
+          "category": "water_treatment",
+          "keywords": ["liquid magnesium", "raise magnesium", "rapid Mg correction", "płynny magnez", "szybkie podnoszenie Mg"],
+          "solves_problems": ["sudden magnesium drops", "low magnesium", "emergency correction needed", "poor calcium retention", "nagłe spadki magnezu", "problem z utrzymaniem wapnia"],
+          "use_case": "A highly concentrated, ready-to-use liquid magnesium supplement designed for marine and reef aquariums."
+        },
+        {
+          "product_name": "Micro E",
+          "category": "water_treatment",
+          "keywords": ["trace elements", "heavy metals", "coral color", "manganese", "zinc", "iron", "mikroelementy", "metale ciężkie", "wybarwienie korali"],
+          "solves_problems": ["faded coral colors", "slow coral growth", "poor polyp extension", "trace element depletion by skimmer", "blade kolory korali", "słaby wzrost", "niedobory mikroelementów"],
+          "use_case": "A concentrated liquid supplement delivering essential heavy metal trace elements to marine aquariums, especially for the needs of SPS and LPS corals and clams."
+        },
+        {
+          "product_name": "Nitrate Test Kit",
+          "category": "water_tests",
+          "keywords": ["nitrate test", "NO3 test kit", "water testing", "algae control", "test na azotany", "pomiar NO3"],
+          "solves_problems": ["high nitrate levels", "unwanted algae blooms", "stress on SPS corals", "diagnosing overfeeding", "wysokie azotany", "plaga glonów"],
+          "use_case": "A fast, precise drop test for measuring nitrate (NO3) levels in marine aquariums."
+        },
+        {
+          "product_name": "Phosphate Minus",
+          "category": "water_treatment",
+          "keywords": ["phosphate remover", "silicate remover", "PO4 media", "algae control", "usuwanie fosforanów", "adsorber PO4"],
+          "solves_problems": ["high phosphate levels", "algae blooms", "cyanobacteria outbreak", "brown corals", "wysokie fosforany", "plaga cyjanobakterii"],
+          "use_case": "A highly efficient adsorption medium designed to remove phosphate (PO4) and silicate from marine and freshwater aquariums."
+        },
+        {
+          "product_name": "Phosphate Test Kit",
+          "category": "water_tests",
+          "keywords": ["phosphate test", "PO4 test kit", "low range test", "water testing", "test na fosforany", "pomiar PO4"],
+          "solves_problems": ["high phosphate levels", "nuisance algae", "harm to SPS corals", "detecting low PO4 levels", "niewykrywalne fosforany zwykłym testem", "plagi glonów"],
+          "use_case": "A rapid, precise drop test for measuring phosphate (PO4) levels in marine aquariums, with detection sensitivity from 0.00 to 0.15 ppm."
+        },
+        {
+          "product_name": "Polyp Up",
+          "category": "foods_and_supplementation",
+          "keywords": ["polyp extension", "coral color enhancer", "SPS supplement", "feeding response", "suplement na polipowanie", "wzmacnianie kolorów"],
+          "solves_problems": ["poor polyp extension", "faded coral colors", "slow tissue growth", "stress after fragging", "korale nie polipują", "blade kolory"],
+          "use_case": "A specialized nutritional supplement for corals, designed especially for SPS species, but also beneficial for all marine corals."
+        },
+        {
+          "product_name": "Pro Bio F",
+          "category": "probiotic_method",
+          "keywords": ["probiotic bacteria", "freeze-dried bacteria", "carbon source", "nitrate and phosphate reduction", "bakterie probiotyczne", "źródło węgla"],
+          "solves_problems": ["high nitrate and phosphate", "organic waste buildup", "cloudy water", "dirty substrate", "wysokie NO3 i PO4", "brudne podłoże"],
+          "use_case": "A unique blend of freeze-dried probiotic bacteria and nourishment, designed for rapid organic matter decomposition, nutrient control, and substrate cleaning in both marine and freshwater aquariums."
+        },
+        {
+          "product_name": "Pro Bio S",
+          "category": "probiotic_method",
+          "keywords": ["liquid probiotic bacteria", "nitrate reduction", "phosphate reduction", "bacterioplankton", "płynne bakterie probiotyczne", "redukcja NO3 i PO4"],
+          "solves_problems": ["high nitrate and phosphate", "pathogenic microflora", "risk of fish disease", "lack of natural coral food", "wysokie nutrienty", "choroby ryb"],
+          "use_case": "A unique liquid blend of carefully selected probiotic bacterial strains, formulated to accelerate decomposition of organic matter and support nitrate (NO3) and phosphate (PO4) reduction in marine aquariums."
+        },
+        {
+          "product_name": "Reef Mineral Salt",
+          "category": "water_treatment",
+          "keywords": ["NaCl free salt", "Balling method", "ionic balance", "trace elements", "sól bez NaCl", "metoda Ballinga", "równowaga jonowa"],
+          "solves_problems": ["ionic imbalance from Balling", "mineral deficiencies", "long-term parameter instability", "faded coral colors", "zaburzona równowaga jonowa", "niedobory minerałów"],
+          "use_case": "A laboratory-grade, NaCl-free mineral salt designed to maintain optimal mineral levels and restore ionic balance in reef aquariums, especially during Balling method supplementation."
+        },
+        {
+          "product_name": "Reef Salt",
+          "category": "marine_salts",
+          "keywords": ["premium marine salt", "SPS/LPS salt", "synthetic sea salt", "ICP tested", "sól morska premium", "sól dla SPS"],
+          "solves_problems": ["finding a consistent salt mix", "poor polyp extension", "slow coral growth", "faded colors", "problem z powtarzalnością parametrów soli", "słaby wzrost korali"],
+          "use_case": "A premium laboratory-grade synthetic sea salt, optimized for SPS and LPS reef aquariums as well as mixed reefs."
+        },
+        {
+          "product_name": "Reef Salt Plus",
+          "category": "marine_salts",
+          "keywords": ["high alkalinity salt", "elevated macroelements", "SPS salt", "heavily stocked tank salt", "sól z podwyższonymi parametrami", "sól dla wymagających SPS"],
+          "solves_problems": ["high consumption of Ca/KH/Mg", "need for constant supplementation", "maintaining stability in heavily stocked tanks", "wysoka konsumpcja makroelementów", "konieczność ciągłej suplementacji"],
+          "use_case": "A premium marine salt with elevated, ionically balanced concentrations of key macroelements such as alkalinity, calcium, and magnesium, specifically developed for heavily stocked SPS and LPS reef tanks."
+        },
+        {
+          "product_name": "Sea Salt",
+          "category": "marine_salts",
+          "keywords": ["basic marine salt", "fish-only salt", "soft coral salt", "easy dissolving", "podstawowa sól morska", "sól do akwarium z rybami"],
+          "solves_problems": ["setting up a fish-only tank", "water for soft coral aquariums", "finding a reliable, basic salt", "salt leaving residue", "zakładanie akwarium typu fish-only", "sól zostawiająca osad"],
+          "use_case": "A high-quality, laboratory-made synthetic marine salt formulated for fish-only tanks, soft corals, and hardy invertebrates."
+        },
+        {
+          "product_name": "Seawater Silicon Gasket",
+          "category": "equipment",
+          "keywords": ["replacement gasket", "media reactor part", "leak-proof seal", "silicone gasket", "uszczelka wymienna", "część do reaktora"],
+          "solves_problems": ["leaking media reactor", "worn out gasket", "poor reactor seal", "przeciekający reaktor", "zużyta uszczelka"],
+          "use_case": "A high-quality, durable silicone gasket designed for tightness and longevity in Aquaforest media reactors."
+        },
+        {
+          "product_name": "Seawater Sponge Set",
+          "category": "equipment",
+          "keywords": ["replacement sponges", "media reactor parts", "filtration sponge", "zestaw gąbek", "gąbki do reaktora"],
+          "solves_problems": ["media escaping from reactor", "clogged reactor sponges", "reduced reactor efficiency", "uciekanie mediów z reaktora", "zapchane gąbki"],
+          "use_case": "A set of high-quality, durable replacement sponges designed for use in Aquaforest fluidization (media) reactors: AF90, AF110, AF130."
+        },
+        {
+          "product_name": "Upper Strainer",
+          "category": "equipment",
+          "keywords": ["replacement strainer", "media reactor part", "sitko wymienne", "część do reaktora AF"],
+          "solves_problems": ["media escaping reactor", "clogged strainer", "uneven fluidization", "media bypass", "uciekanie mediów górą reaktora", "zapchane sitko"],
+          "use_case": "A replacement strainer designed specifically for Aquaforest media reactors: AF90, AF110, and AF130."
+        },
+        {
+          "product_name": "Stone Fix",
+          "category": "aquascaping",
+          "keywords": ["cement glue", "rock bonding", "aquascaping adhesive", "fast setting", "klej cementowy", "klejenie skał"],
+          "solves_problems": ["securely bonding large rocks", "creating stable rock structures", "rocks falling apart", "high pH spike from other glues", "problem z klejeniem dużych skał", "niestabilna aranżacja"],
+          "use_case": "A fast-bonding, highly efficient cement-based glue formulated for securely connecting large elements of live or ceramic aquarium rock in both marine and freshwater aquariums."
+        },
+        {
+          "product_name": "Strontium",
+          "category": "water_treatment",
+          "keywords": ["strontium supplement", "barium", "coral skeletal growth", "calcium uptake", "suplement strontu", "wzrost szkieletu korali"],
+          "solves_problems": ["strontium deficiency", "poor calcium absorption", "slow coral growth", "faded tissue color", "niedobór strontu", "słabe przyswajanie wapnia"],
+          "use_case": "A laboratory-grade, highly concentrated liquid supplement containing strontium and barium, designed for all marine aquariums—especially SPS and LPS reefs."
+        },
+        {
+          "product_name": "TestPro Pack",
+          "category": "water_tests",
+          "keywords": ["multipack test kit", "Ca, KH, Mg test", "water testing", "zestaw testów", "test na Ca, KH, Mg"],
+          "solves_problems": ["monitoring crucial reef parameters", "convenient testing solution", "incorrect supplementation", "diagnosing stability issues", "konieczność testowania podstawowych parametrów", "problem z utrzymaniem stabilności"],
+          "use_case": "A multipack drop test kit designed for fast, accurate measurement of the three most crucial reef aquarium parameters: calcium (Ca), magnesium (Mg), and carbonate hardness (KH/alkalinity)."
+        },
+        {
+          "product_name": "Zeo Mix",
+          "category": "water_treatment",
+          "keywords": ["zeolite media", "ULNS filtration", "ammonia removal", "heavy metal removal", "zeolit", "filtracja dla ULNS"],
+          "solves_problems": ["high ammonia and ammonium", "high nitrate formation", "heavy metal contamination", "nutrient stripping in ULNS", "wysoki amoniak", "problem z metalami ciężkimi w wodzie"],
+          "use_case": "A specialized blend of selected zeolites designed for demanding marine aquariums, including those with plentiful livestock and Ultra Low Nutrient Systems (ULNS)."
+        },
+        {
+          "product_name": "AF OceanGuard Aquarium Set",
+          "category": "aquariums",
+          "keywords": ["reef aquarium system", "Optiwhite glass tank", "integrated sump", "all-in-one reef tank", "zestaw akwariowy morski", "akwarium optiwhite"],
+          "solves_problems": ["difficulty matching components", "overflow noise", "cabinet water damage", "complex plumbing setup", "problem z doborem sprzętu", "głośny spływ wody"],
+          "use_case": "A premium reef aquarium system designed by AF in cooperation with top aquarists and marine engineers, including an Optiwhite tank, PVC sump, marine-grade cabinet, and professional plumbing."
+        },
+        {
+          "product_name": "AF Anti Phosphate",
+          "category": "water_treatment",
+          "keywords": ["phosphate remover", "freshwater", "PO4 adsorber", "algae control", "usuwanie fosforanów w akwarium słodkowodnym", "kontrola glonów"],
+          "solves_problems": ["high phosphate in freshwater tanks", "cyanobacteria outbreak", "red algae (krasnorosty)", "stunted plant growth", "wysokie PO4 w akwarium słodkowodnym", "plaga sinic i krasnorostów"],
+          "use_case": "A highly efficient filter media designed to remove excess phosphates (PO4) from freshwater aquariums."
+        },
+        {
+          "product_name": "AF Carbon",
+          "category": "water_treatment",
+          "keywords": ["activated carbon", "freshwater", "chemical filtration", "removes medication", "węgiel aktywowany do akwarium słodkowodnego", "filtracja chemiczna"],
+          "solves_problems": ["water discoloration (yellow tint)", "medication residue", "chlorine from tap water", "chemical impurities", "żółte zabarwienie wody", "pozostałości po lekach"],
+          "use_case": "A premium, steam-activated carbon granulate designed for chemical filtration in freshwater aquariums, garden ponds, and water features."
+        },
+        {
+          "product_name": "AF Carbon Boost",
+          "category": "supplements",
+          "keywords": ["liquid carbon", "plant fertilizer", "CO2 alternative", "algae control", "węgiel w płynie", "nawóz dla roślin", "alternatywa dla CO2"],
+          "solves_problems": ["slow plant growth", "algae issues (red, filamentous)", "carbon deficiency", "stunted or pale leaves", "słaby wzrost roślin", "problem z glonami"],
+          "use_case": "A professional, highly efficient liquid carbon fertilizer formulated for daily use in planted freshwater aquariums."
+        },
+        {
+          "product_name": "AF Clear Boost",
+          "category": "water_treatment",
+          "keywords": ["water clarifier", "removes cloudiness", "suspended particles", "crystal clear water", "preparat klarujący wodę", "usuwanie zmętnienia"],
+          "solves_problems": ["cloudy or milky water", "turbidity after maintenance", "suspended particles from substrate", "poor water clarity", "mętna lub mleczna woda", "zmętnienie po pracach w akwarium"],
+          "use_case": "A highly effective liquid water clarifier for freshwater aquariums, designed to quickly remove all types of turbidity and restore crystal-clear water."
+        },
+        {
+          "product_name": "AF Iron Boost",
+          "category": "supplements",
+          "keywords": ["iron fertilizer", "chelated iron", "plant supplement", "red plants", "nawóz żelazowy", "chelat żaza", "czerwone rośliny"],
+          "solves_problems": ["iron deficiency (chlorosis)", "yellowing leaves", "pale green or red plants", "stunted plant growth", "chloroza", "żółknięcie liści", "blade kolory roślin"],
+          "use_case": "A professional, highly concentrated, and easily absorbable iron (Fe2+) chelate fertilizer designed for freshwater aquarium plants."
+        },
+        {
+          "product_name": "AF K Boost",
+          "category": "supplements",
+          "keywords": ["potassium fertilizer", "plant supplement", "macronutrient", "nawóz potasowy", "suplement dla roślin"],
+          "solves_problems": ["potassium deficiency", "yellowing of leaf edges", "holes in leaves", "stunted plant growth", "niedobór potasu", "żółknące krawędzie liści", "dziury w liściach"],
+          "use_case": "A professional, highly absorbable potassium fertilizer for freshwater aquarium plants."
+        },
+        {
+          "product_name": "AF Lava Soil / AF Lava Soil Black",
+          "category": "aquascaping",
+          "keywords": ["volcanic substrate", "planted tank soil", "mineral enriched", "brown substrate", "black substrate", "podłoże wulkaniczne", "ziemia do akwarium roślinnego"],
+          "solves_problems": ["poor plant root development", "anaerobic zones in substrate", "lack of long-term nutrients", "substrate compaction", "słaby system korzeniowy roślin", "strefy beztlenowe w podłożu"],
+          "use_case": "Natural volcanic substrates enriched with essential minerals, designed for all freshwater aquariums, available in brown and black."
+        }, 
+        {
+            "product_name": "AF Life Essence",
+            "category": "Uzdatnianie wody",
+            "keywords": ["bakterie nitryfikacyjne", "starter bakteryjny", "biostarter", "cykl azotowy", "dojrzewanie akwarium", "syndrom nowego akwarium", "skoki amoniaku", "klarowność wody", "flora bakteryjna", "nitrifying bacteria", "aquarium starter", "nitrogen cycle", "new tank syndrome", "ammonia spike", "water clarity", "beneficial bacteria"],
+            "solves_problems": ["syndrom nowego akwarium", "wysoki poziom amoniaku i toksycznych związków azotu", "biologiczna niestabilność po czyszczeniu filtra", "problem z rozpoczęciem cyklu azotowego", "utrata flory bakteryjnej po leczeniu ryb", "new tank syndrome", "ammonia spikes", "biological imbalance", "slow tank maturation", "bacterial bloom"],
+            "use_case": "Płynny biostarter zawierający żywe bakterie nitryfikacyjne, przeznaczony do szybkiego uruchomienia i utrzymania filtracji biologicznej w akwariach słodkowodnych."
+        },
+        {
+            "product_name": "AF Macro",
+            "category": "Suplementy",
+            "keywords": ["nawóz makroelementowy", "NPK", "azot, fosfor, potas", "nawóz dla roślin", "suplementacja makro", "silny wzrost roślin", "wybarwienie roślin", "macroelement fertilizer", "plant growth supplement", "NPK fertilizer", "plant nutrition", "aquarium plant fertilizer"],
+            "solves_problems": ["niedobory makroelementów (NPK)", "zahamowanie wzrostu roślin", "osłabienie pędów", "odbarwienie i blaknięcie liści", "dziury w liściach", "słaba kondycja roślin w akwariach high-tech", "nutrient deficiencies", "stunted plant growth", "leaf discoloration", "weak shoots"],
+            "use_case": "Wysoko skoncentrowany nawóz bazowy z kompletem makroelementów (NPK) i magnezem, skomponowany dla intensywnego wzrostu i wybarwienia roślin akwariowych."
+        },
+        {
+            "product_name": "AF Micro",
+            "category": "Suplementy",
+            "keywords": ["nawóz mikroelementowy", "mikroelementy", "pierwiastki śladowe", "żelazo, mangan, cynk, bor", "nawóz w płynie", "zdrowie roślin", "wybarwienie", "micronutrient fertilizer", "trace elements", "liquid fertilizer", "plant health", "vibrant colors"],
+            "solves_problems": ["niedobór mikroelementów", "chloroza (żółknięcie liści)", "deformacje liści", "zahamowanie wzrostu", "blade, słabe kolory roślin", "problemy z fotosyntezą", "micronutrient deficiency", "chlorosis", "leaf deformation", "stunted growth", "pale plant coloration"],
+            "use_case": "Skoncentrowany nawóz w płynie z kompletnym zestawem mikroelementów, zapewniający roślinom bujny wzrost, zdrowie i intensywne kolory."
+        },
+        {
+            "product_name": "AF Minus pH",
+            "category": "Uzdatnianie wody",
+            "keywords": ["obniżanie pH", "korektor pH", "kwaśna woda", "miękka woda", "biotop Amazonii", "paletki, neony", "uzdatniacz", "pH lowering conditioner", "acidic water", "softwater biotope", "discus, tetras", "pH adjustment", "blackwater"],
+            "solves_problems": ["zbyt wysoki odczyn pH wody", "twarda woda kranowa", "choroba zasadowa u ryb", "trudności w hodowli ryb kwasolubnych", "słabe przyswajanie składników przez rośliny", "ryzyko toksyczności amoniaku przy wysokim pH", "high pH levels", "alkaline disease", "difficulty breeding softwater fish", "poor nutrient absorption by plants"],
+            "use_case": "Profesjonalny preparat do bezpiecznego i kontrolowanego obniżania odczynu pH wody akwariowej."
+        },
+        {
+            "product_name": "AF N Boost",
+            "category": "Suplementy",
+            "keywords": ["nawóz azotowy", "azot dla roślin", "podnoszenie NO3", "suplementacja azotu", "booster azotu", "akwarium holenderskie", "nitrogen fertilizer", "nitrate supplement", "raising NO3", "nitrogen booster", "high-tech tank"],
+            "solves_problems": ["niedobór azotu", "zerowy lub zbyt niski poziom NO3", "zahamowanie wzrostu roślin", "chloroza, żółknięcie i brunatnienie starszych liści", "słabe rozkrzewianie się roślin", "nitrogen deficiency", "low NO3 levels", "stunted growth", "yellowing and browning leaves", "chlorosis"],
+            "use_case": "Profesjonalny i łatwo przyswajalny nawóz azotowy, przeznaczony do precyzyjnego uzupełniania niedoborów azotu w akwarium."
+        },
+        {
+            "product_name": "AF Natural Substrate",
+            "category": "Podłoża",
+            "keywords": ["podłoże odżywcze", "substrat pod żwir", "torf i glina", "żyzne podłoże", "aquascaping", "podłoże dla roślin", "buforowanie pH", "nutrient-rich substrate", "peat and clay base", "planted aquarium soil", "aquascape substrate", "CEC"],
+            "solves_problems": ["jałowe podłoże (piasek, żwir)", "słaby rozwój systemu korzeniowego", "brak długoterminowego źródła składników odżywczych dla roślin", "niestabilne lub zbyt wysokie pH", "poor root development", "lack of long-term nutrients in substrate", "unfertile soil"],
+            "use_case": "Bogate w składniki odżywcze podłoże torfowo-gliniaste, stanowiące żyzną bazę pod żwir lub piasek w akwariach roślinnych."
+        },
+        {
+            "product_name": "AF PO4 Boost",
+            "category": "Suplementy",
+            "keywords": ["nawóz fosforowy", "fosfor dla roślin", "podnoszenie PO4", "suplementacja fosforu", "booster fosforu", "fosforany", "phosphorus fertilizer", "phosphate supplement", "raising PO4", "phosphate booster", "high-tech tank"],
+            "solves_problems": ["niedobór fosforu", "zerowy lub zbyt niski poziom PO4", "zahamowanie wzrostu roślin", "brązowienie i zamieranie końcówek liści", "ciemnozielony, fioletowy nalot na liściach", "plagi krasnorostów przy zerowym PO4", "phosphorus deficiency", "low PO4 levels", "stunted growth", "browning or decaying leaf tips", "red algae issues"],
+            "use_case": "Profesjonalny, łatwo przyswajalny suplement fosforu, przeznaczony do precyzyjnego uzupełniania niedoborów fosforu w akwarium."
+        },
+        {
+            "product_name": "AF Purify",
+            "category": "Leczenie ryb",
+            "keywords": ["ospa rybia", "Ichthyophthirius", "leczenie ryb", "pleśniawka", "infekcje grzybicze", "pasożyty jednokomórkowe", "kwarantanna", "regeneracja ryb", "fishpox", "ich treatment", "fungal infection", "Saprolegnia", "parasite treatment", "quarantine medication"],
+            "solves_problems": ["ospa rybia (białe kropki)", "pleśniawka (watowate naloty)", "infekcje bakteryjne i grzybicze", "ataki pasożytów jednokomórkowych", "niska odporność ryb", "regeneracja skóry i ran po chorobie", "fishpox (Ichthyophthirius)", "fungal infections (Saprolegnia)", "single-celled parasite infections", "low fish immunity", "post-illness recovery"],
+            "use_case": "Profesjonalny preparat wspierający odporność i zdrowie ryb podczas leczenia ospy rybiej, pleśniawki oraz innych infekcji grzybiczych i pasożytniczych."
+        },
+        {
+            "product_name": "AF Purifying Resin",
+            "category": "Media filtracyjne",
+            "keywords": ["żywica jonowymienna", "absorber azotanów", "usuwanie NO3", "redukcja azotanów", "walka z glonami", "klarowanie wody", "regeneracja żywicy", "ion exchange resin", "nitrate remover", "NO3 absorber", "algae control", "water polishing", "reusable filter media"],
+            "solves_problems": ["chronicznie podwyższony poziom azotanów (NO3)", "problem z glonami spowodowany wysokim NO3", "potrzeba zmniejszenia częstotliwości podmian wody", "nagłe skoki azotanów", "brak klarowności wody", "elevated nitrate levels", "high NO3", "algae problems", "frequent water changes", "nitrate spikes"],
+            "use_case": "Specjalistyczna, selektywna żywica jonowymienna do chemicznego usuwania azotanów (NO3) z akwariów słodkowodnych."
+        },
+        {
+            "product_name": "AF Red Boost",
+            "category": "Suplementy",
+            "keywords": ["nawóz dla czerwonych roślin", "wybarwienie roślin", "intensyfikacja czerwieni", "fitohormony", "żelazo dla roślin", "czerwone, purpurowe rośliny", "red plant fertilizer", "color enhancer", "intensifying red colors", "phytohormones", "iron supplement"],
+            "solves_problems": ["blaknięcie i utrata czerwonego koloru u roślin", "słabo wybarwione nowe przyrosty", "niedobory żelaza i mikroelementów u czerwonych gatunków", "karłowacenie i słaby wzrost czerwonych roślin", "faded or lost red coloration in plants", "pale new leaves", "iron and micronutrient deficiency", "stunted growth of red plants"],
+            "use_case": "Specjalistyczny nawóz z mikroelementami i fitohormonami, stworzony do intensyfikacji czerwonych, purpurowych i pomarańczowych barw u roślin akwariowych."
+        },
+        {
+            "product_name": "AF Remineralizer",
+            "category": "Uzdatnianie wody",
+            "keywords": ["mineralizator RO", "remineralizacja wody", "podnoszenie GH i KH", "wapń i magnez dla roślin", "woda dla krewetek", "przygotowanie wody RO", "twardość ogólna i węglanowa", "remineralize RO water", "GH KH balance", "calcium magnesium ratio", "liquid mineralizer"],
+            "solves_problems": ["jałowa woda z filtra RO, dejonizowana lub destylowana", "niedobór minerałów u ryb, roślin i krewetek", "problemy z wylinką u krewetek", "stres osmotyczny", "niestabilne parametry GH i KH", "zbyt miękka woda", "demineralized water problems", "mineral deficiency", "molting issues in shrimp", "osmotic stress"],
+            "use_case": "Profesjonalny płynny mineralizator do wody RO, który wzbogaca ją w niezbędne minerały, podnosząc twardość GH i KH w idealnym stosunku 2:1."
+        },
+        {
+            "product_name": "AF Shrimp GH+",
+            "category": "Mineralizatory",
+            "keywords": ["mineralizator dla krewetek", "podnoszenie GH", "nie zmienia KH", "krewetki Caridina", "Bee i Crystal shrimp", "woda RO dla krewetek", "wylinka", "pancerz krewetki", "shrimp mineralizer", "raise GH", "remineralize RO for shrimp", "molting problems"],
+            "solves_problems": ["problemy z wylinką u wrażliwych krewetek", "trudności w hodowli krewetek Caridina", "niedobory minerałów w wodzie RO", "zbyt miękka woda (niskie GH)", "słaba budowa pancerza", "problemy z przeżywalnością i rozmnażaniem", "molting problems", "low GH", "breeding issues with sensitive shrimp"],
+            "use_case": "Specjalistyczny mineralizator do wody RO, który podnosi wyłącznie twardość ogólną (GH), tworząc idealne warunki dla wrażliwych krewetek z rodzaju Caridina."
+        },
+        {
+            "product_name": "AF StarterPack Freshwater",
+            "category": "Zestawy startowe",
+            "keywords": ["zestaw na start akwarium", "komplet produktów dla początkujących", "jak założyć akwarium", "dojrzewanie akwarium", "bakterie, nawozy, uzdatniacz", "aquarium starter kit", "beginner aquarium set", "new tank setup", "aquarium cycling", "all-in-one kit"],
+            "solves_problems": ["problemy na starcie akwarium", "wolne dojrzewanie zbiornika", "plagi glonów w nowym akwarium", "mętna woda", "choroby ryb na starcie", "zamieranie nowo posadzonych roślin", "new tank syndrome", "slow cycling", "initial algae blooms", "cloudy water", "new fish diseases", "plant die-off"],
+            "use_case": "Kompletny zestaw produktów, który rozwiązuje najczęstsze problemy na starcie i ułatwia pierwsze miesiące prowadzenia akwarium słodkowodnego."
+        },
+        {
+            "product_name": "AF Water Conditioner",
+            "category": "Uzdatnianie wody",
+            "keywords": ["uzdatniacz do wody kranowej", "neutralizator chloru i chloraminy", "usuwanie metali ciężkich", "koloid ochronny", "ochrona ryb", "podmiana wody", "tap water conditioner", "chlorine remover", "heavy metal neutralizer", "fish protector"],
+            "solves_problems": ["toksyczny chlor i chloramina w wodzie z kranu", "obecność szkodliwych metali ciężkich", "stres u ryb podczas transportu i aklimatyzacji", "ryzyko uszkodzenia skrzeli i skóry", "podrażnienia błony śluzowej", "toxic chlorine and chloramine", "heavy metals", "fish stress", "gill and skin irritation"],
+            "use_case": "Błyskawiczny preparat, który uzdatnia surową wodę wodociągową, neutralizując chlor oraz metale ciężkie i chroniąc ryby dzięki zawartości witamin i koloidu."
+        },
+        {
+            "product_name": "AF Zeolith",
+            "category": "Media filtracyjne",
+            "keywords": ["zeolit", "filtracja chemiczna", "usuwanie amoniaku", "absorber NH3 i NH4+", "klarowanie wody", "usuwanie metali ciężkich", "wkład do filtra", "zeolite", "chemical filtration", "ammonia remover", "water polisher", "filter media"],
+            "solves_problems": ["wysoki, toksyczny poziom amoniaku (NH3)", "nagłe skoki amoniaku", "obecność metali ciężkich w wodzie", "problem z glonami z powodu nadmiaru amoniaku", "brak krystalicznej przejrzystości wody", "zatrucia ryb w przerybionych zbiornikach", "high ammonia levels", "ammonia spikes", "heavy metal contamination", "algae blooms"],
+            "use_case": "Naturalne medium filtracyjne do chemicznego pochłaniania toksycznego amoniaku, jonów amonowych i metali ciężkich z wody akwariowej."
+        },
+        {
+            "product_name": "Life Bio Media",
+            "category": "Media filtracyjne",
+            "keywords": ["medium biologiczne", "filtracja biologiczna", "bakterie nitryfikacyjne w medium", "porowata ceramika", "start cyklu azotowego", "dojrzewanie filtra", "wkład do filtra", "biological media", "live bacteria", "nitrifying bacteria", "aquarium cycling", "bio-filter media"],
+            "solves_problems": ["powolny start cyklu azotowego", "niestabilna filtracja biologiczna", "problem z amoniakiem i azotynami (NH3/NO2) w nowym akwarium", "niewystarczająca powierzchnia dla bakterii w filtrze", "utrata flory bakteryjnej po czyszczeniu filtra", "slow nitrogen cycle", "unstable biological filtration", "ammonia and nitrite spikes", "new tank syndrome"],
+            "use_case": "Porowate, naturalne medium filtracyjne zasiedlone żywymi bakteriami nitryfikacyjnymi, które natychmiast rozpoczyna i wzmacnia filtrację biologiczną w akwarium."
+        },
+        {
+            "product_name": "Barium",
+            "category": "Mikroelementy LAB",
+            "keywords": ["suplement baru", "bar w akwarium morskim", "testy ICP-OES", "wzrost korali SPS", "budowa szkieletu", "przyswajanie wapnia", "barium supplement", "reef tank", "coral growth", "skeletal formation", "ICP dosing"],
+            "solves_problems": ["niedobór baru", "zbyt wysoki poziom baru", "spowolnione tempo wzrostu korali", "problemy z budową szkieletu", "słabe przyswajanie wapnia", "barium deficiency or excess", "slow coral growth", "impaired skeletal formation"],
+            "use_case": "Laboratoryjny suplement baru do precyzyjnego utrzymywania jego stężenia w akwariach morskich na podstawie wyników testów ICP-OES."
+        },
+        {
+            "product_name": "Borium",
+            "category": "Mikroelementy LAB",
+            "keywords": ["suplement boru", "bor w akwarium morskim", "kalcyfikacja", "wybarwienie korali", "algi wapienne", "metabolizm wapnia", "boron supplement", "calcification", "coral coloration", "SPS, LPS", "coralline algae"],
+            "solves_problems": ["niedobór boru", "spowolniony wzrost korali i alg wapiennych", "blednięcie kolorów (żółty, pomarańczowy, czerwony)", "słaba kalcyfikacja", "kruchy szkielet koralowców", "boron deficiency", "slow growth", "fading coral colors", "brittle skeletons"],
+            "use_case": "Profesjonalny suplement boru, który wspiera metabolizm wapnia, stymuluje kalcyfikację oraz intensyfikuje żółte, pomarańczowe i czerwone barwy koralowców."
+        },
+        {
+            "product_name": "Bromium",
+            "category": "Mikroelementy LAB",
+            "keywords": ["suplement bromu", "brom w akwarium morskim", "odporność korali", "substancje obronne", "enzymy", "witalność", "bromine supplement", "coral immunity", "natural defense", "reef tank vitality"],
+            "solves_problems": ["niedobór bromu", "pogorszona kondycja koralowców", "osłabione wybarwienie", "podatność na stres", "spadek witalności organizmów morskich", "bromine deficiency", "poor coral health", "faded coloration", "stress susceptibility"],
+            "use_case": "Skoncentrowany suplement bromu, który stymuluje produkcję naturalnych substancji obronnych, wzmacniając odporność i witalność organizmów morskich."
+        },
+        {
+            "product_name": "Ca plus",
+            "category": "Makroelementy LAB",
+            "keywords": ["suplement wapnia", "podnoszenie wapnia", "niskie Ca", "wzrost korali SPS i LPS", "kalcyfikacja", "makroelementy", "calcium supplement", "raising Ca", "low calcium", "SPS & LPS growth", "calcification"],
+            "solves_problems": ["niski lub niestabilny poziom wapnia (Ca)", "zahamowanie wzrostu koralowców", "osłabienie lub kruchość szkieletów", "pogorszenie wybarwienia", "nagłe spadki wapnia w zbiornikach z dużą obsadą", "low or unstable calcium levels", "coral growth inhibition", "weak coral skeletons", "poor coloration"],
+            "use_case": "Wysoce skoncentrowany preparat do szybkiego i efektywnego uzupełniania niedoborów oraz utrzymywania optymalnego poziomu wapnia w akwarium morskim."
+        },
+        {
+            "product_name": "Chromium",
+            "category": "Mikroelementy LAB",
+            "keywords": ["suplement chromu", "chrom w akwarium morskim", "mikroelementy", "metabolizm korali", "ICP-OES", "dozowanie na podstawie testów", "chromium supplement", "trace element", "reef aquarium", "coral metabolism"],
+            "solves_problems": ["niedobór chromu", "zaburzenia wzrostu koralowców", "pogorszenie wybarwienia", "rozregulowanie równowagi biologicznej w akwarium", "chromium deficiency", "impaired coral growth", "poor coloration", "biological imbalance"],
+            "use_case": "Precyzyjny, laboratoryjny suplement do utrzymywania prawidłowego stężenia chromu w akwariach morskich, dozowany na podstawie testów ICP-OES."
+        },
+        {
+            "product_name": "Cobaltum",
+            "category": "Mikroelementy LAB",
+            "keywords": ["suplement kobaltu", "kobalt w akwarium", "wybarwienie ryb", "synteza witaminy B12", "metabolizm", "wzrost glonów", "cobalt supplement", "fish coloration", "vitamin B12 synthesis", "reef tank"],
+            "solves_problems": ["niedobór kobaltu", "blade, niewyraźne barwy ryb", "spadek witalności mieszkańców akwarium", "osłabiona aktywność pożytecznych mikroorganizmów", "cobalt deficiency", "pale fish colors", "reduced vitality", "weakened microbial activity"],
+            "use_case": "Skoncentrowany suplement kobaltu, który intensyfikuje wybarwienie ryb i wspiera kluczowe procesy metaboliczne w akwarium morskim."
+        },
+        {
+            "product_name": "Components Pro",
+            "category": "Metoda Ballinga",
+            "keywords": ["metoda Ballinga", "suplementacja Ca, KH, Mg", "zestaw do Ballinga", "równowaga jonowa", "stabilne parametry", "makro i mikroelementy", "Balling method", "Ca, KH, Mg supplements", "ionic balance", "stable parameters"],
+            "solves_problems": ["niestabilne poziomy Ca, KH, Mg", "brak równowagi jonowej", "niedobory kluczowych pierwiastków w akwarium z dużą obsadą SPS", "skomplikowana suplementacja wieloma produktami", "unstable water parameters", "ionic imbalance", "elemental deficiencies", "complex dosing routine"],
+            "use_case": "Profesjonalny, trzyczęściowy zestaw do metody Ballinga, zapewniający kompleksową i zbilansowaną suplementację wszystkich niezbędnych mikro- i makroelementów."
+        },
+        {
+            "product_name": "Fluorum",
+            "category": "Mikroelementy LAB",
+            "keywords": ["suplement fluoru", "fluor w akwarium morskim", "wybarwienie korali SPS", "fluorescencja", "kalcyfikacja", "szkielet korali", "fluoride supplement", "SPS coral coloration", "fluorescence", "calcification"],
+            "solves_problems": ["niedobór fluoru", "słabe niebieskie i białe wybarwienie koralowców", "słaba lub przygaszona fluorescencja", "spowolniony wzrost korali", "osłabiony lub kruchy szkielet", "fluoride deficiency", "poor blue and white coloration", "weak fluorescence", "stunted growth"],
+            "use_case": "Skoncentrowany suplement fluoru, który wzmacnia niebieskie i białe wybarwienie koralowców SPS, intensyfikuje fluorescencję oraz wspiera budowę ich szkieletów."
+        },
+        {
+            "product_name": "ICP Test 1",
+            "category": "Testy ICP",
+            "keywords": ["test ICP-OES", "analiza wody morskiej", "badanie wody RO", "badanie pierwiastków", "39 parametrów", "mikroelementy, makroelementy, zanieczyszczenia", "ICP-OES test", "seawater analysis", "RO water test", "elemental analysis"],
+            "solves_problems": ["nieznany skład chemiczny wody", "niewyjaśnione problemy ze zdrowiem i wybarwieniem korali", "potrzeba precyzyjnej diagnostyki parametrów", "optymalizacja suplementacji i dozowania", "wykrywanie zanieczyszczeń i toksyn", "unknown water chemistry", "unexplained coral issues", "need for precise diagnostics"],
+            "use_case": "Profesjonalny test laboratoryjny ICP-OES do precyzyjnej i kompleksowej analizy 39 parametrów chemicznych wody morskiej lub wody z filtra RO."
+        },
+        {
+            "product_name": "ICP Test 2",
+            "category": "Testy ICP",
+            "keywords": ["podwójny test ICP", "analiza wody morskiej i RO", "porównanie wody", "sprawdzanie filtra RO", "diagnostyka problemów w akwarium", "dual sample ICP test", "seawater and RO analysis", "water comparison", "RO filter check"],
+            "solves_problems": ["diagnostyka źródła zanieczyszczeń w akwarium", "ocena sprawności i wydajności filtra RO", "porównanie składu wody z akwarium i świeżej solanki", "potrzeba kompleksowej analizy całego systemu wodnego", "diagnosing contamination sources", "evaluating RO filter performance", "finding source of problems"],
+            "use_case": "Dwupróbkowy zestaw ICP-OES do jednoczesnej analizy wody z akwarium i wody z filtra RO, pozwalający na pełną diagnostykę i porównanie składu chemicznego."
+        },
+        {
+            "product_name": "ICP Test 5+1",
+            "category": "Testy ICP",
+            "keywords": ["wielopak testów ICP", "6 testów ICP", "analiza wody morskiej", "regularne monitorowanie parametrów", "plan suplementacji", "długoterminowa kontrola", "multipack ICP test", "seawater analysis", "regular monitoring", "supplementation plan", "long-term control"],
+            "solves_problems": ["potrzeba regularnego monitorowania parametrów wody", "śledzenie zmian w chemii wody w czasie", "zarządzanie suplementacją w wielu zbiornikach", "optymalizacja długoterminowego dozowania", "trudności w utrzymaniu stabilności", "need for regular parameter monitoring", "tracking chemical changes over time", "managing multiple tanks"],
+            "use_case": "Zestaw sześciu profesjonalnych testów ICP-OES do regularnego, kompleksowego monitorowania parametrów i optymalizacji suplementacji w akwarium morskim."
+        },
+        {
+            "product_name": "Iodum",
+            "category": "Mikroelementy LAB",
+            "keywords": ["suplement jodu", "jod w akwarium morskim", "wybarwienie fioletowe i niebieskie", "wylinka krewetek", "odporność korali", "ochrona przed UV", "iodine supplement", "purple and blue coloration", "shrimp molting", "coral immunity", "UV protection"],
+            "solves_problems": ["niedobór jodu", "słabe lub blade fioletowe i niebieskie wybarwienie korali", "problemy z wylinką u bezkręgowców", "obniżona odporność na stres", "szybkie zużycie jodu przez system", "iodine deficiency", "poor purple/blue colors", "molting issues", "low stress resilience"],
+            "use_case": "Precyzyjny suplement jodu, który intensyfikuje niebieskie i fioletowe wybarwienie koralowców, wspiera prawidłowe linienie bezkręgowców oraz chroni ich tkanki."
+        },
+        {
+            "product_name": "Kalium",
+            "category": "Mikroelementy LAB",
+            "keywords": ["suplement potasu", "potas w akwarium morskim", "wybarwienie różowe i czerwone", "korale SPS", "filtracja na zeolitach", "transport składników", "potassium supplement", "pink and red coloration", "SPS corals", "zeolite filtration"],
+            "solves_problems": ["niedobór potasu", "wyblakłe lub słabe różowe i czerwone kolory u koralowców SPS", "zaburzenia metaboliczne", "problemy z transportem składników odżywczych u korali miękkich", "potassium deficiency", "faded pink and red colors", "metabolic disorders"],
+            "use_case": "Wysoko skoncentrowany suplement potasu, który wspiera transport składników odżywczych oraz jest kluczowy dla intensywnych różowych i czerwonych barw koralowców SPS."
+        },
+        {
+            "product_name": "KH Plus",
+            "category": "Makroelementy LAB",
+            "keywords": ["podnoszenie KH", "bufor KH", "twardość węglanowa", "alkaliczność", "stabilizacja pH", "kalcyfikacja korali", "raising KH", "alkalinity buffer", "carbonate hardness", "pH stability", "calcification"],
+            "solves_problems": ["niski lub niestabilny poziom KH", "nagłe spadki twardości węglanowej", "wahania pH", "problemy z kalcyfikacją i wzrostem szkieletu korali", "słaby wzrost korali", "low or unstable KH level", "sudden alkalinity drops", "pH swings", "calcification issues"],
+            "use_case": "Wysoce skoncentrowany preparat do szybkiego podnoszenia i stabilizacji twardości węglanowej (KH), kluczowej dla stabilności pH i wzrostu koralowców."
+        },
+        {
+            "product_name": "Lithium",
+            "category": "Mikroelementy LAB",
+            "keywords": ["suplement litu", "lit w akwarium morskim", "mikroelementy", "ICP-OES", "wymagające korale SPS i LPS", "stabilne parametry", "lithium supplement", "trace element", "demanding SPS & LPS corals", "stable parameters"],
+            "solves_problems": ["niedobór litu w stosunku do naturalnej wody morskiej", "potrzeba utrzymania pełnej stabilności parametrów dla bardzo wymagających korali", "odwzorowanie naturalnych warunków", "lithium deficiency", "maintaining stability for demanding corals"],
+            "use_case": "Skoncentrowany suplement do precyzyjnej regulacji poziomu litu w zaawansowanych akwariach rafowych, w celu utrzymania warunków maksymalnie zbliżonych do naturalnych."
+        },
+        {
+            "product_name": "Manganum",
+            "category": "Mikroelementy LAB",
+            "keywords": ["suplement manganu", "mangan w akwarium morskim", "fotosynteza korali", "metabolizm", "wybarwienie korali", "odżywianie korali", "manganese supplement", "photosynthesis", "coral metabolism", "coloration"],
+            "solves_problems": ["niedobór manganu", "zaburzenia procesów fotosyntezy", "zahamowanie wzrostu koralowców", "pogorszenie wybarwienia", "problemy z odżywianiem korali", "manganese deficiency", "impaired photosynthesis", "stunted coral growth", "diminished coloration"],
+            "use_case": "Precyzyjny suplement manganu, który wspiera kluczowe procesy metaboliczne, w tym fotosyntezę, zapewniając prawidłowe odżywianie, wzrost i wybarwienie koralowców."
+        },
+        {
+            "product_name": "Mg Plus",
+            "category": "Makroelementy LAB",
+            "keywords": ["suplement magnezu", "podnoszenie magnezu", "niski Mg", "stabilizacja Ca i pH", "kalcyfikacja", "zapobieganie wytrącaniu", "magnesium supplement", "raising Mg", "low magnesium", "Ca and pH stability", "precipitation prevention"],
+            "solves_problems": ["niski lub niestabilny poziom magnezu (Mg)", "problem z utrzymaniem prawidłowego poziomu wapnia", "nagłe spadki pH", "wytrącanie się węglanu wapnia", "low or unstable magnesium", "difficulty maintaining calcium levels", "pH drops", "calcium carbonate precipitation"],
+            "use_case": "Skoncentrowany suplement do szybkiego podnoszenia i utrzymywania poziomu magnezu, który jest kluczowy dla stabilności wapnia oraz pH w akwarium morskim."
+        },
+        {
+            "product_name": "Molybdenum",
+            "category": "Mikroelementy LAB",
+            "keywords": ["suplement molibdenu", "molibden w akwarium", "przemiany azotu", "biosynteza białek", "wzrost korali", "witamina C", "molybdenum supplement", "nitrogen metabolism", "protein biosynthesis", "coral growth"],
+            "solves_problems": ["niedobór molibdenu", "spowolniony lub całkowicie zatrzymany wzrost koralowców", "zaburzone procesy biologiczne", "problemy z przemianą azotu", "molybdenum deficiency", "slowed or inhibited coral growth", "impaired biological processes", "nitrogen cycle issues"],
+            "use_case": "Zaawansowany suplement molibdenu, który wspiera kluczowe procesy metaboliczne, takie jak przemiany azotu i biosyntezę białek, zapobiegając zahamowaniu wzrostu koralowców."
+        },
+        {
+            "product_name": "Niccolum",
+            "category": "Mikroelementy LAB",
+            "keywords": ["suplement niklu", "nikiel w akwarium", "metabolizm azotu i żelaza", "zdrowie mikroorganizmów", "bakterie", "jakość wody", "nickel supplement", "nitrogen and iron metabolism", "microorganism health", "water quality"],
+            "solves_problems": ["niedobór niklu", "osłabione przemiany azotu i żelaza", "negatywny wpływ na ogólną jakość wody", "osłabienie zdrowia korali i pożytecznych bakterii", "nickel deficiency", "impaired nitrogen and iron metabolism", "poor water quality", "weakened coral and bacteria health"],
+            "use_case": "Wysoko skoncentrowany suplement niklu, który wspiera metabolizm azotu i żelaza, co jest kluczowe dla zdrowia mikroorganizmów i ogólnej jakości wody w akwarium."
+        },
+        {
+            "product_name": "No3",
+            "category": "Makroelementy LAB",
+            "keywords": ["suplement azotanów", "podnoszenie NO3", "zbyt niskie nutrienty", "system ULNS", "wzrost korali", "blade korale", "stosunek N:P", "nitrate supplement", "raising NO3", "low nutrient system", "coral growth", "pale corals", "N:P ratio"],
+            "solves_problems": ["zbyt niski lub niewykrywalny poziom azotanów (NO3)", "zahamowanie wzrostu koralowców", "blade, pastelowe lub białe wybarwienie korali", "głodzenie korali w systemach o niskiej zawartości nutrientów (ULNS)", "zaburzony stosunek azotu do fosforu", "too low/undetectable nitrate levels", "stunted coral growth", "pale or white coloration"],
+            "use_case": "Czysty suplement azotanów do kontrolowanego podnoszenia ich poziomu w akwariach morskich z problemem zbyt niskich lub zerowych wartości nutrientów (ULNS)."
+        },
+        {
+            "product_name": "Po4",
+            "category": "Makroelementy LAB",
+            "keywords": ["suplement fosforanów", "podnoszenie PO4", "zbyt niskie nutrienty", "system ULNS", "wzrost korali LPS", "blade korale", "stosunek N:P 16:1", "phosphate supplement", "raising PO4", "low nutrient system", "LPS coral growth", "pale corals", "N:P ratio"],
+            "solves_problems": ["zbyt niski lub niewykrywalny poziom fosforanów (PO4)", "zahamowany wzrost koralowców (szczególnie LPS)", "blaknięcie i bielenie korali", "głodzenie korali w systemach ULNS", "trudności w obniżeniu NO3 z powodu braku PO4", "too low/undetectable phosphate levels", "stunted coral growth", "coral bleaching", "coral starvation"],
+            "use_case": "Precyzyjny suplement do kontrolowanego podnoszenia poziomu fosforanów (PO4) w akwariach morskich z problemem zbyt niskich wartości nutrientów."
+        },
+        {
+            "product_name": "Rubidium",
+            "category": "Mikroelementy LAB",
+            "keywords": ["suplement rubidu", "rubid w akwarium morskim", "pierwiastki śladowe", "ICP-OES", "naturalna woda morska", "stabilne parametry", "rubidium supplement", "trace elements", "natural seawater", "stable parameters"],
+            "solves_problems": ["niedobór rubidu w stosunku do naturalnej wody morskiej", "potencjalne niedobory pierwiastków śladowych", "potrzeba odtworzenia warunków maksymalnie zbliżonych do naturalnych", "rubidium deficiency", "unnatural elemental balance"],
+            "use_case": "Skoncentrowany suplement rubidu, przeznaczony do utrzymywania parametrów wody w akwarium morskim na poziomie jak najbardziej zbliżonym do naturalnego."
+        },
+        {
+            "product_name": "Strontium",
+            "category": "Mikroelementy LAB",
+            "keywords": ["suplement strontu", "stront w akwarium morskim", "wzrost korali twardych", "kalcyfikacja", "przyswajanie wapnia", "korale SPS i LPS", "szkielet korali", "strontium supplement", "hard coral growth", "calcification", "calcium absorption"],
+            "solves_problems": ["niedobór strontu", "spowolniony wzrost korali twardych (SPS, LPS)", "słabe wchłanianie wapnia", "problemy z budową i twardością tkanki szkieletowej", "słabe przyleganie tkanki miękkiej", "strontium deficiency", "slow hard coral growth", "poor calcium absorption"],
+            "use_case": "Wysoko skoncentrowany suplement strontu, który jest kluczowym pierwiastkiem dla prawidłowego wzrostu i budowy szkieletu koralowców twardych."
+        },
+        {
+            "product_name": "Sulphur",
+            "category": "Mikroelementy LAB",
+            "keywords": ["suplement siarki", "siarka w akwarium morskim", "aminokwasy", "metabolizm korali", "wybarwienie korali", "wzrost szkieletu", "sulphur supplement", "amino acids", "coral metabolism", "coloration", "skeletal growth"],
+            "solves_problems": ["niedobór siarki", "zaburzenia metaboliczne u organizmów morskich", "zahamowanie wzrostu koralowców", "słabe, niewyraziste wybarwienie", "sulphur deficiency", "metabolic disturbances", "stunted growth", "poor coloration"],
+            "use_case": "Skuteczny suplement siarki, który jako składnik aminokwasów wspiera procesy metaboliczne, intensywne wybarwienie oraz zdrowy wzrost koralowców."
+        },
+        {
+            "product_name": "Vanadium",
+            "category": "Mikroelementy LAB",
+            "keywords": ["suplement wanadu", "wanad w akwarium", "aktywator enzymów", "mineralizacja szkieletu", "metabolizm węglowodanów", "ICP-OES", "vanadium supplement", "enzyme activator", "skeletal mineralization", "carbohydrate metabolism"],
+            "solves_problems": ["niedobór wanadu", "problemy z prawidłową mineralizacją szkieletu", "zaburzenia metaboliczne", "osłabiona kondycja koralowców", "vanadium deficiency", "impaired skeletal mineralization", "metabolic disturbances"],
+            "use_case": "Skoncentrowany suplement wanadu, który jako aktywator enzymów wspiera metabolizm węglowodanów oraz proces mineralizacji szkieletu koralowców."
+        },
+        {
+            "product_name": "Zincum",
+            "category": "Mikroelementy LAB",
+            "keywords": ["suplement cynku", "cynk w akwarium", "regeneracja tkanek", "gojenie się ran", "wzrost korali", "metabolizm białek", "podziały komórkowe", "zinc supplement", "tissue repair", "wound healing", "coral growth", "protein metabolism"],
+            "solves_problems": ["niedobór cynku", "spowolniona regeneracja i gojenie się tkanek", "powolny wzrost koralowców", "uszkodzenia tkanek", "utrata wybarwienia", "zinc deficiency", "slow tissue repair", "stunted coral growth", "tissue damage"],
+            "use_case": "Skoncentrowany suplement cynku, który jako składnik enzymów jest kluczowy dla metabolizmu białek, stymulując wzrost i regenerację tkanek koralowców."
+        }
+
+  
+
+]

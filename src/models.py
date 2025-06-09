@@ -9,7 +9,6 @@ from enum import Enum
 class Intent(str, Enum):
     GREETING = "greeting"
     BUSINESS = "business"
-    CALCULATOR = "calculator"
     PRODUCT_QUERY = "product_query"
     PURCHASE_INQUIRY = "purchase_inquiry"
     COMPETITOR = "competitor"

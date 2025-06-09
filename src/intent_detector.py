@@ -39,18 +39,17 @@ CRITICAL CONTEXT ANALYSIS RULES:
 INTENTS:
 1. "greeting": Standard greetings (e.g., "hello", "hi", "good morning", "cześć", "dzień dobry", "siema", "siemanko").
 2. "business": Business inquiries (e.g., "partnership", "b2b", "wholesale", "współpraca", "dystrybucja", "oferta biznesowa").
-3. "calculator": Requests for dosage calculations (e.g., "calculate", "how much do I need", "oblicz", "ile potrzebuję").
-4. "product_query": Specific questions about products, aquarium problems, symptoms, or solutions. This is the most common intent.
-5. "purchase_inquiry": The user is asking where, how, or for how much they can buy a product (e.g., "how to buy", "price", "where can I get", "gdzie kupić", "jaka jest cena", "zamówienie", "chcę kupić", "jak dokonać zakupu").
-6. "competitor": Mentions of competitor brands (e.g., "Red Sea", "Seachem", "Tropic Marin").
-7. "censored": Questions about proprietary information like product formulas or production processes.
-8. "follow_up": The user is asking a direct follow-up question about the assistant's PREVIOUS response. Examples:
+3. "product_query": Specific questions about products, aquarium problems, symptoms, or solutions. This is the most common intent. Also includes dosage and calculation questions about specific products.
+4. "purchase_inquiry": The user is asking where, how, or for how much they can buy a product (e.g., "how to buy", "price", "where can I get", "gdzie kupić", "jaka jest cena", "zamówienie", "chcę kupić", "jak dokonać zakupu").
+5. "competitor": Mentions of competitor brands (e.g., "Red Sea", "Seachem", "Tropic Marin").
+6. "censored": Questions about proprietary information like product formulas or production processes.
+7. "follow_up": The user is asking a direct follow-up question about the assistant's PREVIOUS response. Examples:
     - "Can you give me the link for that?"
     - "A co z drugim produktem?"
     - "Tell me more."
     - "Dlaczego polecasz właśnie to?"
     - Simple clarification questions like "czym jest ta X?" after X was mentioned
-9. "other": Anything that doesn't fit the categories above.
+8. "other": Anything that doesn't fit the categories above.
 
 LANGUAGES: Detect the primary language of the LATEST USER MESSAGE (pl, en, de, fr, es, it, etc.).
 
@@ -109,8 +108,8 @@ Return ONLY a valid JSON object with your analysis of the LATEST USER MESSAGE:
                 state["intent"] = Intent.PRODUCT_QUERY
                 
         except Exception as e:
-            print(f"Intent detection error: {e}")
             if TEST_ENV:
+                print(f"❌ [DEBUG IntentDetector] Intent detection error: {e}")
                 print(f"❌ [DEBUG IntentDetector] Błąd detekcji, używam domyślnych wartości")
             # Default fallback
             state["intent"] = Intent.PRODUCT_QUERY
