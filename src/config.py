@@ -32,14 +32,23 @@ OPENAI_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS", "16384"))
 OPENAI_TEMPERATURE = float(os.getenv("OPENAI_TEMPERATURE", "0.3"))
 
 # App Configuration
-DEFAULT_K_VALUE = int(os.getenv("DEFAULT_K_VALUE", "15"))
-ENHANCED_K_VALUE = int(os.getenv("ENHANCED_K_VALUE", "20"))
-# Ten próg jest teraz używany w nowej, uproszczonej logice routingu
-CONFIDENCE_THRESHOLD = float(os.getenv("CONFIDENCE_THRESHOLD", "0.6"))
+DEFAULT_K_VALUE = int(os.getenv("DEFAULT_K_VALUE", "12"))
+ENHANCED_K_VALUE = int(os.getenv("ENHANCED_K_VALUE", "12"))
+
+# 🆕 LOWERED CONFIDENCE THRESHOLD from 0.6 to 0.5
+CONFIDENCE_THRESHOLD = float(os.getenv("CONFIDENCE_THRESHOLD", "0.5"))
+
 SUPPORTED_LANGUAGES = os.getenv("SUPPORTED_LANGUAGES", "pl,en,de,fr,es,it").split(",")
 
 # Paths
 PRODUCTS_FILE_PATH = os.getenv("PRODUCTS_FILE_PATH", "data/products.json")
+
+# 🆕 COMPETITOR LIST
+COMPETITORS = [
+    "Red Sea", "Seachem", "Tropic Marin", "Brightwell", "Two Little Fishies",
+    "Salifert", "Continuum", "Korallen-Zucht", "ESV", "Kent Marine",
+    "Aqua Medic", "Fauna Marin", "Nyos", "ATI", "Giesemann"
+]
 
 # Validate required variables
 if not PINECONE_API_KEY:
@@ -57,6 +66,8 @@ if TEST_ENV:
     print(f"📍 Embedding Model: {OPENAI_EMBEDDING_MODEL}")
     print(f"📍 Pinecone Index: {PINECONE_INDEX_NAME}")
     print(f"📍 Default K Value: {DEFAULT_K_VALUE}")
-    print(f"📍 Confidence Threshold: {CONFIDENCE_THRESHOLD}")
+    print(f"📍 Enhanced K Value: {ENHANCED_K_VALUE}")  
+    print(f"📍 Confidence Threshold: {CONFIDENCE_THRESHOLD} (🆕 LOWERED)")
     print(f"📍 Supported Languages: {', '.join(SUPPORTED_LANGUAGES)}")
+    print(f"📍 Competitors tracked: {len(COMPETITORS)}")
     print("="*60 + "\n")

@@ -1,17 +1,18 @@
 """
-LangGraph Workflow Definition - Wersja 2.1 with Debug
-Defines the complete RAG workflow using LangGraph
+LangGraph Workflow Definition - VERSION 3.1 with Improved Follow-up
+Enhanced follow-up routing, better cache utilization
 """
 from langgraph.graph import StateGraph, END
 from models import ConversationState, Intent
 from openai import OpenAI
 from intent_detector import detect_intent_and_language
 from query_optimizer import optimize_product_query
-from pinecone_client import search_products_k15
+from pinecone_client import search_products_k20
+from results_filter import intelligent_results_filter
 from confidence_scorer import evaluate_confidence, route_based_on_confidence
 from response_formatter import format_final_response, escalate_to_human, handle_follow_up
 import json
-from config import PRODUCTS_FILE_PATH, OPENAI_API_KEY, OPENAI_MODEL, TEST_ENV, debug_print
+from config import PRODUCTS_FILE_PATH, OPENAI_API_KEY, OPENAI_MODEL, TEST_ENV, debug_print, ENHANCED_K_VALUE
 
 def load_product_names(state: ConversationState) -> ConversationState:
     """Load product names into state"""
@@ -27,9 +28,7 @@ def load_product_names(state: ConversationState) -> ConversationState:
     return state
 
 def business_reasoner(state: ConversationState) -> ConversationState:
-    """
-    Business Logic Reasoner - myśli o query z business knowledge
-    """
+    """Business Logic Reasoner with competitor detection and product validation"""
     debug_print(f"🧠 [BusinessReasoner] Analyzing query: '{state['user_query']}'", "🧠")
     
     try:
@@ -38,6 +37,16 @@ def business_reasoner(state: ConversationState) -> ConversationState:
             products_knowledge = json.load(f)
         
         debug_print(f"📚 [BusinessReasoner] Loaded {len(products_knowledge)} products with business context")
+        
+        # 🆕 COMPETITOR LIST
+        COMPETITORS = ["Red Sea", "Seachem", "Tropic Marin", "Brightwell", "Two Little Fishies", 
+                      "Salifert", "Continuum", "Korallen-Zucht", "ESV", "Kent Marine"]
+        
+        # Check for competitors
+        is_competitor_query = any(comp.lower() in state["user_query"].lower() for comp in COMPETITORS)
+        if is_competitor_query:
+            debug_print(f"🏢 [BusinessReasoner] Competitor detected in query")
+            state["intent"] = Intent.COMPETITOR
         
         # Create relevant business context
         business_context = _create_business_context(state["user_query"], products_knowledge)
@@ -50,6 +59,14 @@ def business_reasoner(state: ConversationState) -> ConversationState:
         # Apply business intelligence to state
         if business_analysis:
             state["business_analysis"] = business_analysis
+            
+            # 🆕 Validate product names
+            if business_analysis.get("product_name_corrections"):
+                corrected_name = business_analysis["product_name_corrections"]
+                if corrected_name != "None" and _validate_product_exists(corrected_name, state.get("product_names", [])):
+                    debug_print(f"✅ [BusinessReasoner] Product name validated: {corrected_name}")
+                else:
+                    debug_print(f"⚠️ [BusinessReasoner] Product name not found in catalog: {corrected_name}")
             
             # Apply intent correction if suggested
             if business_analysis.get("intent_correction") and business_analysis["intent_correction"] != "same":
@@ -67,6 +84,11 @@ def business_reasoner(state: ConversationState) -> ConversationState:
                 state["search_context"] = business_analysis["search_enhancement"]
                 debug_print(f"🔍 [BusinessReasoner] Search enhancement: {business_analysis['search_enhancement'][:100]}...")
             
+            # 🆕 Store product for purchase inquiry
+            if state["intent"] == Intent.PURCHASE_INQUIRY and business_analysis.get("product_name_corrections"):
+                state["purchase_product"] = business_analysis["product_name_corrections"]
+                debug_print(f"🛒 [BusinessReasoner] Purchase product identified: {state['purchase_product']}")
+            
             debug_print(f"💡 [BusinessReasoner] Business interpretation: {business_analysis.get('business_interpretation', 'N/A')[:100]}...")
         
     except Exception as e:
@@ -75,6 +97,10 @@ def business_reasoner(state: ConversationState) -> ConversationState:
         pass
     
     return state
+
+def _validate_product_exists(product_name: str, product_list: list[str]) -> bool:
+    """🆕 Validate if product exists in catalog"""
+    return any(product_name.lower() in p.lower() for p in product_list)
 
 def _create_business_context(query: str, products: list) -> str:
     """Create relevant business context from structured data"""
@@ -204,29 +230,60 @@ def follow_up_router(state: ConversationState) -> dict:
     return {}
 
 def route_follow_up(state: ConversationState) -> str:
-    """An LLM-based router to check if cached context is sufficient."""
+    """🆕 IMPROVED follow-up router with better cache utilization"""
     if not state.get("context_cache"):
         debug_print(f"❌ [Follow-up Router] No cache, routing to optimize_query")
         return "optimize_query"
-        
+    
+    # 🆕 Check if query references cached products
+    cached_products = []
+    for item in state.get("context_cache", []):
+        if item.get('product_name'):
+            cached_products.append(item['product_name'].lower())
+    
+    query_lower = state["user_query"].lower()
+    
+    # Check for product references
+    products_referenced = any(product in query_lower for product in cached_products)
+    
+    # Check for contextual references
+    contextual_keywords = ['to', 'ten', 'ta', 'te', 'it', 'this', 'that', 'those', 
+                          'jeden', 'który', 'która', 'które', 'which', 'one']
+    has_contextual_reference = any(keyword in query_lower for keyword in contextual_keywords)
+    
+    if products_referenced or has_contextual_reference:
+        debug_print(f"✅ [Follow-up Router] Found reference to cached content, using cache")
+        return "handle_follow_up"
+    
+    # If still unsure, use LLM check
     client = OpenAI(api_key=OPENAI_API_KEY)
     chat_history_formatted = "\\n".join([f"{msg['role']}: {msg['content']}" for msg in state.get("chat_history", [])])
-    cached_context_formatted = "\\n".join([str(item) for item in state.get("context_cache", [])])
     
-    debug_print(f"🤔 [Follow-up Router] Checking if cache ({len(state.get('context_cache', []))} items) is sufficient")
+    # Create a more focused prompt
+    cached_context_summary = f"Cached products: {', '.join([item.get('product_name', 'Unknown') for item in state.get('context_cache', [])])}"
+    
+    debug_print(f"🤔 [Follow-up Router] LLM check for cache sufficiency")
     
     prompt = f"""
-As an expert routing system, is the CACHED INFORMATION sufficient to fully answer the LATEST USER MESSAGE?
+Is the user's latest message asking about something from the previous response?
+
 --- CONVERSATION HISTORY ---
 {chat_history_formatted}
 ---
 LATEST USER MESSAGE: "{state['user_query']}"
 ---
-CACHED INFORMATION (from the previous response):
-{cached_context_formatted}
+{cached_context_summary}
 ---
-Respond with only "yes" or "no".
+
+The user might be:
+1. Asking for more details about a mentioned product
+2. Asking to compare mentioned products
+3. Asking "which one" from previously shown options
+4. Using references like "it", "this", "that"
+
+Respond with only "yes" if the query is about cached content, or "no" if it needs new search.
 """
+    
     try:
         response = client.chat.completions.create(
             model=OPENAI_MODEL, 
@@ -241,18 +298,19 @@ Respond with only "yes" or "no".
             debug_print(f"✅ [Follow-up Router] Cache is sufficient, routing to handle_follow_up")
             return "handle_follow_up"
         else:
-            debug_print(f"❌ [Follow-up Router] Cache is insufficient, routing to optimize_query")
+            debug_print(f"❌ [Follow-up Router] Cache insufficient, routing to optimize_query")
             return "optimize_query"
             
     except Exception as e:
         if TEST_ENV:
-            print(f"❌ [DEBUG Follow-up Router] Context check for follow-up failed: {e}")
+            print(f"❌ [DEBUG Follow-up Router] Context check error: {e}")
         debug_print(f"❌ [Follow-up Router] Context check error: {e}")
         return "optimize_query"
 
 def create_workflow() -> StateGraph:
-    """Create the simplified LangGraph workflow"""
-    debug_print("🏗️ [Workflow] Creating LangGraph workflow...")
+    """Create the enhanced LangGraph workflow"""
+    debug_print("🏗️ [Workflow] Creating enhanced LangGraph workflow...")
+    debug_print(f"🔧 [Workflow] Using ENHANCED_K_VALUE={ENHANCED_K_VALUE}")
         
     workflow = StateGraph(ConversationState)
     
@@ -260,9 +318,10 @@ def create_workflow() -> StateGraph:
     nodes = [
         ("detect_intent", detect_intent_and_language),
         ("load_products", load_product_names),
-        ("business_reasoner", business_reasoner),  # 🆕 NEW NODE
+        ("business_reasoner", business_reasoner),
         ("optimize_query", optimize_product_query),
-        ("search_pinecone", search_products_k15),
+        ("search_pinecone", search_products_k20),
+        ("intelligent_filter", intelligent_results_filter),
         ("evaluate_confidence", evaluate_confidence),
         ("format_response", format_final_response),
         ("escalate_support", escalate_to_human),
@@ -274,12 +333,12 @@ def create_workflow() -> StateGraph:
         workflow.add_node(node_name, node_func)
         debug_print(f"   ➕ Added node: {node_name}")
     
-    # Define edges - 🆕 UPDATED FLOW
+    # Define edges
     workflow.set_entry_point("detect_intent")
     workflow.add_edge("detect_intent", "load_products")
-    workflow.add_edge("load_products", "business_reasoner")  # 🆕 NEW EDGE
+    workflow.add_edge("load_products", "business_reasoner")
     workflow.add_conditional_edges(
-        "business_reasoner", route_intent,  # 🆕 UPDATED ROUTING
+        "business_reasoner", route_intent,
         {
             "format_response": "format_response", 
             "escalate_support": "escalate_support",
@@ -295,7 +354,8 @@ def create_workflow() -> StateGraph:
         }
     )
     workflow.add_edge("optimize_query", "search_pinecone")
-    workflow.add_edge("search_pinecone", "evaluate_confidence")
+    workflow.add_edge("search_pinecone", "intelligent_filter")
+    workflow.add_edge("intelligent_filter", "evaluate_confidence")
     workflow.add_conditional_edges(
         "evaluate_confidence", route_based_on_confidence,
         {
@@ -309,7 +369,7 @@ def create_workflow() -> StateGraph:
     workflow.add_edge("escalate_support", END)
     workflow.add_edge("handle_follow_up", END)
     
-    debug_print("✅ [Workflow] Workflow created and compiled")
+    debug_print("✅ [Workflow] Enhanced workflow created and compiled")
         
     return workflow.compile()
 

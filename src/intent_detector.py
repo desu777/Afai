@@ -43,12 +43,7 @@ INTENTS:
 4. "purchase_inquiry": The user is asking where, how, or for how much they can buy a product (e.g., "how to buy", "price", "where can I get", "gdzie kupić", "jaka jest cena", "zamówienie", "chcę kupić", "jak dokonać zakupu").
 5. "competitor": Mentions of competitor brands (e.g., "Red Sea", "Seachem", "Tropic Marin").
 6. "censored": Questions about proprietary information like product formulas or production processes.
-7. "follow_up": The user is asking a direct follow-up question about the assistant's PREVIOUS response. Examples:
-    - "Can you give me the link for that?"
-    - "A co z drugim produktem?"
-    - "Tell me more."
-    - "Dlaczego polecasz właśnie to?"
-    - Simple clarification questions like "czym jest ta X?" after X was mentioned
+7. "follow_up": The user is asking a direct follow-up question about the assistant's PREVIOUS response.
 8. "other": Anything that doesn't fit the categories above.
 
 LANGUAGES: Detect the primary language of the LATEST USER MESSAGE (pl, en, de, fr, es, it, etc.).

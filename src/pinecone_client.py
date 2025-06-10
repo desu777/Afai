@@ -1,5 +1,5 @@
 """
-Pinecone Search Module - Enhanced with smart domain detection
+Pinecone Search Module - Enhanced with dynamic K value from ENHANCED_K_VALUE
 Handles all interactions with Pinecone vector database
 """
 from typing import List, Dict, Any, Optional
@@ -69,13 +69,20 @@ class PineconeSearchClient:
     def search(
         self, 
         queries: List[str], 
-        k: int = DEFAULT_K_VALUE,
+        k: int = None,  # 🆕 DYNAMIC: Default to None, will use ENHANCED_K_VALUE
         state: Optional[ConversationState] = None
     ) -> List[SearchResult]:
         """
         Search Pinecone with multiple queries and merge results
-        Now with smart domain filtering based on context
+        Now with dynamic K value from ENHANCED_K_VALUE
         """
+        # 🆕 DYNAMIC K VALUE
+        if k is None:
+            k = ENHANCED_K_VALUE
+        
+        if TEST_ENV:
+            print(f"🔍 [PineconeSearch] Using dynamic K={k} (ENHANCED_K_VALUE={ENHANCED_K_VALUE})")
+        
         # Auto-detect domain if not explicitly set
         domain_filter = None
         if state:
@@ -94,7 +101,7 @@ class PineconeSearchClient:
                 
                 response = self.index.query(
                     vector=embedding,
-                    top_k=k,
+                    top_k=k,  # 🆕 DYNAMIC K VALUE
                     include_metadata=True,
                     filter=filter_dict if filter_dict else None,
                     namespace="aqua"
@@ -118,9 +125,9 @@ class PineconeSearchClient:
             all_results.values(), 
             key=lambda x: x.score, 
             reverse=True
-        )[:k]
+        )[:k]  # 🆕 LIMIT TO DYNAMIC K
 
-        debug_print(f"🌲 [PineconeSearch] Zwrócono {len(sorted_results)} wyników. Top 5:")
+        debug_print(f"🌲 [PineconeSearch] Zwrócono {len(sorted_results)} wyników (K={k}). Top 5:")
         for i, res in enumerate(sorted_results[:5]):
             product_name = res.metadata.get('product_name', 'Brak nazwy')
             domain = res.metadata.get('domain', 'N/A')
@@ -136,12 +143,13 @@ class PineconeSearchClient:
         domains.discard(Domain.UNIVERSAL.value)
         return "⚠️ Found products for both marine and freshwater aquariums. Please specify which type!" if len(domains) > 1 else None
 
-def search_products_k15(state: ConversationState) -> ConversationState:
-    """Search with k=15 (initial search) with smart domain detection"""
+# 🆕 UPDATED FUNCTIONS - now use dynamic ENHANCED_K_VALUE
+def search_products_k20(state: ConversationState) -> ConversationState:
+    """🆕 UPDATED: Uses dynamic ENHANCED_K_VALUE instead of hardcoded k=20"""
     client = PineconeSearchClient()
     results = client.search(
         queries=state["optimized_queries"],
-        k=DEFAULT_K_VALUE,
+        k=ENHANCED_K_VALUE,  # 🆕 DYNAMIC K VALUE FROM ENV
         state=state  # Pass the full state for context analysis
     )
     
@@ -153,8 +161,11 @@ def search_products_k15(state: ConversationState) -> ConversationState:
     # Then, serialize the results for the state dictionary
     state["search_results"] = [{"id": r.id, "score": r.score, "metadata": r.metadata} for r in results]
     
+    if TEST_ENV:
+        print(f"🎯 [PineconeSearch] Stored {len(state['search_results'])} results using dynamic K={ENHANCED_K_VALUE}")
+    
     return state
 
 def enhanced_search_k20(state: ConversationState) -> ConversationState:
-    """This function is kept for potential future use but is removed from the main workflow."""
-    return search_products_k15(state) # For now, it does the same as the initial search
+    """🆕 UPDATED: Uses dynamic ENHANCED_K_VALUE instead of hardcoded k=20"""
+    return search_products_k20(state)
