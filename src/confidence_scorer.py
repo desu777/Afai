@@ -7,6 +7,7 @@ import json
 from openai import OpenAI
 from models import ConversationState
 from config import OPENAI_API_KEY, OPENAI_MODEL, OPENAI_TEMPERATURE, TEST_ENV, CONFIDENCE_THRESHOLD
+from prompts import load_prompt_template
 
 class ConfidenceScorer:
     def __init__(self):
@@ -120,68 +121,35 @@ COMPLETE METADATA:
         
         formatted_results = "".join(results_metadata)
         
-        return f"""
-Evaluate how well these search results answer the user's query considering ALL CONTEXT.
-
-{'--- CONVERSATION CONTEXT ---' if context_summary else ''}
+        # Format conversation context for template
+        conversation_context = ""
+        if context_summary:
+            conversation_context = f"""--- CONVERSATION CONTEXT ---
 {context_summary}
-{'---' if context_summary else ''}
-
-{business_context}
-
-{category_context}
-
-{problem_context}
-
-ORIGINAL USER QUERY: "{original_query}"
-
-ALL QUERIES TO EVALUATE AGAINST:
-{queries_text}
-
---- COMPLETE SEARCH RESULTS WITH FULL METADATA ---
-{formatted_results}
-
---- ENHANCED EVALUATION CRITERIA ---
-
-1. **Category Match** (HIGHEST PRIORITY for category queries):
-   - If user asked for a category (like "sole" or "bakterie"), did we find those specific products?
-   - Finding all products from requested category = EXCELLENT confidence
-   - Missing key products from category = LOWER confidence
-
-2. **Business Intelligence Alignment**: Do results match corrected product names and business interpretation?
-
-3. **Problem-Solution Fit**: If a problem was identified, do results contain the recommended solutions?
-
-4. **Multi-Query Relevance**: Do results answer ANY of the evaluation queries well?
-
-5. **Context Coherence**: Do results match the conversation context?
-
-6. **Domain Match**: Are product domains appropriate for the discussed aquarium type?
-
-7. **Knowledge Value**: Are there valuable educational materials for the user's needs?
-
-CRITICAL EVALUATION FACTORS:
-
-- **Category Queries**: If user asked "jakie sole macie?" and we found Sea Salt, Reef Salt, etc. = HIGH confidence!
-  Missing these specific products = LOW confidence regardless of other factors.
-
-- **Business Logic Corrections**: If business logic corrected the query, results matching corrections = bonus points
-
-- **Full Content Analysis**: Use complete metadata to understand true value of each result
-
-- **Educational Content**: Knowledge articles can be valuable, but for category queries, products are primary
-
-Return JSON with:
-{{
-    "confidence": 0.0-1.0,
-    "reasoning": "detailed explanation including category coverage analysis",
-    "best_matches": ["list of best matching product/content names"],
-    "category_coverage": "assessment of how well category request was fulfilled",
-    "context_mismatch": "describe any context mismatches if found",
-    "knowledge_value": "assessment of educational content value",
-    "domain_consistency": "evaluation of domain matching"
-}}
+---"""
+        
+        # Try to load prompt from template
+        prompt = load_prompt_template(
+            "confidence_evaluation",
+            conversation_context=conversation_context,
+            business_context=business_context,
+            category_context=category_context,
+            problem_context=problem_context,
+            original_query=original_query,
+            queries_text=queries_text,
+            formatted_results=formatted_results
+        )
+        
+        # Fallback to simple prompt if template fails
+        if not prompt:
+            if TEST_ENV:
+                print("⚠️ [ConfidenceScorer] Using fallback hardcoded prompt")
+            prompt = f"""
+Evaluate search results for: "{original_query}"
+Return JSON: {{"confidence": 0.5, "reasoning": "fallback evaluation", "best_matches": []}}
 """
+        
+        return prompt
     
     def calculate_confidence(self, state: ConversationState) -> ConversationState:
         """Calculate confidence score with category bonus"""

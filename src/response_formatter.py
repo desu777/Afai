@@ -9,6 +9,7 @@ from openai import OpenAI
 from models import ConversationState, ProductInfo, Intent, Domain
 from config import OPENAI_API_KEY, OPENAI_MODEL, OPENAI_TEMPERATURE, TEST_ENV
 from calculation_helper import calculation_helper
+from prompts import load_prompt_template
 
 class ResponseFormatter:
     def __init__(self):
@@ -252,107 +253,36 @@ Calculated dosages:
                 dosage_context += f"\n- {calc['product']}: {calc['calculation']['calculation']}"
             dosage_context += "\n---\n"
 
-        return f"""
-You are AF AI, a friendly and professional assistant for Aquaforest. Generate response in {lang} language.
-
-🚨 CRITICAL: Show ALL products from search results! Products with same names but different URLs are DIFFERENT products!
-
---- CONVERSATION HISTORY ---
-{chat_history_formatted}
----
-
---- CURRENT CONTEXT ---
-User's Query: "{state.get('original_query', '')}"
-Response Language: "{lang}"
-Search Results Confidence: {state.get('confidence', 0.0):.2f}
-Is Dosage Query: {is_dosage_query}
-Aquarium Volume: {aquarium_volume if aquarium_volume else "Not specified"}
-Mixed Domains Detected: {has_mixed and domain_not_specified}
-
-{category_context}
-{problem_context}
-{balling_context}
-{dosage_context}
-
---- COMPLETE SEARCH RESULTS WITH FULL METADATA ---
-{formatted_all_results}
----
-
-🚨 CRITICAL INSTRUCTION 🚨
-Products with same names but different URLs/metadata are DIFFERENT products!
-Example: If you see "Mg Plus" twice with different URLs, you MUST present BOTH as separate items.
-DO NOT merge, skip, or combine products with same names!
-Count each result as a separate product regardless of name similarity!
-
-TASK: Generate the best possible response based on the complete context.
-
---- ENHANCED RESPONSE RULES ---
-
-1. **CATEGORY REQUESTS** (HIGHEST PRIORITY):
-   - If user asked for a category (e.g., "jakie sole macie"), LIST ALL products from that category
-   - Present them clearly with brief descriptions
-   - Don't just mention one or two - show the complete range!
-
-2. **PROBLEM-SOLUTION FOCUS**:
-   - If a problem was identified, focus on the recommended solutions
-   - Explain why these solutions help with the specific problem
-
-3. **BALLING METHOD CLARIFICATION**:
-   - If showing Component/Balling products for single parameter correction
-   - MUST explain they contain Ca, Mg, KH and trace elements
-   - Suggest them for daily maintenance, not one-time corrections
-   - Recommend specific single-element products first for corrections
-
-4. **DOSAGE CALCULATIONS**:
-   - If dosage calculations were provided, use them EXACTLY as calculated
-   - NEVER recalculate or modify the provided calculations
-   - Present calculations clearly: "For your {aquarium_volume}L aquarium: {{calculation}}"
-   - Add safety notes if relevant
-
-5. **MIXED DOMAIN HANDLING**:
-   - If Mixed Domains = True, present products separated by aquarium type
-   - Use headers like "Dla akwarium morskiego:" and "Dla akwarium słodkowodnego:"
-
-6. **PRODUCT PRESENTATION**:
-   - For each product, include:
-     * Product name (bold)
-     * Brief description from metadata
-     * Key benefits or use case
-     * Dosage (if relevant)
-     * Available sizes (if mentioned)
-     * Link to product page
-   - 🚨 **CRITICAL: NEVER skip products with same names but different URLs!**
-   - If "Mg Plus" appears twice, create TWO separate sections: "Mg Plus (version 1)" and "Mg Plus (version 2)"
-   - Same product name = different valuable content if URLs differ
-
-
-7. **KNOWLEDGE ARTICLES**:
-   - Include relevant knowledge articles AFTER products
-   - Present as "Additional resources" or "Learn more"
-
-8. **For High Confidence (>= 0.5)**:
-   - Be comprehensive and confident
-   - Include product links
-   - Provide specific recommendations
-
-9. **For Low Confidence or Escalation**:
-   - Still try to be helpful with general information
-   - Clearly state uncertainty
-   - Provide support contact: support@aquaforest.eu and +48 14 691 79 79
-
---- LANGUAGE-SPECIFIC FORMATTING ---
-For Polish (pl):
-- Use "Polecamy:" for recommendations
-- "Dawkowanie:" for dosage
-- "Więcej informacji:" for links
-
-For English (en):
-- Use "We recommend:" for recommendations  
-- "Dosage:" for dosage
-- "Learn more:" for links
-
---- GENERATE RESPONSE IN {lang.upper()} ---
+        # Try to load prompt from template
+        prompt = load_prompt_template(
+            "response_formatting",
+            language=lang,
+            chat_history_formatted=chat_history_formatted,
+            original_query=state.get('original_query', ''),
+            confidence=state.get('confidence', 0.0),
+            is_dosage_query=is_dosage_query,
+            aquarium_volume=aquarium_volume if aquarium_volume else "Not specified",
+            mixed_domains_detected=has_mixed and domain_not_specified,
+            category_context=category_context,
+            problem_context=problem_context,
+            balling_context=balling_context,
+            dosage_context=dosage_context,
+            formatted_all_results=formatted_all_results,
+            language_upper=lang.upper()
+        )
+        
+        # Fallback to simple prompt if template fails
+        if not prompt:
+            if TEST_ENV:
+                print("⚠️ [ResponseFormatter] Using fallback hardcoded prompt")
+            prompt = f"""
+You are AF AI, assistant for Aquaforest. 
+Generate helpful response about: "{state.get('user_query', '')}"
+Use search results to provide specific product recommendations.
+Respond in {lang} language.
 """
+        
+        return prompt
 
     def _create_special_intent_prompt(self, state: ConversationState) -> str:
         """Create prompts for special intents"""
@@ -490,7 +420,7 @@ Generate response in {lang} language.
 
 # Follow-up handling functions
 def _create_follow_up_prompt(state: ConversationState) -> str:
-    """Creates a prompt to answer a follow-up question using cached context"""
+    """Creates a prompt to answer a follow-up question using cached context and external template"""
     lang = state.get("detected_language", "en")
     chat_history_formatted = "\n".join([f"{msg['role']}: {msg['content']}" for msg in state.get("chat_history", [])])
     
@@ -507,39 +437,37 @@ def _create_follow_up_prompt(state: ConversationState) -> str:
     if state.get("context_cache"):
         for i, meta in enumerate(state.get("context_cache", [])):
             metadata_json = json.dumps(meta, indent=2, ensure_ascii=False)
-            cached_full_metadata.append(f"""
-Cached Item {i+1}:
+            cached_full_metadata.append(f"""Cached Item {i+1}:
 COMPLETE METADATA:
 {metadata_json}
 
 """)
     
     cached_context_formatted = "".join(cached_full_metadata)
+    
+    dosage_followup_note = "The user might be asking about dosage. Use dosage information from cached metadata if available." if is_dosage_followup else ""
 
-    return f"""
-You are AF AI, an Aquaforest assistant. Answer a follow-up question based on conversation history and cached metadata.
-
---- CONVERSATION HISTORY ---
-{chat_history_formatted}
----
-LATEST USER MESSAGE: "{state['user_query']}"
----
-
---- CACHED FULL METADATA ---
-{cached_context_formatted}
----
-
-{"The user might be asking about dosage. Use dosage information from cached metadata if available." if is_dosage_followup else ""}
-
-TASK:
-1. Analyze the latest message as a follow-up to previous conversation
-2. Use cached metadata to provide specific information
-3. If asking about specific product from cache, give detailed info
-4. For dosage questions, calculate if aquarium volume is provided
-5. If information insufficient, suggest what additional details are needed
-
-Generate response in {lang} language.
+    # Try to load prompt from template
+    prompt = load_prompt_template(
+        "response_followup",
+        chat_history_formatted=chat_history_formatted,
+        user_query=state['user_query'],
+        cached_context_formatted=cached_context_formatted,
+        dosage_followup_note=dosage_followup_note,
+        language=lang
+    )
+    
+    # Fallback to simple prompt if template fails
+    if not prompt:
+        if TEST_ENV:
+            print("⚠️ [Follow-up] Using fallback hardcoded prompt")
+        prompt = f"""
+Answer follow-up question: "{state['user_query']}"
+Based on conversation history and cached product information.
+Respond in {lang} language.
 """
+    
+    return prompt
 
 def format_final_response(state: ConversationState) -> ConversationState:
     formatter = ResponseFormatter()

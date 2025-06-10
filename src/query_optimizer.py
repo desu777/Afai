@@ -8,6 +8,7 @@ from typing import List, Dict
 from openai import OpenAI
 from models import ConversationState, QueryOptimizationResult
 from config import OPENAI_API_KEY, OPENAI_MODEL, OPENAI_TEMPERATURE, PRODUCTS_FILE_PATH, TEST_ENV, debug_print
+from prompts import load_prompt_template
 
 class QueryOptimizer:
     def __init__(self):
@@ -55,15 +56,19 @@ class QueryOptimizer:
         return []
     
     def _create_optimization_prompt(self, state: ConversationState) -> str:
+        """Create query optimization prompt using external template"""
         query = state["user_query"]
         language = state["detected_language"]
         chat_history = state.get("chat_history", [])
         
         # Format recent conversation for context
-        recent_context = ""
+        conversation_context = ""
         if chat_history:
             recent_exchanges = chat_history[-4:]
             recent_context = "\n".join([f"{msg['role'].upper()}: {msg['content']}" for msg in recent_exchanges])
+            conversation_context = f"""--- CONVERSATION CONTEXT ---
+{recent_context}
+---"""
         
         # Check for comparison
         comparison_products = self._detect_comparison(query)
@@ -73,8 +78,7 @@ class QueryOptimizer:
         category_context = ""
         if state.get("business_analysis"):
             ba = state["business_analysis"]
-            business_context = f"""
---- BUSINESS INTELLIGENCE ---
+            business_context = f"""--- BUSINESS INTELLIGENCE ---
 Business Interpretation: {ba.get('business_interpretation', 'N/A')}
 Product Name Corrections: {ba.get('product_name_corrections', 'None')}
 Category Requested: {ba.get('category_requested', 'None')}
@@ -83,12 +87,10 @@ Problem Identified: {ba.get('problem_identified', 'None')}
 Solutions: {', '.join(ba.get('solutions_for_problem', []))}
 Domain Hint: {ba.get('domain_hint', 'unknown')}
 Search Enhancement: {ba.get('search_enhancement', 'None')}
----
-"""
+---"""
             # Special handling for category requests
             if ba.get('category_requested') and ba.get('products_in_category'):
-                category_context = f"""
-🆕 CATEGORY REQUEST DETECTED: "{ba['category_requested']}"
+                category_context = f"""🆕 CATEGORY REQUEST DETECTED: "{ba['category_requested']}"
 Products to find: {', '.join(ba['products_in_category'])}
 
 SPECIAL INSTRUCTIONS:
@@ -100,8 +102,7 @@ SPECIAL INSTRUCTIONS:
         # ENHANCED PROMPT WITH COMPARISON SUPPORT
         comparison_instructions = ""
         if comparison_products:
-            comparison_instructions = f"""
-🆕 COMPARISON DETECTED: User is comparing "{comparison_products[0]}" with "{comparison_products[1]}"
+            comparison_instructions = f"""🆕 COMPARISON DETECTED: User is comparing "{comparison_products[0]}" with "{comparison_products[1]}"
 
 SPECIAL INSTRUCTIONS FOR COMPARISONS:
 1. Create SEPARATE search queries for EACH product being compared
@@ -116,59 +117,28 @@ Example: For "lava soil vs lava soil black":
 - "black lava soil aquarium benefits"
 """
         
-        return f"""
-You are an expert query analysis system for the Aquaforest search engine. Your task is to generate highly effective, English-only search queries.
-
-{'--- CONVERSATION CONTEXT ---' if recent_context else ''}
-{recent_context}
-{'---' if recent_context else ''}
-
-{business_context}
-
-USER'S CURRENT QUERY: "{query}"
-DETECTED LANGUAGE: {language}
-LIST OF AVAILABLE AQUAFOREST PRODUCT NAMES:
----
-{', '.join(self.product_names)}
----
-
-{category_context}
-{comparison_instructions}
-
-YOUR TASK:
-
-1. **Category Requests** (HIGHEST PRIORITY):
-   - If category_requested is present, create queries for EACH product in that category
-   - Example: "sole" → ["Sea Salt", "Reef Salt", "Reef Salt Plus", "Hybrid Pro Salt", "marine salt products"]
-
-2. **Use Business Intelligence**: 
-   - Use product corrections and solutions from business analysis
-   - Include domain-specific terms when provided
-
-3. **Handle Comparisons**: 
-   - Create separate queries for each compared product
-   - Add comparison-focused queries
-
-4. **Problem-Solution Queries**:
-   - If problem identified, include solution product names
-   - Add problem-specific search terms
-
-5. **Generate 3-8 Optimized Queries**:
-   - More queries for categories (one per product + general)
-   - Include exact product names when known
-   - Add context-aware variations
-   - ALL queries must be in ENGLISH
-
-Examples:
-- Category: ["Sea Salt", "Reef Salt", "Reef Salt Plus", "Hybrid Pro Salt", "Aquaforest marine salts"]
-- Comparison: ["AF Lava Soil", "AF Lava Soil Black", "lava soil differences", "substrate comparison"]
-- Problem: ["AF NitraPhos Minus", "nitrate phosphate reduction", "NO3 PO4 removal", "nutrient control"]
-
-Return ONLY a valid JSON object:
-{{
-    "optimized_queries": ["query1", "query2", "query3", "query4", "query5", "query6"]
-}}
+        # Try to load prompt from template
+        prompt = load_prompt_template(
+            "query_optimization",
+            conversation_context=conversation_context,
+            business_context=business_context,
+            user_query=query,
+            language=language,
+            product_names=', '.join(self.product_names),
+            category_context=category_context,
+            comparison_instructions=comparison_instructions
+        )
+        
+        # Fallback to simple prompt if template fails
+        if not prompt:
+            if TEST_ENV:
+                print("⚠️ [QueryOptimizer] Using fallback hardcoded prompt")
+            prompt = f"""
+Generate search queries for: "{query}"
+Return JSON: {{"optimized_queries": ["{query}"]}}
 """
+        
+        return prompt
 
     def optimize(self, state: ConversationState) -> ConversationState:
         """Optimize query for better search results"""

@@ -1,0 +1,73 @@
+You are analyzing CHUNK {chunk_num} of search results for Aquaforest customers. You have COMPLETE ACCESS to all metadata.
+
+--- CONTEXT ---
+Original User Query: "{user_query}"
+Optimized Queries: {optimized_queries}
+Mentioned Product Names: {mentioned_products}
+{business_context}
+
+--- CONVERSATION HISTORY ---
+{chat_history_context}
+
+--- CHUNK {chunk_num} RESULTS TO EVALUATE ({num_results} results) ---
+{formatted_results}
+
+--- 🆕 IMPROVED FILTERING RULES ---
+
+**CRITICAL RULE #1**: If a product name is DIRECTLY MENTIONED in the query or business corrections, 
+and that product appears in results - ALWAYS KEEP IT! This is non-negotiable.
+
+**INCLUDE results that match ANY of these criteria:**
+
+1. **Direct Product Match** (HIGHEST PRIORITY):
+   - Product name matches what user asked about
+   - Product name matches business corrections
+   - Example: User asks about "amino mix" → KEEP "AF Amino Mix"
+
+2. **Directly Solve the Problem**:
+   - Products that address the user's specific need
+   - Solutions to mentioned problems or symptoms
+
+3. **Valuable Educational Content**:
+   - Knowledge articles relevant to the query
+   - Guides that help understand the topic
+   - Especially important for beginners!
+
+4. **Related/Alternative Products**:
+   - Similar products that might help
+   - Complementary products for the same issue
+
+5. **Domain Appropriate**:
+   - Matches the aquarium type if specified
+   - Universal products are always relevant
+
+**EXCLUDE ONLY if ALL of these are true:**
+- Not mentioned by name
+- Completely unrelated to the query
+- Wrong domain (if explicitly specified)
+- No educational value for the topic
+- Not a reasonable alternative
+
+**🆕 DUPLICATE HANDLING RULE**: 
+NEVER filter out products with the same name but different content types or sources or check urls!
+- "Mg Plus" AND "Mg Plus" with different urls → KEEP BOTH
+- "Calcium" dosage guide AND "Calcium" product info → KEEP BOTH
+- Same product name with different metadata = different valuable content
+Check metadata fields like content_type, domain, url to distinguish duplicates.
+
+**🆕 CONSERVATIVE APPROACH**: When in doubt, KEEP the result. 
+It's better to show more options than to miss the exact product the user wants.
+
+--- YOUR TASK ---
+Return a JSON with your analysis:
+{{
+    "keep_indices": [list of indices 0-{max_index} to keep],
+    "reasoning": "explanation focusing on why you kept key products",
+    "chunk_quality": "high|medium|low",
+    "best_match": "name of the most relevant result",
+    "mentioned_products_found": ["list of directly mentioned products found in this chunk"],
+    "domain_signals": "freshwater|marine|universal|mixed|unknown",
+    "knowledge_articles_found": number
+}}
+
+Remember: BE CONSERVATIVE! Keep products that might be useful. 
