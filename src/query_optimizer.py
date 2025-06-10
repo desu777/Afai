@@ -1,6 +1,6 @@
 """
-Query Optimization Module - Version 2.2 with Comparison Support
-Optimizes user queries for better search results with conversation context and product comparisons
+Query Optimization Module - Version 3.0 with Category Support
+Enhanced to work with business reasoner's category detection
 """
 import json
 import re
@@ -34,14 +34,14 @@ class QueryOptimizer:
             return []
     
     def _detect_comparison(self, query: str) -> List[str]:
-        """🆕 Detect if query is comparing products"""
+        """Detect if query is comparing products"""
         comparison_patterns = [
-            r'(.+?)\s+vs\.?\s+(.+)',  # product1 vs product2
-            r'(.+?)\s+versus\s+(.+)',  # product1 versus product2
-            r'różnica między\s+(.+?)\s+a\s+(.+)',  # różnica między X a Y
-            r'difference between\s+(.+?)\s+and\s+(.+)',  # difference between X and Y
-            r'porównaj\s+(.+?)\s+i\s+(.+)',  # porównaj X i Y
-            r'compare\s+(.+?)\s+and\s+(.+)',  # compare X and Y
+            r'(.+?)\s+vs\.?\s+(.+)',
+            r'(.+?)\s+versus\s+(.+)',
+            r'różnica między\s+(.+?)\s+a\s+(.+)',
+            r'difference between\s+(.+?)\s+and\s+(.+)',
+            r'porównaj\s+(.+?)\s+i\s+(.+)',
+            r'compare\s+(.+?)\s+and\s+(.+)',
         ]
         
         for pattern in comparison_patterns:
@@ -65,23 +65,39 @@ class QueryOptimizer:
             recent_exchanges = chat_history[-4:]
             recent_context = "\n".join([f"{msg['role'].upper()}: {msg['content']}" for msg in recent_exchanges])
         
-        # 🆕 Check for comparison
+        # Check for comparison
         comparison_products = self._detect_comparison(query)
         
         # Get business intelligence context
         business_context = ""
+        category_context = ""
         if state.get("business_analysis"):
             ba = state["business_analysis"]
             business_context = f"""
 --- BUSINESS INTELLIGENCE ---
 Business Interpretation: {ba.get('business_interpretation', 'N/A')}
 Product Name Corrections: {ba.get('product_name_corrections', 'None')}
+Category Requested: {ba.get('category_requested', 'None')}
+Products in Category: {', '.join(ba.get('products_in_category', []))}
+Problem Identified: {ba.get('problem_identified', 'None')}
+Solutions: {', '.join(ba.get('solutions_for_problem', []))}
 Domain Hint: {ba.get('domain_hint', 'unknown')}
 Search Enhancement: {ba.get('search_enhancement', 'None')}
 ---
 """
+            # Special handling for category requests
+            if ba.get('category_requested') and ba.get('products_in_category'):
+                category_context = f"""
+🆕 CATEGORY REQUEST DETECTED: "{ba['category_requested']}"
+Products to find: {', '.join(ba['products_in_category'])}
+
+SPECIAL INSTRUCTIONS:
+1. Create queries that will find ALL products in this category
+2. Include the exact product names as separate queries
+3. Add category-level queries like "{ba['category_requested']} products"
+"""
         
-        # 🆕 ENHANCED PROMPT WITH COMPARISON SUPPORT
+        # ENHANCED PROMPT WITH COMPARISON SUPPORT
         comparison_instructions = ""
         if comparison_products:
             comparison_instructions = f"""
@@ -101,7 +117,7 @@ Example: For "lava soil vs lava soil black":
 """
         
         return f"""
-You are an expert query analysis system for the Aquaforest search engine. Your task is to extract key information from the user's query and generate a set of highly effective, English-only search queries.
+You are an expert query analysis system for the Aquaforest search engine. Your task is to generate highly effective, English-only search queries.
 
 {'--- CONVERSATION CONTEXT ---' if recent_context else ''}
 {recent_context}
@@ -116,32 +132,42 @@ LIST OF AVAILABLE AQUAFOREST PRODUCT NAMES:
 {', '.join(self.product_names)}
 ---
 
+{category_context}
 {comparison_instructions}
 
-YOUR TASK (follow these steps precisely):
+YOUR TASK:
 
-1. **Use Business Intelligence**: If business intelligence is provided above, incorporate those insights
-2. **Analyze Context**: If the query contains references like "such", "that", "those", check conversation history
-3. **Identify Domain Context**: Determine if discussing freshwater/marine/general aquarium
-4. **Detect and Correct Product Names**: Use business intelligence corrections first
-5. **Handle Comparisons**: If comparing products, create separate queries for each
+1. **Category Requests** (HIGHEST PRIORITY):
+   - If category_requested is present, create queries for EACH product in that category
+   - Example: "sole" → ["Sea Salt", "Reef Salt", "Reef Salt Plus", "Hybrid Pro Salt", "marine salt products"]
 
-6. **Generate Optimized Search Queries (English ONLY)**:
-   - Generate 3-6 highly targeted queries
-   - For comparisons: include separate queries for each product
-   - Include domain modifiers when context is clear
-   - Prioritize business intelligence suggestions
-   
-   Examples:
-   - Product comparison: ["AF Lava Soil", "AF Lava Soil Black", "lava soil substrate comparison", "black vs brown lava soil"]
-   - Business correction: ["AF NitraPhos Minus", "nitrate phosphate reduction", "NO3 PO4 removal"]
-   - Domain specific: ["marine aquarium pH problems", "reef tank pH solutions", "saltwater pH control"]
+2. **Use Business Intelligence**: 
+   - Use product corrections and solutions from business analysis
+   - Include domain-specific terms when provided
 
-7. **Output Format**:
-   - Return ONLY a single, valid JSON object:
-   {{
-       "optimized_queries": ["query1", "query2", "query3", "query4", "query5"]
-   }}
+3. **Handle Comparisons**: 
+   - Create separate queries for each compared product
+   - Add comparison-focused queries
+
+4. **Problem-Solution Queries**:
+   - If problem identified, include solution product names
+   - Add problem-specific search terms
+
+5. **Generate 3-8 Optimized Queries**:
+   - More queries for categories (one per product + general)
+   - Include exact product names when known
+   - Add context-aware variations
+   - ALL queries must be in ENGLISH
+
+Examples:
+- Category: ["Sea Salt", "Reef Salt", "Reef Salt Plus", "Hybrid Pro Salt", "Aquaforest marine salts"]
+- Comparison: ["AF Lava Soil", "AF Lava Soil Black", "lava soil differences", "substrate comparison"]
+- Problem: ["AF NitraPhos Minus", "nitrate phosphate reduction", "NO3 PO4 removal", "nutrient control"]
+
+Return ONLY a valid JSON object:
+{{
+    "optimized_queries": ["query1", "query2", "query3", "query4", "query5", "query6"]
+}}
 """
 
     def optimize(self, state: ConversationState) -> ConversationState:
@@ -153,7 +179,7 @@ YOUR TASK (follow these steps precisely):
         if chat_history:
             debug_print(f"📚 [QueryOptimizer] Context: last {len(chat_history[-4:])} messages")
         
-        # 🆕 Check for comparison
+        # Check for comparison
         comparison_products = self._detect_comparison(query)
         if comparison_products:
             debug_print(f"🔀 [QueryOptimizer] Product comparison detected: {comparison_products}")
@@ -164,6 +190,8 @@ YOUR TASK (follow these steps precisely):
             ba = state["business_analysis"]
             if ba.get("product_name_corrections") and ba["product_name_corrections"] != "None":
                 debug_print(f"🔧 [QueryOptimizer] Product corrections: {ba['product_name_corrections']}")
+            if ba.get("category_requested"):
+                debug_print(f"📦 [QueryOptimizer] Category: {ba['category_requested']} with {len(ba.get('products_in_category', []))} products")
             if ba.get("domain_hint") and ba["domain_hint"] != "unknown":
                 debug_print(f"🎯 [QueryOptimizer] Domain hint: {ba['domain_hint']}")
         
@@ -185,7 +213,7 @@ YOUR TASK (follow these steps precisely):
             state["original_query"] = query
             state["optimized_queries"] = result.get("optimized_queries", [query])
             
-            # 🆕 Store comparison info if detected
+            # Store comparison info if detected
             if comparison_products:
                 state["comparison_products"] = comparison_products
             
@@ -196,11 +224,17 @@ YOUR TASK (follow these steps precisely):
                 print(f"❌ [DEBUG QueryOptimizer] Query optimization error: {e}")
             state["original_query"] = query
             
-            # 🆕 Fallback for comparisons
-            if comparison_products:
+            # Fallback strategies
+            if state.get("business_analysis", {}).get("products_in_category"):
+                # If category detected, use product names as queries
+                state["optimized_queries"] = state["business_analysis"]["products_in_category"] + [query]
+                debug_print(f"⚠️ [QueryOptimizer] Fallback to category products: {state['optimized_queries']}")
+            elif comparison_products:
+                # Fallback for comparisons
                 state["optimized_queries"] = comparison_products + [query]
                 debug_print(f"⚠️ [QueryOptimizer] Fallback for comparison: {state['optimized_queries']}")
             else:
+                # Generic fallback
                 state["optimized_queries"] = [query]
                 debug_print(f"⚠️ [QueryOptimizer] Fallback to original query: {[query]}")
             

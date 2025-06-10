@@ -16,6 +16,21 @@ class IntentDetector:
         
         chat_history_formatted = "\n".join([f"{msg['role']}: {msg['content']}" for msg in state.get("chat_history", [])])
 
+        # Check if this is likely a follow-up based on conversation history
+        has_conversation_history = len(state.get("chat_history", [])) > 0
+        conversation_context_hint = ""
+        
+        if has_conversation_history:
+            conversation_context_hint = """
+IMPORTANT: This conversation has existing history. Consider if the user's question is:
+- A continuation of the previous topic/discussion
+- Asking for clarification, recommendation, or more details about something already discussed  
+- Using context from previous messages (even if not explicitly referencing them)
+- A natural progression in the conversation flow
+
+If the user's question builds upon or continues the conversation context, it's likely a FOLLOW-UP.
+"""
+
         return f"""
 You are an intent and language detection system for Aquaforest aquarium products support.
 Your task is to analyze the user's LATEST message in the context of the conversation history.
@@ -25,6 +40,8 @@ Your task is to analyze the user's LATEST message in the context of the conversa
 ---
 LATEST USER MESSAGE: "{state['user_query']}"
 ---
+
+{conversation_context_hint}
 
 CRITICAL CONTEXT ANALYSIS RULES:
 1. If discussing a product and its target problem/pest, and user wants to buy "it" or mentions the pest name in purchase context - they mean the PRODUCT, not the pest!
@@ -39,20 +56,21 @@ CRITICAL CONTEXT ANALYSIS RULES:
 INTENTS:
 1. "greeting": Standard greetings (e.g., "hello", "hi", "good morning", "cześć", "dzień dobry", "siema", "siemanko").
 2. "business": Business inquiries (e.g., "partnership", "b2b", "wholesale", "współpraca", "dystrybucja", "oferta biznesowa").
-3. "product_query": Specific questions about products, aquarium problems, symptoms, or solutions. This is the most common intent. Also includes dosage and calculation questions about specific products.
+3. "product_query": Specific questions about products, aquarium problems, symptoms, or solutions when starting a NEW conversation topic. Also includes dosage and calculation questions about specific products.
 4. "purchase_inquiry": The user is asking where, how, or for how much they can buy a product (e.g., "how to buy", "price", "where can I get", "gdzie kupić", "jaka jest cena", "zamówienie", "chcę kupić", "jak dokonać zakupu").
 5. "competitor": Mentions of competitor brands (e.g., "Red Sea", "Seachem", "Tropic Marin").
 6. "censored": Questions about proprietary information like product formulas or production processes.
-7. "follow_up": The user is asking a direct follow-up question about the assistant's PREVIOUS response.
+7. "follow_up": The user is continuing an existing conversation - asking follow-up questions, seeking recommendations, clarifications, or additional details about topics already being discussed. This includes questions that naturally progress the conversation even if not directly referencing the previous response.
 8. "other": Anything that doesn't fit the categories above.
 
 LANGUAGES: Detect the primary language of the LATEST USER MESSAGE (pl, en, de, fr, es, it, etc.).
 
 ANALYSIS PROCESS:
 1. Read the conversation history to understand context
-2. Analyze the latest message
-3. Apply common sense and context rules
-4. Determine the most likely intent
+2. Check if this continues an existing conversation topic
+3. Analyze the latest message
+4. Apply common sense and context rules
+5. Determine the most likely intent
 
 Return ONLY a valid JSON object with your analysis of the LATEST USER MESSAGE:
 {{

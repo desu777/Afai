@@ -4,6 +4,7 @@ Entry point for the conversational AI assistant
 """
 import asyncio
 import os
+import time
 from typing import Dict, Any
 from workflow import app
 from models import ConversationState
@@ -18,6 +19,9 @@ class AquaforestAssistant:
         Synchronous version for easier testing.
         Accepts the full conversation state and returns the updated state.
         """
+        # Start timing
+        start_time = time.time()
+        
         # Temporarily set TEST_ENV based on debug parameter
         original_test_env = os.environ.get("TEST_ENV", "false")
         if debug:
@@ -55,6 +59,15 @@ class AquaforestAssistant:
             result["chat_history"].append({"role": "user", "content": state["user_query"]})
             result["chat_history"].append({"role": "assistant", "content": result.get("final_response", "")})
             
+            # Calculate execution time
+            end_time = time.time()
+            execution_time = end_time - start_time
+            
+            # Display timing info
+            if debug:
+                print(f"⏱️ [PERFORMANCE] Total execution time: {execution_time:.3f} seconds")
+                print("-"*60)
+            
             return result
         except Exception as e:
             if debug:  # Only show errors in debug mode
@@ -62,6 +75,14 @@ class AquaforestAssistant:
                 import traceback
                 traceback.print_exc()
             state["final_response"] = "I apologize, but I encountered an error. Please try again or contact support@aquaforest.eu"
+            
+            # Calculate execution time even for errors
+            end_time = time.time()
+            execution_time = end_time - start_time
+            if debug:
+                print(f"⏱️ [PERFORMANCE] Execution time (with error): {execution_time:.3f} seconds")
+                print("-"*60)
+                
             return state
         finally:
             # Restore original TEST_ENV value

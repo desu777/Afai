@@ -1,21 +1,21 @@
 """
-Dynamic Parallel Results Filter - VERSION 3.1 with IMPROVED FILTERING
-Less aggressive filtering, better product name matching
+Dynamic Parallel Results Filter - VERSION 4.0 with ThreadPoolExecutor OPTIMIZATION
+Replaced AsyncIO with ThreadPoolExecutor for better compatibility and performance
 """
 import json
-import asyncio
+from concurrent.futures import ThreadPoolExecutor
 from typing import List, Dict, Any, Tuple
-from openai import AsyncOpenAI, OpenAI
+from openai import OpenAI
 from models import ConversationState
 from config import OPENAI_API_KEY, OPENAI_MODEL, OPENAI_TEMPERATURE, TEST_ENV, ENHANCED_K_VALUE
 
 class DynamicParallelResultsFilter:
     def __init__(self):
-        self.async_client = AsyncOpenAI(api_key=OPENAI_API_KEY)
-        self.sync_client = OpenAI(api_key=OPENAI_API_KEY)
+        self.client = OpenAI(api_key=OPENAI_API_KEY)
         self.chunk_size = ENHANCED_K_VALUE // 2
         if TEST_ENV:
             print(f"🔧 [DynamicFilter] Using ENHANCED_K_VALUE={ENHANCED_K_VALUE}, chunk_size={self.chunk_size}")
+            print(f"🔧 [DynamicFilter] Using ThreadPoolExecutor optimization")
     
     def _create_chunk_filter_prompt(self, state: ConversationState, chunk_results: List[Dict], chunk_num: int) -> str:
         """Creates filtering prompt - LESS AGGRESSIVE, PRODUCT NAME FOCUSED"""
@@ -111,6 +111,14 @@ and that product appears in results - ALWAYS KEEP IT! This is non-negotiable.
 - No educational value for the topic
 - Not a reasonable alternative
 
+**🆕 DUPLICATE HANDLING RULE**
+example:
+NEVER filter out products with the same name but different content types or sources or check urls!
+- "Mg Plus" AND "Mg Plus" with different urls → KEEP BOTH
+- "Calcium" dosage guide AND "Calcium" product info → KEEP BOTH
+- Same product name with different metadata = different valuable content
+Check metadata fields like content_type, domain, url to distinguish duplicates.
+
 **🆕 CONSERVATIVE APPROACH**: When in doubt, KEEP the result. 
 It's better to show more options than to miss the exact product the user wants.
 
@@ -129,12 +137,12 @@ Return a JSON with your analysis:
 Remember: BE CONSERVATIVE! Keep products that might be useful.
 """
 
-    async def _filter_chunk_async(self, state: ConversationState, chunk_results: List[Dict], chunk_num: int) -> Dict:
-        """Filter one chunk asynchronously"""
+    def _filter_chunk_threaded(self, state: ConversationState, chunk_results: List[Dict], chunk_num: int) -> Dict:
+        """Filter one chunk using synchronous OpenAI call - optimized for ThreadPoolExecutor"""
         try:
             prompt = self._create_chunk_filter_prompt(state, chunk_results, chunk_num)
             
-            response = await self.async_client.chat.completions.create(
+            response = self.client.chat.completions.create(
                 model=OPENAI_MODEL,
                 temperature=0.1,
                 messages=[{"role": "system", "content": prompt}],
@@ -208,8 +216,8 @@ Remember: BE CONSERVATIVE! Keep products that might be useful.
         
         return merged_results, final_reasoning
 
-    async def filter_results_parallel(self, state: ConversationState) -> ConversationState:
-        """Main filtering method - now less aggressive"""
+    def filter_results_parallel(self, state: ConversationState) -> ConversationState:
+        """Main filtering method using ThreadPoolExecutor for parallel processing"""
         if not state.get("search_results"):
             if TEST_ENV:
                 print("\n🚀 [DynamicFilter] No search results to filter")
@@ -217,7 +225,7 @@ Remember: BE CONSERVATIVE! Keep products that might be useful.
         
         original_count = len(state["search_results"])
         if TEST_ENV:
-            print(f"\n🚀 [DynamicFilter] Starting conservative filtering of {original_count} results")
+            print(f"\n🚀 [DynamicFilter] Starting ThreadPoolExecutor filtering of {original_count} results")
             print(f"🔧 [DynamicFilter] Using chunk_size={self.chunk_size}")
         
         try:
@@ -233,20 +241,29 @@ Remember: BE CONSERVATIVE! Keep products that might be useful.
             if TEST_ENV:
                 print(f"📦 [DynamicFilter] Split into {len(chunks)} chunks")
             
-            # Process chunks in parallel
+            # Process chunks in parallel using ThreadPoolExecutor
             if len(chunks) > 1:
-                tasks = []
-                for i, chunk in enumerate(chunks):
-                    task = self._filter_chunk_async(state, chunk, i + 1)
-                    tasks.append(task)
+                if TEST_ENV:
+                    print(f"🔄 [DynamicFilter] Processing {len(chunks)} chunks in parallel with ThreadPoolExecutor")
                 
-                chunk_results = await asyncio.gather(*tasks)
+                with ThreadPoolExecutor(max_workers=len(chunks)) as executor:
+                    # Submit all tasks
+                    futures = []
+                    for i, chunk in enumerate(chunks):
+                        future = executor.submit(self._filter_chunk_threaded, state, chunk, i + 1)
+                        futures.append(future)
+                    
+                    # Collect results
+                    chunk_results = [future.result() for future in futures]
+                
                 filtered_results, merge_reasoning = self._merge_chunk_results(
                     chunk_results, all_results
                 )
             else:
-                # Single chunk
-                chunk_result = await self._filter_chunk_async(state, chunks[0], 1)
+                # Single chunk - no need for ThreadPoolExecutor
+                if TEST_ENV:
+                    print(f"🔄 [DynamicFilter] Processing single chunk")
+                chunk_result = self._filter_chunk_threaded(state, chunks[0], 1)
                 filtered_results = [all_results[i] for i in chunk_result.get("keep_indices", []) 
                                   if 0 <= i < len(chunks[0])]
                 merge_reasoning = chunk_result.get("reasoning", "Single chunk processed")
@@ -256,7 +273,7 @@ Remember: BE CONSERVATIVE! Keep products that might be useful.
             state["filter_reasoning"] = merge_reasoning
             
             if TEST_ENV:
-                print(f"🎯 [DynamicFilter] Conservative filtering: {original_count} → {len(filtered_results)} results")
+                print(f"🎯 [DynamicFilter] ThreadPoolExecutor filtering: {original_count} → {len(filtered_results)} results")
                 print(f"💭 [DynamicFilter] {merge_reasoning}")
                 
         except Exception as e:
@@ -274,12 +291,13 @@ Remember: BE CONSERVATIVE! Keep products that might be useful.
         return state
 
 def intelligent_results_filter(state: ConversationState) -> ConversationState:
-    """Node function for LangGraph"""
+    """Node function for LangGraph - now using ThreadPoolExecutor optimization"""
     filter_instance = DynamicParallelResultsFilter()
     
     try:
-        return asyncio.run(filter_instance.filter_results_parallel(state))
+        # Direct call to synchronous method - no more asyncio.run()!
+        return filter_instance.filter_results_parallel(state)
     except Exception as e:
         if TEST_ENV:
-            print(f"⚠️ [DynamicFilter] Async failed, using sync fallback: {e}")
+            print(f"⚠️ [DynamicFilter] ThreadPoolExecutor failed, using sync fallback: {e}")
         return filter_instance.filter_results_sync_fallback(state)
