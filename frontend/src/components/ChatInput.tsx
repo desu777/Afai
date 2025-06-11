@@ -49,12 +49,21 @@ const ChatInput: React.FC<ChatInputProps> = ({
           </button>
         </div>
         
-        <div className="flex items-center justify-center mt-4 space-x-3">
-          <div className="w-2 h-2 bg-purple-300 rounded-full"></div>
-          <p className="text-xs text-gray-500 text-center font-medium">
-            AF AI can make mistakes. Verify important information in product documentation.
-          </p>
-          <div className="w-2 h-2 bg-purple-300 rounded-full"></div>
+        <div className="flex flex-col items-center justify-center mt-4 space-y-2">
+          <div className="flex items-center space-x-3">
+            <div className="w-2 h-2 bg-purple-300 rounded-full"></div>
+            <p className="text-xs text-gray-500 text-center font-medium">
+              AF AI can make mistakes. Verify important information in product documentation.
+            </p>
+            <div className="w-2 h-2 bg-purple-300 rounded-full"></div>
+          </div>
+                     <div className="flex items-center space-x-2">
+             <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
+             <p className="text-xs text-gray-500 text-center font-medium">
+               Average response time: 15-40 seconds
+             </p>
+             <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
+           </div>
         </div>
       </div>
     </div>

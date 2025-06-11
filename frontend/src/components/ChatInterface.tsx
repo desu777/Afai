@@ -4,8 +4,11 @@ import { apiService } from '../services/api'
 import Header from './Header'
 import MessageList from './MessageList'
 import ChatInput from './ChatInput'
+import SplashScreen from './SplashScreen'
 
 const ChatInterface: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [accessLevel, setAccessLevel] = useState<'test' | 'admin'>('test');
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -86,9 +89,18 @@ const ChatInterface: React.FC = () => {
     setIsLoading(false);
   };
 
+  const handleAuthenticate = (level: 'test' | 'admin') => {
+    setAccessLevel(level);
+    setIsAuthenticated(true);
+  };
+
+  if (!isAuthenticated) {
+    return <SplashScreen onAuthenticate={handleAuthenticate} />;
+  }
+
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-violet-100">
-      <Header onNewChat={handleNewChat} />
+      <Header onNewChat={handleNewChat} accessLevel={accessLevel} />
       <MessageList 
         messages={messages} 
         isLoading={isLoading} 

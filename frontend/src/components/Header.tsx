@@ -3,9 +3,10 @@ import { MoreVertical, MessageSquarePlus, MessageCircle, BarChart3, Send } from 
 
 interface HeaderProps {
   onNewChat: () => void;
+  accessLevel: 'test' | 'admin';
 }
 
-const Header: React.FC<HeaderProps> = ({ onNewChat }) => {
+const Header: React.FC<HeaderProps> = ({ onNewChat, accessLevel }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -85,14 +86,18 @@ const Header: React.FC<HeaderProps> = ({ onNewChat }) => {
             <Send className="w-4 h-4" />
             <span>Feedback</span>
           </button>
-          <button className="flex items-center space-x-2 px-3 py-2 hover:bg-purple-100 rounded-xl transition-all duration-200 hover:scale-105 text-sm font-medium text-gray-700 hover:text-purple-700">
-            <MessageCircle className="w-4 h-4" />
-            <span>Queries</span>
-          </button>
-          <button className="flex items-center space-x-2 px-3 py-2 hover:bg-purple-100 rounded-xl transition-all duration-200 hover:scale-105 text-sm font-medium text-gray-700 hover:text-purple-700">
-            <BarChart3 className="w-4 h-4" />
-            <span>Stats</span>
-          </button>
+          {accessLevel === 'admin' && (
+            <>
+              <button className="flex items-center space-x-2 px-3 py-2 hover:bg-purple-100 rounded-xl transition-all duration-200 hover:scale-105 text-sm font-medium text-gray-700 hover:text-purple-700">
+                <MessageCircle className="w-4 h-4" />
+                <span>Queries</span>
+              </button>
+              <button className="flex items-center space-x-2 px-3 py-2 hover:bg-purple-100 rounded-xl transition-all duration-200 hover:scale-105 text-sm font-medium text-gray-700 hover:text-purple-700">
+                <BarChart3 className="w-4 h-4" />
+                <span>Stats</span>
+              </button>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu */}
@@ -133,20 +138,24 @@ const Header: React.FC<HeaderProps> = ({ onNewChat }) => {
                   <Send className="w-4 h-4" />
                   <span>Feedback</span>
                 </button>
-                <button 
-                  onClick={closeMobileMenu}
-                  className="flex items-center space-x-3 w-full px-4 py-3 hover:bg-purple-50 transition-colors text-sm font-medium text-gray-700 hover:text-purple-700"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>Queries</span>
-                </button>
-                <button 
-                  onClick={closeMobileMenu}
-                  className="flex items-center space-x-3 w-full px-4 py-3 hover:bg-purple-50 transition-colors text-sm font-medium text-gray-700 hover:text-purple-700"
-                >
-                  <BarChart3 className="w-4 h-4" />
-                  <span>Stats</span>
-                </button>
+                {accessLevel === 'admin' && (
+                  <>
+                    <button 
+                      onClick={closeMobileMenu}
+                      className="flex items-center space-x-3 w-full px-4 py-3 hover:bg-purple-50 transition-colors text-sm font-medium text-gray-700 hover:text-purple-700"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span>Queries</span>
+                    </button>
+                    <button 
+                      onClick={closeMobileMenu}
+                      className="flex items-center space-x-3 w-full px-4 py-3 hover:bg-purple-50 transition-colors text-sm font-medium text-gray-700 hover:text-purple-700"
+                    >
+                      <BarChart3 className="w-4 h-4" />
+                      <span>Stats</span>
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           )}
