@@ -40,10 +40,8 @@ class ChatResponse(BaseModel):
 
 class FeedbackRequest(BaseModel):
     message_id: Optional[int] = None
-    user_query: str
-    response: str
-    rating: int  # 1-5
-    comment: Optional[str] = None
+    rating: Optional[int] = None  # 1-5 stars
+    comment: str  # Required - this is what user actually sends
     user_type: str = "test"  # "test" or "admin"
 
 class AnalyticsQuery(BaseModel):
@@ -88,10 +86,8 @@ def init_database():
             CREATE TABLE IF NOT EXISTS feedback (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 message_id INTEGER,
-                user_query TEXT NOT NULL,
-                response TEXT NOT NULL,
-                rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
-                comment TEXT,
+                rating INTEGER CHECK (rating >= 1 AND rating <= 5),
+                comment TEXT NOT NULL,
                 user_type TEXT DEFAULT 'test',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
@@ -319,12 +315,10 @@ async def submit_feedback(feedback: FeedbackRequest):
             cursor = conn.cursor()
             cursor.execute("""
                 INSERT INTO feedback (
-                    message_id, user_query, response, rating, comment, user_type
-                ) VALUES (?, ?, ?, ?, ?, ?)
+                    message_id, rating, comment, user_type
+                ) VALUES (?, ?, ?, ?)
             """, (
                 feedback.message_id,
-                feedback.user_query,
-                feedback.response,
                 feedback.rating,
                 feedback.comment,
                 feedback.user_type
@@ -586,8 +580,7 @@ async def export_feedback_csv(start_date: Optional[str] = None, end_date: Option
             
             # Write headers
             headers = [
-                "ID", "Message ID", "User Query", "Response", 
-                "Rating", "Comment", "User Type", "Created At"
+                "ID", "Message ID", "Rating", "Comment", "User Type", "Created At"
             ]
             writer.writerow(headers)
             
@@ -596,8 +589,6 @@ async def export_feedback_csv(start_date: Optional[str] = None, end_date: Option
                 writer.writerow([
                     row["id"],
                     row["message_id"],
-                    row["user_query"],
-                    row["response"][:100] + "..." if len(row["response"] or "") > 100 else row["response"],
                     row["rating"],
                     row["comment"],
                     row["user_type"],

@@ -18,6 +18,19 @@ export interface ChatResponse {
   execution_time?: number;
 }
 
+export interface FeedbackRequest {
+  message_id?: number;
+  rating?: number; // 1-5 stars
+  comment: string;
+  user_type: 'test' | 'admin';
+}
+
+export interface FeedbackResponse {
+  success: boolean;
+  feedback_id?: number;
+  message: string;
+}
+
 export interface ApiError {
   message: string;
   status?: number;

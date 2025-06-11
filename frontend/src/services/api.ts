@@ -1,4 +1,4 @@
-import { ChatRequest, ChatResponse, ApiError } from '../types'
+import { ChatRequest, ChatResponse, ApiError, FeedbackRequest, FeedbackResponse } from '../types'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:2103';
 
@@ -69,6 +69,13 @@ class ApiService {
 
   async healthCheck(): Promise<{status: string; debug_mode: boolean; timestamp: number}> {
     return this.request('/health');
+  }
+
+  async submitFeedback(feedback: FeedbackRequest): Promise<FeedbackResponse> {
+    return this.request<FeedbackResponse>('/feedback', {
+      method: 'POST',
+      body: JSON.stringify(feedback),
+    });
   }
 }
 

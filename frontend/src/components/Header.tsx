@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { MoreVertical, MessageSquarePlus, MessageCircle, BarChart3, Send } from 'lucide-react'
+import FeedbackModal from './FeedbackModal'
 
 interface HeaderProps {
   onNewChat: () => void;
@@ -9,6 +10,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onNewChat, accessLevel }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const closeMobileMenu = () => {
@@ -17,6 +19,17 @@ const Header: React.FC<HeaderProps> = ({ onNewChat, accessLevel }) => {
       setIsMobileMenuOpen(false);
       setIsClosing(false);
     }, 150); // Animation duration
+  };
+
+  const openFeedbackModal = () => {
+    setIsFeedbackModalOpen(true);
+    if (isMobileMenuOpen) {
+      closeMobileMenu();
+    }
+  };
+
+  const closeFeedbackModal = () => {
+    setIsFeedbackModalOpen(false);
   };
 
   useEffect(() => {
@@ -82,7 +95,10 @@ const Header: React.FC<HeaderProps> = ({ onNewChat, accessLevel }) => {
             <MessageSquarePlus className="w-4 h-4" />
             <span>New chat</span>
           </button>
-          <button className="flex items-center space-x-2 px-3 py-2 hover:bg-purple-100 rounded-xl transition-all duration-200 hover:scale-105 text-sm font-medium text-gray-700 hover:text-purple-700">
+          <button 
+            onClick={openFeedbackModal}
+            className="flex items-center space-x-2 px-3 py-2 hover:bg-purple-100 rounded-xl transition-all duration-200 hover:scale-105 text-sm font-medium text-gray-700 hover:text-purple-700"
+          >
             <Send className="w-4 h-4" />
             <span>Feedback</span>
           </button>
@@ -132,7 +148,7 @@ const Header: React.FC<HeaderProps> = ({ onNewChat, accessLevel }) => {
                   <span>New chat</span>
                 </button>
                 <button 
-                  onClick={closeMobileMenu}
+                  onClick={openFeedbackModal}
                   className="flex items-center space-x-3 w-full px-4 py-3 hover:bg-purple-50 transition-colors text-sm font-medium text-gray-700 hover:text-purple-700"
                 >
                   <Send className="w-4 h-4" />
@@ -161,6 +177,13 @@ const Header: React.FC<HeaderProps> = ({ onNewChat, accessLevel }) => {
           )}
         </div>
       </div>
+
+      {/* Feedback Modal */}
+      <FeedbackModal 
+        isOpen={isFeedbackModalOpen}
+        onClose={closeFeedbackModal}
+        accessLevel={accessLevel}
+      />
     </div>
   );
 };
