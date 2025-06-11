@@ -6,22 +6,16 @@ import MessageList from './MessageList'
 import ChatInput from './ChatInput'
 
 const ChatInterface: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 1,
-      type: 'assistant',
-      content: '🐠 Welcome! I\'m AF AI, your Aquaforest assistant. I can help you with aquarium products, dosing calculations, and problem solving in any language. How can I help you today?',
-      timestamp: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSend = async () => {
     if (!inputValue.trim() || isLoading) return;
 
+    const userMessageId = messages.length + 1;
     const userMessage: Message = {
-      id: messages.length + 1,
+      id: userMessageId,
       type: 'user',
       content: inputValue,
       timestamp: new Date()
@@ -57,7 +51,7 @@ const ChatInterface: React.FC = () => {
 
       // Add AI response
       const aiResponse: Message = {
-        id: messages.length + 2,
+        id: userMessageId + 1,
         type: 'assistant',
         content: response.response,
         timestamp: new Date()
@@ -70,7 +64,7 @@ const ChatInterface: React.FC = () => {
       
       // Add error message
       const errorMessage: Message = {
-        id: messages.length + 2,
+        id: userMessageId + 1,
         type: 'assistant',
         content: 'I apologize, but I encountered an error while processing your request. Please try again or contact support@aquaforest.eu if the problem persists.',
         timestamp: new Date()
@@ -86,9 +80,15 @@ const ChatInterface: React.FC = () => {
     setInputValue(query);
   };
 
+  const handleNewChat = () => {
+    setMessages([]);
+    setInputValue('');
+    setIsLoading(false);
+  };
+
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-violet-100">
-      <Header />
+      <Header onNewChat={handleNewChat} />
       <MessageList 
         messages={messages} 
         isLoading={isLoading} 

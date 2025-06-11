@@ -1,4 +1,4 @@
-import { User, Bot } from 'lucide-react'
+import { User } from 'lucide-react'
 import { Message as MessageType } from '../types'
 import MessageContent from './MessageContent'
 
@@ -12,15 +12,13 @@ const Message: React.FC<MessageProps> = ({ message }) => {
       className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'} mb-6`}
     >
       <div className={`flex items-start space-x-4 max-w-3xl ${message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
-        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md ${
-          message.type === 'user' 
-            ? 'bg-gradient-to-br from-gray-600 via-gray-700 to-gray-800' 
-            : 'bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800'
-        }`}>
+        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 flex items-center justify-center flex-shrink-0 shadow-md">
           {message.type === 'user' ? (
             <User className="w-5 h-5 text-white" />
           ) : (
-            <Bot className="w-5 h-5 text-white" />
+            <div className="circle">
+              <div className="wave"></div>
+            </div>
           )}
         </div>
         <div className="flex flex-col space-y-2">

@@ -1,28 +1,155 @@
-import { Fish, Settings, MoreVertical } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { MoreVertical, MessageSquarePlus, MessageCircle, BarChart3, Send } from 'lucide-react'
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  onNewChat: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onNewChat }) => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const closeMobileMenu = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsMobileMenuOpen(false);
+      setIsClosing(false);
+    }, 150); // Animation duration
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        closeMobileMenu();
+      }
+    };
+
+    if (isMobileMenuOpen && !isClosing) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMobileMenuOpen, isClosing]);
   return (
-    <div className="bg-white/95 backdrop-blur-md border-b border-purple-200/50 px-4 sm:px-6 py-5 shadow-sm">
+    <div className="bg-white/95 backdrop-blur-md border-b border-purple-200/50 px-4 sm:px-6 py-5 shadow-sm relative z-50">
       <div className="flex items-center justify-between max-w-5xl mx-auto">
         <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 rounded-2xl flex items-center justify-center shadow-lg">
-            <Fish className="w-7 h-7 text-white" />
+          <div className="w-12 h-12 bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 rounded-2xl flex items-center justify-center shadow-lg overflow-hidden">
+            <img 
+              src="/horse.png" 
+              alt="Konik morski" 
+              className="w-8 h-8 object-contain"
+            />
           </div>
-          <div className="flex flex-col">
-            <h1 className="text-xl font-bold text-gray-900 tracking-tight">AF AI Assistant</h1>
-            <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <p className="text-sm text-purple-700 font-medium">Aquaforest • Multi-language support</p>
+          <div className="flex flex-col justify-center">
+            <div className="h-10 sm:h-12 lg:h-16">
+              <svg viewBox="0 0 160 40" className="w-full h-full max-w-[240px] sm:max-w-[300px] lg:max-w-[360px]">
+                <defs>
+                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style={{stopColor: '#9333ea'}} />
+                    <stop offset="50%" style={{stopColor: '#7c3aed'}} />
+                    <stop offset="100%" style={{stopColor: '#5b21b6'}} />
+                  </linearGradient>
+                  <pattern id="wave" x="0" y="-0.5" width="100%" height="100%" patternUnits="userSpaceOnUse">
+                    <path id="wavePath" d="M-40 20 Q-30 16 -20 20 T0 20 T20 20 T40 20 T60 20 T80 20 T100 20 T120 20 T140 20 T160 20 T180 20 V40 H-40z" fill="url(#gradient)">
+                      <animateTransform
+                        attributeName="transform"
+                        begin="0s"
+                        dur="2s"
+                        type="translate"
+                        from="0,0"
+                        to="40,0"
+                        repeatCount="indefinite" />
+                    </path>
+                  </pattern>
+                </defs>
+                <text textAnchor="middle" x="80" y="28" fontSize="22" fontWeight="bold" fill="#1f2937" fillOpacity="0.15">AF AI Assistant</text>
+                <text textAnchor="middle" x="80" y="28" fontSize="22" fontWeight="bold" fill="url(#wave)" fillOpacity="1">AF AI Assistant</text>
+              </svg>
             </div>
           </div>
         </div>
-        <div className="flex items-center space-x-1">
-          <button className="p-2.5 hover:bg-purple-100 rounded-xl transition-all duration-200 hover:scale-105">
-            <Settings className="w-5 h-5 text-gray-600" />
+        {/* Desktop Menu */}
+        <div className="hidden md:flex items-center space-x-3">
+          <button 
+            onClick={onNewChat}
+            className="flex items-center space-x-2 px-3 py-2 hover:bg-purple-100 rounded-xl transition-all duration-200 hover:scale-105 text-sm font-medium text-gray-700 hover:text-purple-700"
+          >
+            <MessageSquarePlus className="w-4 h-4" />
+            <span>New chat</span>
           </button>
-          <button className="p-2.5 hover:bg-purple-100 rounded-xl transition-all duration-200 hover:scale-105">
+          <button className="flex items-center space-x-2 px-3 py-2 hover:bg-purple-100 rounded-xl transition-all duration-200 hover:scale-105 text-sm font-medium text-gray-700 hover:text-purple-700">
+            <Send className="w-4 h-4" />
+            <span>Feedback</span>
+          </button>
+          <button className="flex items-center space-x-2 px-3 py-2 hover:bg-purple-100 rounded-xl transition-all duration-200 hover:scale-105 text-sm font-medium text-gray-700 hover:text-purple-700">
+            <MessageCircle className="w-4 h-4" />
+            <span>Queries</span>
+          </button>
+          <button className="flex items-center space-x-2 px-3 py-2 hover:bg-purple-100 rounded-xl transition-all duration-200 hover:scale-105 text-sm font-medium text-gray-700 hover:text-purple-700">
+            <BarChart3 className="w-4 h-4" />
+            <span>Stats</span>
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        <div className="md:hidden relative" ref={menuRef}>
+          <button 
+            onClick={() => {
+              if (isMobileMenuOpen) {
+                closeMobileMenu();
+              } else {
+                setIsMobileMenuOpen(true);
+              }
+            }}
+            className="p-2.5 hover:bg-purple-100 rounded-xl transition-all duration-200 hover:scale-105"
+          >
             <MoreVertical className="w-5 h-5 text-gray-600" />
           </button>
+          
+          {/* Mobile Dropdown */}
+          {isMobileMenuOpen && (
+            <div className={`fixed right-4 top-20 w-48 bg-white/95 backdrop-blur-md border border-purple-200/50 rounded-xl shadow-xl z-[99999] ${
+              isClosing ? 'animate-dropdown-out' : 'animate-dropdown-in'
+            }`}>
+              <div className="py-2">
+                <button 
+                  onClick={() => {
+                    onNewChat();
+                    closeMobileMenu();
+                  }}
+                  className="flex items-center space-x-3 w-full px-4 py-3 hover:bg-purple-50 transition-colors text-sm font-medium text-gray-700 hover:text-purple-700"
+                >
+                  <MessageSquarePlus className="w-4 h-4" />
+                  <span>New chat</span>
+                </button>
+                <button 
+                  onClick={closeMobileMenu}
+                  className="flex items-center space-x-3 w-full px-4 py-3 hover:bg-purple-50 transition-colors text-sm font-medium text-gray-700 hover:text-purple-700"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>Feedback</span>
+                </button>
+                <button 
+                  onClick={closeMobileMenu}
+                  className="flex items-center space-x-3 w-full px-4 py-3 hover:bg-purple-50 transition-colors text-sm font-medium text-gray-700 hover:text-purple-700"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Queries</span>
+                </button>
+                <button 
+                  onClick={closeMobileMenu}
+                  className="flex items-center space-x-3 w-full px-4 py-3 hover:bg-purple-50 transition-colors text-sm font-medium text-gray-700 hover:text-purple-700"
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  <span>Stats</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
