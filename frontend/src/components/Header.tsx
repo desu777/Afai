@@ -1,13 +1,15 @@
 import { useState, useEffect, useRef } from 'react'
-import { MoreVertical, MessageSquarePlus, MessageCircle, BarChart3, Send } from 'lucide-react'
+import { MoreVertical, MessageSquarePlus, MessageCircle, BarChart3, Send, FileText } from 'lucide-react'
 import FeedbackModal from './FeedbackModal'
 
 interface HeaderProps {
   onNewChat: () => void;
   accessLevel: 'test' | 'admin';
+  onViewChange?: (view: 'chat' | 'feedback' | 'analytics') => void;
+  activeView?: 'chat' | 'feedback' | 'analytics';
 }
 
-const Header: React.FC<HeaderProps> = ({ onNewChat, accessLevel }) => {
+const Header: React.FC<HeaderProps> = ({ onNewChat, accessLevel, onViewChange, activeView = 'chat' }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
@@ -32,6 +34,21 @@ const Header: React.FC<HeaderProps> = ({ onNewChat, accessLevel }) => {
     setIsFeedbackModalOpen(false);
   };
 
+  const handleViewChange = (view: 'chat' | 'feedback' | 'analytics') => {
+    onViewChange?.(view);
+    if (isMobileMenuOpen) {
+      closeMobileMenu();
+    }
+  };
+
+  const getButtonClass = (view: 'chat' | 'feedback' | 'analytics') => {
+    const baseClass = "flex items-center space-x-2 px-3 py-2 rounded-xl transition-all duration-200 hover:scale-105 text-sm font-medium";
+    const activeClass = "bg-purple-100 text-purple-700 border border-purple-200";
+    const inactiveClass = "text-gray-700 hover:bg-purple-100 hover:text-purple-700";
+    
+    return `${baseClass} ${activeView === view ? activeClass : inactiveClass}`;
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -47,6 +64,7 @@ const Header: React.FC<HeaderProps> = ({ onNewChat, accessLevel }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isMobileMenuOpen, isClosing]);
+
   return (
     <div className="bg-white/95 backdrop-blur-md border-b border-purple-200/50 px-4 sm:px-6 py-5 shadow-sm relative z-50">
       <div className="flex items-center justify-between max-w-5xl mx-auto">
@@ -89,8 +107,8 @@ const Header: React.FC<HeaderProps> = ({ onNewChat, accessLevel }) => {
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center space-x-3">
           <button 
-            onClick={onNewChat}
-            className="flex items-center space-x-2 px-3 py-2 hover:bg-purple-100 rounded-xl transition-all duration-200 hover:scale-105 text-sm font-medium text-gray-700 hover:text-purple-700"
+            onClick={() => handleViewChange('chat')}
+            className={getButtonClass('chat')}
           >
             <MessageSquarePlus className="w-4 h-4" />
             <span>New chat</span>
@@ -104,13 +122,19 @@ const Header: React.FC<HeaderProps> = ({ onNewChat, accessLevel }) => {
           </button>
           {accessLevel === 'admin' && (
             <>
-              <button className="flex items-center space-x-2 px-3 py-2 hover:bg-purple-100 rounded-xl transition-all duration-200 hover:scale-105 text-sm font-medium text-gray-700 hover:text-purple-700">
-                <MessageCircle className="w-4 h-4" />
-                <span>Queries</span>
+              <button 
+                onClick={() => handleViewChange('feedback')}
+                className={getButtonClass('feedback')}
+              >
+                <FileText className="w-4 h-4" />
+                <span>ReadFeedback</span>
               </button>
-              <button className="flex items-center space-x-2 px-3 py-2 hover:bg-purple-100 rounded-xl transition-all duration-200 hover:scale-105 text-sm font-medium text-gray-700 hover:text-purple-700">
+              <button 
+                onClick={() => handleViewChange('analytics')}
+                className={getButtonClass('analytics')}
+              >
                 <BarChart3 className="w-4 h-4" />
-                <span>Stats</span>
+                <span>Analysis</span>
               </button>
             </>
           )}
@@ -138,11 +162,10 @@ const Header: React.FC<HeaderProps> = ({ onNewChat, accessLevel }) => {
             }`}>
               <div className="py-2">
                 <button 
-                  onClick={() => {
-                    onNewChat();
-                    closeMobileMenu();
-                  }}
-                  className="flex items-center space-x-3 w-full px-4 py-3 hover:bg-purple-50 transition-colors text-sm font-medium text-gray-700 hover:text-purple-700"
+                  onClick={() => handleViewChange('chat')}
+                  className={`flex items-center space-x-3 w-full px-4 py-3 hover:bg-purple-50 transition-colors text-sm font-medium ${
+                    activeView === 'chat' ? 'bg-purple-50 text-purple-700' : 'text-gray-700 hover:text-purple-700'
+                  }`}
                 >
                   <MessageSquarePlus className="w-4 h-4" />
                   <span>New chat</span>
@@ -157,18 +180,22 @@ const Header: React.FC<HeaderProps> = ({ onNewChat, accessLevel }) => {
                 {accessLevel === 'admin' && (
                   <>
                     <button 
-                      onClick={closeMobileMenu}
-                      className="flex items-center space-x-3 w-full px-4 py-3 hover:bg-purple-50 transition-colors text-sm font-medium text-gray-700 hover:text-purple-700"
+                      onClick={() => handleViewChange('feedback')}
+                      className={`flex items-center space-x-3 w-full px-4 py-3 hover:bg-purple-50 transition-colors text-sm font-medium ${
+                        activeView === 'feedback' ? 'bg-purple-50 text-purple-700' : 'text-gray-700 hover:text-purple-700'
+                      }`}
                     >
-                      <MessageCircle className="w-4 h-4" />
-                      <span>Queries</span>
+                      <FileText className="w-4 h-4" />
+                      <span>ReadFeedback</span>
                     </button>
                     <button 
-                      onClick={closeMobileMenu}
-                      className="flex items-center space-x-3 w-full px-4 py-3 hover:bg-purple-50 transition-colors text-sm font-medium text-gray-700 hover:text-purple-700"
+                      onClick={() => handleViewChange('analytics')}
+                      className={`flex items-center space-x-3 w-full px-4 py-3 hover:bg-purple-50 transition-colors text-sm font-medium ${
+                        activeView === 'analytics' ? 'bg-purple-50 text-purple-700' : 'text-gray-700 hover:text-purple-700'
+                      }`}
                     >
                       <BarChart3 className="w-4 h-4" />
-                      <span>Stats</span>
+                      <span>Analysis</span>
                     </button>
                   </>
                 )}

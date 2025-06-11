@@ -500,43 +500,50 @@ async def export_analytics_csv(start_date: Optional[str] = None, end_date: Optio
             
             cursor.execute(sql, params)
             
-            # Create CSV in memory
+            # Create CSV in memory with proper formatting for Excel
             output = io.StringIO()
-            writer = csv.writer(output)
+            writer = csv.writer(output, delimiter=';', quotechar='"', quoting=csv.QUOTE_ALL)
             
-            # Write headers
+            # Write headers - complete column set for analytics export
             headers = [
-                "ID", "Query", "Language", "Intent", "Intent Confidence",
-                "Business Interpretation", "Business Corrections",
-                "Optimized Queries", "Pinecone Results Count", "Top Results",
-                "Filter Decision", "Filtered Count", "Confidence Score",
-                "Confidence Reasoning", "Final Response", "Execution Time",
-                "Node Timings", "Escalated", "Created At"
+                "ID", "User Query", "Detected Language", "Intent Decision", "Intent Confidence",
+                "Business Interpretation", "Business Corrections", "Query Optimizer Queries",
+                "Pinecone Results Count", "Pinecone Top Results", "Filter Decision", 
+                "Filtered Results Count", "Confidence Score", "Confidence Reasoning",
+                "Final Response (Full)", "Total Execution Time (s)", "Node Timings (JSON)",
+                "Escalated", "Created At"
             ]
             writer.writerow(headers)
             
-            # Write data
+            # Helper function to clean text for CSV
+            def clean_text(text):
+                if not text:
+                    return ""
+                # Replace problematic characters and normalize newlines
+                return str(text).replace('\n', ' ').replace('\r', ' ').replace('\t', ' ').strip()
+            
+            # Write data - full data without truncation
             for row in cursor.fetchall():
                 writer.writerow([
                     row["id"],
-                    row["user_query"],
-                    row["detected_language"],
-                    row["intent_detector_decision"],
-                    row["intent_confidence"],
-                    row["business_reasoner_decision"],
-                    row["business_corrections"],
-                    row["query_optimizer_queries"],
-                    row["pinecone_results_count"],
-                    row["pinecone_top_results"],
-                    row["filter_decision"],
-                    row["filtered_results_count"],
-                    row["confidence_score"],
-                    row["confidence_reasoning"],
-                    row["final_response"][:100] + "..." if len(row["final_response"] or "") > 100 else row["final_response"],
-                    row["total_execution_time"],
-                    row["node_timings"],
-                    row["escalated"],
-                    row["created_at"]
+                    clean_text(row["user_query"]),
+                    clean_text(row["detected_language"]),
+                    clean_text(row["intent_detector_decision"]),
+                    row["intent_confidence"] or 0,
+                    clean_text(row["business_reasoner_decision"]),
+                    clean_text(row["business_corrections"]),
+                    clean_text(row["query_optimizer_queries"]),
+                    row["pinecone_results_count"] or 0,
+                    clean_text(row["pinecone_top_results"]),
+                    clean_text(row["filter_decision"]),
+                    row["filtered_results_count"] or 0,
+                    row["confidence_score"] or 0,
+                    clean_text(row["confidence_reasoning"]),
+                    clean_text(row["final_response"]),  # Full response, cleaned
+                    row["total_execution_time"] or 0,
+                    clean_text(row["node_timings"]),
+                    "Yes" if row["escalated"] else "No",
+                    row["created_at"] or ""
                 ])
             
             # Create response
@@ -574,25 +581,32 @@ async def export_feedback_csv(start_date: Optional[str] = None, end_date: Option
             
             cursor.execute(sql, params)
             
-            # Create CSV in memory
+            # Create CSV in memory with proper formatting for Excel
             output = io.StringIO()
-            writer = csv.writer(output)
+            writer = csv.writer(output, delimiter=';', quotechar='"', quoting=csv.QUOTE_ALL)
             
-            # Write headers
+            # Write headers - complete feedback export
             headers = [
-                "ID", "Message ID", "Rating", "Comment", "User Type", "Created At"
+                "Feedback ID", "Message ID", "Rating (1-5)", "Comment", "User Type", "Created At"
             ]
             writer.writerow(headers)
             
-            # Write data
+            # Helper function to clean text for CSV
+            def clean_text(text):
+                if not text:
+                    return ""
+                # Replace problematic characters and normalize newlines
+                return str(text).replace('\n', ' ').replace('\r', ' ').replace('\t', ' ').strip()
+            
+            # Write data - complete feedback data
             for row in cursor.fetchall():
                 writer.writerow([
                     row["id"],
-                    row["message_id"],
-                    row["rating"],
-                    row["comment"],
-                    row["user_type"],
-                    row["created_at"]
+                    row["message_id"] or "",
+                    row["rating"] or "",
+                    clean_text(row["comment"]),
+                    row["user_type"] or "test",
+                    row["created_at"] or ""
                 ])
             
             # Create response

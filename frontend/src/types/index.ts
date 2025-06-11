@@ -34,4 +34,74 @@ export interface FeedbackResponse {
 export interface ApiError {
   message: string;
   status?: number;
+}
+
+// Admin Panel Types
+export interface FeedbackItem {
+  id: number;
+  message_id?: number;
+  rating?: number;
+  comment: string;
+  user_type: string;
+  created_at: string;
+}
+
+export interface FeedbackSummaryResponse {
+  success: boolean;
+  summary: {
+    total_feedback: number;
+    average_rating: number;
+    rating_distribution: Record<number, number>;
+    recent_feedback: FeedbackItem[];
+  };
+}
+
+export interface AnalyticsItem {
+  id: number;
+  user_query: string;
+  detected_language: string;
+  intent_detector_decision: string;
+  intent_confidence: number;
+  business_reasoner_decision: string;
+  business_corrections: string;
+  query_optimizer_queries: string[];
+  pinecone_results_count: number;
+  pinecone_top_results: Array<{product: string; score: number}>;
+  filter_decision: string;
+  filtered_results_count: number;
+  confidence_score: number;
+  confidence_reasoning: string;
+  final_response: string;
+  total_execution_time: number;
+  node_timings: Record<string, number>;
+  escalated: boolean;
+  created_at: string;
+}
+
+export interface AnalyticsSummaryResponse {
+  success: boolean;
+  summary: {
+    total_queries: number;
+    average_execution_time: number;
+    confidence_distribution: {
+      high_confidence: number;
+      medium_confidence: number;
+      low_confidence: number;
+    };
+    intent_distribution: Record<string, number>;
+    language_distribution: Record<string, number>;
+    escalation_rate: number;
+  };
+}
+
+export interface AnalyticsQueryRequest {
+  start_date?: string;
+  end_date?: string;
+  limit: number;
+}
+
+export interface AnalyticsQueryResponse {
+  success: boolean;
+  count: number;
+  data: AnalyticsItem[];
 } 

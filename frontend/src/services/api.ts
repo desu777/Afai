@@ -1,4 +1,14 @@
-import { ChatRequest, ChatResponse, ApiError, FeedbackRequest, FeedbackResponse } from '../types'
+import { 
+  ChatRequest, 
+  ChatResponse, 
+  ApiError, 
+  FeedbackRequest, 
+  FeedbackResponse,
+  FeedbackSummaryResponse,
+  AnalyticsSummaryResponse,
+  AnalyticsQueryRequest,
+  AnalyticsQueryResponse
+} from '../types'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:2103';
 
@@ -76,6 +86,50 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify(feedback),
     });
+  }
+
+  // Admin Panel Methods
+  async getFeedbackSummary(): Promise<FeedbackSummaryResponse> {
+    return this.request<FeedbackSummaryResponse>('/feedback/summary');
+  }
+
+  async getAnalyticsSummary(): Promise<AnalyticsSummaryResponse> {
+    return this.request<AnalyticsSummaryResponse>('/analytics/summary');
+  }
+
+  async getAnalyticsData(queryParams: AnalyticsQueryRequest): Promise<AnalyticsQueryResponse> {
+    return this.request<AnalyticsQueryResponse>('/analytics/query', {
+      method: 'POST',
+      body: JSON.stringify(queryParams),
+    });
+  }
+
+  async exportFeedbackCSV(startDate?: string, endDate?: string): Promise<Blob> {
+    let url = `${API_BASE_URL}/feedback/export/csv`;
+    const params = new URLSearchParams();
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    if (params.toString()) url += '?' + params.toString();
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: Failed to export feedback CSV`);
+    }
+    return response.blob();
+  }
+
+  async exportAnalyticsCSV(startDate?: string, endDate?: string): Promise<Blob> {
+    let url = `${API_BASE_URL}/analytics/export/csv`;
+    const params = new URLSearchParams();
+    if (startDate) params.append('start_date', startDate);
+    if (endDate) params.append('end_date', endDate);
+    if (params.toString()) url += '?' + params.toString();
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: Failed to export analytics CSV`);
+    }
+    return response.blob();
   }
 }
 

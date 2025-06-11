@@ -5,10 +5,13 @@ import Header from './Header'
 import MessageList from './MessageList'
 import ChatInput from './ChatInput'
 import SplashScreen from './SplashScreen'
+import AdminFeedbackPanel from './AdminFeedbackPanel'
+import AdminAnalyticsPanel from './AdminAnalyticsPanel'
 
 const ChatInterface: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [accessLevel, setAccessLevel] = useState<'test' | 'admin'>('test');
+  const [activeView, setActiveView] = useState<'chat' | 'feedback' | 'analytics'>('chat');
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -87,11 +90,21 @@ const ChatInterface: React.FC = () => {
     setMessages([]);
     setInputValue('');
     setIsLoading(false);
+    setActiveView('chat');
   };
 
   const handleAuthenticate = (level: 'test' | 'admin') => {
     setAccessLevel(level);
     setIsAuthenticated(true);
+  };
+
+  const handleViewChange = (view: 'chat' | 'feedback' | 'analytics') => {
+    setActiveView(view);
+    
+    // If switching to chat, treat as new chat
+    if (view === 'chat') {
+      handleNewChat();
+    }
   };
 
   if (!isAuthenticated) {
@@ -100,18 +113,37 @@ const ChatInterface: React.FC = () => {
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-violet-100">
-      <Header onNewChat={handleNewChat} accessLevel={accessLevel} />
-      <MessageList 
-        messages={messages} 
-        isLoading={isLoading} 
-        onQuerySelect={handleQuerySelect} 
+      <Header 
+        onNewChat={handleNewChat} 
+        accessLevel={accessLevel} 
+        onViewChange={handleViewChange}
+        activeView={activeView}
       />
-      <ChatInput
-        inputValue={inputValue}
-        isLoading={isLoading}
-        onInputChange={setInputValue}
-        onSend={handleSend}
-      />
+      
+      {/* Conditional Rendering based on activeView */}
+      {activeView === 'chat' && (
+        <>
+          <MessageList 
+            messages={messages} 
+            isLoading={isLoading} 
+            onQuerySelect={handleQuerySelect} 
+          />
+          <ChatInput
+            inputValue={inputValue}
+            isLoading={isLoading}
+            onInputChange={setInputValue}
+            onSend={handleSend}
+          />
+        </>
+      )}
+      
+      {activeView === 'feedback' && accessLevel === 'admin' && (
+        <AdminFeedbackPanel accessLevel={accessLevel} />
+      )}
+      
+      {activeView === 'analytics' && accessLevel === 'admin' && (
+        <AdminAnalyticsPanel accessLevel={accessLevel} />
+      )}
     </div>
   );
 };
