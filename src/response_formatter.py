@@ -1,5 +1,5 @@
 """
-Response Formatting Module - VERSION 4.0 with Safe Calculations
+Response Formatting Module - VERSION 4.1 with SUPPORT Intent
 Enhanced metadata handling, category support, and calculation safety
 """
 from typing import List, Dict, Any, Optional
@@ -144,7 +144,7 @@ class ResponseFormatter:
         
         # Handle special intents first
         if intent in [Intent.GREETING, Intent.BUSINESS, 
-                     Intent.PURCHASE_INQUIRY, Intent.COMPETITOR, Intent.CENSORED]:
+                     Intent.PURCHASE_INQUIRY, Intent.COMPETITOR, Intent.CENSORED, Intent.SUPPORT]:
             if TEST_ENV:
                 print(f"🎭 [DEBUG ResponseFormatter] Handling special intent: {intent}")
             return self._create_special_intent_prompt(state)
@@ -293,6 +293,35 @@ Respond in {lang} language.
         if TEST_ENV:
             print(f"🎯 [DEBUG ResponseFormatter] Creating prompt for special intent: {intent}")
         
+        # 🆕 SUPPORT intent handling
+        if intent == Intent.SUPPORT:
+            if lang == "pl":
+                return f"""
+You are AF AI. The user explicitly wants to contact support.
+User said: "{user_query}"
+
+Respond helpfully in Polish:
+1. Acknowledge their request for support
+2. Provide contact link: https://aquaforest.eu/pl/kontakt/
+3. Mention business hotline: (+48) 14 691 79 79 (Poniedziałek-Piątek, 8:00-16:00)
+4. Be warm and helpful, mention that our specialists are ready to help
+
+Generate response in Polish.
+"""
+            else:
+                return f"""
+You are AF AI. The user explicitly wants to contact support.
+User said: "{user_query}"
+
+Respond helpfully:
+1. Acknowledge their request for support
+2. Provide contact link: https://aquaforest.eu/en/contact-us/
+3. Mention business hotline: (+48) 14 691 79 79 (Monday-Friday, 8:00-16:00)
+4. Be warm and helpful, mention that our specialists are ready to provide full support
+
+Generate response in {lang} language.
+"""
+        
         # Enhanced purchase inquiry
         if intent == Intent.PURCHASE_INQUIRY:
             purchase_product = state.get("purchase_product", "")
@@ -413,9 +442,9 @@ Generate response in {lang} language.
     def _get_error_message(self, language: str) -> str:
         """Get error message in appropriate language"""
         if language == "pl":
-            return "Przepraszam, wystąpił błąd. Proszę skontaktować się z support@aquaforest.eu lub zadzwonić pod +48 14 691 79 79."
+            return "Przepraszam, wystąpił błąd podczas przetwarzania. Spróbuj ponownie lub jeśli problem się powtarza, możesz skontaktować się z naszym supportem."
         else:
-            return "I apologize, but I encountered an error. Please contact support@aquaforest.eu or call +48 14 691 79 79."
+            return "I apologize, but I encountered an error while processing your request. Please try again, or if the problem persists, you can contact our support team."
 
 
 # Follow-up handling functions
@@ -474,11 +503,45 @@ def format_final_response(state: ConversationState) -> ConversationState:
     return formatter.format_response(state)
 
 def escalate_to_human(state: ConversationState) -> ConversationState:
+    """🆕 UPDATED: Escalate without automatically adding support contact"""
     if TEST_ENV:
-        print(f"\n🚨 [DEBUG Escalate] Escalating to support (confidence < threshold)")
+        print(f"\n🚨 [DEBUG Escalate] Escalating due to low confidence")
     state["escalate"] = True
-    formatter = ResponseFormatter()
-    return formatter.format_response(state)
+    
+    # Create a custom prompt for escalation that doesn't include contact info
+    lang = state.get("detected_language", "en")
+    user_query = state.get("user_query", "")
+    
+    escalation_prompt = f"""
+You are AF AI. The search results have low confidence for this query.
+User asked: "{user_query}"
+
+Generate a helpful response that:
+1. Acknowledges you found some information but it might not be exactly what they're looking for
+2. Share what relevant information you DID find (if any)
+3. Suggest they rephrase their question or provide more details
+4. DO NOT automatically provide support contact information unless they specifically ask for it
+
+Be helpful and apologetic about not finding perfect matches.
+
+Respond in {lang} language.
+"""
+    
+    try:
+        client = OpenAI(api_key=OPENAI_API_KEY)
+        response = client.chat.completions.create(
+            model=OPENAI_MODEL,
+            temperature=OPENAI_TEMPERATURE,
+            messages=[{"role": "system", "content": escalation_prompt}]
+        )
+        state["final_response"] = response.choices[0].message.content
+    except Exception as e:
+        if TEST_ENV:
+            print(f"❌ [DEBUG Escalate] Error generating escalation response: {e}")
+        formatter = ResponseFormatter()
+        state["final_response"] = formatter._get_error_message(lang)
+    
+    return state
 
 def handle_follow_up(state: ConversationState) -> ConversationState:
     """Handle follow-up questions using cached metadata"""

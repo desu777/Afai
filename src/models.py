@@ -14,6 +14,7 @@ class Intent(str, Enum):
     COMPETITOR = "competitor"
     CENSORED = "censored"
     FOLLOW_UP = "follow_up"
+    SUPPORT = "support"  # 🆕 NEW INTENT
     OTHER = "other"
 
 class Domain(str, Enum):

@@ -27,16 +27,18 @@ INTENTS:
 5. "competitor": Mentions of competitor brands (e.g., "Red Sea", "Seachem", "Tropic Marin").
 6. "censored": Questions about proprietary information like product formulas or production processes.
 7. "follow_up": The user is continuing an existing conversation - asking follow-up questions, seeking recommendations, clarifications, or additional details about topics already being discussed. This includes questions that naturally progress the conversation even if not directly referencing the previous response.
-8. "other": Anything that doesn't fit the categories above.
+8. "support": The user explicitly wants to contact support
+9. "other": Anything that doesn't fit the categories above.
 
 LANGUAGES: Detect the primary language of the LATEST USER MESSAGE (pl, en, de, fr, es, it, etc.).
 
 ANALYSIS PROCESS:
 1. Read the conversation history to understand context
 2. Check if this continues an existing conversation topic
-3. Analyze the latest message
-4. Apply common sense and context rules
-5. Determine the most likely intent
+3. Check if user wants human support/contact
+4. Analyze the latest message
+5. Apply common sense and context rules
+6. Determine the most likely intent
 
 Return ONLY a valid JSON object with your analysis of the LATEST USER MESSAGE:
 {{
@@ -44,4 +46,4 @@ Return ONLY a valid JSON object with your analysis of the LATEST USER MESSAGE:
     "language": "detected_language_code",
     "confidence": 0.0-1.0,
     "context_note": "optional: brief note about context understanding"
-}} 
+}}

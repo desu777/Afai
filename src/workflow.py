@@ -52,8 +52,9 @@ def route_intent(state: ConversationState) -> str:
     
     debug_print(f"🚦 [Router] Routing for intent='{intent}'")
     
+    # 🆕 SUPPORT intent handling
     if intent in [Intent.GREETING, Intent.BUSINESS, Intent.COMPETITOR, 
-                  Intent.CENSORED, Intent.PURCHASE_INQUIRY]:
+                  Intent.CENSORED, Intent.PURCHASE_INQUIRY, Intent.SUPPORT]:
         debug_print(f"➡️ [Router] Routing to: format_response (special intent)")
         return "format_response"
     elif intent == Intent.PRODUCT_QUERY:
