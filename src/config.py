@@ -43,6 +43,9 @@ SUPPORTED_LANGUAGES = os.getenv("SUPPORTED_LANGUAGES", "pl,en,de,fr,es,it").spli
 # Paths
 PRODUCTS_FILE_PATH = os.getenv("PRODUCTS_FILE_PATH", "data/products.json")
 
+# Server Configuration
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:8080").split(",")
+
 # 🆕 COMPETITOR LIST
 COMPETITORS = [
     "Red Sea", "Seachem", "Tropic Marin", "Brightwell", "Two Little Fishies",
@@ -69,5 +72,6 @@ if TEST_ENV:
     print(f"📍 Enhanced K Value: {ENHANCED_K_VALUE}")  
     print(f"📍 Confidence Threshold: {CONFIDENCE_THRESHOLD} (🆕 LOWERED)")
     print(f"📍 Supported Languages: {', '.join(SUPPORTED_LANGUAGES)}")
+    print(f"📍 CORS Origins: {', '.join(CORS_ORIGINS)}")
     print(f"📍 Competitors tracked: {len(COMPETITORS)}")
     print("="*60 + "\n")
