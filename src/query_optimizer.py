@@ -78,20 +78,39 @@ class QueryOptimizer:
         category_context = ""
         if state.get("business_analysis"):
             ba = state["business_analysis"]
+            
+            # Safe handling of products_in_category
+            products_in_category = ba.get('products_in_category', [])
+            if not isinstance(products_in_category, list):
+                products_in_category = []
+            
+            # Safe handling of solutions_for_problem
+            solutions_for_problem = ba.get('solutions_for_problem', [])
+            if isinstance(solutions_for_problem, dict):
+                # Extract solutions from dict structure
+                solutions_list = []
+                if 'correction' in solutions_for_problem:
+                    solutions_list.extend(solutions_for_problem['correction'])
+                if 'maintenance' in solutions_for_problem:
+                    solutions_list.extend(solutions_for_problem['maintenance'])
+                solutions_for_problem = solutions_list
+            elif not isinstance(solutions_for_problem, list):
+                solutions_for_problem = []
+            
             business_context = f"""--- BUSINESS INTELLIGENCE ---
 Business Interpretation: {ba.get('business_interpretation', 'N/A')}
 Product Name Corrections: {ba.get('product_name_corrections', 'None')}
 Category Requested: {ba.get('category_requested', 'None')}
-Products in Category: {', '.join(ba.get('products_in_category', []))}
+Products in Category: {', '.join(products_in_category)}
 Problem Identified: {ba.get('problem_identified', 'None')}
-Solutions: {', '.join(ba.get('solutions_for_problem', []))}
+Solutions: {', '.join(solutions_for_problem)}
 Domain Hint: {ba.get('domain_hint', 'unknown')}
 Search Enhancement: {ba.get('search_enhancement', 'None')}
 ---"""
             # Special handling for category requests
-            if ba.get('category_requested') and ba.get('products_in_category'):
+            if ba.get('category_requested') and products_in_category:
                 category_context = f"""🆕 CATEGORY REQUEST DETECTED: "{ba['category_requested']}"
-Products to find: {', '.join(ba['products_in_category'])}
+Products to find: {', '.join(products_in_category)}
 
 SPECIAL INSTRUCTIONS:
 1. Create queries that will find ALL products in this category
@@ -197,7 +216,11 @@ Return JSON: {{"optimized_queries": ["{query}"]}}
             # Fallback strategies
             if state.get("business_analysis", {}).get("products_in_category"):
                 # If category detected, use product names as queries
-                state["optimized_queries"] = state["business_analysis"]["products_in_category"] + [query]
+                products_in_category = state["business_analysis"]["products_in_category"]
+                if isinstance(products_in_category, list):
+                    state["optimized_queries"] = products_in_category + [query]
+                else:
+                    state["optimized_queries"] = [query]
                 debug_print(f"⚠️ [QueryOptimizer] Fallback to category products: {state['optimized_queries']}")
             elif comparison_products:
                 # Fallback for comparisons

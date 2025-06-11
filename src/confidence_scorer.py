@@ -52,10 +52,12 @@ class ConfidenceScorer:
         # Include category information if present
         category_context = ""
         if state.get("requested_category") and state.get("category_products"):
-            category_context = f"""
+            category_products = state.get("category_products", [])
+            if isinstance(category_products, list):
+                category_context = f"""
 --- CATEGORY REQUEST CONTEXT ---
 User asked for products in category: {state.get("requested_category")}
-Expected products: {', '.join(state.get("category_products", []))}
+Expected products: {', '.join(category_products)}
 This is a CRITICAL evaluation factor - results should contain these specific products!
 ---
 """
@@ -63,10 +65,12 @@ This is a CRITICAL evaluation factor - results should contain these specific pro
         # Include problem-solution context if present
         problem_context = ""
         if state.get("identified_problem") and state.get("recommended_solutions"):
-            problem_context = f"""
+            recommended_solutions = state.get("recommended_solutions", [])
+            if isinstance(recommended_solutions, list):
+                problem_context = f"""
 --- PROBLEM-SOLUTION CONTEXT ---
 Identified Problem: {state.get("identified_problem")}
-Recommended Solutions: {', '.join(state.get("recommended_solutions", []))}
+Recommended Solutions: {', '.join(recommended_solutions)}
 Results should ideally contain these solutions!
 ---
 """
@@ -80,7 +84,7 @@ Results should ideally contain these solutions!
             evaluation_queries.append(f"Query corrected by business logic: {corrected_name}")
         
         # Add optimized queries
-        if optimized_queries:
+        if optimized_queries and isinstance(optimized_queries, list):
             evaluation_queries.extend([f"Optimized query: {q}" for q in optimized_queries])
         
         # Format conversation context
@@ -92,14 +96,31 @@ Results should ideally contain these solutions!
         # Business Intelligence Context
         business_context = ""
         if business_analysis:
+            # Safe handling of business analysis lists
+            products_in_category = business_analysis.get('products_in_category', [])
+            if not isinstance(products_in_category, list):
+                products_in_category = []
+            
+            solutions_for_problem = business_analysis.get('solutions_for_problem', [])
+            if isinstance(solutions_for_problem, dict):
+                # Extract solutions from dict structure
+                solutions_list = []
+                if 'correction' in solutions_for_problem:
+                    solutions_list.extend(solutions_for_problem['correction'])
+                if 'maintenance' in solutions_for_problem:
+                    solutions_list.extend(solutions_for_problem['maintenance'])
+                solutions_for_problem = solutions_list
+            elif not isinstance(solutions_for_problem, list):
+                solutions_for_problem = []
+            
             business_context = f"""
 --- BUSINESS INTELLIGENCE CONTEXT ---
 Business Interpretation: {business_analysis.get('business_interpretation', 'N/A')}
 Product Name Corrections: {business_analysis.get('product_name_corrections', 'None')}
 Category Requested: {business_analysis.get('category_requested', 'None')}
-Products in Category: {', '.join(business_analysis.get('products_in_category', []))}
+Products in Category: {', '.join(products_in_category)}
 Problem Identified: {business_analysis.get('problem_identified', 'None')}
-Solutions: {', '.join(business_analysis.get('solutions_for_problem', []))}
+Solutions: {', '.join(solutions_for_problem)}
 Domain Hint: {business_analysis.get('domain_hint', 'unknown')}
 Search Enhancement: {business_analysis.get('search_enhancement', 'None')}
 """

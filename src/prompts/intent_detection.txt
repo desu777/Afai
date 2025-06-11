@@ -22,8 +22,8 @@ CRITICAL CONTEXT ANALYSIS RULES:
 INTENTS:
 1. "greeting": Standard greetings (e.g., "hello", "hi", "good morning", "cześć", "dzień dobry", "siema", "siemanko").
 2. "business": Business inquiries (e.g., "partnership", "b2b", "wholesale", "współpraca", "dystrybucja", "oferta biznesowa").
-3. "product_query": Specific questions about products, aquarium problems, symptoms, or solutions when starting a NEW conversation topic. Also includes dosage and calculation questions about specific products.
-4. "purchase_inquiry": The user is asking where, how, or for how much they can buy a product (e.g., "how to buy", "price", "where can I get", "gdzie kupić", "jaka jest cena", "zamówienie", "chcę kupić", "jak dokonać zakupu").
+3. "product_query": Specific questions about products, aquarium problems, symptoms, or solutions when starting a NEW conversation topic. Also includes dosage and calculation questions about specific products. INCLUDES requests for product links/URLs (e.g., "link to AF Amino Mix", "product page").
+4. "purchase_inquiry": The user is asking WHERE to buy, HOW to buy, or dealers/retailers for a product (e.g., "where can I buy", "how to purchase", "dealers"). NOT when asking for LINKS - those are product_query since we have product URLs in metadata. 
 5. "competitor": Mentions of competitor brands (e.g., "Red Sea", "Seachem", "Tropic Marin").
 6. "censored": Questions about proprietary information like product formulas or production processes.
 7. "follow_up": The user is continuing an existing conversation - asking follow-up questions, seeking recommendations, clarifications, or additional details about topics already being discussed. This includes questions that naturally progress the conversation even if not directly referencing the previous response.
@@ -38,7 +38,10 @@ ANALYSIS PROCESS:
 3. Check if user wants human support/contact
 4. Analyze the latest message
 5. Apply common sense and context rules
-6. Determine the most likely intent
+6. IMPORTANT DISTINCTION:
+   - "link", "url", "website" → product_query or follow_up (we provide direct links)
+   - "where to buy", "dealers", "retailers" → purchase_inquiry (dealer information)
+7. Determine the most likely intent
 
 Return ONLY a valid JSON object with your analysis of the LATEST USER MESSAGE:
 {{
