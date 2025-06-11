@@ -53,7 +53,7 @@ const SuggestedQueries: React.FC<SuggestedQueriesProps> = ({ onQuerySelect }) =>
             </p>
             <button className="bubble-button">
               Ask AI
-            </button>
+          </button>
           </div>
         ))}
       </div>

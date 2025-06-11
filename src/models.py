@@ -14,7 +14,7 @@ class Intent(str, Enum):
     COMPETITOR = "competitor"
     CENSORED = "censored"
     FOLLOW_UP = "follow_up"
-    SUPPORT = "support"  # 🆕 NEW INTENT
+    SUPPORT = "support"
     OTHER = "other"
 
 class Domain(str, Enum):
@@ -24,6 +24,7 @@ class Domain(str, Enum):
 
 class ConversationState(TypedDict):
     """State object that flows through the LangGraph workflow"""
+    # Core fields
     user_query: str
     detected_language: str
     intent: Intent
@@ -39,6 +40,28 @@ class ConversationState(TypedDict):
     domain_filter: Optional[Domain]
     chat_history: List[Dict[str, str]]
     context_cache: List[Dict[str, Any]]
+    
+    # Analytics fields
+    node_timings: Dict[str, float]  # Tracks execution time for each node
+    routing_decisions: List[Dict[str, str]]  # Tracks routing decisions
+    total_execution_time: float  # Total workflow execution time
+    
+    # Optional fields added during workflow
+    business_analysis: Optional[Dict[str, Any]]
+    requested_category: Optional[str]
+    category_products: Optional[List[str]]
+    identified_problem: Optional[str]
+    recommended_solutions: Optional[List[str]]
+    maintenance_solutions: Optional[List[str]]
+    solution_note: Optional[str]
+    comparison_products: Optional[List[str]]
+    filter_reasoning: Optional[str]
+    domain_warning: Optional[str]
+    purchase_product: Optional[str]
+    context_warning: Optional[str]
+    knowledge_assessment: Optional[str]
+    domain_assessment: Optional[str]
+    category_coverage: Optional[str]
 
 class SearchResult(BaseModel):
     """Pinecone search result with metadata"""

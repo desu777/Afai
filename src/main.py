@@ -5,14 +5,16 @@ Entry point for the conversational AI assistant
 import asyncio
 import os
 import time
-from typing import Dict, Any
-from workflow import app
+from typing import Dict, Any, Optional
+from workflow import app, set_workflow_analytics
 from models import ConversationState
 import config
 
 class AquaforestAssistant:
-    def __init__(self):
+    def __init__(self, analytics_instance=None):
         self.workflow = app
+        if analytics_instance:
+            set_workflow_analytics(analytics_instance)
         
     def process_query_sync(self, state: ConversationState, debug: bool = False) -> ConversationState:
         """
