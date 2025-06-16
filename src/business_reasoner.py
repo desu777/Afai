@@ -16,59 +16,59 @@ class BusinessReasoner:
         
         # 🆕 ENHANCED PRODUCT CATEGORY MAPPING
         self.product_categories = {
-            "sole": ["Sea Salt", "Reef Salt", "Reef Salt Plus", "Hybrid Pro Salt"],
-            "bakterie": ["Pro Bio S", "Pro Bio F", "Life Source", "Life Essence", "Bio S"],
-            "suplementy_wapń": ["Ca Plus", "Calcium", "Ca plus"],
-            "suplementy_magnez": ["Mg Plus", "Magnesium"],
-            "suplementy_kh": ["KH Plus", "KH Buffer", "KH Pro"],
-            "aminokwasy": ["AF Amino Mix", "AF Power Elixir", "AF Vitality"],
-            "pokarmy": ["AF Marine Mix S", "AF Marine Mix M", "AF Marine Flakes", "AF Algae Feed", "AF Vege Clip"],
-            "testy": ["Calcium Test Kit", "Magnesium Test Kit", "Alkanity Test Kit", "Nitrate Test Kit", "Phosphate Test Kit"],
-            "media": ["Phosphate Minus", "Carbon", "AF Carbon", "Zeo Mix"],
-            "metoda_balling": ["Component 1+2+3+", "Components Pro", "Components Strong"],
-            "podłoża": ["AF Lava Soil", "AF Lava Soil Black", "AF Natural Substrate"],
-            "probiotyki": ["Pro Bio S", "Pro Bio F", "-NP Pro", "AF NitraPhos Minus"],
-            "oczyszczanie": ["Aiptasia Shot", "AF Protect Dip"],
-            "wzrost_korali": ["AF Growth Boost", "AF Build", "AF Energy"],
-            "kolorystyka": ["AF Amino Mix", "AF Power Elixir", "AF Vitality", "Kalium", "Iron"],
-            "kontrola_ph": ["KH Buffer", "KH Plus", "AF Minus pH", "AF Air Scrubber"],
-            "mikroelementy": ["Iodum", "Strontium", "Kalium", "Fluorum", "Component A", "Component B", "Component C"],
-            "woda_morska": ["AF Perfect Water", "Sea Salt", "Reef Salt", "Reef Salt Plus", "Hybrid Pro Salt"]
+            "salts": ["Sea Salt", "Reef Salt", "Reef Salt Plus", "Hybrid Pro Salt"],
+            "bacteria": ["Pro Bio S", "Pro Bio F", "Life Source", "Life Essence", "Bio S"],
+            "calcium_supplements": ["Ca Plus", "Calcium", "Ca plus"],
+            "magnesium_supplements": ["Mg Plus", "Magnesium"],
+            "kh_supplements": ["KH Plus", "KH Buffer", "KH Pro"],
+            "amino_acids": ["AF Amino Mix", "AF Power Elixir", "AF Vitality"],
+            "foods": ["AF Marine Mix S", "AF Marine Mix M", "AF Marine Flakes", "AF Algae Feed", "AF Vege Clip"],
+            "test_kits": ["Calcium Test Kit", "Magnesium Test Kit", "Alkanity Test Kit", "Nitrate Test Kit", "Phosphate Test Kit"],
+            "filter_media": ["Phosphate Minus", "Carbon", "AF Carbon", "Zeo Mix"],
+            "balling_method": ["Component 1+2+3+", "Components Pro", "Components Strong"],
+            "substrates": ["AF Lava Soil", "AF Lava Soil Black", "AF Natural Substrate"],
+            "probiotics": ["Pro Bio S", "Pro Bio F", "-NP Pro", "AF NitraPhos Minus"],
+            "cleaning": ["Aiptasia Shot", "AF Protect Dip"],
+            "coral_growth": ["AF Growth Boost", "AF Build", "AF Energy"],
+            "coral_coloration": ["AF Amino Mix", "AF Power Elixir", "AF Vitality", "Kalium", "Iron"],
+            "ph_control": ["KH Buffer", "KH Plus", "AF Minus pH", "AF Air Scrubber"],
+            "trace_elements": ["Iodum", "Strontium", "Kalium", "Fluorum", "Component A", "Component B", "Component C"],
+            "marine_water": ["AF Perfect Water", "Sea Salt", "Reef Salt", "Reef Salt Plus", "Hybrid Pro Salt"]
         }
         
         # 🆕 ENHANCED PROBLEM-SOLUTION MAPPING  
         self.problem_solutions = {
-            "ph_spada": {
+            "ph_dropping": {
                 "marine": ["KH Buffer", "KH Plus", "AF Air Scrubber", "KalkMedia"],
                 "freshwater": ["KH Plus", "AF Remineralizer"],
                 "explanation": "pH drops require alkalinity buffers"
             },
-            "ph_rośnie": {
+            "ph_rising": {
                 "marine": ["CO2 system", "reduce aeration"],
                 "freshwater": ["AF Minus pH", "CO2 injection"],
                 "explanation": "pH rises need acidification"
             },
-            "glony": ["Phosphate Minus", "-NP Pro", "Pro Bio S", "AF NitraPhos Minus"],
-            "korale_brązowieją": ["AF Amino Mix", "AF Power Elixir", "AF Vitality", "Kalium", "Iron"],
+            "algae": ["Phosphate Minus", "-NP Pro", "Pro Bio S", "AF NitraPhos Minus"],
+            "corals_browning": ["AF Amino Mix", "AF Power Elixir", "AF Vitality", "Kalium", "Iron"],
             "aiptasia": ["Aiptasia Shot"],
-            "cyjanobakterie": ["Pro Bio S", "-NP Pro", "AF NitraPhos Minus"],
-            "niski_wapń": {
+            "cyanobacteria": ["Pro Bio S", "-NP Pro", "AF NitraPhos Minus"],
+            "low_calcium": {
                 "correction": ["Ca Plus", "Calcium"],
                 "maintenance": ["Component 1+2+3+", "Components Pro", "Components Strong"],
                 "note": "Balling products contain multiple elements for stability"
             },
-            "niski_magnez": {
+            "low_magnesium": {
                 "correction": ["Mg Plus", "Magnesium"],
                 "maintenance": ["Component 1+2+3+", "Components Pro", "Components Strong"],
                 "note": "Balling products contain multiple elements for stability"
             },
-            "niskie_kh": {
+            "low_kh": {
                 "correction": ["KH Plus", "KH Buffer"],
                 "maintenance": ["Component 1+2+3+", "Components Pro", "Components Strong"],
                 "note": "Balling products contain multiple elements for stability"
             },
-            "wysokie_no3": ["AF NitraPhos Minus", "Pro Bio S", "-NP Pro", "Phosphate Minus"],
-            "wysokie_po4": ["Phosphate Minus", "AF Anti Phosphate", "AF NitraPhos Minus"]
+            "high_nitrates": ["AF NitraPhos Minus", "Pro Bio S", "-NP Pro", "Phosphate Minus"],
+            "high_phosphates": ["Phosphate Minus", "AF Anti Phosphate", "AF NitraPhos Minus"]
         }
         
         # 🆕 PRODUCT PURPOSE CLASSIFICATION
@@ -157,14 +157,14 @@ class BusinessReasoner:
         
         # Direct category keywords
         category_keywords = {
-            "sole": ["sole", "sól", "salt", "salts"],
-            "bakterie": ["bakterie", "bacteria", "bacterial"],
-            "testy": ["test", "testy", "testing"],
-            "media": ["media", "filter media", "filtracja"],
-            "aminokwasy": ["amino", "aminokwasy"],
-            "pokarmy": ["pokarm", "food", "feed", "karmienie"],
-            "podłoża": ["podłoże", "substrate", "soil", "lava"],
-            "mikroelementy": ["mikroelement", "trace", "pierwiastki śladowe"]
+            "salts": ["salt", "salts", "marine salt"],
+            "bacteria": ["bacteria", "bacterial", "probiotic"],
+            "test_kits": ["test", "testing", "test kit"],
+            "filter_media": ["media", "filter media", "filtration"],
+            "amino_acids": ["amino", "amino acids"],
+            "foods": ["food", "feed", "feeding"],
+            "substrates": ["substrate", "soil", "lava"],
+            "trace_elements": ["trace", "trace elements", "microelements"]
         }
         
         for category, keywords in category_keywords.items():
@@ -253,15 +253,15 @@ BUSINESS LOGIC ANALYSIS:
 Analyze this query with aquarium business intelligence:
 
 1. CATEGORY DETECTION: Is user asking about a product category?
-   - "jakie sole macie" → category: "sole", list all: ["Sea Salt", "Reef Salt", "Reef Salt Plus", "Hybrid Pro Salt"]
-   - "co polecacie na bakterie" → category: "bakterie"
+   - "what salts do you have" → category: "salts", list all: ["Sea Salt", "Reef Salt", "Reef Salt Plus", "Hybrid Pro Salt"]
+   - "what do you recommend for bacteria" → category: "bacteria"
 
 2. PRODUCT NAME CORRECTIONS: Fix typos and common names
    - Check against: {json.dumps(self.common_corrections)}
 
 3. PROBLEM ANALYSIS: What problem is user trying to solve?
-   - "pH spada" → solutions for dropping pH (KH buffers)
-   - "pH rośnie" → solutions for rising pH (pH minus)
+   - "pH dropping" → solutions for dropping pH (KH buffers)
+   - "pH rising" → solutions for rising pH (pH minus)
    - CRITICAL: pH dropping and pH rising are OPPOSITE problems!
 
 4. BUSINESS INTERPRETATION: What does user REALLY want?
@@ -306,8 +306,8 @@ Respond ONLY with valid JSON:
             for msg in state["chat_history"][-4:]:
                 text += " " + msg["content"].lower()
         
-        freshwater_keywords = ["słodkowod", "freshwater", "gupik", "neon", "krewetk"]
-        marine_keywords = ["morsk", "marine", "reef", "koral", "sps", "lps", "salt water"]
+        freshwater_keywords = ["freshwater", "gupik", "neon", "krewetk"]
+        marine_keywords = ["marine", "reef", "koral", "sps", "lps", "salt water"]
         
         fresh_score = sum(1 for k in freshwater_keywords if k in text)
         marine_score = sum(1 for k in marine_keywords if k in text)

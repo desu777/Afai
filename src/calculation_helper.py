@@ -13,11 +13,11 @@ class CalculationHelper:
     def extract_volume_from_query(query: str) -> Optional[int]:
         """Extract aquarium volume from query text"""
         patterns = [
-            r'(\d+)\s*[lL](?:iters?|itrów?)?',
-            r'(\d+)\s*(?:liters?|litrów?)',
-            r'dla\s+(\d+)\s*[lL]',
-            r'akwarium\s+(\d+)\s*[lL]',
-            r'zbiornik\s+(\d+)\s*[lL]',
+            r'(\d+)\s*[lL](?:iters?)?',
+            r'(\d+)\s*(?:liters?)',
+            r'for\s+(\d+)\s*[lL]',
+            r'aquarium\s+(\d+)\s*[lL]',
+            r'tank\s+(\d+)\s*[lL]',
             r'tank\s+(\d+)\s*[lL]',
             r'(\d+)L\s+tank',
             r'(\d+)L\s+aquarium'

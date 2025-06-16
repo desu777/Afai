@@ -14,17 +14,16 @@ from prompts import load_prompt_template
 class ResponseFormatter:
     def __init__(self):
         self.client = OpenAI(api_key=OPENAI_API_KEY)
+        self.dosage_keywords = [
+            'how much', 'combien', 'quanto', 'dosierung', 'dosis', 'how much needed',
+            'how to dose', 'how to dose', 'how much to add', 'how to apply', 'what dose',
+            'for', 'for', 'liters', 'liters', 'L'
+        ]
     
     def _detect_dosage_query(self, query: str) -> bool:
         """Detect if query is about dosage/calculation"""
-        dosage_keywords = [
-            'dawkowanie', 'dawka', 'dawke', 'ile', 'oblicz', 'calculate', 'dosage', 'dose', 
-            'how much', 'combien', 'quanto', 'dosierung', 'dosis', 'ile potrzebuję', 
-            'jak dawkować', 'how to dose', 'ile dodać', 'ile stosować', 'jaka dawka',
-            'dla', 'for', 'litrów', 'liters', 'L'
-        ]
         query_lower = query.lower()
-        return any(keyword in query_lower for keyword in dosage_keywords)
+        return any(keyword in query_lower for keyword in self.dosage_keywords)
     
     def _extract_dosage_info(self, metadata: Dict) -> Dict[str, Any]:
         """Extract dosage information from product metadata"""
@@ -435,16 +434,21 @@ Generate response in {lang} language.
         except Exception as e:
             if TEST_ENV:
                 print(f"❌ [DEBUG ResponseFormatter] Formatting error: {e}")
-            state["final_response"] = self._get_error_message(state.get("detected_language", "en"))
+            state["final_response"] = self._handle_error(e, state)
         
         return state
     
-    def _get_error_message(self, language: str) -> str:
-        """Get error message in appropriate language"""
+    def _handle_error(self, error: Exception, state: ConversationState) -> str:
+        """Enhanced error handling for formatting failures"""
+        debug_print(f"❌ [ResponseFormatter] Error during formatting: {str(error)}")
+        
+        # Get user language for appropriate error response
+        language = state.get("detected_language", "en")
+        
         if language == "pl":
             return "Przepraszam, wystąpił błąd podczas przetwarzania. Spróbuj ponownie lub jeśli problem się powtarza, możesz skontaktować się z naszym supportem."
         else:
-            return "I apologize, but I encountered an error while processing your request. Please try again, or if the problem persists, you can contact our support team."
+            return "Sorry, an error occurred during processing. Please try again or contact our support if the problem persists."
 
 
 # Follow-up handling functions
@@ -539,7 +543,7 @@ Respond in {lang} language.
         if TEST_ENV:
             print(f"❌ [DEBUG Escalate] Error generating escalation response: {e}")
         formatter = ResponseFormatter()
-        state["final_response"] = formatter._get_error_message(lang)
+        state["final_response"] = formatter._handle_error(e, state)
     
     return state
 
@@ -566,6 +570,6 @@ def handle_follow_up(state: ConversationState) -> ConversationState:
             print(f"❌ [DEBUG Follow-up Handler] Follow-up handling error: {e}")
         
         formatter = ResponseFormatter()
-        state["final_response"] = formatter._get_error_message(state.get("detected_language", "en"))
+        state["final_response"] = formatter._handle_error(e, state)
         
     return state

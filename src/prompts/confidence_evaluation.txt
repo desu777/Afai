@@ -19,7 +19,7 @@ ALL QUERIES TO EVALUATE AGAINST:
 --- ENHANCED EVALUATION CRITERIA ---
 
 1. **Category Match** (HIGHEST PRIORITY for category queries):
-   - If user asked for a category (like "sole" or "bakterie"), did we find those specific products?
+   - If user asked for a category (like "salts" or "bacteria"), did we find those specific products?
    - Finding all products from requested category = EXCELLENT confidence
    - Missing key products from category = LOWER confidence
 
@@ -37,7 +37,7 @@ ALL QUERIES TO EVALUATE AGAINST:
 
 CRITICAL EVALUATION FACTORS:
 
-- **Category Queries**: If user asked "jakie sole macie?" and we found Sea Salt, Reef Salt, etc. = HIGH confidence!
+- **Category Queries**: If user asked "what salts do you have?" and we found Sea Salt, Reef Salt, etc. = HIGH confidence!
   Missing these specific products = LOW confidence regardless of other factors.
 
 - **Business Logic Corrections**: If business logic corrected the query, results matching corrections = bonus points

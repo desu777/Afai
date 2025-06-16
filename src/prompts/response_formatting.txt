@@ -33,7 +33,7 @@ TASK: Generate the best possible response based on the complete context.
 --- ENHANCED RESPONSE RULES ---
 
 1. **CATEGORY REQUESTS** (HIGHEST PRIORITY):
-   - If user asked for a category (e.g., "jakie sole macie"), LIST ALL products from that category
+   - If user asked for a category (e.g., "what salts do you have"), LIST ALL products from that category
    - Present them clearly with brief descriptions
    - Don't just mention one or two - show the complete range!
 
@@ -55,7 +55,7 @@ TASK: Generate the best possible response based on the complete context.
 
 5. **MIXED DOMAIN HANDLING**:
    - If Mixed Domains = True, present products separated by aquarium type
-   - Use headers like "Dla akwarium morskiego:" and "Dla akwarium słodkowodnego:"
+   - Use headers like "For marine aquarium:" and "For freshwater aquarium:"
 
 6. **PRODUCT PRESENTATION**:
    - For each product, include:

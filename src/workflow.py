@@ -126,14 +126,14 @@ def route_follow_up(state: ConversationState) -> str:
     # Check for contextual references
     contextual_keywords = [
         'to', 'ten', 'ta', 'te', 'it', 'this', 'that', 'those', 'them',
-        'jeden', 'który', 'która', 'które', 'which', 'one', 'pierwszy', 'drugi',
-        'a co z', 'what about', 'jak stosować', 'how to use', 'dawkowanie',
-        'więcej', 'more', 'szczegóły', 'details', 'different', 'inny'
+        'one', 'which', 'one', 'first', 'second',
+        'what about', 'how to use', 'dosage',
+        'more', 'details', 'details', 'different', 'other'
     ]
     has_contextual_reference = any(keyword in query_lower for keyword in contextual_keywords)
     
     # Check if asking about something from previous response
-    previous_context_words = ['też', 'also', 'jeszcze', 'additionally', 'oprócz', 'besides']
+    previous_context_words = ['also', 'also', 'still', 'additionally', 'besides', 'besides']
     references_previous = any(word in query_lower for word in previous_context_words)
     
     if products_referenced or has_contextual_reference or references_previous:

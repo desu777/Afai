@@ -24,7 +24,7 @@ YOUR TASK:
 
 1. **Category Requests** (HIGHEST PRIORITY):
    - If category_requested is present, create queries for EACH product in that category
-   - Example: "sole" → ["Sea Salt", "Reef Salt", "Reef Salt Plus", "Hybrid Pro Salt", "marine salt products"]
+   - Example: "salts" → ["Sea Salt", "Reef Salt", "Reef Salt Plus", "Hybrid Pro Salt", "marine salt products"]
 
 2. **Use Business Intelligence**: 
    - Use product corrections and solutions from business analysis

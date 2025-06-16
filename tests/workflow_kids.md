@@ -1,10 +1,10 @@
 Jasne, wyobraź sobie, że nasz program to magiczny robot-pomocnik, który wie wszystko o zabawkach do akwarium.
 Oto co się dzieje, kiedy zadajesz mu pytanie, krok po kroku, jak dla 5-latka:
-1. Ktoś do mnie mówi! 📬
+1. Ktoś do mnie mówi! 
 Ty piszesz wiadomość, na przykład: "Hej, potrzebuję czegoś na glony". Robot dostaje Twoją wiadomość.
-2. O co mu chodzi? 🤔
+2. O co mu chodzi? 
 Robot najpierw próbuje zrozumieć, o co tak naprawdę pytasz. Czy się witasz? Czy pytasz o konkretną zabawkę (produkt)? Czy to pytanie o coś, o czym już rozmawialiście? To jest wykrywanie intencji.
-3. Mądra Głowa wkracza do akcji! 🧠
+3. Mądra Głowa wkracza do akcji! 
 Teraz do akcji wkracza specjalny, super-mądry pomocnik w głowie robota (business_reasoner). Ten pomocnik:
 Poprawia błędy: Jeśli napiszesz "coś na nitrafosa", on wie, że chodziło Ci o "AF NitraPhos Minus".
 Domyśla się, czego chcesz: Jeśli zapytasz "czym zwalczyć aiptasię?", on wie, że nie chcesz kupić aiptasii (to taki zły stworek w akwarium), tylko lekarstwo na nią.

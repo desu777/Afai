@@ -71,9 +71,9 @@ Return ONLY a valid JSON object:
     def detect(self, state: ConversationState) -> ConversationState:
         """Detect intent and language from user query"""
         if TEST_ENV:
-            print(f"\n🎯 [DEBUG IntentDetector] Analizuję zapytanie: '{state['user_query']}'")
+            print(f"\n🎯 [DEBUG IntentDetector] Analyzing query: '{state['user_query']}'")
             if state.get("chat_history"):
-                print(f"💬 [DEBUG IntentDetector] Historia konwersacji: {len(state.get('chat_history', []))} wiadomości")
+                print(f"💬 [DEBUG IntentDetector] Conversation history: {len(state.get('chat_history', []))} messages")
         
         try:
             response = self.client.chat.completions.create(
@@ -97,20 +97,20 @@ Return ONLY a valid JSON object:
             state["detected_language"] = result.language
             
             if TEST_ENV:
-                print(f"✅ [DEBUG IntentDetector] Wykryto: Intent='{result.intent}', Language='{result.language}', Confidence={result.confidence}")
+                print(f"✅ [DEBUG IntentDetector] Detected: Intent='{result.intent}', Language='{result.language}', Confidence={result.confidence}")
                 if result_data.get("context_note"):
                     print(f"🧠 [DEBUG IntentDetector] Context note: {result_data['context_note']}")
             
             # If confidence is low, default to product_query
             if result.confidence < 0.5:
                 if TEST_ENV:
-                    print(f"⚠️ [DEBUG IntentDetector] Niska pewność ({result.confidence}), zmieniam na 'product_query'")
+                    print(f"⚠️ [DEBUG IntentDetector] Low confidence ({result.confidence}), changing to 'product_query'")
                 state["intent"] = Intent.PRODUCT_QUERY
                 
         except Exception as e:
             if TEST_ENV:
                 print(f"❌ [DEBUG IntentDetector] Intent detection error: {e}")
-                print(f"❌ [DEBUG IntentDetector] Błąd detekcji, używam domyślnych wartości")
+                print(f"❌ [DEBUG IntentDetector] Detection error, using default values")
             # Default fallback
             state["intent"] = Intent.PRODUCT_QUERY
             state["detected_language"] = "en"

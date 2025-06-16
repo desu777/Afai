@@ -18,9 +18,9 @@ class QueryOptimizer:
             "bio s": "Pro Bio S", "np pro": "-NP Pro", "amino mix": "AF Amino Mix",
             "ca+": "Ca plus", "ca +": "Ca plus", "nitraphos": "AF NitraPhos Minus",
             "component abc": ["Component A", "Component B", "Component C"],
-            "wapń": "calcium", "azotany": "nitrates", "fosforany": "phosphates",
-            "glony": "algae", "koralowce": "corals", "brązowieją": "brown turning brown",
-            "brązowe": "brown",
+            "calcium": "calcium", "nitrates": "nitrates", "phosphates": "phosphates",
+            "algae": "algae", "corals": "corals", "browning": "brown turning brown",
+            "brown": "brown",
         }
         
     def _load_product_names(self) -> List[str]:
@@ -39,9 +39,9 @@ class QueryOptimizer:
         comparison_patterns = [
             r'(.+?)\s+vs\.?\s+(.+)',
             r'(.+?)\s+versus\s+(.+)',
-            r'różnica między\s+(.+?)\s+a\s+(.+)',
             r'difference between\s+(.+?)\s+and\s+(.+)',
-            r'porównaj\s+(.+?)\s+i\s+(.+)',
+            r'difference between\s+(.+?)\s+and\s+(.+)',
+            r'compare\s+(.+?)\s+and\s+(.+)',
             r'compare\s+(.+?)\s+and\s+(.+)',
         ]
         

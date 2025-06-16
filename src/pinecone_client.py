@@ -51,8 +51,8 @@ class PineconeSearchClient:
         context_text += " " + state.get("user_query", "").lower()
         
         # Domain detection rules
-        freshwater_keywords = ["słodkowod", "freshwater", "gupik", "neon", "złota rybka", "fresh water", "tropical fish"]
-        marine_keywords = ["morsk", "marine", "saltwater", "reef", "coral", "salt water", "koral"]
+        freshwater_keywords = ["freshwater", "gupik", "neon", "goldfish", "fresh water", "tropical fish"]
+        marine_keywords = ["marine", "saltwater", "reef", "coral", "salt water", "koral"]
         
         freshwater_score = sum(1 for keyword in freshwater_keywords if keyword in context_text)
         marine_score = sum(1 for keyword in marine_keywords if keyword in context_text)
@@ -127,7 +127,7 @@ class PineconeSearchClient:
             reverse=True
         )[:k]  # 🆕 LIMIT TO DYNAMIC K
 
-        debug_print(f"🌲 [PineconeSearch] Zwrócono {len(sorted_results)} wyników (K={k}). Top 5:")
+        debug_print(f"🌲 [PineconeSearch] Returned {len(sorted_results)} results (K={k}). Top 5:")
         for i, res in enumerate(sorted_results[:5]):
             product_name = res.metadata.get('product_name', 'Brak nazwy')
             domain = res.metadata.get('domain', 'N/A')
