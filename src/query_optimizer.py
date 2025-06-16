@@ -14,14 +14,6 @@ class QueryOptimizer:
     def __init__(self):
         self.client = OpenAI(api_key=OPENAI_API_KEY)
         self.product_names = self._load_product_names()
-        self.common_mistakes = {
-            "bio s": "Pro Bio S", "np pro": "-NP Pro", "amino mix": "AF Amino Mix",
-            "ca+": "Ca plus", "ca +": "Ca plus", "nitraphos": "AF NitraPhos Minus",
-            "component abc": ["Component A", "Component B", "Component C"],
-            "calcium": "calcium", "nitrates": "nitrates", "phosphates": "phosphates",
-            "algae": "algae", "corals": "corals", "browning": "brown turning brown",
-            "brown": "brown",
-        }
         
     def _load_product_names(self) -> List[str]:
         """Load product names from JSON file"""
@@ -136,6 +128,10 @@ Example: For "lava soil vs lava soil black":
 - "black lava soil aquarium benefits"
 """
         
+        # 🆕 ENHANCED: Include guaranteed products info
+        guaranteed_products = state.get("guaranteed_products", [])
+        guaranteed_products_text = ', '.join(guaranteed_products) if guaranteed_products else "None"
+        
         # Try to load prompt from template
         prompt = load_prompt_template(
             "query_optimization",
@@ -144,6 +140,7 @@ Example: For "lava soil vs lava soil black":
             user_query=query,
             language=language,
             product_names=', '.join(self.product_names),
+            guaranteed_products=guaranteed_products_text,
             category_context=category_context,
             comparison_instructions=comparison_instructions
         )
@@ -160,7 +157,7 @@ Return JSON: {{"optimized_queries": ["{query}"]}}
         return prompt
 
     def optimize(self, state: ConversationState) -> ConversationState:
-        """Optimize query for better search results"""
+        """Optimize query for better search results with enhanced intelligence"""
         query = state["user_query"]
         chat_history = state.get("chat_history", [])
         
@@ -168,53 +165,113 @@ Return JSON: {{"optimized_queries": ["{query}"]}}
         if chat_history:
             debug_print(f"📚 [QueryOptimizer] Context: last {len(chat_history[-4:])} messages")
         
+        # 🆕 ENHANCED: Extract mentioned products from user query
+        mentioned_products = self._extract_mentioned_products(query)
+        if mentioned_products:
+            debug_print(f"🎯 [QueryOptimizer] User mentioned products: {mentioned_products}")
+        
         # Check for comparison
         comparison_products = self._detect_comparison(query)
         if comparison_products:
             debug_print(f"🔀 [QueryOptimizer] Product comparison detected: {comparison_products}")
         
-        # Log business intelligence usage
+        # 🆕 ENHANCED: Collect all critical queries BEFORE LLM call
+        critical_queries = []
+        guaranteed_products = set()  # Track products we'll find via guaranteed search
+        
+        # Add mentioned products as high-priority queries
+        critical_queries.extend(mentioned_products)
+        guaranteed_products.update(mentioned_products)
+        
+        # Log business intelligence usage and extract solutions
         if state.get("business_analysis"):
             debug_print(f"🧠 [QueryOptimizer] Using business intelligence from business_reasoner")
             ba = state["business_analysis"]
+            
             if ba.get("product_name_corrections") and ba["product_name_corrections"] != "None":
                 debug_print(f"🔧 [QueryOptimizer] Product corrections: {ba['product_name_corrections']}")
+                critical_queries.append(ba["product_name_corrections"])
+                guaranteed_products.add(ba["product_name_corrections"])
+            
             if ba.get("category_requested"):
                 debug_print(f"📦 [QueryOptimizer] Category: {ba['category_requested']} with {len(ba.get('products_in_category', []))} products")
+                # Add all category products as critical queries
+                products_in_category = ba.get('products_in_category', [])
+                if isinstance(products_in_category, list):
+                    critical_queries.extend(products_in_category)
+                    guaranteed_products.update(products_in_category)
+            
+            # 🆕 ENHANCED: Add solution products as critical queries
+            solutions_for_problem = ba.get('solutions_for_problem', [])
+            if isinstance(solutions_for_problem, dict):
+                # Extract solutions from dict structure
+                if 'correction' in solutions_for_problem:
+                    critical_queries.extend(solutions_for_problem['correction'])
+                    guaranteed_products.update(solutions_for_problem['correction'])
+                if 'maintenance' in solutions_for_problem:
+                    critical_queries.extend(solutions_for_problem['maintenance'])
+                    guaranteed_products.update(solutions_for_problem['maintenance'])
+            elif isinstance(solutions_for_problem, list):
+                critical_queries.extend(solutions_for_problem)
+                guaranteed_products.update(solutions_for_problem)
+            
+            # 🆕 ENHANCED: Add problem-specific queries (NOT product-specific)
+            if ba.get("problem_identified"):
+                domain = ba.get("domain_hint", "unknown")
+                problem_queries = self._create_problem_queries(ba["problem_identified"], domain)
+                critical_queries.extend(problem_queries)
+                debug_print(f"🔧 [QueryOptimizer] Added {len(problem_queries)} problem-specific queries for: {ba['problem_identified']}")
+            
             if ba.get("domain_hint") and ba["domain_hint"] != "unknown":
                 debug_print(f"🎯 [QueryOptimizer] Domain hint: {ba['domain_hint']}")
         
+        # Remove duplicates from critical queries
+        critical_queries = list(dict.fromkeys(critical_queries))  # Preserves order
+        
         try:
+            # 🆕 SMART PROMPT: Tell LLM about guaranteed products to avoid redundancy
+            enhanced_state = state.copy()
+            enhanced_state["guaranteed_products"] = list(guaranteed_products)
+            
             response = self.client.chat.completions.create(
                 model=OPENAI_MODEL,
                 temperature=OPENAI_TEMPERATURE,
                 messages=[
                     {
                         "role": "system", 
-                        "content": self._create_optimization_prompt(state)
+                        "content": self._create_optimization_prompt(enhanced_state)
                     }
                 ],
                 response_format={"type": "json_object"}
             )
             
             result = json.loads(response.choices[0].message.content)
+            llm_queries = result.get("optimized_queries", [query])
+            
+            # 🆕 ENHANCED: Combine critical queries with LLM queries
+            # Critical queries go first (higher priority in search)
+            final_queries = critical_queries + [q for q in llm_queries if q not in critical_queries]
             
             state["original_query"] = query
-            state["optimized_queries"] = result.get("optimized_queries", [query])
+            state["optimized_queries"] = final_queries
             
             # Store comparison info if detected
             if comparison_products:
                 state["comparison_products"] = comparison_products
             
-            debug_print(f"✅ [QueryOptimizer] Optimized queries for Pinecone: {state['optimized_queries']}")
+            debug_print(f"✅ [QueryOptimizer] Final queries ({len(critical_queries)} critical + {len(llm_queries)} LLM): {state['optimized_queries']}")
                 
         except Exception as e:
             if TEST_ENV:
                 print(f"❌ [DEBUG QueryOptimizer] Query optimization error: {e}")
             state["original_query"] = query
             
-            # Fallback strategies
-            if state.get("business_analysis", {}).get("products_in_category"):
+            # 🆕 ENHANCED: Smart fallback using critical queries + intelligent backup
+            if critical_queries:
+                smart_fallback = self._create_smart_fallback(state, critical_queries)
+                state["optimized_queries"] = smart_fallback
+                debug_print(f"⚠️ [QueryOptimizer] Smart fallback with {len(smart_fallback)} queries: {state['optimized_queries']}")
+            elif state.get("business_analysis", {}).get("products_in_category"):
                 # If category detected, use product names as queries
                 products_in_category = state["business_analysis"]["products_in_category"]
                 if isinstance(products_in_category, list):
@@ -232,6 +289,160 @@ Return JSON: {{"optimized_queries": ["{query}"]}}
                 debug_print(f"⚠️ [QueryOptimizer] Fallback to original query: {[query]}")
             
         return state
+
+    def _extract_mentioned_products(self, query: str) -> List[str]:
+        """Extract product names mentioned by user in the query"""
+        mentioned_products = []
+        query_lower = query.lower()
+        
+        # Check for exact product name matches (case insensitive)
+        for product in self.product_names:
+            product_lower = product.lower()
+            
+            # Check for exact match
+            if product_lower in query_lower:
+                mentioned_products.append(product)
+                continue
+            
+            # Check for partial matches (for products with common abbreviations)
+            # Handle common product name variations
+            if product == "AF NitraPhos Minus" and any(term in query_lower for term in ["nitraphos", "nitrafosfat", "nitraphos minus"]):
+                mentioned_products.append(product)
+            elif product == "Pro Bio S" and any(term in query_lower for term in ["bio s", "probio s"]):
+                mentioned_products.append(product)
+            elif product == "-NP Pro" and any(term in query_lower for term in ["np pro", "-np pro"]):
+                mentioned_products.append(product)
+            elif product == "Ca Plus" and any(term in query_lower for term in ["ca plus", "ca+"]):
+                mentioned_products.append(product)
+            elif product == "Ca plus" and any(term in query_lower for term in ["ca plus", "ca+"]):
+                mentioned_products.append(product)
+            elif product == "Zeo Mix" and any(term in query_lower for term in ["zeo mix", "zeomix"]):
+                mentioned_products.append(product)
+            elif product == "Phosphate Minus" and any(term in query_lower for term in ["phosphate minus", "po4 minus"]):
+                mentioned_products.append(product)
+        
+        return list(set(mentioned_products))  # Remove duplicates
+    
+    def _create_problem_queries(self, problem: str, domain: str = "unknown") -> List[str]:
+        """Create problem-specific search queries"""
+        problem_queries = []
+        
+        if problem == "high_nitrates":
+            problem_queries.extend([
+                "nitrate reduction aquarium",
+                "high nitrates solution",
+                "NO3 reduction reef tank",
+                "nitrate removal products"
+            ])
+            if domain == "seawater":
+                problem_queries.append("marine aquarium nitrate control")
+        
+        elif problem == "low_calcium":
+            problem_queries.extend([
+                "calcium supplement aquarium",
+                "raise calcium reef tank",
+                "low calcium solution",
+                "calcium deficiency marine"
+            ])
+        
+        elif problem == "low_magnesium":
+            problem_queries.extend([
+                "magnesium supplement aquarium",
+                "raise magnesium reef tank",
+                "low magnesium solution",
+                "Mg deficiency marine"
+            ])
+        
+        elif problem == "ph_dropping":
+            problem_queries.extend([
+                "pH buffer aquarium",
+                "raise pH reef tank",
+                "alkalinity buffer",
+                "KH buffer marine"
+            ])
+        
+        elif problem == "ph_rising":
+            problem_queries.extend([
+                "lower pH aquarium",
+                "pH minus reef tank",
+                "reduce alkalinity"
+            ])
+        
+        elif problem == "algae":
+            problem_queries.extend([
+                "algae control aquarium",
+                "algae removal products",
+                "phosphate reduction",
+                "nutrient control reef"
+            ])
+        
+        elif problem == "corals_browning":
+            problem_queries.extend([
+                "coral browning solution",
+                "coral color enhancement",
+                "amino acids corals",
+                "coral nutrition"
+            ])
+        
+        return problem_queries
+
+    def _create_smart_fallback(self, state: ConversationState, critical_queries: List[str]) -> List[str]:
+        """Create intelligent fallback queries when LLM fails"""
+        query = state["user_query"].lower()
+        fallback_queries = critical_queries.copy()
+        
+        # Add domain-specific queries
+        if "reef" in query or "marine" in query or "coral" in query:
+            fallback_queries.extend([
+                "marine aquarium products",
+                "reef tank supplements",
+                "coral care products"
+            ])
+        elif "freshwater" in query or "tropical" in query:
+            fallback_queries.extend([
+                "freshwater aquarium products",
+                "tropical fish care"
+            ])
+        
+        # Add action-based queries
+        if any(word in query for word in ["raise", "increase", "boost", "podnieść"]):
+            fallback_queries.extend([
+                "aquarium supplements",
+                "parameter correction products"
+            ])
+        elif any(word in query for word in ["reduce", "lower", "decrease", "obniżyć"]):
+            fallback_queries.extend([
+                "reduction products",
+                "control supplements"
+            ])
+        
+        # Add problem-specific queries based on keywords
+        if any(word in query for word in ["nitrate", "no3", "azotany"]):
+            fallback_queries.extend([
+                "nitrate reduction",
+                "NO3 control products"
+            ])
+        elif any(word in query for word in ["phosphate", "po4", "fosforany"]):
+            fallback_queries.extend([
+                "phosphate reduction",
+                "PO4 control products"
+            ])
+        elif any(word in query for word in ["calcium", "wapń", "ca"]):
+            fallback_queries.extend([
+                "calcium supplements",
+                "Ca products"
+            ])
+        elif any(word in query for word in ["magnesium", "magnez", "mg"]):
+            fallback_queries.extend([
+                "magnesium supplements",
+                "Mg products"
+            ])
+        
+        # Add the original query as last resort
+        fallback_queries.append(state["user_query"])
+        
+        # Remove duplicates while preserving order
+        return list(dict.fromkeys(fallback_queries))
 
 def optimize_product_query(state: ConversationState) -> ConversationState:
     """Node function for LangGraph"""

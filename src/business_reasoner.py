@@ -84,21 +84,7 @@ class BusinessReasoner:
             "Components Strong": "maintenance"
         }
         
-        # 🆕 COMMON TYPOS AND CORRECTIONS
-        self.common_corrections = {
-            "nitraphos": "AF NitraPhos Minus",
-            "bio s": "Pro Bio S",
-            "np pro": "-NP Pro",
-            "amino mix": "AF Amino Mix",
-            "ca+": "Ca Plus",
-            "ca +": "Ca Plus",
-            "mg+": "Mg Plus",
-            "kh+": "KH Plus",
-            "component abc": "Component A, Component B, Component C",
-            "aiptasja": "Aiptasia Shot",
-            "aiptazja": "Aiptasia Shot",
-            "aptazja": "Aiptasia Shot"
-        }
+
         
         # 🆕 COMPETITORS LIST
         self.competitors = [
@@ -245,6 +231,9 @@ PROBLEM-SOLUTION MAPPING:
 PRODUCT PURPOSE CLASSIFICATION:
 {json.dumps(self.product_purposes, indent=2)}
 
+COMPLETE AQUAFOREST PRODUCT LIST:
+{', '.join(self.products_list)}
+
 IMPORTANT: When user asks about raising/correcting a SINGLE parameter:
 - Prioritize "correction" products (Ca Plus, Mg Plus, KH Plus)
 - If suggesting "maintenance" products (Component/Balling), MUST note they contain multiple elements
@@ -256,8 +245,10 @@ Analyze this query with aquarium business intelligence:
    - "what salts do you have" → category: "salts", list all: ["Sea Salt", "Reef Salt", "Reef Salt Plus", "Hybrid Pro Salt"]
    - "what do you recommend for bacteria" → category: "bacteria"
 
-2. PRODUCT NAME CORRECTIONS: Fix typos and common names
-   - Check against: {json.dumps(self.common_corrections)}
+2. PRODUCT NAME CORRECTIONS: Fix typos and common names using your knowledge
+   - Look for common mistakes like: "ca+" → "Ca Plus", "bio s" → "Pro Bio S", "nitraphos" → "AF NitraPhos Minus"
+   - Use the complete product list below to find correct names
+   - Apply intelligent fuzzy matching for misspellings
 
 3. PROBLEM ANALYSIS: What problem is user trying to solve?
    - "pH dropping" → solutions for dropping pH (KH buffers)

@@ -73,7 +73,7 @@ class PineconeSearchClient:
         state: Optional[ConversationState] = None
     ) -> List[SearchResult]:
         """
-        Search Pinecone with multiple queries and merge results
+        🆕 HYBRID SEARCH: Combines vector search with guaranteed product search
         Now with dynamic K value from ENHANCED_K_VALUE
         """
         # 🆕 DYNAMIC K VALUE
@@ -90,6 +90,45 @@ class PineconeSearchClient:
             if domain_filter:
                 debug_print(f"🎯 [PineconeSearch] Auto-detected domain filter: {domain_filter.value}")
         
+        # 🆕 HYBRID SEARCH: Extract critical products for guaranteed search
+        critical_products = []
+        if state and state.get("business_analysis"):
+            ba = state["business_analysis"]
+            # Add corrected product names
+            if ba.get("product_name_corrections") and ba["product_name_corrections"] != "None":
+                critical_products.append(ba["product_name_corrections"])
+            
+            # Add products from category
+            products_in_category = ba.get('products_in_category', [])
+            if isinstance(products_in_category, list):
+                critical_products.extend(products_in_category)
+        
+        # Extract mentioned products from queries (first few queries are usually critical)
+        mentioned_products = []
+        for query in queries[:5]:  # Check first 5 queries for product names
+            query_words = query.split()
+            for word in query_words:
+                if word in ["Zeo", "Mix"] and "Zeo Mix" not in mentioned_products:
+                    mentioned_products.append("Zeo Mix")
+                elif word in ["Ca", "Plus"] and "Ca Plus" not in mentioned_products:
+                    mentioned_products.append("Ca Plus")
+                elif word in ["AF", "NitraPhos", "Minus"] and "AF NitraPhos Minus" not in mentioned_products:
+                    mentioned_products.append("AF NitraPhos Minus")
+                elif word in ["Pro", "Bio", "S"] and "Pro Bio S" not in mentioned_products:
+                    mentioned_products.append("Pro Bio S")
+        
+        critical_products.extend(mentioned_products)
+        critical_products = list(set(critical_products))  # Remove duplicates
+        
+        # 🆕 GUARANTEED SEARCH for critical products
+        guaranteed_results = {}
+        if critical_products:
+            debug_print(f"🎯 [PineconeSearch] Performing guaranteed search for: {critical_products}")
+            guaranteed = self._guaranteed_product_search(critical_products, domain_filter)
+            for result in guaranteed:
+                guaranteed_results[result.id] = result
+        
+        # 🆕 VECTOR SEARCH for all queries
         all_results = {}
         for query in queries:
             try:
@@ -121,18 +160,24 @@ class PineconeSearchClient:
                     print(f"❌ [DEBUG PineconeSearch] Search error for query '{query}': {e}")
                 continue
         
+        # 🆕 MERGE guaranteed and vector results (guaranteed results have priority)
+        final_results = {}
+        final_results.update(all_results)  # Add vector results first
+        final_results.update(guaranteed_results)  # Override with guaranteed results (higher scores)
+        
         sorted_results = sorted(
-            all_results.values(), 
+            final_results.values(), 
             key=lambda x: x.score, 
             reverse=True
         )[:k]  # 🆕 LIMIT TO DYNAMIC K
 
-        debug_print(f"🌲 [PineconeSearch] Returned {len(sorted_results)} results (K={k}). Top 5:")
+        debug_print(f"🌲 [PineconeSearch] Hybrid search: {len(guaranteed_results)} guaranteed + {len(all_results)} vector = {len(sorted_results)} final (K={k}). Top 5:")
         for i, res in enumerate(sorted_results[:5]):
             product_name = res.metadata.get('product_name', 'Brak nazwy')
             domain = res.metadata.get('domain', 'N/A')
             score = res.score
-            debug_print(f"   {i+1}. '{product_name}' [Domain: {domain}] (Score: {score:.4f})")
+            guaranteed_marker = "🎯" if res.id in guaranteed_results else ""
+            debug_print(f"   {i+1}. '{product_name}' [Domain: {domain}] (Score: {score:.4f}) {guaranteed_marker}")
         
         return sorted_results
     
@@ -142,6 +187,44 @@ class PineconeSearchClient:
         # Don't warn if we have universal products
         domains.discard(Domain.UNIVERSAL.value)
         return "⚠️ Found products for both marine and freshwater aquariums. Please specify which type!" if len(domains) > 1 else None
+
+    def _guaranteed_product_search(self, product_names: List[str], domain_filter: Optional[Domain] = None) -> List[SearchResult]:
+        """Guaranteed search for specific products using metadata filtering"""
+        guaranteed_results = []
+        
+        for product_name in product_names:
+            try:
+                # Use metadata filter to find exact product
+                filter_dict = {"product_name": product_name}
+                if domain_filter:
+                    filter_dict["domain"] = {"$in": [domain_filter.value, Domain.UNIVERSAL.value]}
+                
+                # Use dummy vector for metadata-only search
+                dummy_vector = [0.0] * 1536  # OpenAI embedding dimension
+                
+                response = self.index.query(
+                    vector=dummy_vector,
+                    top_k=1,
+                    include_metadata=True,
+                    filter=filter_dict,
+                    namespace="aqua"
+                )
+                
+                if response['matches']:
+                    match = response['matches'][0]
+                    guaranteed_results.append(SearchResult(
+                        id=match['id'],
+                        score=0.99,  # High score to ensure it appears at top
+                        metadata=match.get('metadata', {})
+                    ))
+                    debug_print(f"✅ [PineconeSearch] Guaranteed found: {product_name}")
+                else:
+                    debug_print(f"⚠️ [PineconeSearch] Product not found in database: {product_name}")
+                    
+            except Exception as e:
+                debug_print(f"❌ [PineconeSearch] Error in guaranteed search for {product_name}: {e}")
+        
+        return guaranteed_results
 
 # 🆕 UPDATED FUNCTIONS - now use dynamic ENHANCED_K_VALUE
 def search_products_k20(state: ConversationState) -> ConversationState:

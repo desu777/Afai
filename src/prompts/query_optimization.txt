@@ -11,6 +11,12 @@ LIST OF AVAILABLE AQUAFOREST PRODUCT NAMES:
 {product_names}
 ---
 
+🎯 **GUARANTEED PRODUCTS** (will be found automatically via metadata):
+{guaranteed_products}
+⚠️ **IMPORTANT**: Do NOT create redundant queries for guaranteed products!
+Instead of "AF NitraPhos Minus for algae control" → use "algae control aquarium"
+Instead of "Zeo Mix zeolite media" → use "zeolite filtration benefits"
+
 {category_context}
 {comparison_instructions}
 
@@ -34,29 +40,34 @@ YOUR TASK:
    - Create separate queries for each compared product
    - Add comparison-focused queries
 
-4. **Problem-Solution Queries**:
-   - If problem identified, include solution product names
-   - Add problem-specific search terms
+4. **🆕 SMART PROBLEM-SOLUTION QUERIES**:
+   - If guaranteed products are listed, focus on PROBLEM-BASED queries, not product-specific ones
+   - Example: If "AF NitraPhos Minus" is guaranteed → create "nitrate reduction methods", "algae control strategies"
+   - Example: If "Zeo Mix" is guaranteed → create "zeolite benefits aquarium", "ULNS system setup"
+   - Create queries that find COMPLEMENTARY products and knowledge articles
 
-5. **Generate 3-8 Optimized Queries**:
+5. **User-Mentioned Products** (HIGHEST PRIORITY):
+   - If user mentions specific products, create queries for those exact products
+   - Example: User says "Zeo Mix" → include "Zeo Mix" as a query
+
+6. **Generate 4-10 Optimized Queries**:
    - More queries for categories (one per product + general)
-   - Include exact product names when known
-   - Add context-aware variations
+   - Include exact product names when known (but avoid redundancy with guaranteed products)
+   - Add context-aware variations focusing on PROBLEMS and METHODS
+   - Include educational/knowledge queries when products are guaranteed
    - ALL queries must be in ENGLISH
    - 🚨 **CRITICAL: DO NOT include specific numbers/values in queries!**
-   - Focus on products, not calculations (calculations use metadata, not embeddings)
+   - Focus on problems, methods, and complementary solutions
 
-Examples:
-- Category: ["Sea Salt", "Reef Salt", "Reef Salt Plus", "Hybrid Pro Salt", "Aquaforest marine salts"]
-- Comparison: ["AF Lava Soil", "AF Lava Soil Black", "lava soil differences", "substrate comparison"]
-- Problem: ["AF NitraPhos Minus", "nitrate phosphate reduction", "NO3 PO4 removal", "nutrient control"]
-- Dosage: ["magnesium supplement", "Mg Plus", "reef aquarium dosing"] NOT ["15 mg/l magnesium"]
+🆕 **SMART QUERY EXAMPLES**:
+- Guaranteed: ["AF NitraPhos Minus"] → Queries: ["nitrate reduction methods", "algae prevention strategies", "probiotic bacteria benefits", "nutrient control reef tank"]
+- Guaranteed: ["Zeo Mix", "Pro Bio S"] → Queries: ["zeolite filtration benefits", "ULNS system guide", "beneficial bacteria aquarium", "ultra low nutrient methods"]
+- Guaranteed: ["Ca Plus"] → Queries: ["calcium importance reef tank", "coral calcification support", "calcium deficiency symptoms", "reef chemistry balance"]
 
-🚨 **QUERY TRANSFORMATION EXAMPLES:**
-- ❌ "raise magnesium by 15 mg/l in 1150L tank" → ✅ "raise magnesium reef aquarium"
-- ❌ "calcium supplement for 500 liter aquarium" → ✅ "calcium supplement marine aquarium"  
-- ❌ "nitrate reduction to 5 ppm" → ✅ "nitrate reduction aquarium"
-- ❌ "dosing 10ml per 100L" → ✅ "product dosing reef tank"
+🚨 **AVOID REDUNDANT QUERIES:**
+- ❌ "AF NitraPhos Minus for algae" (product guaranteed) → ✅ "algae control methods"
+- ❌ "Zeo Mix zeolite media" (product guaranteed) → ✅ "zeolite filtration benefits"
+- ❌ "Pro Bio S bacteria supplement" (product guaranteed) → ✅ "beneficial bacteria importance"
 
 Return ONLY a valid JSON object:
 {{
