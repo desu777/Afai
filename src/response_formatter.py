@@ -1,6 +1,7 @@
 """
-Response Formatting Module - VERSION 4.1 with SUPPORT Intent
-Enhanced metadata handling, category support, and calculation safety
+Response Formatting Module - VERSION 5.0 HYBRID ENHANCED
+🚀 Enhanced with comprehensive mapping support, competitor handling, and scenario awareness
+Advanced metadata handling, category support, calculation safety, and business intelligence integration
 """
 from typing import List, Dict, Any, Optional
 import json
@@ -200,6 +201,26 @@ You MUST mention that Balling/Component products contain multiple elements and a
 ---
 """
         
+        # 🚀 ENHANCED BUSINESS RECOMMENDATIONS CONTEXT
+        business_context = ""
+        if state.get("business_recommendations"):
+            business_context = self._format_business_recommendations_context(state["business_recommendations"])
+        
+        # 🚀 COMPETITOR CONTEXT
+        competitor_context = ""
+        if state.get("competitor_info"):
+            competitor_context = self._format_competitor_context(state["competitor_info"])
+        
+        # 🚀 SCENARIO CONTEXT  
+        scenario_context = ""
+        if state.get("scenario_info"):
+            scenario_context = self._format_scenario_context(state["scenario_info"])
+        
+        # 🚀 USE CASE CONTEXT
+        use_case_context = ""
+        if state.get("use_case_info"):
+            use_case_context = self._format_use_case_context(state["use_case_info"])
+        
         # Full metadata dump
         all_results_metadata = []
         dosage_calculations = []
@@ -266,6 +287,10 @@ Calculated dosages:
             problem_context=problem_context,
             balling_context=balling_context,
             dosage_context=dosage_context,
+            business_context=business_context,
+            competitor_context=competitor_context,
+            scenario_context=scenario_context,
+            use_case_context=use_case_context,
             formatted_all_results=formatted_all_results,
             language_upper=lang.upper()
         )
@@ -406,6 +431,97 @@ Generate response in {lang} language.
         }
         
         return intent_instructions.get(intent, f"Respond helpfully to: {user_query}")
+    
+    def _format_business_recommendations_context(self, recommendations: List[Dict]) -> str:
+        """🚀 Format business recommendations into context"""
+        if not recommendations:
+            return ""
+            
+        context_lines = ["--- ENHANCED BUSINESS RECOMMENDATIONS ---"]
+        
+        for rec in recommendations:
+            rec_type = rec.get("type", "unknown")
+            
+            if rec_type == "competitor_alternative":
+                context_lines.append(f"🏢 COMPETITOR ALTERNATIVE: {rec['competitor']} → {rec['af_alternative']}")
+                context_lines.append(f"   Message: {rec['message']}")
+                
+            elif rec_type == "setup_phase":
+                phase_priority = "HIGH PRIORITY" if rec.get("priority") else "STANDARD"
+                context_lines.append(f"📋 SETUP PHASE [{phase_priority}]: {rec['phase']}")
+                context_lines.append(f"   Duration: {rec['duration']}")
+                products_str = ", ".join([f"{cat}: {', '.join(prods)}" for cat, prods in rec['products'].items()])
+                context_lines.append(f"   Products: {products_str}")
+                
+            elif rec_type == "use_case_priority":
+                context_lines.append(f"🎯 USE CASE PRIORITY: {rec['use_case']}")
+                context_lines.append(f"   Priority products: {', '.join(rec['priority_products'])}")
+                if rec.get("timeline"):
+                    context_lines.append(f"   Timeline: {rec['timeline']}")
+                    
+            elif rec_type == "missing_alert":
+                context_lines.append(f"⚠️ MISSING PRODUCT ALERT: {rec['alert_type']}")
+                context_lines.append(f"   Message: {rec['message']}")
+                context_lines.append(f"   Suggest: {', '.join(rec['suggest_products'])}")
+        
+        context_lines.append("---")
+        return "\n".join(context_lines)
+    
+    def _format_competitor_context(self, competitor_info: Dict) -> str:
+        """🚀 Format competitor context"""
+        context_lines = ["--- COMPETITOR CONTEXT ---"]
+        
+        for comp in competitor_info.get("competitors", []):
+            alt = competitor_info.get("af_alternatives", {}).get(comp["name"], "AF equivalent available")
+            context_lines.append(f"🏢 DETECTED: {comp['name']} (category: {comp['category']})")
+            context_lines.append(f"   → RECOMMEND: {alt}")
+        
+        templates = competitor_info.get("response_templates", [])
+        if templates:
+            context_lines.append("📝 RESPONSE TEMPLATES AVAILABLE:")
+            for template in templates[:2]:  # Show first 2 templates
+                context_lines.append(f"   - {template}")
+        
+        context_lines.append("---")
+        return "\n".join(context_lines)
+    
+    def _format_scenario_context(self, scenario_info: Dict) -> str:
+        """🚀 Format scenario context"""
+        context_lines = ["--- SCENARIO CONTEXT ---"]
+        
+        context_lines.append(f"📋 DETECTED SCENARIO: {scenario_info['name']}")
+        
+        priority_order = scenario_info.get("priority_order", [])
+        if priority_order:
+            context_lines.append(f"⚡ PRIORITY ORDER: {' → '.join(priority_order)}")
+        
+        mandatory_categories = scenario_info.get("mandatory_categories", [])
+        if mandatory_categories:
+            context_lines.append(f"🎯 MANDATORY CATEGORIES: {', '.join(mandatory_categories)}")
+        
+        context_lines.append("---")
+        return "\n".join(context_lines)
+    
+    def _format_use_case_context(self, use_case_info: Dict) -> str:
+        """🚀 Format use case context"""
+        context_lines = ["--- USE CASE CONTEXT ---"]
+        
+        context_lines.append(f"🎯 IDENTIFIED USE CASE: {use_case_info['name']}")
+        
+        matching_keywords = use_case_info.get("matching_keywords", [])
+        if matching_keywords:
+            context_lines.append(f"🔍 MATCHING KEYWORDS: {', '.join(matching_keywords)}")
+        
+        priority_products = use_case_info.get("priority_products", [])
+        if priority_products:
+            context_lines.append(f"⭐ PRIORITY PRODUCTS: {', '.join(priority_products)}")
+        
+        timeline = use_case_info.get("timeline", "")
+        if timeline:
+            context_lines.append(f"⏱️ TIMELINE: {timeline}")
+        
+        context_lines.append("---")
+        return "\n".join(context_lines)
 
     def format_response(self, state: ConversationState) -> ConversationState:
         try:

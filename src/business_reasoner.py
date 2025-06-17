@@ -1,9 +1,12 @@
 """
-Business Logic Reasoner - VERSION 2.0 with Product Categories
-Enhanced business intelligence with category mapping and context understanding
+Business Logic Reasoner - VERSION 3.0 HYBRID ENHANCED with JSON Mapping
+Advanced business intelligence with comprehensive mapping system and context awareness
+🚀 Enhanced with competitors detection, scenario mapping, and product group intelligence
 """
 import json
-from typing import Dict, List, Optional, Tuple
+import os
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple, Set
 from openai import OpenAI
 from models import ConversationState, Intent
 from config import OPENAI_API_KEY, OPENAI_MODEL, TEST_ENV, debug_print, PRODUCTS_FILE_PATH
@@ -14,7 +17,10 @@ class BusinessReasoner:
         self.products_list = self._load_products_list()
         self.products_knowledge = self._load_products_knowledge()
         
-        # 🆕 ENHANCED PRODUCT CATEGORY MAPPING
+        # 🚀 LOAD ENHANCED MAPPING DATA FROM JSON FILES
+        self._load_mapping_data()
+        
+        # 🆕 ENHANCED PRODUCT CATEGORY MAPPING (legacy fallback)
         self.product_categories = {
             "salts": ["Sea Salt", "Reef Salt", "Reef Salt Plus", "Hybrid Pro Salt"],
             "bacteria": ["Pro Bio S", "Pro Bio F", "Life Source", "Life Essence", "Bio S"],
@@ -111,31 +117,249 @@ class BusinessReasoner:
             debug_print(f"❌ [BusinessReasoner] Error loading products knowledge: {e}")
             return []
     
+    def _load_mapping_data(self):
+        """🚀 Load comprehensive mapping data from JSON files"""
+        try:
+            mapping_dir = Path(__file__).parent / "mapping"
+            
+            # Load competitors mapping
+            with open(mapping_dir / "competitors.json", 'r', encoding='utf-8') as f:
+                self.competitors_data = json.load(f)
+                debug_print("✅ [BusinessReasoner] Loaded competitors mapping")
+            
+            # Load scenarios mapping  
+            with open(mapping_dir / "scenarios.json", 'r', encoding='utf-8') as f:
+                self.scenarios_data = json.load(f)
+                debug_print("✅ [BusinessReasoner] Loaded scenarios mapping")
+            
+            # Load product groups mapping
+            with open(mapping_dir / "products_groups.json", 'r', encoding='utf-8') as f:
+                self.product_groups_data = json.load(f)
+                debug_print("✅ [BusinessReasoner] Loaded product groups mapping")
+            
+            # Load use cases mapping
+            with open(mapping_dir / "use_cases.json", 'r', encoding='utf-8') as f:
+                self.use_cases_data = json.load(f)
+                debug_print("✅ [BusinessReasoner] Loaded use cases mapping")
+                
+            # Extract competitor names for faster lookup
+            self.all_competitors = set()
+            for category, competitors in self.competitors_data.get("competitors", {}).items():
+                self.all_competitors.update([comp.lower() for comp in competitors])
+                
+            debug_print(f"🚀 [BusinessReasoner] Enhanced mapping system loaded successfully!")
+            debug_print(f"📊 [BusinessReasoner] Tracking {len(self.all_competitors)} competitor products")
+            
+        except Exception as e:
+            debug_print(f"❌ [BusinessReasoner] Failed to load mapping data: {e}")
+            # Fallback to basic mappings
+            self._initialize_fallback_mappings()
+    
+    def _initialize_fallback_mappings(self):
+        """Initialize basic fallback mappings if JSON loading fails"""
+        debug_print("⚠️ [BusinessReasoner] Using fallback mappings")
+        self.competitors_data = {"competitors": {}, "response_strategies": {}}
+        self.scenarios_data = {"tank_setup_scenarios": {}}
+        self.product_groups_data = {"product_groups": {}}
+        self.use_cases_data = {"use_cases": {}}
+        self.all_competitors = set(comp.lower() for comp in self.competitors)
+    
     def analyze(self, state: ConversationState) -> ConversationState:
-        """Main analysis method"""
+        """🚀 Enhanced Main analysis method with comprehensive mapping"""
         debug_print(f"🧠 [BusinessReasoner] Analyzing query: '{state['user_query']}'", "🧠")
         
-        # Check for competitors
-        if self._check_competitors(state["user_query"]):
+        # 🚀 ENHANCED COMPETITOR DETECTION
+        competitor_info = self._detect_competitors_enhanced(state["user_query"])
+        if competitor_info:
             state["intent"] = Intent.COMPETITOR
-            debug_print(f"🏢 [BusinessReasoner] Competitor detected in query")
+            state["competitor_info"] = competitor_info
+            debug_print(f"🏢 [BusinessReasoner] Competitor detected: {competitor_info}")
         
-        # Create business context
-        business_context = self._create_business_context(state["user_query"])
+        # 🚀 SCENARIO DETECTION
+        scenario_info = self._detect_scenario(state["user_query"])
+        if scenario_info:
+            state["scenario_info"] = scenario_info
+            debug_print(f"📋 [BusinessReasoner] Scenario detected: {scenario_info['name']}")
+        
+        # 🚀 USE CASE ANALYSIS
+        use_case_info = self._analyze_use_case(state["user_query"])
+        if use_case_info:
+            state["use_case_info"] = use_case_info
+            debug_print(f"🎯 [BusinessReasoner] Use case identified: {use_case_info['name']}")
+        
+        # Create enhanced business context
+        business_context = self._create_enhanced_business_context(state)
         
         # Analyze with GPT
         business_analysis = self._analyze_with_gpt(state, business_context)
         
-        # Apply analysis results
+        # Apply enhanced business intelligence
         if business_analysis:
-            state = self._apply_business_intelligence(state, business_analysis)
+            state = self._apply_enhanced_business_intelligence(state, business_analysis)
         
         return state
     
-    def _check_competitors(self, query: str) -> bool:
-        """Check if query mentions competitors"""
+    def _detect_competitors_enhanced(self, query: str) -> Optional[Dict]:
+        """🚀 Enhanced competitor detection with context and alternatives"""
         query_lower = query.lower()
-        return any(comp.lower() in query_lower for comp in self.competitors)
+        
+        detected_competitors = []
+        af_alternatives = {}
+        
+        # Check against comprehensive competitor mapping
+        for comp_lower in self.all_competitors:
+            if comp_lower in query_lower:
+                # Find the original competitor name and category
+                for category, competitors in self.competitors_data.get("competitors", {}).items():
+                    for comp in competitors:
+                        if comp.lower() == comp_lower:
+                            detected_competitors.append({
+                                "name": comp,
+                                "category": category,
+                                "original": comp_lower
+                            })
+                            
+                            # Get AF alternative if available
+                            alternatives = self.competitors_data.get("response_strategies", {}).get("af_alternatives", {})
+                            if comp in alternatives:
+                                af_alternatives[comp] = alternatives[comp]
+                            break
+        
+        if detected_competitors:
+            return {
+                "competitors": detected_competitors,
+                "af_alternatives": af_alternatives,
+                "response_templates": self.competitors_data.get("response_strategies", {}).get("acknowledge_and_redirect", {}).get("templates", [])
+            }
+        
+        # Fallback to legacy detection
+        for comp in self.competitors:
+            if comp.lower() in query_lower:
+                return {
+                    "competitors": [{"name": comp, "category": "unknown", "original": comp.lower()}],
+                    "af_alternatives": {},
+                    "response_templates": []
+                }
+        
+        return None
+    
+    def _detect_scenario(self, query: str) -> Optional[Dict]:
+        """🚀 Detect tank setup scenarios from query"""
+        query_lower = query.lower()
+        
+        for scenario_key, scenario_data in self.scenarios_data.get("tank_setup_scenarios", {}).items():
+            triggers = scenario_data.get("triggers", [])
+            
+            # Check if any trigger matches
+            for trigger in triggers:
+                if trigger.lower() in query_lower:
+                    return {
+                        "name": scenario_key,
+                        "data": scenario_data,
+                        "priority_order": scenario_data.get("priority_order", []),
+                        "mandatory_categories": scenario_data.get("mandatory_categories", [])
+                    }
+        
+        return None
+    
+    def _analyze_use_case(self, query: str) -> Optional[Dict]:
+        """🚀 Analyze query for specific use cases"""
+        query_lower = query.lower()
+        
+        for use_case_key, use_case_data in self.use_cases_data.get("use_cases", {}).items():
+            keywords = use_case_data.get("context_keywords", [])
+            
+            # Check if any keyword matches
+            matching_keywords = [kw for kw in keywords if kw.lower() in query_lower]
+            
+            if matching_keywords:
+                return {
+                    "name": use_case_key,
+                    "data": use_case_data,
+                    "matching_keywords": matching_keywords,
+                    "priority_products": use_case_data.get("priority_products", []),
+                    "timeline": use_case_data.get("timeline", "")
+                }
+        
+        return None
+    
+    def _create_enhanced_business_context(self, state: ConversationState) -> str:
+        """🚀 Create enhanced business context using all mapping data"""
+        context_lines = []
+        
+        # Add competitor context if detected
+        if "competitor_info" in state:
+            context_lines.append("🏢 COMPETITOR CONTEXT:")
+            for comp in state["competitor_info"]["competitors"]:
+                alt = state["competitor_info"]["af_alternatives"].get(comp["name"], "AF equivalent available")
+                context_lines.append(f"  - {comp['name']} → Recommend: {alt}")
+        
+        # Add scenario context
+        if "scenario_info" in state:
+            context_lines.append("📋 SCENARIO CONTEXT:")
+            scenario = state["scenario_info"]
+            context_lines.append(f"  - Detected: {scenario['name']}")
+            context_lines.append(f"  - Priority order: {', '.join(scenario.get('priority_order', []))}")
+            context_lines.append(f"  - Mandatory categories: {', '.join(scenario.get('mandatory_categories', []))}")
+        
+        # Add use case context
+        if "use_case_info" in state:
+            context_lines.append("🎯 USE CASE CONTEXT:")
+            use_case = state["use_case_info"]
+            context_lines.append(f"  - Identified: {use_case['name']}")
+            context_lines.append(f"  - Priority products: {', '.join(use_case.get('priority_products', []))}")
+            if use_case.get("timeline"):
+                context_lines.append(f"  - Timeline: {use_case['timeline']}")
+        
+        # Add product group context
+        context_lines.append("🛍️ PRODUCT GROUP RECOMMENDATIONS:")
+        relevant_groups = self._get_relevant_product_groups(state)
+        for group_name, group_data in relevant_groups.items():
+            context_lines.append(f"  - {group_data['name']}: {', '.join(group_data['products'][:5])}")
+        
+        # Add legacy context as fallback
+        legacy_context = self._create_business_context(state["user_query"])
+        if legacy_context and "No directly relevant products found" not in legacy_context:
+            context_lines.append("📦 PRODUCT MATCHES:")
+            context_lines.extend(legacy_context.split("\n")[:10])
+        
+        return "\n".join(context_lines) if context_lines else "Enhanced context not available."
+    
+    def _get_relevant_product_groups(self, state: ConversationState) -> Dict:
+        """🚀 Get relevant product groups based on context"""
+        relevant_groups = {}
+        
+        # If scenario detected, get mandatory groups
+        if "scenario_info" in state:
+            scenario = state["scenario_info"]
+            mandatory_categories = scenario.get("mandatory_categories", [])
+            
+            for group_key, group_data in self.product_groups_data.get("product_groups", {}).items():
+                mandatory_for = group_data.get("mandatory_for", [])
+                if scenario["name"] in mandatory_for or any(cat in group_key for cat in mandatory_categories):
+                    relevant_groups[group_key] = group_data
+        
+        # If use case detected, get priority groups
+        if "use_case_info" in state:
+            use_case = state["use_case_info"]
+            priority_products = use_case.get("priority_products", [])
+            
+            for group_key, group_data in self.product_groups_data.get("product_groups", {}).items():
+                group_products = group_data.get("products", [])
+                if any(prod in priority_products for prod in group_products):
+                    relevant_groups[group_key] = group_data
+        
+        # If no specific context, return high-priority groups
+        if not relevant_groups:
+            for group_key, group_data in self.product_groups_data.get("product_groups", {}).items():
+                if group_data.get("priority", 10) <= 3:  # High priority groups only
+                    relevant_groups[group_key] = group_data
+        
+        return relevant_groups
+    
+    def _check_competitors(self, query: str) -> bool:
+        """Legacy method for backward compatibility"""
+        return self._detect_competitors_enhanced(query) is not None
     
     def _find_category_for_query(self, query: str) -> Optional[str]:
         """Find which category the query is asking about"""
@@ -214,7 +438,7 @@ class BusinessReasoner:
         prompt = f"""You are an expert aquarium business analyst with deep product knowledge.
 
 USER QUERY: "{state['user_query']}"
-DETECTED INTENT: {state['intent']}
+DETECTED INTENT: {state.get('intent', 'UNKNOWN')}
 DETECTED LANGUAGE: {state.get('detected_language', 'unknown')}
 DETECTED DOMAIN: {domain_hint}
 {chat_history_context}
@@ -309,6 +533,147 @@ Respond ONLY with valid JSON:
             return "seawater"
         return "unknown"
     
+    def _apply_enhanced_business_intelligence(self, state: ConversationState, analysis: Dict) -> ConversationState:
+        """🚀 Apply enhanced business intelligence with comprehensive logic"""
+        debug_print("🎯 [BusinessReasoner] Applying enhanced business intelligence")
+        
+        # Start with legacy logic for backward compatibility
+        state = self._apply_business_intelligence(state, analysis)
+        
+        # 🚀 ENHANCED COMPETITOR HANDLING
+        if "competitor_info" in state:
+            self._handle_competitor_response(state, analysis)
+        
+        # 🚀 SCENARIO-BASED RECOMMENDATIONS
+        if "scenario_info" in state:
+            self._apply_scenario_recommendations(state, analysis)
+        
+        # 🚀 USE CASE OPTIMIZATION
+        if "use_case_info" in state:
+            self._apply_use_case_optimization(state, analysis)
+        
+        # 🚀 MISSING PRODUCT ALERTS
+        self._check_missing_product_groups(state, analysis)
+        
+        return state
+    
+    def _handle_competitor_response(self, state: ConversationState, analysis: Dict):
+        """🚀 Handle competitor mentions with strategic responses"""
+        competitor_info = state["competitor_info"]
+        
+        # Add competitor handling instructions to business_recommendations
+        if "business_recommendations" not in state:
+            state["business_recommendations"] = []
+        
+        # Add AF alternatives
+        for comp_name, af_alternative in competitor_info["af_alternatives"].items():
+            state["business_recommendations"].append({
+                "type": "competitor_alternative",
+                "competitor": comp_name,
+                "af_alternative": af_alternative,
+                "message": f"While {comp_name} is mentioned, I recommend our {af_alternative} for superior performance and compatibility."
+            })
+        
+        debug_print(f"🏢 [BusinessReasoner] Added {len(competitor_info['af_alternatives'])} competitor alternatives")
+    
+    def _apply_scenario_recommendations(self, state: ConversationState, analysis: Dict):
+        """🚀 Apply scenario-based product recommendations"""
+        scenario_info = state["scenario_info"]
+        scenario_data = scenario_info["data"]
+        
+        # Get comprehensive setup phases if this is a new tank scenario
+        if "comprehensive_tank_setup" in self.scenarios_data:
+            phases = self.scenarios_data["comprehensive_tank_setup"]
+            
+            if "business_recommendations" not in state:
+                state["business_recommendations"] = []
+            
+            # Add phase-based recommendations
+            for phase_key, phase_data in phases.items():
+                state["business_recommendations"].append({
+                    "type": "setup_phase",
+                    "phase": phase_data["name"],
+                    "duration": phase_data["duration"],
+                    "products": phase_data["products"],
+                    "priority": True if "foundation" in phase_key else False
+                })
+        
+        debug_print(f"📋 [BusinessReasoner] Applied scenario recommendations for: {scenario_info['name']}")
+    
+    def _apply_use_case_optimization(self, state: ConversationState, analysis: Dict):
+        """🚀 Apply use case specific optimizations"""
+        use_case_info = state["use_case_info"]
+        use_case_data = use_case_info["data"]
+        
+        if "business_recommendations" not in state:
+            state["business_recommendations"] = []
+        
+        # Add priority products for this use case
+        priority_products = use_case_data.get("priority_products", [])
+        if priority_products:
+            state["business_recommendations"].append({
+                "type": "use_case_priority",
+                "use_case": use_case_info["name"],
+                "priority_products": priority_products,
+                "timeline": use_case_data.get("timeline", ""),
+                "approach": use_case_data.get("approach", "")
+            })
+        
+        debug_print(f"🎯 [BusinessReasoner] Applied use case optimization for: {use_case_info['name']}")
+    
+    def _check_missing_product_groups(self, state: ConversationState, analysis: Dict):
+        """🚀 Check for missing essential product groups and alert"""
+        if "business_recommendations" not in state:
+            state["business_recommendations"] = []
+        
+        # Get missing product alerts from mapping
+        missing_alerts = self.product_groups_data.get("missing_product_alerts", {})
+        
+        # Analyze current recommendations to see what's missing
+        current_products = set()
+        for rec in state.get("business_recommendations", []):
+            if isinstance(rec, dict):
+                # Extract products from different recommendation types
+                if "products" in rec:
+                    if isinstance(rec["products"], dict):
+                        for product_list in rec["products"].values():
+                            current_products.update(product_list)
+                    elif isinstance(rec["products"], list):
+                        current_products.update(rec["products"])
+                elif "priority_products" in rec:
+                    current_products.update(rec["priority_products"])
+        
+        # Check for missing fish food
+        has_coral_supplements = any("coral" in prod.lower() or "energy" in prod.lower() or "amino" in prod.lower() 
+                                  for prod in current_products)
+        has_fish_food = any("fish" in prod.lower() or "marine mix" in prod.lower() 
+                           for prod in current_products)
+        
+        if has_coral_supplements and not has_fish_food and "no_fish_food" in missing_alerts:
+            alert = missing_alerts["no_fish_food"]
+            state["business_recommendations"].append({
+                "type": "missing_alert",
+                "alert_type": "no_fish_food", 
+                "message": alert["message"],
+                "suggest_products": alert["suggest_products"]
+            })
+            debug_print("⚠️ [BusinessReasoner] Added missing fish food alert")
+        
+        # Check for missing water chemistry (for new tank scenarios)
+        if "scenario_info" in state and "new_tank" in state["scenario_info"]["name"]:
+            has_water_chemistry = any("component" in prod.lower() or "calcium" in prod.lower() 
+                                    for prod in current_products)
+            
+            if not has_water_chemistry and "no_water_chemistry" in missing_alerts:
+                alert = missing_alerts["no_water_chemistry"]
+                state["business_recommendations"].append({
+                    "type": "missing_alert",
+                    "alert_type": "no_water_chemistry",
+                    "message": alert["message"], 
+                    "suggest_products": alert["suggest_products"]
+                })
+                debug_print("⚠️ [BusinessReasoner] Added missing water chemistry alert")
+    
     def _apply_business_intelligence(self, state: ConversationState, analysis: Dict) -> ConversationState:
         """Apply business analysis results to state"""
         state["business_analysis"] = analysis
@@ -344,7 +709,7 @@ Respond ONLY with valid JSON:
         
         # Intent correction
         if analysis.get("intent_correction") and analysis["intent_correction"] != "same":
-            old_intent = state["intent"]
+            old_intent = state.get("intent")
             try:
                 state["intent"] = Intent(analysis["intent_correction"])
                 debug_print(f"✅ [BusinessReasoner] Intent corrected: {old_intent} → {state['intent']}")
@@ -362,7 +727,7 @@ Respond ONLY with valid JSON:
             debug_print(f"🔍 [BusinessReasoner] Search enhancement: {analysis['search_enhancement'][:50]}...")
         
         # Purchase product
-        if state["intent"] == Intent.PURCHASE_INQUIRY and analysis.get("product_name_corrections"):
+        if state.get("intent") == Intent.PURCHASE_INQUIRY and analysis.get("product_name_corrections"):
             state["purchase_product"] = analysis["product_name_corrections"]
             debug_print(f"🛒 [BusinessReasoner] Purchase product: {state['purchase_product']}")
         
