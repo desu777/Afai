@@ -2,6 +2,60 @@
 @tailwind components;
 @tailwind utilities; 
 
+/* Mobile viewport fixes */
+@supports (-webkit-touch-callout: none) {
+  body {
+    position: fixed;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  #root {
+    height: 100vh;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Prevent viewport scaling on mobile */
+html {
+  touch-action: manipulation;
+}
+
+body {
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Input field fixes for mobile */
+textarea, input {
+  -webkit-appearance: none;
+  border-radius: 0;
+  transform: translateZ(0);
+}
+
+/* Auto-resize textarea - no scroll */
+textarea {
+  box-sizing: border-box;
+  overflow: hidden;
+  resize: none;
+  field-sizing: content; /* Modern browsers */
+}
+
+/* Prevent zoom on input focus for iOS */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  select, textarea, input[type="text"], input[type="password"], 
+  input[type="datetime"], input[type="datetime-local"], 
+  input[type="date"], input[type="month"], input[type="time"], 
+  input[type="week"], input[type="number"], input[type="email"], 
+  input[type="url"], input[type="search"], input[type="tel"], 
+  input[type="color"] {
+    font-size: 16px !important;
+  }
+}
+
 .circle {
   display: inline-block;
   width: 100%;

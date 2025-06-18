@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 
 interface SplashScreenProps {
@@ -11,6 +11,51 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Check for saved access code on component mount
+  useEffect(() => {
+    const checkSavedAccess = () => {
+      try {
+        const savedAccess = localStorage.getItem('af_access_code');
+        if (savedAccess) {
+          const { code, timestamp, level } = JSON.parse(savedAccess);
+          const now = Date.now();
+          const twentyFourHours = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+          
+          // Check if saved code is still valid (less than 24 hours old)
+          if (now - timestamp < twentyFourHours) {
+            // Auto-authenticate with saved credentials
+            setIsLoading(true);
+            setTimeout(() => {
+              onAuthenticate(level);
+            }, 500); // Small delay for smooth UX
+            return;
+          } else {
+            // Remove expired code
+            localStorage.removeItem('af_access_code');
+          }
+        }
+      } catch (error) {
+        // Clear corrupted data
+        localStorage.removeItem('af_access_code');
+      }
+    };
+
+    checkSavedAccess();
+  }, [onAuthenticate]);
+
+  const saveAccessCode = (code: string, level: 'test' | 'admin') => {
+    try {
+      const accessData = {
+        code,
+        level,
+        timestamp: Date.now()
+      };
+      localStorage.setItem('af_access_code', JSON.stringify(accessData));
+    } catch (error) {
+      console.warn('Failed to save access code to localStorage');
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -22,8 +67,10 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
       const adminAccess = import.meta.env.VITE_ADMIN_ACCESS;
 
       if (password === testAccess) {
+        saveAccessCode(password, 'test');
         onAuthenticate('test');
       } else if (password === adminAccess) {
+        saveAccessCode(password, 'admin');
         onAuthenticate('admin');
       } else {
         setError('Invalid access code. Please try again.');
@@ -71,7 +118,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
           </div>
           
           <div className="inline-block bg-white/80 backdrop-blur-md rounded-full px-4 py-2 shadow-lg border border-purple-200/50">
-            <span className="text-sm font-semibold text-purple-700">v1.0</span>
+            <span className="text-sm font-semibold text-purple-700">v1.1</span>
           </div>
         </div>
 
@@ -128,10 +175,17 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-8">
+        <div className="text-center mt-8 space-y-2">
           <p className="text-xs text-gray-500 font-medium">
             Aquaforest AI Assistant • Secure Access Required
           </p>
+          <div className="flex items-center justify-center space-x-2">
+            <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
+            <p className="text-xs text-gray-400 font-medium">
+              Access code will be remembered for 24 hours
+            </p>
+            <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
+          </div>
         </div>
       </div>
     </div>
