@@ -183,6 +183,13 @@ Return JSON: {{"optimized_queries": ["{query}"]}}
         critical_queries.extend(mentioned_products)
         guaranteed_products.update(mentioned_products)
         
+        # 🚀 ENHANCED: Add AF alternatives from competitor detection
+        if state.get("af_alternatives_to_search"):
+            af_alternatives = state["af_alternatives_to_search"]
+            debug_print(f"🎯 [QueryOptimizer] Adding AF alternatives: {af_alternatives}")
+            critical_queries.extend(af_alternatives)
+            guaranteed_products.update(af_alternatives)
+        
         # Log business intelligence usage and extract solutions
         if state.get("business_analysis"):
             debug_print(f"🧠 [QueryOptimizer] Using business intelligence from business_reasoner")

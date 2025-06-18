@@ -168,12 +168,18 @@ class BusinessReasoner:
         """🚀 Enhanced Main analysis method with comprehensive mapping"""
         debug_print(f"🧠 [BusinessReasoner] Analyzing query: '{state['user_query']}'", "🧠")
         
-        # 🚀 ENHANCED COMPETITOR DETECTION
+        # 🚀 ENHANCED COMPETITOR DETECTION  
         competitor_info = self._detect_competitors_enhanced(state["user_query"])
         if competitor_info:
-            state["intent"] = Intent.COMPETITOR
+            # ✅ NIE ZMIENIAMY INTENCJI - zachowujemy naturalny flow!
             state["competitor_info"] = competitor_info
             debug_print(f"🏢 [BusinessReasoner] Competitor detected: {competitor_info}")
+            
+            # 🎯 Znajdź najlepsze alternatywy AF przez LLM
+            alternatives = self._find_af_alternatives_with_llm(competitor_info, state)
+            if alternatives:
+                state["af_alternatives_to_search"] = alternatives
+                debug_print(f"🎯 [BusinessReasoner] Found AF alternatives: {alternatives}")
         
         # 🚀 SCENARIO DETECTION
         scenario_info = self._detect_scenario(state["user_query"])
@@ -356,6 +362,65 @@ class BusinessReasoner:
                     relevant_groups[group_key] = group_data
         
         return relevant_groups
+    
+    def _find_af_alternatives_with_llm(self, competitor_info: Dict, state: ConversationState) -> List[str]:
+        """🚀 Użyj LLM do znalezienia najlepszych alternatyw AF"""
+        
+        competitors_list = [comp["name"] for comp in competitor_info.get("competitors", [])]
+        
+        prompt = f"""You are an Aquaforest product expert. Find the BEST Aquaforest alternatives for these competitor products.
+
+COMPETITOR PRODUCTS: {', '.join(competitors_list)}
+
+USER CONTEXT: "{state['user_query']}"
+
+AVAILABLE AQUAFOREST PRODUCTS WITH DETAILS:
+{json.dumps([{
+    "name": p["product_name"], 
+    "use_case": p["use_case"], 
+    "category": p["category"]
+} for p in self.products_knowledge], indent=2)}
+
+TASK: For each competitor product, find the most suitable Aquaforest alternative based on:
+1. Similar functionality and use case
+2. Same category (salt, supplement, food, etc.)
+3. User's specific needs from context
+
+Return ONLY valid JSON:
+{{
+    "alternatives": {{
+        "competitor_name": "best_af_alternative",
+        "competitor_name2": "best_af_alternative2"
+    }},
+    "reasoning": "brief explanation of choices"
+}}"""
+
+        try:
+            response = self.client.chat.completions.create(
+                model=OPENAI_MODEL,
+                temperature=0.1,
+                messages=[{"role": "system", "content": prompt}],
+                response_format={"type": "json_object"}
+            )
+            
+            result = json.loads(response.choices[0].message.content)
+            alternatives = list(result.get("alternatives", {}).values())
+            
+            # Weryfikuj że produkty istnieją
+            verified_alternatives = []
+            for alt in alternatives:
+                if self._validate_product_exists(alt):
+                    verified_alternatives.append(alt)
+            
+            debug_print(f"🔍 [BusinessReasoner] LLM found alternatives: {verified_alternatives}")
+            return verified_alternatives
+            
+        except Exception as e:
+            debug_print(f"❌ [BusinessReasoner] LLM alternatives error: {e}")
+            # Fallback do statycznych mapowań
+            fallback_alternatives = list(competitor_info.get("af_alternatives", {}).values())
+            debug_print(f"🔄 [BusinessReasoner] Using fallback alternatives: {fallback_alternatives}")
+            return fallback_alternatives
     
     def _check_competitors(self, query: str) -> bool:
         """Legacy method for backward compatibility"""
