@@ -8,7 +8,7 @@ import json
 import re
 from openai import OpenAI
 from models import ConversationState, ProductInfo, Intent, Domain
-from config import OPENAI_API_KEY, OPENAI_MODEL, OPENAI_TEMPERATURE, TEST_ENV
+from config import OPENAI_API_KEY, OPENAI_MODEL, OPENAI_TEMPERATURE, TEST_ENV, debug_print
 from calculation_helper import calculation_helper
 from prompts import load_prompt_template
 
@@ -460,9 +460,10 @@ Generate response in {lang} language.
                     context_lines.append(f"   Timeline: {rec['timeline']}")
                     
             elif rec_type == "missing_alert":
-                context_lines.append(f"⚠️ MISSING PRODUCT ALERT: {rec['alert_type']}")
-                context_lines.append(f"   Message: {rec['message']}")
-                context_lines.append(f"   Suggest: {', '.join(rec['suggest_products'])}")
+                alert_info = rec.get('note', 'Missing essential product')
+                context_lines.append(f"⚠️ MISSING PRODUCT ALERT: {alert_info}")
+                if 'products' in rec:
+                    context_lines.append(f"   Essential products: {', '.join(rec['products'])}")
         
         context_lines.append("---")
         return "\n".join(context_lines)

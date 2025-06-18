@@ -161,6 +161,10 @@ Return JSON: {{"optimized_queries": ["{query}"]}}
         query = state["user_query"]
         chat_history = state.get("chat_history", [])
         
+        # 🔍 DEBUG: Check AF alternatives
+        if state.get('af_alternatives_to_search'):
+            debug_print(f"🎯 [QueryOptimizer] Found af_alternatives_to_search: {len(state['af_alternatives_to_search'])} products")
+        
         debug_print(f"🕵️ [QueryOptimizer] Original query: '{query}'")
         if chat_history:
             debug_print(f"📚 [QueryOptimizer] Context: last {len(chat_history[-4:])} messages")

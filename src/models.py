@@ -62,6 +62,16 @@ class ConversationState(TypedDict):
     knowledge_assessment: Optional[str]
     domain_assessment: Optional[str]
     category_coverage: Optional[str]
+    
+    # 🚀 Business Reasoner enhanced fields
+    af_alternatives_to_search: Optional[List[str]]
+    competitor_info: Optional[Dict[str, Any]]
+    scenario_info: Optional[Dict[str, Any]]
+    use_case_info: Optional[Dict[str, Any]]
+    business_recommendations: Optional[List[Dict[str, Any]]]
+    search_enhancement_keywords: Optional[List[str]]
+    trending_products: Optional[List[str]]
+    response_strategy: Optional[str]
 
 class SearchResult(BaseModel):
     """Pinecone search result with metadata"""

@@ -103,6 +103,12 @@ class PineconeSearchClient:
             if isinstance(products_in_category, list):
                 critical_products.extend(products_in_category)
         
+        # 🚀 ENHANCED: Add AF alternatives from Business Reasoner
+        if state and state.get("af_alternatives_to_search"):
+            af_alternatives = state["af_alternatives_to_search"]
+            debug_print(f"🎯 [PineconeSearch] Adding AF alternatives to guaranteed search: {af_alternatives}")
+            critical_products.extend(af_alternatives)
+        
         # Extract mentioned products from queries (first few queries are usually critical)
         mentioned_products = []
         for query in queries[:5]:  # Check first 5 queries for product names
@@ -160,16 +166,32 @@ class PineconeSearchClient:
                     print(f"❌ [DEBUG PineconeSearch] Search error for query '{query}': {e}")
                 continue
         
-        # 🆕 MERGE guaranteed and vector results (guaranteed results have priority)
+        # 🚀 ENHANCED: K + AF alternatives mechanism
         final_results = {}
         final_results.update(all_results)  # Add vector results first
         final_results.update(guaranteed_results)  # Override with guaranteed results (higher scores)
         
-        sorted_results = sorted(
-            final_results.values(), 
-            key=lambda x: x.score, 
-            reverse=True
-        )[:k]  # 🆕 LIMIT TO DYNAMIC K
+        # Separate guaranteed AF alternatives from other results
+        guaranteed_af_results = []
+        other_results = []
+        af_alternatives = state.get("af_alternatives_to_search", []) if state else []
+        
+        for result in final_results.values():
+            product_name = result.metadata.get('product_name', '')
+            if product_name in af_alternatives:
+                guaranteed_af_results.append(result)
+            else:
+                other_results.append(result)
+        
+        # Sort both groups by score
+        guaranteed_af_results.sort(key=lambda x: x.score, reverse=True)
+        other_results.sort(key=lambda x: x.score, reverse=True)
+        
+        # 🎯 K + AF alternatives: Take all AF alternatives + top K others
+        final_count = len(guaranteed_af_results) + min(k, len(other_results))
+        sorted_results = guaranteed_af_results + other_results[:k]
+        
+        debug_print(f"🎯 [PineconeSearch] K + AF alternatives: {len(guaranteed_af_results)} AF guaranteed + {min(k, len(other_results))} vector = {len(sorted_results)} total")
 
         debug_print(f"🌲 [PineconeSearch] Hybrid search: {len(guaranteed_results)} guaranteed + {len(all_results)} vector = {len(sorted_results)} final (K={k}). Top 5:")
         for i, res in enumerate(sorted_results[:5]):

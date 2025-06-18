@@ -11,7 +11,7 @@ from intent_detector import detect_intent_and_language
 from business_reasoner import business_reasoner
 from query_optimizer import optimize_product_query
 from pinecone_client import search_products_k20
-from results_filter import intelligent_results_filter
+# 🗑️ REMOVED: from results_filter import intelligent_results_filter - Business Reasoner does smart filtering
 from confidence_scorer import evaluate_confidence, route_based_on_confidence
 from response_formatter import format_final_response, escalate_to_human, handle_follow_up
 import json
@@ -222,6 +222,8 @@ def create_workflow() -> StateGraph:
     """Create the enhanced LangGraph workflow with analytics"""
     debug_print("🏗️ [Workflow] Creating enhanced LangGraph workflow with analytics...")
     debug_print(f"🔧 [Workflow] Using ENHANCED_K_VALUE={ENHANCED_K_VALUE}")
+    debug_print("🚀 [Workflow] REMOVED intelligent_filter - Business Reasoner provides superior filtering")
+    debug_print("⚡ [Workflow] Performance improvement: ~10 seconds saved per query + reduced token usage")
         
     workflow = StateGraph(ConversationState)
     
@@ -232,7 +234,7 @@ def create_workflow() -> StateGraph:
         ("business_reasoner", business_reasoner),
         ("optimize_query", optimize_product_query),
         ("search_pinecone", search_products_k20),
-        ("intelligent_filter", intelligent_results_filter),
+        # 🗑️ REMOVED: ("intelligent_filter", intelligent_results_filter) - Business Reasoner does smart filtering
         ("evaluate_confidence", evaluate_confidence),
         ("format_response", format_final_response),
         ("escalate_support", escalate_to_human),
@@ -265,8 +267,8 @@ def create_workflow() -> StateGraph:
         }
     )
     workflow.add_edge("optimize_query", "search_pinecone")
-    workflow.add_edge("search_pinecone", "intelligent_filter")
-    workflow.add_edge("intelligent_filter", "evaluate_confidence")
+    # 🚀 SKIP intelligent_filter - Business Reasoner already does smart filtering
+    workflow.add_edge("search_pinecone", "evaluate_confidence")
     workflow.add_conditional_edges(
         "evaluate_confidence", route_based_on_confidence,
         {
