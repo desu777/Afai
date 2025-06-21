@@ -9,6 +9,8 @@ LATEST USER MESSAGE: "{user_query}"
 
 {conversation_context_hint}
 
+{icp_url_hint}
+
 CRITICAL CONTEXT ANALYSIS RULES:
 1. If discussing a product and its target problem/pest, and user wants to buy "it" or mentions the pest name in purchase context - they mean the PRODUCT, not the pest!
    Example: After discussing "Aiptasia Shot" (product) and "Aiptasia" (pest), "buy aiptasia" = purchase_inquiry for the product
@@ -28,7 +30,8 @@ INTENTS:
 6. "censored": Questions about proprietary information like product formulas or production processes.
 7. "follow_up": The user is continuing an existing conversation - asking follow-up questions, seeking recommendations, clarifications, or additional details about topics already being discussed. This includes questions that naturally progress the conversation even if not directly referencing the previous response.
 8. "support": The user explicitly wants to contact support
-9. "other": Anything that doesn't fit the categories above.
+9. "analyze_icp": User provides ICP test URL or asks to analyze water test results from aquaforestlab.com  # 🆕 
+10. "other": Anything that doesn't fit the categories above.
 
 LANGUAGES: Detect the primary language of the LATEST USER MESSAGE (pl, en, de, fr, es, it, etc.).
 

@@ -15,6 +15,7 @@ class Intent(str, Enum):
     CENSORED = "censored"
     FOLLOW_UP = "follow_up"
     SUPPORT = "support"
+    ANALYZE_ICP = "analyze_icp"  # 🆕 ICP test results analysis
     OTHER = "other"
 
 class Domain(str, Enum):

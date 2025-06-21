@@ -78,8 +78,8 @@ def route_intent(state: ConversationState) -> str:
         debug_print(f"➡️ [Router] Routing to: format_response (special intent)")
         state["routing_decisions"][-1]["next_node"] = "format_response"
         return "format_response"
-    elif intent == Intent.PRODUCT_QUERY:
-        debug_print(f"➡️ [Router] Routing to: optimize_query (product query)")
+    elif intent in [Intent.PRODUCT_QUERY, Intent.ANALYZE_ICP]:
+        debug_print(f"➡️ [Router] Routing to: optimize_query (product query/ICP analysis)")
         state["routing_decisions"][-1]["next_node"] = "optimize_query"
         return "optimize_query"
     elif intent == Intent.FOLLOW_UP:

@@ -3,6 +3,7 @@ Intent and Language Detection Module - Enhanced Version 2.2 with Debug
 Detects user intent and language from the query with better context understanding
 """
 import json
+import re  # 🆕 For ICP URL detection
 from typing import Dict
 from openai import OpenAI
 from models import ConversationState, Intent, IntentDetectionResult
@@ -33,12 +34,21 @@ IMPORTANT: This conversation has existing history. Consider if the user's questi
 If the user's question builds upon or continues the conversation context, it's likely a FOLLOW-UP.
 """
 
+        # 🆕 ICP URL Detection
+        icp_url_hint = ""
+        if re.search(r'aquaforestlab\.com/(?:pl|en)/results/\w+', state['user_query']):
+            icp_url_hint = """
+IMPORTANT: User provided an ICP test results URL from aquaforestlab.com
+This is very likely intent: "analyze_icp" - user wants analysis of their water parameters!
+"""
+
         # Try to load prompt from template
         prompt = load_prompt_template(
             "intent_detection",
             chat_history_formatted=chat_history_formatted,
             user_query=state['user_query'],
-            conversation_context_hint=conversation_context_hint
+            conversation_context_hint=conversation_context_hint,
+            icp_url_hint=icp_url_hint  # 🆕 Pass ICP URL hint to template
         )
         
         # Fallback to hardcoded prompt if template fails

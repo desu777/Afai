@@ -6,6 +6,9 @@ Maintains same class names and API for seamless integration
 """
 import json
 import os
+import re  # 🆕 For ICP URL parsing  
+import requests  # 🆕 For web scraping ICP data
+from bs4 import BeautifulSoup  # 🆕 For HTML parsing
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Set
 from openai import OpenAI
@@ -102,6 +105,33 @@ class BusinessReasoner:
         debug_print(f"🧠 [BusinessReasoner] FULL LLM Analysis: '{state['user_query']}'")
         
         try:
+            # 🆕 ICP URL EXTRACTION - Handle before LLM analysis
+            if state.get("intent") == Intent.ANALYZE_ICP:
+                # Look for ICP URL in the query
+                icp_url_match = re.search(r'(https?://)?aquaforestlab\.com/(?:pl|en)/results/\w+', state['user_query'])
+                if icp_url_match:
+                    icp_url = icp_url_match.group(0)
+                    if not icp_url.startswith('http'):
+                        icp_url = 'https://' + icp_url
+                    
+                    # Extract ICP data and add to state
+                    icp_data = self._extract_icp_data_from_url(icp_url)
+                    state["icp_analysis"] = icp_data
+                    debug_print(f"🔬 [BusinessReasoner] ICP data extracted for URL: {icp_url}")
+                    
+                    # 📋 ADD ICP RESULTS TO USER QUERY for LLM analysis
+                    if icp_data.get("parameters"):
+                        icp_summary = self._format_icp_data_for_llm(icp_data["parameters"], icp_data.get("metadata", {}))
+                        enhanced_query = f"{state['user_query']}\n\n📊 ICP TEST RESULTS:\n{icp_summary}"
+                        state["user_query"] = enhanced_query
+                        debug_print(f"📋 [BusinessReasoner] Enhanced query with ICP data")
+                        
+                        # 🔍 DEBUG: Print full ICP results for debugging
+                        debug_print(f"📊 [BusinessReasoner] ICP TEST RESULTS:")
+                        debug_print(f"{icp_summary}")
+                else:
+                    debug_print(f"⚠️ [BusinessReasoner] ANALYZE_ICP intent but no URL found in query")
+            
             # 🚀 COMPREHENSIVE LLM ANALYSIS using all mapping data
             llm_decision = self._analyze_with_full_llm(state)
             
@@ -223,7 +253,7 @@ The schema must match EXACTLY:
     "competitor_alternatives": {{"competitor_name": "AF_alternative_from_mapping"}},
     "response_strategy": "direct|educational|comparative|troubleshooting",
     "missing_product_alerts": ["products_from_missing_alerts_mapping_if_applicable"],
-    "intent_suggestion": "product_query|follow_up|purchase_inquiry|support|greeting|business|competitor|censored",
+    "intent_suggestion": "product_query|follow_up|purchase_inquiry|support|greeting|business|competitor|censored|analyze_icp",
     "domain_hint": "seawater|freshwater|universal|unknown",
     "search_keywords": ["specific_search_terms_for_pinecone_optimization"],
     "confidence_level": 0.0-1.0,
@@ -334,11 +364,30 @@ Think step by step through EACH reasoning step explicitly. Base ALL decisions on
         
         # 🚀 PRODUCT RECOMMENDATIONS - CRITICAL for Pinecone search
         priority_products = decision.get("priority_products", [])
-        if priority_products:
-            # Store as search enhancement for Pinecone guaranteed search
+        
+        # 🆕 ICP ANALYSIS: Auto-add core water parameter correction products
+        if state.get("intent") == Intent.ANALYZE_ICP:
+            icp_core_products = [
+                "Component 1+2+3+ Concentrate",
+                "Component 1+2+3+",
+                "Component 3 in 1", 
+                "Component A",
+                "Component B",
+                "Component C",
+                "Components Strong"
+            ]
+            
+            # Combine LLM-found products with core ICP products
+            all_icp_products = list(set(priority_products + icp_core_products))
+            state["af_alternatives_to_search"] = all_icp_products
+            debug_print(f"🔬 [BusinessReasoner] ICP Analysis: {len(priority_products)} LLM + {len(icp_core_products)} core = {len(all_icp_products)} total products")
+            
+        elif priority_products:
+            # Normal flow for non-ICP queries
             state["af_alternatives_to_search"] = priority_products
             debug_print(f"🎯 [BusinessReasoner] LLM priority products for search: {priority_products}")
-            
+        
+        if priority_products:
             # Set first priority product as main correction for backward compatibility
             state["business_analysis"]["product_name_corrections"] = priority_products[0]
         
@@ -431,6 +480,274 @@ Think step by step through EACH reasoning step explicitly. Base ALL decisions on
             debug_print(f"🔧 [BusinessReasoner] af_alternatives_to_search SET: {len(state['af_alternatives_to_search'])} products")
         
         return state
+    
+    def _extract_icp_data_from_url(self, url: str) -> Dict:
+        """🆕 Extract ICP test data from Aquaforest Lab URL"""
+        try:
+            debug_print(f"🌐 [BusinessReasoner] Fetching ICP data from: {url}")
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            
+            # 🔍 LOG: Response details
+            debug_print(f"📊 [BusinessReasoner] HTTP Status: {response.status_code}")
+            debug_print(f"📊 [BusinessReasoner] Content-Type: {response.headers.get('content-type', 'unknown')}")
+            debug_print(f"📊 [BusinessReasoner] Content Length: {len(response.content)} bytes")
+            
+            soup = BeautifulSoup(response.content, 'html.parser')
+            
+            # 🔍 LOG: HTML structure analysis
+            debug_print(f"📋 [BusinessReasoner] Page title: {soup.title.string if soup.title else 'No title'}")
+            
+            # Find all tables
+            tables = soup.find_all('table')
+            debug_print(f"📋 [BusinessReasoner] Found {len(tables)} table(s) on page")
+            
+            # 🆕 EXTRACT ICP METADATA (test info)
+            metadata = self._extract_icp_metadata(soup)
+            
+            # Structure based on typical ICP test results
+            icp_data = {
+                "url": url,
+                "parameters": {},
+                "metadata": metadata,  # 🆕 Add metadata
+                "status": "success",
+                "debug_info": {
+                    "tables_found": len(tables),
+                    "page_title": soup.title.string if soup.title else None
+                }
+            }
+            
+            # 🎯 EXTRACT ALL ICP DATA - Dynamic table parsing
+            results_table = soup.find('table', class_='table-results') or soup.find('table')
+            
+            if results_table:
+                debug_print(f"📋 [BusinessReasoner] Found results table")
+                
+                # Find all test result rows (skip header)
+                test_rows = results_table.find_all('tr')[1:]  # Skip header
+                debug_print(f"📋 [BusinessReasoner] Processing {len(test_rows)} parameter rows")
+                
+                for i, row in enumerate(test_rows):
+                    # Extract all cells dynamically
+                    all_cells = row.find_all('td')
+                    if len(all_cells) >= 3:  # Need at least: element, range, result
+                        
+                        # 📊 COLUMN MAPPING (English workflow)
+                        element = all_cells[0].get_text(strip=True)
+                        recommended_range = all_cells[1].get_text(strip=True) 
+                        user_result = all_cells[2].get_text(strip=True)
+                        change = all_cells[3].get_text(strip=True) if len(all_cells) > 3 else ""
+                        
+                        # Skip empty or header-like rows
+                        if not element or element.lower() in ['pierwiastek', 'element']:
+                            continue
+                        
+                        debug_print(f"📊 [BusinessReasoner] ELEMENT: '{element}' | RECOMMENDED: '{recommended_range}' | RESULT: '{user_result}' | CHANGE: '{change}'")
+                        
+                        # 🧠 SMART ANALYSIS: Check if result is within recommended range
+                        status = self._analyze_icp_parameter_status(element, recommended_range, user_result)
+                        
+                        icp_data["parameters"][element] = {
+                            "element": element,
+                            "recommended_range": recommended_range, 
+                            "user_result": user_result,
+                            "change": change,
+                            "status": status,
+                            "needs_correction": status in ["too_high", "too_low"]
+                        }
+                    else:
+                        # Log incomplete rows
+                        if all_cells:
+                            cell_contents = [cell.get_text(strip=True) for cell in all_cells]
+                            debug_print(f"📊 [BusinessReasoner] Row {i+1} (incomplete): {cell_contents}")
+            else:
+                debug_print(f"⚠️ [BusinessReasoner] No results table found")
+            
+            # 🔍 LOG: Final extraction summary
+            debug_print(f"✅ [BusinessReasoner] Extracted {len(icp_data['parameters'])} ICP parameters")
+            if icp_data["parameters"]:
+                param_names = list(icp_data["parameters"].keys())[:5]  # First 5 parameters
+                debug_print(f"📋 [BusinessReasoner] Sample parameters: {param_names}")
+            
+            return icp_data
+            
+        except requests.RequestException as e:
+            debug_print(f"❌ [BusinessReasoner] HTTP error fetching ICP data: {e}")
+            return {"url": url, "parameters": {}, "status": "http_error", "error": str(e)}
+        except Exception as e:
+            debug_print(f"❌ [BusinessReasoner] Error extracting ICP data: {e}")
+            return {"url": url, "parameters": {}, "status": "parse_error", "error": str(e)}
+    
+    def _analyze_icp_parameter_status(self, element: str, recommended_range: str, user_result: str) -> str:
+        """🧠 Analyze if ICP parameter result is within recommended range"""
+        try:
+            import re
+            
+            # Extract numeric values from strings
+            def extract_number(text):
+                # Find first number (including decimals)
+                match = re.search(r'(\d+\.?\d*)', text.replace(',', '.'))
+                return float(match.group(1)) if match else None
+            
+            # Parse recommended range (e.g., "33 - 38 ppt", "0 - 0.0300 mg/l")
+            range_match = re.search(r'(\d+\.?\d*)\s*-\s*(\d+\.?\d*)', recommended_range.replace(',', '.'))
+            if range_match:
+                min_val = float(range_match.group(1))
+                max_val = float(range_match.group(2))
+                
+                # Extract result value
+                result_val = extract_number(user_result)
+                
+                if result_val is not None:
+                    debug_print(f"🧠 [BusinessReasoner] Analysis: {element} = {result_val} (range: {min_val}-{max_val})")
+                    
+                    if result_val < min_val:
+                        return "too_low"
+                    elif result_val > max_val:
+                        return "too_high"
+                    else:
+                        return "optimal"
+            
+            # If can't parse range, check for single value or zero
+            if "0 mg/l" in recommended_range or recommended_range.strip() == "0":
+                result_val = extract_number(user_result)
+                if result_val is not None and result_val > 0:
+                    return "too_high"
+                elif result_val == 0:
+                    return "optimal"
+            
+            debug_print(f"⚠️ [BusinessReasoner] Could not analyze: {element} - {recommended_range} vs {user_result}")
+            return "unknown"
+            
+        except Exception as e:
+            debug_print(f"❌ [BusinessReasoner] Error analyzing {element}: {e}")
+            return "unknown"
+    
+    def _extract_icp_metadata(self, soup) -> Dict:
+        """🆕 Extract ICP test metadata (test number, aquarium info, date)"""
+        metadata = {}
+        
+        try:
+            import re
+            
+            # 🔍 DEBUG: Print all text content to see structure
+            debug_print(f"📋 [BusinessReasoner] Searching for metadata in page content...")
+            
+            # Look for test number in page title first
+            title = soup.title.string if soup.title else ""
+            debug_print(f"📋 [BusinessReasoner] Page title: '{title}'")
+            if "Test wody" in title or "#" in title:
+                test_match = re.search(r'#?(\d+)', title)
+                if test_match:
+                    metadata["test_number"] = test_match.group(1)
+                    debug_print(f"📋 [BusinessReasoner] Found test number in title: {metadata['test_number']}")
+            
+            # 🎯 IMPROVED: Look for specific patterns in all text elements
+            all_text_elements = soup.find_all(['div', 'span', 'strong', 'p'])
+            
+            for element in all_text_elements:
+                text = element.get_text(strip=True)
+                
+                # Look for "Badanie Woda morska: NUMBER"
+                badanie_match = re.search(r'Badanie\s+Woda\s+morska:?\s*(\d+)', text, re.IGNORECASE)
+                if badanie_match and not metadata.get("test_number"):
+                    metadata["test_number"] = badanie_match.group(1)
+                    debug_print(f"📋 [BusinessReasoner] Found test number: {metadata['test_number']} in text: '{text[:50]}...'")
+                
+                # Look for "Akwarium (SPS): INFO"
+                aquarium_match = re.search(r'Akwarium\s*\([^)]+\):?\s*(.+)', text, re.IGNORECASE)
+                if aquarium_match and not metadata.get("aquarium_info"):
+                    aquarium_info = aquarium_match.group(1).strip()
+                    if aquarium_info and aquarium_info != ":":  # Skip empty results
+                        metadata["aquarium_info"] = aquarium_info
+                        debug_print(f"📋 [BusinessReasoner] Found aquarium info: '{metadata['aquarium_info']}' in text: '{text[:50]}...'")
+                
+                # Look for "Data: DATE"
+                date_match = re.search(r'Data:?\s*([\d-]+)', text, re.IGNORECASE)
+                if date_match and not metadata.get("test_date"):
+                    test_date = date_match.group(1).strip()
+                    if test_date and test_date != "-":  # Skip empty results
+                        metadata["test_date"] = test_date
+                        debug_print(f"📋 [BusinessReasoner] Found test date: '{metadata['test_date']}' in text: '{text[:50]}...'")
+            
+            # 🔍 FALLBACK: Look for patterns in the entire page text
+            if not metadata.get("test_number") or not metadata.get("aquarium_info") or not metadata.get("test_date"):
+                full_text = soup.get_text()
+                debug_print(f"📋 [BusinessReasoner] Fallback search in full page text...")
+                
+                # Extract test number from anywhere
+                if not metadata.get("test_number"):
+                    test_matches = re.findall(r'(\d{7})', full_text)
+                    if test_matches:
+                        metadata["test_number"] = test_matches[0]  # Take first 7-digit number
+                        debug_print(f"📋 [BusinessReasoner] Fallback found test number: {metadata['test_number']}")
+                
+                # Extract aquarium info more broadly
+                if not metadata.get("aquarium_info"):
+                    aquarium_matches = re.findall(r'Domowe\s+\d+\s+LPS', full_text, re.IGNORECASE)
+                    if aquarium_matches:
+                        metadata["aquarium_info"] = aquarium_matches[0]
+                        debug_print(f"📋 [BusinessReasoner] Fallback found aquarium: {metadata['aquarium_info']}")
+                
+                # Extract date more broadly
+                if not metadata.get("test_date"):
+                    date_matches = re.findall(r'20\d{2}-\d{2}-\d{2}', full_text)
+                    if date_matches:
+                        metadata["test_date"] = date_matches[0]
+                        debug_print(f"📋 [BusinessReasoner] Fallback found date: {metadata['test_date']}")
+            
+            debug_print(f"📋 [BusinessReasoner] Final extracted metadata: {metadata}")
+            return metadata
+            
+        except Exception as e:
+            debug_print(f"❌ [BusinessReasoner] Error extracting metadata: {e}")
+            return {}
+    
+    def _format_icp_data_for_llm(self, parameters: Dict, metadata: Dict = None) -> str:
+        """📋 Format ICP data for LLM analysis with clear English labeling"""
+        lines = []
+        
+        # 🆕 ADD METADATA HEADER
+        if metadata:
+            lines.append("ICP TEST METADATA:")
+            if metadata.get("test_number"):
+                lines.append(f"Test Number: {metadata['test_number']}")
+            if metadata.get("aquarium_info"):
+                lines.append(f"Aquarium: {metadata['aquarium_info']}")
+            if metadata.get("test_date"):
+                lines.append(f"Test Date: {metadata['test_date']}")
+            lines.append("")
+        
+        lines.append("WATER PARAMETER ANALYSIS:")
+        lines.append("COLUMNS: ELEMENT | RECOMMENDED_RANGE | USER_RESULT | CHANGE | STATUS")
+        lines.append("-" * 80)
+        
+        for param_name, data in parameters.items():
+            element = data.get("element", param_name)
+            recommended = data.get("recommended_range", "")
+            user_result = data.get("user_result", "")
+            change = data.get("change", "")
+            status = data.get("status", "unknown")
+            
+            # 🎯 CLEAR STATUS INDICATORS (English)
+            status_icon = {
+                "too_high": "⬆️ TOO_HIGH",
+                "too_low": "⬇️ TOO_LOW", 
+                "optimal": "✅ OPTIMAL",
+                "unknown": "❓ UNKNOWN"
+            }.get(status, status)
+            
+            line = f"{element} | {recommended} | {user_result} | {change} | {status_icon}"
+            lines.append(line)
+        
+        lines.append("-" * 80)
+        lines.append("LLM INSTRUCTIONS:")
+        lines.append("- If status 'TOO_HIGH' → recommend products to lower this parameter")
+        lines.append("- If status 'TOO_LOW' → recommend products to raise this parameter") 
+        lines.append("- If status 'OPTIMAL' → praise and recommend maintaining the level")
+        lines.append("- Use products_turbo.json to automatically select appropriate products")
+        
+        return "\n".join(lines)
     
     def _fallback_analysis(self, state: ConversationState) -> ConversationState:
         """Minimal fallback when LLM analysis fails"""

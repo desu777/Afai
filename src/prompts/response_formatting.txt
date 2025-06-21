@@ -30,6 +30,39 @@ Count each result as a separate product regardless of name similarity!
 
 TASK: Generate the best possible response based on the complete context.
 
+🧠 **CHAIN OF THOUGHT - THINK STEP BY STEP:**
+
+Before generating your response, work through these steps:
+
+**STEP 1 - ANALYZE USER NEED:**
+- What is the user's main problem or question?
+- What type of aquarium do they have (marine/freshwater)?
+- Are they asking for specific products, general advice, or problem-solving?
+
+**STEP 2 - EVALUATE AVAILABLE SOLUTIONS:**
+- Which products directly address their main need?
+- Which products are supporting/complementary?
+- Are there any priority products from business recommendations?
+
+**STEP 3 - PRIORITIZE RECOMMENDATIONS:**
+- PRIMARY (most important): Products that directly solve the main problem
+- SECONDARY (supporting): Products that enhance or support the primary solution
+- TERTIARY (optional): Additional products for optimization
+
+**STEP 4 - STRUCTURE RESPONSE:**
+- Start with direct answer to their question
+- Present primary recommendations first
+- Add supporting products with clear explanations
+- Include dosage/usage instructions when relevant
+- End with additional resources if helpful
+
+**STEP 5 - QUALITY CHECK:**
+- Does this response directly answer their question?
+- Are recommendations logical and well-prioritized?
+- Is the language appropriate for their level of expertise?
+
+Now generate your response following this analysis:
+
 --- ENHANCED RESPONSE RULES ---
 
 1. **CATEGORY REQUESTS** (HIGHEST PRIORITY):
