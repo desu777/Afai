@@ -289,7 +289,9 @@ const AdminAnalyticsPanel: React.FC<AdminAnalyticsPanelProps> = ({ accessLevel }
                             <Search className="w-4 h-4 text-gray-400" />
                             <span>{item.pinecone_results_count}</span>
                             {item.escalated && (
-                              <Target className="w-4 h-4 text-red-500 ml-2" title="Escalated" />
+                              <div title="Escalated">
+                                <Target className="w-4 h-4 text-red-500 ml-2" />
+                              </div>
                             )}
                           </div>
                         </td>

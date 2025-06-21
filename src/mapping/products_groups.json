@@ -1,0 +1,152 @@
+{
+  "product_groups": {
+    "water_chemistry_essentials": {
+      "name": "Water Chemistry Essentials",
+      "description": "Foundation products for stable reef chemistry",
+      "priority": 1,
+      "products": [
+        "Component 1+2+3+",
+        "Component 1+2+3+ Concentrate", 
+        "AF Build",
+        "Calcium",
+        "Magnesium", 
+        "KH Buffer"
+      ],
+      "use_cases": ["new_tank", "parameter_stability", "coral_growth"],
+      "mandatory_for": ["new_tank_comprehensive"]
+    },
+    "biological_foundation": {
+      "name": "Biological Foundation",
+      "description": "Products for establishing healthy tank biology",
+      "priority": 2,
+      "products": [
+        "Pro Bio S",
+        "Bio S", 
+        "AF Life Source",
+        "Life Bio Fil",
+        "AF Bio Sand"
+      ],
+      "use_cases": ["new_tank", "biological_diversity", "tank_maturation"],
+      "mandatory_for": ["new_tank_comprehensive"]
+    },
+    "fish_nutrition": {
+      "name": "Fish Nutrition & Health",
+      "description": "Complete nutrition for marine fish",
+      "priority": 3,
+      "products": [
+        "Fish V",
+        "AF Power Food",
+        "AF Marine Mix M", 
+        "AF Marine Mix S",
+        "AF Vitality"
+      ],
+      "use_cases": ["fish_feeding", "fish_health", "new_tank"],
+      "often_missing": true,
+      "mandatory_for": ["new_tank_comprehensive", "fish_feeding_focus"]
+    },
+    "coral_nutrition": {
+      "name": "Coral Nutrition & Supplements", 
+      "description": "Targeted nutrition for coral health and growth",
+      "priority": 4,
+      "products": [
+        "AF Energy",
+        "AF Amino Mix",
+        "AF Vitality",
+        "AF Power Food"
+      ],
+      "use_cases": ["coral_health", "sps_growth", "coral_coloration"],
+      "mandatory_for": ["coral_health_focus"]
+    },
+    "nutrient_control": {
+      "name": "Nutrient Control System",
+      "description": "Products for managing excess nutrients",
+      "priority": 5,
+      "products": [
+        "AF NitraPhos Minus",
+        "Carbon",
+        "Hybrid Pro Salt"
+      ],
+      "use_cases": ["algae_control", "nutrient_reduction", "water_quality"],
+      "mandatory_for": ["nutrient_control_focus"]
+    },
+    "aquascaping_structure": {
+      "name": "Aquascaping & Structure",
+      "description": "Foundation materials for reef structure",
+      "priority": 2,
+      "products": [
+        "AF Rock",
+        "Stone Fix",
+        "AF Bio Sand"
+      ],
+      "use_cases": ["new_tank", "aquascaping", "reef_structure"],
+      "mandatory_for": ["new_tank_comprehensive"]
+    },
+    "marine_salts": {
+      "name": "Marine Salt Systems",
+      "description": "Premium salt mixes for optimal water quality",
+      "priority": 1,
+      "products": [
+        "Reef Salt Plus",
+        "Hybrid Pro Salt", 
+        "Reef Salt",
+        "Sea Salt"
+      ],
+      "use_cases": ["new_tank", "water_changes", "probiotic_method"],
+      "mandatory_for": ["new_tank_comprehensive"]
+    },
+    "testing_monitoring": {
+      "name": "Testing & Monitoring",
+      "description": "Tools for monitoring reef parameters",
+      "priority": 6,
+      "products": [
+        "Calcium Test Kit",
+        "Magnesium Test Kit",
+        "Alkanity Test Kit",
+        "Nitrate Test Kit",
+        "Phosphate Test Kit"
+      ],
+      "use_cases": ["parameter_monitoring", "troubleshooting", "maintenance"]
+    }
+  },
+  "complementary_groups": {
+    "new_tank_starter_pack": [
+      "marine_salts",
+      "water_chemistry_essentials", 
+      "biological_foundation",
+      "aquascaping_structure",
+      "fish_nutrition"
+    ],
+    "maintenance_essentials": [
+      "water_chemistry_essentials",
+      "nutrient_control", 
+      "testing_monitoring"
+    ],
+    "coral_focused_setup": [
+      "water_chemistry_essentials",
+      "coral_nutrition",
+      "nutrient_control"
+    ],
+    "fish_focused_setup": [
+      "marine_salts",
+      "fish_nutrition",
+      "biological_foundation"
+    ]
+  },
+  "missing_product_alerts": {
+    "no_fish_food": {
+      "trigger": "coral supplements recommended but no fish food",
+      "message": "Don't forget about fish nutrition! Consider Fish V or AF Power Food for complete reef ecosystem health.",
+      "suggest_products": ["Fish V", "AF Power Food"]
+    },
+    "no_water_chemistry": {
+      "trigger": "new tank setup without water chemistry products",
+      "message": "Water chemistry foundation is crucial! Component 1+2+3+ or Component 1+2+3+ Concentrate are essential for reef success.",
+      "suggest_products": ["Component 1+2+3+", "Component 1+2+3+ Concentrate"]
+    },
+    "no_biology": {
+      "trigger": "new tank without biological products",
+      "message": "Biological foundation is key for tank maturation. Consider Pro Bio S and AF Life Source.",
+      "suggest_products": ["Pro Bio S", "AF Life Source"]
+    }
+  }
+}

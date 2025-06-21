@@ -1,0 +1,62 @@
+{
+  "competitors": {
+    "rock_aquascaping": [
+      "Marco Rock", "Marco Rocks", "marco rock", "marco rocks",
+      "Real Reef Rock", "real reef rock", "Real Reef",
+      "CaribSea Life Rock", "caribsea rock", "life rock",
+      "Pukani Rock", "pukani", "fiji rock", "tonga rock"
+    ],
+    "salts": [
+      "Red Sea Salt", "red sea salt", "Red Sea Coral Pro", "coral pro salt",
+      "Instant Ocean", "instant ocean", "IO salt",
+      "Tropic Marin", "tropic marin", "TM salt",
+      "Fritz RPM", "fritz salt", "fritz aquatics"
+    ],
+    "supplements": [
+      "Red Sea Foundation", "red sea abc", "red sea kh", "red sea calcium",
+      "Seachem Reef", "seachem calcium", "seachem alkalinity", "seachem magnesium",
+      "Brightwell Aquatics", "brightwell", "kalkwasser",
+      "Two Little Fishies", "tlf", "kalkwasser powder"
+    ],
+    "foods": [
+      "Reef Nutrition", "reef nutrition", "reef-roids", "reefroidsn",
+      "Polyp Lab", "polyp lab", "reef-roids", "polyplabs",
+      "Ocean Nutrition", "ocean nutrition", "formula one", "formula two",
+      "New Life Spectrum", "nls", "new life spectrum marine"
+    ],
+    "equipment": [
+      "Neptune Systems", "neptune apex", "apex controller",
+      "Ecotech Marine", "ecotech", "radion", "vortech",
+      "Tunze", "tunze pump", "tunze skimmer",
+      "Bubble Magus", "bubble magus", "skimmer bubble magus"
+    ],
+    "probiotics": [
+      "Red Sea Reef Mature", "reef mature", "red sea mature",
+      "Brightwell MicroBacter", "microbacter", "brightwell bacteria",
+      "Dr. Tim's", "dr tims", "dr tim aquatics"
+    ]
+  },
+  "response_strategies": {
+    "acknowledge_and_redirect": {
+      "templates": [
+        "I understand {competitor_product} is popular, however as an Aquaforest specialist, I recommend our {af_alternative} which offers {specific_benefits}.",
+        "While {competitor_product} has its merits, {af_alternative} provides superior {key_advantage} for long-term success.",
+        "Great question about {competitor_product}! Let me suggest our {af_alternative} that's specifically designed for {use_case}."
+      ]
+    },
+    "af_alternatives": {
+      "Marco Rock": "AF Rock",
+      "Real Reef Rock": "AF Rock", 
+      "CaribSea Life Rock": "AF Rock",
+      "Red Sea Salt": "Reef Salt",
+      "Instant Ocean": "Sea Salt",
+      "Tropic Marin": "Reef Salt Plus",
+      "Red Sea Foundation": "Component 1+2+3+",
+      "Seachem Reef": "AF Build",
+      "Reef Nutrition": "AF Energy",
+      "Ocean Nutrition": "Fish V",
+      "Red Sea Reef Mature": "Bio S",
+      "Dr. Tim's": "Pro Bio S"
+    }
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "tank_setup_scenarios": {
+    "new_tank_comprehensive": {
+      "triggers": [
+        "new tank", "setting up tank", "tank setup", "new reef tank", "starting tank",
+        "new aquarium", "first tank", "beginner setup", "tank startup"
+      ],
+      "priority_order": [
+        "water_chemistry_foundation",
+        "biological_foundation", 
+        "aquascaping",
+        "fish_feeding",
+        "coral_supplements",
+        "nutrient_control",
+        "monitoring"
+      ],
+      "mandatory_categories": [
+        "marine_salts",
+        "water_treatment", 
+        "probiotic_method",
+        "aquascaping",
+        "foods_and_supplementation"
+      ]
+    },
+    "water_chemistry_focus": {
+      "triggers": [
+        "water chemistry", "parameters", "calcium", "alkalinity", "magnesium",
+        "components", "foundation", "reef chemistry", "water parameters"
+      ],
+      "essential_products": [
+        "Component 1+2+3+",
+        "Component 1+2+3+ Concentrate", 
+        "AF Build",
+        "Calcium",
+        "Magnesium",
+        "KH Buffer"
+      ]
+    },
+    "nutrient_control_focus": {
+      "triggers": [
+        "nutrients", "nitrates", "phosphates", "algae", "nutrient control",
+        "water quality", "nitrate reduction", "phosphate reduction"
+      ],
+      "essential_products": [
+        "AF NitraPhos Minus",
+        "Pro Bio S",
+        "AF Life Source",
+        "Hybrid Pro Salt",
+        "Carbon"
+      ]
+    },
+    "coral_health_focus": {
+      "triggers": [
+        "coral health", "coral supplements", "coral food", "coral nutrition",
+        "sps", "lps", "coral growth", "coral coloration"
+      ],
+      "essential_products": [
+        "AF Energy", 
+        "AF Amino Mix",
+        "AF Vitality",
+        "AF Power Food",
+        "AF Build"
+      ]
+    },
+    "fish_feeding_focus": {
+      "triggers": [
+        "fish food", "fish feeding", "fish nutrition", "marine fish food",
+        "what to feed fish", "fish diet", "feeding schedule"
+      ],
+      "essential_products": [
+        "Fish V",
+        "AF Power Food", 
+        "AF Marine Mix M",
+        "AF Marine Mix S",
+        "AF Vitality"
+      ]
+    }
+  },
+  "comprehensive_tank_setup": {
+    "phase_1_foundation": {
+      "name": "Water Chemistry Foundation",
+      "duration": "Week 1-2",
+      "products": {
+        "marine_salts": ["Reef Salt Plus", "Hybrid Pro Salt"],
+        "water_treatment": ["Component 1+2+3+", "Component 1+2+3+ Concentrate"],
+        "essential_supplements": ["AF Build", "Calcium", "KH Buffer"]
+      }
+    },
+    "phase_2_biology": {
+      "name": "Biological Foundation", 
+      "duration": "Week 2-4",
+      "products": {
+        "probiotic_method": ["Pro Bio S", "AF Life Source"],
+        "biological_media": ["Life Bio Fil", "AF Bio Sand"],
+        "bacterial_supplements": ["Bio S"]
+      }
+    },
+    "phase_3_structure": {
+      "name": "Aquascaping & Structure",
+      "duration": "Week 1-2", 
+      "products": {
+        "aquascaping": ["AF Rock", "Stone Fix"],
+        "substrates": ["AF Bio Sand"]
+      }
+    },
+    "phase_4_feeding": {
+      "name": "Fish & Coral Nutrition",
+      "duration": "Ongoing",
+      "products": {
+        "fish_foods": ["Fish V", "AF Power Food", "AF Marine Mix M"],
+        "coral_supplements": ["AF Energy", "AF Amino Mix", "AF Vitality"]
+      }
+    },
+    "phase_5_maintenance": {
+      "name": "Nutrient Control & Maintenance",
+      "duration": "Ongoing",
+      "products": {
+        "nutrient_control": ["AF NitraPhos Minus", "Carbon"],
+        "water_testing": ["Calcium Test Kit", "Magnesium Test Kit", "Alkanity Test Kit"]
+      }
+    }
+  }
+}

@@ -1,0 +1,195 @@
+{
+  "use_cases": {
+    "new_tank_setup": {
+      "description": "Complete setup for new reef tank",
+      "context_keywords": [
+        "new tank", "setting up", "first time", "beginner", "starting", 
+        "tank setup", "new reef", "kickstart", "new aquarium"
+      ],
+      "priority_products": [
+        "Reef Salt Plus",
+        "Hybrid Pro Salt",
+        "Component 1+2+3+",
+        "Pro Bio S",
+        "AF Life Source",
+        "AF Rock",
+        "Stone Fix",
+        "AF Bio Sand",
+        "Fish V",
+        "AF Power Food",
+        "AF Energy",
+        "AF Amino Mix"
+      ],
+      "required_phases": [
+        "foundation_chemistry",
+        "biological_establishment", 
+        "structural_setup",
+        "feeding_protocol",
+        "maintenance_routine"
+      ],
+      "success_metrics": ["stable_parameters", "biological_activity", "clear_water"],
+      "timeline": "4-6 weeks for full establishment"
+    },
+    "parameter_stabilization": {
+      "description": "Correcting and stabilizing reef chemistry",
+      "context_keywords": [
+        "parameters", "chemistry", "calcium", "alkalinity", "magnesium",
+        "unstable", "fluctuating", "testing", "components"
+      ],
+      "priority_products": [
+        "Component 1+2+3+",
+        "Component 1+2+3+ Concentrate",
+        "AF Build",
+        "Calcium Test Kit"
+      ],
+      "common_issues": ["alk_swings", "calcium_deficiency", "mag_depletion"],
+      "timeline": "2-3 weeks for stabilization"
+    },
+    "nutrient_management": {
+      "description": "Managing excess nutrients and algae",
+      "context_keywords": [
+        "nutrients", "nitrates", "phosphates", "algae", "green", "brown",
+        "cyano", "hair algae", "nutrient export", "water quality"
+      ],
+      "priority_products": [
+        "AF NitraPhos Minus",
+        "Pro Bio S", 
+        "AF Life Source",
+        "Carbon"
+      ],
+      "approach": "probiotic_method_preferred",
+      "timeline": "4-8 weeks for significant improvement"
+    },
+    "coral_health_optimization": {
+      "description": "Enhancing coral growth and coloration",
+      "context_keywords": [
+        "coral", "sps", "lps", "growth", "coloration", "health",
+        "polyp extension", "tissue recession", "coral supplements"
+      ],
+      "priority_products": [
+        "AF Energy",
+        "AF Amino Mix", 
+        "AF Vitality",
+        "AF Build"
+      ],
+      "feeding_schedule": "2-3 times per week",
+      "timeline": "4-6 weeks for visible improvement"
+    },
+    "fish_health_focus": {
+      "description": "Maintaining optimal fish health and nutrition",
+      "context_keywords": [
+        "fish", "feeding", "nutrition", "health", "disease", "immunity",
+        "fish food", "diet", "marine fish", "what to feed"
+      ],
+      "priority_products": [
+        "Fish V",
+        "AF Power Food",
+        "AF Marine Mix M",
+        "AF Marine Mix S",
+        "AF Vitality"
+      ],
+      "feeding_frequency": "2-3 times daily",
+      "often_overlooked": true
+    },
+    "probiotic_method_transition": {
+      "description": "Transitioning to probiotic reef management",
+      "context_keywords": [
+        "probiotic", "natural", "bacterial", "bio diversity", "sustainable",
+        "ecosystem", "biological approach"
+      ],
+      "priority_products": [
+        "Pro Bio S",
+        "AF Life Source",
+        "Hybrid Pro Salt"
+      ],
+      "transition_period": "6-8 weeks",
+      "benefits": ["stability", "reduced_maintenance", "natural_balance"]
+    },
+    "troubleshooting_issues": {
+      "description": "Diagnosing and solving common reef problems",
+      "context_keywords": [
+        "problem", "issue", "dying", "brown", "pale", "not growing",
+        "algae outbreak", "crash", "help", "emergency"
+      ],
+      "diagnostic_approach": "systematic_elimination",
+      "priority_products": [
+        "Calcium Test Kit",
+        "Magnesium Test Kit",
+        "Carbon",
+        "Component 1+2+3+"
+      ],
+      "response_time": "immediate_assessment_needed"
+    },
+    "marine_salt_inquiry": {
+      "description": "Questions about marine salts and water changes",
+      "context_keywords": [
+        "salt", "salts", "water change", "mixing", "brand", "quality",
+        "switching salt", "salt comparison", "which salt", "best salt",
+        "Tropic Marin", "Red Sea", "Instant Ocean", "salt mix", "seawater"
+      ],
+      "priority_products": [
+        "Reef Salt Plus",
+        "Hybrid Pro Salt", 
+        "Reef Salt",
+        "Sea Salt"
+      ],
+      "brand_positioning": "industry_leading_quality",
+      "key_differentiators": ["ICP_tested", "probiotics", "consistency", "purity"],
+      "comprehensive_coverage": "showcase_full_salt_portfolio"
+    }
+  },
+  "context_enhancement": {
+    "tank_size_considerations": {
+      "nano_reef": {
+        "size_range": "< 50L",
+        "special_considerations": ["stability_challenges", "precise_dosing"],
+        "recommended_products": ["Component 1+2+3+ Concentrate"]
+      },
+      "small_reef": {
+        "size_range": "50-200L", 
+        "standard_approach": true,
+        "recommended_products": ["Component 1+2+3+"]
+      },
+      "large_reef": {
+        "size_range": "> 200L",
+        "special_considerations": ["bulk_consumption", "automation_recommended"],
+        "recommended_products": ["Component 1+2+3+", "KalkMedia"]
+      }
+    },
+    "experience_level": {
+      "beginner": {
+        "approach": "simplified_comprehensive",
+        "priority": "stability_over_complexity",
+        "essential_only": true
+      },
+      "intermediate": {
+        "approach": "balanced_optimization", 
+        "priority": "growth_and_stability",
+        "advanced_products": "selective"
+      },
+      "advanced": {
+        "approach": "precision_tuning",
+        "priority": "max_performance",
+        "all_products": "available"
+      }
+    },
+    "tank_focus": {
+      "sps_dominant": {
+        "priority": "stability_and_nutrition",
+        "essential_products": ["Component 1+2+3+", "AF Energy", "AF Build"]
+      },
+      "lps_dominant": {
+        "priority": "feeding_and_stability", 
+        "essential_products": ["AF Power Food", "AF Amino Mix", "Component 1+2+3+"]
+      },
+      "mixed_reef": {
+        "priority": "balanced_approach",
+        "essential_products": ["comprehensive_lineup"]
+      },
+      "fish_only": {
+        "priority": "fish_health_water_quality",
+        "essential_products": ["Fish V", "AF Marine Mix M", "Sea Salt"]
+      }
+    }
+  }
+}

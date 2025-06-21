@@ -29,8 +29,8 @@ const LoadingMessage: React.FC = () => {
 
   useEffect(() => {
     // Animate dots and change topic after 2 full cycles
-    const dotsInterval = setInterval(() => {
-      setDots(prev => {
+      const dotsInterval = setInterval(() => {
+        setDots(prev => {
         if (prev === '...') {
           // Completed a cycle, increment counter
           setDotCycles(prevCycles => {
@@ -54,11 +54,11 @@ const LoadingMessage: React.FC = () => {
           });
           return '';
         }
-        return prev + '.';
-      });
+          return prev + '.';
+        });
     }, 500); // 500ms per dot for smooth animation
 
-    return () => clearInterval(dotsInterval);
+      return () => clearInterval(dotsInterval);
   }, [thinkingTopics.length]);
 
   return (

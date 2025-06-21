@@ -57,6 +57,7 @@ frontend/.nyc_output/
 # Frontend - Dependency directories
 frontend/jspm_packages/
 
-# Ignore all JSON files in the root, but not in data/
+# Ignore all JSON files in the root, but not in data/ and mapping/
 *.json
-!data/*.json 
+!data/*.json
+!src/mapping/*.json 

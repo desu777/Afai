@@ -469,19 +469,41 @@ Generate response in {lang} language.
         return "\n".join(context_lines)
     
     def _format_competitor_context(self, competitor_info: Dict) -> str:
-        """🚀 Format competitor context"""
+        """Format competitor context with DYNAMIC negative instructions for ALL detected competitors"""
         context_lines = ["--- COMPETITOR CONTEXT ---"]
         
-        for comp in competitor_info.get("competitors", []):
-            alt = competitor_info.get("af_alternatives", {}).get(comp["name"], "AF equivalent available")
-            context_lines.append(f"🏢 DETECTED: {comp['name']} (category: {comp['category']})")
-            context_lines.append(f"   → RECOMMEND: {alt}")
+        detected_competitors = []
+        alternatives_mapping = []
         
-        templates = competitor_info.get("response_templates", [])
-        if templates:
-            context_lines.append("📝 RESPONSE TEMPLATES AVAILABLE:")
-            for template in templates[:2]:  # Show first 2 templates
-                context_lines.append(f"   - {template}")
+        for comp in competitor_info.get("competitors", []):
+            comp_name = comp["name"]
+            detected_competitors.append(comp_name)
+            context_lines.append(f"🏢 DETECTED COMPETITOR: {comp_name}")
+            
+            # Check if we have AF alternative
+            af_alternatives = competitor_info.get("af_alternatives", {})
+            if comp_name in af_alternatives:
+                alt = af_alternatives[comp_name]
+                context_lines.append(f"   → REDIRECT TO: {alt}")
+                alternatives_mapping.append(f"{comp_name} → {alt}")
+            else:
+                context_lines.append(f"   → NO SPECIFIC AF ALTERNATIVE (do not praise)")
+        
+        # 🚨 DYNAMIC CRITICAL RULES for ALL detected competitors
+        if detected_competitors:
+            context_lines.append("")
+            context_lines.append("🚨 CRITICAL COMPETITOR RULES:")
+            context_lines.append(f"- NEVER praise these products: {', '.join(detected_competitors)}")
+            context_lines.append(f"- NEVER write 'excellent choice', 'good decision', '{detected_competitors[0]} is great' about competitors")
+            
+            if alternatives_mapping:
+                context_lines.append("- ALWAYS redirect using these mappings:")
+                for mapping in alternatives_mapping:
+                    context_lines.append(f"  * While {mapping.split(' → ')[0]} is mentioned, I recommend our {mapping.split(' → ')[1]}")
+            
+            context_lines.append("- Focus on AF alternatives' benefits, not competitor praise")
+            context_lines.append("- If no AF alternative specified, simply avoid praising competitor")
+            context_lines.append("🚨 END CRITICAL RULES")
         
         context_lines.append("---")
         return "\n".join(context_lines)
