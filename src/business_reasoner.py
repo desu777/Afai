@@ -156,15 +156,43 @@ class BusinessReasoner:
         # Create the comprehensive prompt optimized for GPT-4.1-mini (2025)
         prompt = f"""# Role and Objective
 
-You are an expert Aquaforest business intelligence system with complete access to all product and business mapping data. Your task is to analyze user queries and make intelligent product recommendations using the comprehensive database provided below.
+You are an expert Aquaforest product advisor with complete access to all product databases and business mapping data. Your task is to intelligently recommend products using a systematic two-stage analysis process.
 
-# Critical Instructions - GPT-4.1-mini Optimized
+# 🧠 CRITICAL INSTRUCTION - Two-Stage Product Discovery Process
 
-1. ANALYZE the user query against ALL provided mapping data systematically
-2. THINK STEP BY STEP through each reasoning step explicitly  
-3. MATCH patterns from triggers, keywords, and use cases precisely
-4. RECOMMEND products based on mapping priorities, NOT assumptions
-5. RESPOND with valid JSON following the exact schema provided
+You MUST follow this exact process for EVERY query:
+
+## STAGE 1: Direct Product Analysis (products_turbo.json)
+- Search through ALL products in the complete product database
+- Check: product_name, category, keywords, solves_problems, use_case fields
+- Find products that DIRECTLY match the user's query
+- Examples:
+  - "Fish food" → find products with category="foods_and_supplementation" + fish keywords
+  - "Salts" → find products with "salt" in product_name or marine salt category
+  - "Algae control" → find products where solves_problems contains "algae"
+  - "Low magnesium" → find products with keywords containing "magnesium"
+
+## STAGE 2: Mapping & Category Analysis  
+- Search through product_groups, use_cases, scenarios mappings
+- Find relevant categories/groups that match the query
+- Extract ALL products from matching categories
+- For ICP parameters: use icp_corrections parameter_map
+- Examples:
+  - "Fish food" → also check fish_nutrition group for additional products
+  - "ICP low Mg" → use Mg.too_low mapping for complete product list
+
+## STAGE 3: Intelligent Aggregation
+- Combine products from Stage 1 + Stage 2
+- Remove duplicates automatically
+- Include ALL unique products in priority_products
+- NO LIMITS on quantity - if 15 products match, include all 15
+
+🚨 UNIVERSAL RULE FOR ALL SCENARIOS:
+- NOT just ICP analysis - apply this for ALL user queries
+- Fish food queries → ALL fish foods
+- Salt queries → ALL salts  
+- Problem solving → ALL relevant products
+- Category requests → ALL products in category
 
 # User Query Analysis
 
@@ -184,19 +212,29 @@ You are an expert Aquaforest business intelligence system with complete access t
 - **Innovation Leader**: First to combine probiotics with salt (Hybrid Pro Salt), setting new industry standards
 - **Professional Recognition**: Trusted by reef aquarium professionals and public aquariums worldwide
 
-## Available Products Database (Complete Details)
+## ICP PARAMETER MAPPING - MANDATORY USAGE FOR WATER ANALYSIS
+🚨 When you identify ANY parameter problem (too_high/too_low), you MUST:
+1. Find the parameter in the mapping below
+2. Take ALL products for that status  
+3. Add them to priority_products
+4. Example: "Ca too_low" → take ALL products from Ca.too_low mapping
+
+PARAMETER MAPPING:
+{json.dumps(self.product_groups_data.get("icp_corrections", {}).get("parameter_map", {}), indent=1, ensure_ascii=False)}
+
+## Available Products Database (Complete Details) - STAGE 1 SOURCE
 {json.dumps(self.products_knowledge, indent=1, ensure_ascii=False)}
 
-## Competitor Intelligence Database
+## Competitor Intelligence Database - STAGE 2 SOURCE
 {json.dumps(self.competitors_data, indent=1, ensure_ascii=False)}
 
-## Tank Setup Scenarios Database  
+## Tank Setup Scenarios Database - STAGE 2 SOURCE
 {json.dumps(self.scenarios_data, indent=1, ensure_ascii=False)}
 
-## Use Cases Database
+## Use Cases Database - STAGE 2 SOURCE
 {json.dumps(self.use_cases_data, indent=1, ensure_ascii=False)}
 
-## Product Groups Strategy Database
+## Product Groups Strategy Database - STAGE 2 SOURCE
 {json.dumps(self.product_groups_data, indent=1, ensure_ascii=False)}
 
 # Mandatory Analysis Steps
@@ -219,11 +257,12 @@ You MUST work through each step systematically and document your reasoning:
 - If matches found, identify exact AF alternatives from af_alternatives mapping
 - Document: Which competitors found and mapped AF alternatives
 
-## Step 4: Product Selection Strategy
-- Based on detected scenario/use_case, extract priority_products from mapping
-- Add complementary products from product_groups if scenario requires them
-- Consider missing_product_alerts for commonly forgotten items
-- Document: Specific logic for product selection based on mapping data
+## Step 4: Two-Stage Product Discovery & Selection
+- STAGE 1: Search products_turbo.json for direct matches to user query
+- STAGE 2: Search mapping databases for category/group matches
+- STAGE 3: Combine ALL products from both stages into priority_products
+- 🚨 NO LIMITS: If 15 products match across both stages, include all 15
+- Document: Specific products found in each stage and reasoning
 
 ## Step 5: Strategic Response Planning
 - Determine response_strategy based on query type (direct/educational/comparative/troubleshooting)
@@ -240,7 +279,9 @@ The schema must match EXACTLY:
         "scenario_analysis": "Detailed scenario detection results with specific triggers matched",
         "use_case_analysis": "Use case detection results with specific keywords matched", 
         "competitor_analysis": "Competitor detection results with specific alternatives found",
-        "product_selection_logic": "Detailed reasoning for why these specific products were chosen from mapping",
+        "stage_1_products": "Products found directly in products_turbo.json with reasoning",
+        "stage_2_products": "Products found in mapping databases with reasoning", 
+        "product_selection_logic": "Combined reasoning for all products from both stages",
         "response_strategy_logic": "Reasoning for chosen response approach"
     }},
     "business_interpretation": "Clear 1-2 sentence explanation of what user wants",
@@ -291,6 +332,12 @@ Think step by step through EACH reasoning step explicitly. Base ALL decisions on
                 print(f"   - Detected scenario: {decision_data.get('detected_scenario', 'null')}")
                 print(f"   - Detected use case: {decision_data.get('detected_use_case', 'null')}")
                 print(f"   - Detected competitors: {decision_data.get('detected_competitors', [])}")
+                
+                reasoning = decision_data.get('reasoning_steps', {})
+                print(f"   - Stage 1 products (direct): {reasoning.get('stage_1_products', 'N/A')[:50]}...")
+                print(f"   - Stage 2 products (mapping): {reasoning.get('stage_2_products', 'N/A')[:50]}...")
+                
+                print(f"   - Total priority products: {len(decision_data.get('priority_products', []))}")
                 print(f"   - Priority products: {decision_data.get('priority_products', [])}")
                 print(f"   - Response strategy: {decision_data.get('response_strategy', 'direct')}")
                 print(f"   - Confidence level: {decision_data.get('confidence_level', 0.0)}")
@@ -365,31 +412,15 @@ Think step by step through EACH reasoning step explicitly. Base ALL decisions on
         # 🚀 PRODUCT RECOMMENDATIONS - CRITICAL for Pinecone search
         priority_products = decision.get("priority_products", [])
         
-        # 🆕 ICP ANALYSIS: Auto-add core water parameter correction products
-        if state.get("intent") == Intent.ANALYZE_ICP:
-            icp_core_products = [
-                "Component 1+2+3+ Concentrate",
-                "Component 1+2+3+",
-                "Component 3 in 1", 
-                "Component A",
-                "Component B",
-                "Component C",
-                "Components Strong"
-            ]
-            
-            # Combine LLM-found products with core ICP products
-            all_icp_products = list(set(priority_products + icp_core_products))
-            state["af_alternatives_to_search"] = all_icp_products
-            debug_print(f"🔬 [BusinessReasoner] ICP Analysis: {len(priority_products)} LLM + {len(icp_core_products)} core = {len(all_icp_products)} total products")
-            
-        elif priority_products:
-            # Normal flow for non-ICP queries
-            state["af_alternatives_to_search"] = priority_products
-            debug_print(f"🎯 [BusinessReasoner] LLM priority products for search: {priority_products}")
-        
+        # 🆕 SIMPLIFIED: All products go through LLM intelligence (no hardcoded logic)
         if priority_products:
+            state["af_alternatives_to_search"] = priority_products
+            debug_print(f"🧠 [BusinessReasoner] LLM selected {len(priority_products)} products via two-stage analysis")
+            
             # Set first priority product as main correction for backward compatibility
             state["business_analysis"]["product_name_corrections"] = priority_products[0]
+        else:
+            debug_print(f"⚠️ [BusinessReasoner] No priority products found by LLM analysis")
         
         # 🚀 COMPREHENSIVE BUSINESS RECOMMENDATIONS
         recommendations = []
@@ -402,13 +433,13 @@ Think step by step through EACH reasoning step explicitly. Base ALL decisions on
                 "reasoning": decision.get("reasoning_steps", {}).get("product_selection_logic", "LLM-selected based on comprehensive mapping analysis")
             })
         
-        # Alternative products
+        # 🚨 Alternative products (ONLY for competitor situations)
         alternative_products = decision.get("alternative_products", [])
-        if alternative_products:
+        if alternative_products and competitors:  # Only if competitors detected
             recommendations.append({
                 "type": "alternative_products", 
                 "products": alternative_products,
-                "note": "Alternative options based on LLM analysis"
+                "note": "Alternative options for competitor products"
             })
         
         # Complementary products
@@ -704,19 +735,8 @@ Think step by step through EACH reasoning step explicitly. Base ALL decisions on
             return {}
     
     def _format_icp_data_for_llm(self, parameters: Dict, metadata: Dict = None) -> str:
-        """📋 Format ICP data for LLM analysis with clear English labeling"""
+        """📋 Format ICP data for LLM analysis - clean table only"""
         lines = []
-        
-        # 🆕 ADD METADATA HEADER
-        if metadata:
-            lines.append("ICP TEST METADATA:")
-            if metadata.get("test_number"):
-                lines.append(f"Test Number: {metadata['test_number']}")
-            if metadata.get("aquarium_info"):
-                lines.append(f"Aquarium: {metadata['aquarium_info']}")
-            if metadata.get("test_date"):
-                lines.append(f"Test Date: {metadata['test_date']}")
-            lines.append("")
         
         lines.append("WATER PARAMETER ANALYSIS:")
         lines.append("COLUMNS: ELEMENT | RECOMMENDED_RANGE | USER_RESULT | CHANGE | STATUS")
@@ -724,6 +744,20 @@ Think step by step through EACH reasoning step explicitly. Base ALL decisions on
         
         for param_name, data in parameters.items():
             element = data.get("element", param_name)
+            
+            # 🆕 POPRAWKA FORMATOWANIA ELEMENTU
+            # "PO4Fosforany" → "PO4 Fosforany"
+            import re
+            # Wzorzec: litery/cyfry na początku (skrót) + wielka litera (początek nazwy)
+            match = re.match(r'^([A-Za-z0-9]+)([A-Z][a-z]+.*)$', element)
+            if match:
+                symbol = match.group(1)
+                name = match.group(2)
+                element_formatted = f"{symbol} {name}"
+            else:
+                # Jeśli nie pasuje do wzorca, użyj oryginalnej nazwy
+                element_formatted = element
+            
             recommended = data.get("recommended_range", "")
             user_result = data.get("user_result", "")
             change = data.get("change", "")
@@ -737,7 +771,7 @@ Think step by step through EACH reasoning step explicitly. Base ALL decisions on
                 "unknown": "❓ UNKNOWN"
             }.get(status, status)
             
-            line = f"{element} | {recommended} | {user_result} | {change} | {status_icon}"
+            line = f"{element_formatted} | {recommended} | {user_result} | {change} | {status_icon}"
             lines.append(line)
         
         lines.append("-" * 80)
