@@ -8,16 +8,13 @@
       ],
       "priority_products": [
         "Reef Salt Plus",
-        "Hybrid Pro Salt",
         "Component 1+2+3+",
         "Pro Bio S",
-        "AF Life Source",
+        "Life Bio Fil",
         "AF Rock",
-        "Stone Fix",
         "AF Bio Sand",
         "Fish V",
         "AF Power Food",
-        "AF Energy",
         "AF Amino Mix"
       ],
       "required_phases": [
@@ -34,13 +31,15 @@
       "description": "Correcting and stabilizing reef chemistry",
       "context_keywords": [
         "parameters", "chemistry", "calcium", "alkalinity", "magnesium",
-        "unstable", "fluctuating", "testing", "components"
+        "unstable", "fluctuating", "testing", "components", "balling"
       ],
       "priority_products": [
         "Component 1+2+3+",
         "Component 1+2+3+ Concentrate",
         "AF Build",
-        "Calcium Test Kit"
+        "Calcium Test Kit",
+        "KH Buffer",
+        "Magnesium"
       ],
       "common_issues": ["alk_swings", "calcium_deficiency", "mag_depletion"],
       "timeline": "2-3 weeks for stabilization"
@@ -49,13 +48,14 @@
       "description": "Managing excess nutrients and algae",
       "context_keywords": [
         "nutrients", "nitrates", "phosphates", "algae", "green", "brown",
-        "cyano", "hair algae", "nutrient export", "water quality"
+        "cyano", "hair algae", "nutrient export", "water quality", "no3", "po4"
       ],
       "priority_products": [
         "AF NitraPhos Minus",
         "Pro Bio S", 
-        "AF Life Source",
-        "Carbon"
+        "-NP Pro",
+        "Carbon",
+        "Phosphate Minus"
       ],
       "approach": "probiotic_method_preferred",
       "timeline": "4-8 weeks for significant improvement"
@@ -64,13 +64,16 @@
       "description": "Enhancing coral growth and coloration",
       "context_keywords": [
         "coral", "sps", "lps", "growth", "coloration", "health",
-        "polyp extension", "tissue recession", "coral supplements"
+        "polyp extension", "tissue recession", "coral supplements", "karmienie korali"
       ],
       "priority_products": [
         "AF Energy",
         "AF Amino Mix", 
         "AF Vitality",
-        "AF Build"
+        "AF Build",
+        "AF LPS Food",
+        "Polyp Up",
+        "AF Growth Boost"
       ],
       "feeding_schedule": "2-3 times per week",
       "timeline": "4-6 weeks for visible improvement"
@@ -86,7 +89,7 @@
         "AF Power Food",
         "AF Marine Mix M",
         "AF Marine Mix S",
-        "AF Vitality"
+        "Garlic Essence"
       ],
       "feeding_frequency": "2-3 times daily",
       "often_overlooked": true
@@ -100,7 +103,9 @@
       "priority_products": [
         "Pro Bio S",
         "AF Life Source",
-        "Hybrid Pro Salt"
+        "Hybrid Pro Salt",
+        "-NP Pro",
+        "Pro Bio F"
       ],
       "transition_period": "6-8 weeks",
       "benefits": ["stability", "reduced_maintenance", "natural_balance"]
@@ -115,10 +120,30 @@
       "priority_products": [
         "Calcium Test Kit",
         "Magnesium Test Kit",
+        "Alkalinity Test Kit",
+        "Nitrate Test Kit",
+        "Phosphate Test Kit",
         "Carbon",
-        "Component 1+2+3+"
+        "ICP Test 1"
       ],
       "response_time": "immediate_assessment_needed"
+    },
+    "icp_test_analysis": {
+      "description": "Analyzing ICP test results and recommending corrections",
+      "context_keywords": [
+        "icp", "test results", "aquaforestlab", "analiza", "wyniki testu", "korekta parametrów"
+      ],
+      "priority_products": [
+        "ICP Test 1",
+        "Component 1+2+3+",
+        "Ca Plus Lab",
+        "KH Plus Lab",
+        "Mg Plus Lab",
+        "No3 Lab",
+        "Po4 Lab"
+      ],
+      "diagnostic_approach": "parameter_correction_based_on_icp_map",
+      "timeline": "1-4 weeks for visible parameter changes"
     },
     "marine_salt_inquiry": {
       "description": "Questions about marine salts and water changes",
@@ -176,15 +201,15 @@
     "tank_focus": {
       "sps_dominant": {
         "priority": "stability_and_nutrition",
-        "essential_products": ["Component 1+2+3+", "AF Energy", "AF Build"]
+        "essential_products": ["Component 1+2+3+", "AF Energy", "AF Build", "Reef Salt Plus"]
       },
       "lps_dominant": {
         "priority": "feeding_and_stability", 
-        "essential_products": ["AF Power Food", "AF Amino Mix", "Component 1+2+3+"]
+        "essential_products": ["AF Power Food", "AF Amino Mix", "Component 1+2+3+", "Reef Salt"]
       },
       "mixed_reef": {
         "priority": "balanced_approach",
-        "essential_products": ["comprehensive_lineup"]
+        "essential_products": ["Reef Salt", "Component 1+2+3+"]
       },
       "fish_only": {
         "priority": "fish_health_water_quality",

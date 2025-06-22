@@ -6,14 +6,31 @@
       "priority": 1,
       "products": [
         "Component 1+2+3+",
-        "Component 1+2+3+ Concentrate", 
+        "Component 1+2+3+ Concentrate",
+        "Component 3 in 1",
         "AF Build",
         "Calcium",
-        "Magnesium", 
-        "KH Buffer"
+        "Magnesium",
+        "KH Buffer",
+        "Reef Mineral Salt",
+        "Ca Plus",
+        "KH Plus",
+        "Mg Plus",
+        "KH Pro",
+        "Component A",
+        "Component B",
+        "Component C",
+        "Components Strong",
+        "Components Pro"
       ],
-      "use_cases": ["new_tank", "parameter_stability", "coral_growth"],
-      "mandatory_for": ["new_tank_comprehensive"]
+      "use_cases": [
+        "new_tank",
+        "parameter_stability",
+        "coral_growth"
+      ],
+      "mandatory_for": [
+        "new_tank_comprehensive"
+      ]
     },
     "biological_foundation": {
       "name": "Biological Foundation",
@@ -21,13 +38,20 @@
       "priority": 2,
       "products": [
         "Pro Bio S",
-        "Bio S", 
+        "Bio S",
         "AF Life Source",
         "Life Bio Fil",
-        "AF Bio Sand"
+        "AF Bio Sand",
+        "Pro Bio F"
       ],
-      "use_cases": ["new_tank", "biological_diversity", "tank_maturation"],
-      "mandatory_for": ["new_tank_comprehensive"]
+      "use_cases": [
+        "new_tank",
+        "biological_diversity",
+        "tank_maturation"
+      ],
+      "mandatory_for": [
+        "new_tank_comprehensive"
+      ]
     },
     "fish_nutrition": {
       "name": "Fish Nutrition & Health",
@@ -36,26 +60,62 @@
       "products": [
         "Fish V",
         "AF Power Food",
-        "AF Marine Mix M", 
+        "AF Marine Mix M",
         "AF Marine Mix S",
-        "AF Vitality"
+        "AF Vitality",
+        "AF Algae Feed",
+        "AF Calanidae Clip",
+        "AF Color Up",
+        "AF Marine Flakes",
+        "AF Protein Power",
+        "AF Tiny Fish Feed",
+        "AF Vege Clip",
+        "AF Vege Strength",
+        "Anthias Pro Feed",
+        "Garlic Essence",
+        "Garlic Oil",
+        "Liquid Foods Pack"
       ],
-      "use_cases": ["fish_feeding", "fish_health", "new_tank"],
+      "use_cases": [
+        "fish_feeding",
+        "fish_health",
+        "new_tank"
+      ],
       "often_missing": true,
-      "mandatory_for": ["new_tank_comprehensive", "fish_feeding_focus"]
+      "mandatory_for": [
+        "new_tank_comprehensive",
+        "fish_feeding_focus"
+      ]
     },
     "coral_nutrition": {
-      "name": "Coral Nutrition & Supplements", 
+      "name": "Coral Nutrition & Supplements",
       "description": "Targeted nutrition for coral health and growth",
       "priority": 4,
       "products": [
         "AF Energy",
         "AF Amino Mix",
         "AF Vitality",
-        "AF Power Food"
+        "AF Power Food",
+        "AF Growth Boost",
+        "AF Liquid Artemia",
+        "AF Liquid Mysis",
+        "AF Liquid Rotifers",
+        "AF LPS Food",
+        "AF Phyto Mix",
+        "AF Plankton Elixir",
+        "AF Power Elixir",
+        "AF Pure Food",
+        "AF Zoa Food",
+        "Polyp Up"
       ],
-      "use_cases": ["coral_health", "sps_growth", "coral_coloration"],
-      "mandatory_for": ["coral_health_focus"]
+      "use_cases": [
+        "coral_health",
+        "sps_growth",
+        "coral_coloration"
+      ],
+      "mandatory_for": [
+        "coral_health_focus"
+      ]
     },
     "nutrient_control": {
       "name": "Nutrient Control System",
@@ -64,10 +124,19 @@
       "products": [
         "AF NitraPhos Minus",
         "Carbon",
-        "Hybrid Pro Salt"
+        "Hybrid Pro Salt",
+        "Phosphate Minus",
+        "Zeo Mix",
+        "-NP Pro"
       ],
-      "use_cases": ["algae_control", "nutrient_reduction", "water_quality"],
-      "mandatory_for": ["nutrient_control_focus"]
+      "use_cases": [
+        "algae_control",
+        "nutrient_reduction",
+        "water_quality"
+      ],
+      "mandatory_for": [
+        "nutrient_control_focus"
+      ]
     },
     "aquascaping_structure": {
       "name": "Aquascaping & Structure",
@@ -76,10 +145,22 @@
       "products": [
         "AF Rock",
         "Stone Fix",
-        "AF Bio Sand"
+        "AF Bio Sand",
+        "AF Frag Rocks",
+        "AF Mini Rocks",
+        "AF Plug Rocks",
+        "AF Gel Fix",
+        "AF Poly Glue",
+        "AFix Glue"
       ],
-      "use_cases": ["new_tank", "aquascaping", "reef_structure"],
-      "mandatory_for": ["new_tank_comprehensive"]
+      "use_cases": [
+        "new_tank",
+        "aquascaping",
+        "reef_structure"
+      ],
+      "mandatory_for": [
+        "new_tank_comprehensive"
+      ]
     },
     "marine_salts": {
       "name": "Marine Salt Systems",
@@ -87,12 +168,18 @@
       "priority": 1,
       "products": [
         "Reef Salt Plus",
-        "Hybrid Pro Salt", 
+        "Hybrid Pro Salt",
         "Reef Salt",
         "Sea Salt"
       ],
-      "use_cases": ["new_tank", "water_changes", "probiotic_method"],
-      "mandatory_for": ["new_tank_comprehensive"]
+      "use_cases": [
+        "new_tank",
+        "water_changes",
+        "probiotic_method"
+      ],
+      "mandatory_for": [
+        "new_tank_comprehensive"
+      ]
     },
     "testing_monitoring": {
       "name": "Testing & Monitoring",
@@ -101,24 +188,322 @@
       "products": [
         "Calcium Test Kit",
         "Magnesium Test Kit",
-        "Alkanity Test Kit",
+        "Alkalinity Test Kit",
         "Nitrate Test Kit",
-        "Phosphate Test Kit"
+        "Phosphate Test Kit",
+        "TestPro Pack"
       ],
-      "use_cases": ["parameter_monitoring", "troubleshooting", "maintenance"]
+      "use_cases": [
+        "parameter_monitoring",
+        "troubleshooting",
+        "maintenance"
+      ]
+    },
+    "pest_control_and_coral_care": {
+      "name": "Pest Control & Coral Care",
+      "description": "Products for pest control and new coral preparation",
+      "priority": 7,
+      "products": [
+        "Aiptasia Shot",
+        "AF Protect Dip"
+      ],
+      "use_cases": [
+        "new_coral_acclimation",
+        "pest_removal"
+      ]
+    },
+    "lab_supplements_and_tests": {
+      "name": "Lab Supplements & Tests",
+      "description": "Advanced, lab-grade supplements for precise parameter control based on ICP tests",
+      "priority": 8,
+      "products": [
+        "Barium Lab",
+        "Borium Lab",
+        "Bromium Lab",
+        "Ca Plus Lab",
+        "Chromium Lab",
+        "Cobaltum Lab",
+        "Components Pro",
+        "Fluorum Lab",
+        "ICP Test 1",
+        "ICP Test 2",
+        "ICP Test 5+1",
+        "Iodum Lab",
+        "Kalium Lab",
+        "KH Plus Lab",
+        "Lithium Lab",
+        "Manganum Lab",
+        "Mg Plus Lab",
+        "Molybdenum Lab",
+        "Niccolum Lab",
+        "No3 Lab",
+        "Po4 Lab",
+        "Rubidium Lab",
+        "Strontium Lab",
+        "Sulphur Lab",
+        "Vanadium Lab",
+        "Zincum Lab"
+      ],
+      "use_cases": [
+        "troubleshooting",
+        "parameter_stabilization_advanced"
+      ]
+    },
+    "freshwater_line": {
+      "name": "Freshwater Line",
+      "description": "Complete product line for freshwater aquariums",
+      "priority": 9,
+      "products": [
+        "AF Anti Phosphate",
+        "AF Carbon",
+        "AF Carbon Boost",
+        "AF Clear Boost",
+        "AF Iron Boost",
+        "AF K Boost",
+        "AF Lava Soil",
+        "AF Lava Soil / AF Lava Soil Black",
+        "AF Life Essence",
+        "AF Macro",
+        "AF Micro",
+        "AF Minus pH",
+        "AF N Boost",
+        "AF Natural Substrate",
+        "AF PO4 Boost",
+        "AF Purify",
+        "AF Purifying Resin",
+        "AF Red Boost",
+        "AF Remineralizer",
+        "AF Shrimp GH+",
+        "AF StarterPack Freshwater",
+        "AF Water Conditioner",
+        "AF Zeolith",
+        "Life Bio Media"
+      ],
+      "use_cases": [
+        "freshwater_setup",
+        "planted_tank"
+      ]
+    }
+  },
+  "icp_parameter_correction": {
+    "name": "ICP Parameter Correction",
+    "description": "Products for correcting specific element imbalances based on ICP test results.",
+    "parameter_map": {
+      "PO4": {
+        "too_high": [
+          "Phosphate Minus",
+          "AF NitraPhos Minus"
+        ],
+        "too_low": [
+          "Po4 Lab"
+        ]
+      },
+      "NO3": {
+        "too_high": [
+          "AF NitraPhos Minus",
+          "-NP Pro",
+          "Pro Bio S"
+        ],
+        "too_low": [
+          "No3 Lab"
+        ]
+      },
+      "Co": {
+        "too_low": [
+          "Cobaltum Lab",
+          "Component B"
+        ]
+      },
+      "Cr": {
+        "too_low": [
+          "Chromium Lab",
+          "Component B"
+        ]
+      },
+      "Fe": {
+        "too_low": [
+          "Iron",
+          "Iron Lab",
+          "Micro E"
+        ]
+      },
+      "V": {
+        "too_low": [
+          "Vanadium Lab",
+          "Micro E"
+        ]
+      },
+      "KH": {
+        "too_low": [
+          "KH Buffer",
+          "KH Plus",
+          "KH Pro",
+          "KH Plus Lab",
+          "Component 1+2+3+",
+          "Component 1+2+3+ Concentrate",
+          "Component 3 in 1",
+          "Components Pro",
+          "AF Build"
+        ]
+      },
+      "Ca": {
+        "too_low": [
+          "Calcium",
+          "Ca Plus",
+          "Ca Plus Lab",
+          "Component 1+2+3+",
+          "Component 1+2+3+ Concentrate",
+          "Component 3 in 1",
+          "Components Pro",
+          "AF Build"
+        ]
+      },
+      "Mg": {
+        "too_low": [
+          "Magnesium",
+          "Mg Plus",
+          "Mg Plus Lab",
+          "Component 1+2+3+",
+          "Component 1+2+3+ Concentrate",
+          "Component 3 in 1",
+          "Components Pro"
+        ]
+      },
+      "K": {
+        "too_low": [
+          "Kalium",
+          "Kalium Lab",
+          "Components Strong"
+        ]
+      },
+      "I": {
+        "too_low": [
+          "Iodum",
+          "Iodum Lab",
+          "Component C",
+          "Components Strong"
+        ]
+      },
+      "Sr": {
+        "too_low": [
+          "Strontium",
+          "Strontium Lab",
+          "Component A",
+          "Components Strong"
+        ]
+      },
+      "B": {
+        "too_low": [
+          "Borium Lab"
+        ]
+      },
+      "Ba": {
+        "too_low": [
+          "Barium Lab",
+          "Component A"
+        ]
+      },
+      "Br": {
+        "too_low": [
+          "Bromium Lab"
+        ]
+      },
+      "F": {
+        "too_low": [
+          "Fluorine",
+          "Fluorum Lab",
+          "Component C"
+        ]
+      },
+      "Li": {
+        "too_low": [
+          "Lithium Lab"
+        ]
+      },
+      "Mn": {
+        "too_low": [
+          "Manganum Lab",
+          "Component B",
+          "Micro E"
+        ]
+      },
+      "Mo": {
+        "too_low": [
+          "Molybdenum Lab"
+        ]
+      },
+      "Ni": {
+        "too_low": [
+          "Niccolum Lab",
+          "Component B"
+        ]
+      },
+      "Si": {
+        "too_high": [
+          "Phosphate Minus",
+          "Di Resin"
+        ]
+      },
+      "S": {
+        "too_low": [
+          "Sulphur Lab"
+        ]
+      },
+      "Zn": {
+        "too_low": [
+          "Zincum Lab",
+          "Component B",
+          "Micro E"
+        ]
+      },
+      "Al": {
+        "too_high": [
+          "Carbon"
+        ]
+      },
+      "As": {
+        "too_high": [
+          "Carbon"
+        ]
+      },
+      "Cu": {
+        "too_high": [
+          "Carbon"
+        ]
+      },
+      "Hg": {
+        "too_high": [
+          "Carbon"
+        ]
+      },
+      "Pb": {
+        "too_high": [
+          "Carbon"
+        ]
+      },
+      "Sb": {
+        "too_high": [
+          "Carbon"
+        ]
+      },
+      "Sn": {
+        "too_high": [
+          "Carbon"
+        ]
+      }
     }
   },
   "complementary_groups": {
     "new_tank_starter_pack": [
       "marine_salts",
-      "water_chemistry_essentials", 
+      "water_chemistry_essentials",
       "biological_foundation",
       "aquascaping_structure",
       "fish_nutrition"
     ],
     "maintenance_essentials": [
       "water_chemistry_essentials",
-      "nutrient_control", 
+      "nutrient_control",
       "testing_monitoring"
     ],
     "coral_focused_setup": [
@@ -136,17 +521,26 @@
     "no_fish_food": {
       "trigger": "coral supplements recommended but no fish food",
       "message": "Don't forget about fish nutrition! Consider Fish V or AF Power Food for complete reef ecosystem health.",
-      "suggest_products": ["Fish V", "AF Power Food"]
+      "suggest_products": [
+        "Fish V",
+        "AF Power Food"
+      ]
     },
     "no_water_chemistry": {
       "trigger": "new tank setup without water chemistry products",
       "message": "Water chemistry foundation is crucial! Component 1+2+3+ or Component 1+2+3+ Concentrate are essential for reef success.",
-      "suggest_products": ["Component 1+2+3+", "Component 1+2+3+ Concentrate"]
+      "suggest_products": [
+        "Component 1+2+3+",
+        "Component 1+2+3+ Concentrate"
+      ]
     },
     "no_biology": {
       "trigger": "new tank without biological products",
       "message": "Biological foundation is key for tank maturation. Consider Pro Bio S and AF Life Source.",
-      "suggest_products": ["Pro Bio S", "AF Life Source"]
+      "suggest_products": [
+        "Pro Bio S",
+        "AF Life Source"
+      ]
     }
   }
 }
