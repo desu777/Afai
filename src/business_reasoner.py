@@ -416,7 +416,7 @@ Think step by step through EACH reasoning step explicitly. Base ALL decisions on
         if priority_products:
             state["af_alternatives_to_search"] = priority_products
             debug_print(f"🧠 [BusinessReasoner] LLM selected {len(priority_products)} products via two-stage analysis")
-            
+        
             # Set first priority product as main correction for backward compatibility
             state["business_analysis"]["product_name_corrections"] = priority_products[0]
         else:
