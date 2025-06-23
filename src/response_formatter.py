@@ -78,9 +78,15 @@ PRE-CALCULATED DOSAGES (use these exact calculations):
 {chr(10).join(calculated_dosages)}
 """
 
+        # Choose appropriate template based on intent
+        if intent == Intent.FOLLOW_UP:
+            template_name = "response_follow_up"
+        else:
+            template_name = "response_passionate_expert"
+        
         # Try to load prompt from external template
         prompt = load_prompt_template(
-            "response_passionate_expert",
+            template_name,
             user_query=user_query,
             language=lang,
             intent=intent,
