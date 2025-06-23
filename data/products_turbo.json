@@ -1051,6 +1051,13 @@
               "use_case": "A highly concentrated liquid magnesium supplement for rapid correction in advanced systems. More potent than standard version, 10ml raises Mg by 10 mg/l in 100L."
             },
             {
+              "product_name": "Ferrum Lab",
+              "category": "lab_microelements",
+              "keywords": ["iron supplement", "green coral color", "SPS color enhancer", "photosynthesis", "acropora", "zooxanthellae support", "ICP dosing"],
+              "solves_problems": ["iron deficiency", "faded green colors in corals", "poor photosynthesis", "stunted growth in green corals", "lack of vitality"],
+              "use_case": "A concentrated iron supplement for advanced reef aquariums to enhance intense green coloration in corals (especially Acropora) by supporting photosynthesis. Dosage should be based on regular ICP-OES tests. Recommended level: 0.002–0.006 mg/l. 1ml raises Fe by 0.001 mg/l in 100L."
+            },
+            {
               "product_name": "Molybdenum Lab",
               "category": "lab_microelements",
               "keywords": ["molybdenum supplement", "nitrogen metabolism", "protein biosynthesis", "coral growth", "ICP dosing"],
