@@ -139,6 +139,20 @@ Be enthusiastic and guide them toward Aquaforest solutions."""
                     total_products = sum(len(products) for products in state['product_recommendations'].values() if isinstance(products, list))
                     print(f"🔢 [ResponseFormatter] Total categorized products: {total_products}")
                 
+                # Check for knowledge articles in search results
+                knowledge_articles = [r for r in state.get("search_results", []) if r.get('metadata', {}).get('content_type') == 'knowledge']
+                if knowledge_articles:
+                    print(f"📚 [ResponseFormatter] Found {len(knowledge_articles)} knowledge articles:")
+                    for article in knowledge_articles[:3]:  # Show first 3
+                        title = article.get('metadata', {}).get('title_en', 'Unknown')
+                        url_pl = article.get('metadata', {}).get('url_pl', 'No URL')
+                        url_en = article.get('metadata', {}).get('url_en', 'No URL')
+                        print(f"   - {title}")
+                        print(f"     URL_PL: {url_pl}")
+                        print(f"     URL_EN: {url_en}")
+                else:
+                    print(f"📚 [ResponseFormatter] NO knowledge articles found in search results")
+                
             prompt = self._create_intelligent_response_prompt(state)
             
             response = self.client.chat.completions.create(

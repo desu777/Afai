@@ -793,27 +793,36 @@ Think step by step through EACH reasoning step explicitly. Base ALL decisions on
             return {}
     
     def _format_icp_data_for_llm(self, parameters: Dict, metadata: Dict = None) -> str:
-        """📋 Format ICP data for LLM analysis - clean table only"""
+        """📋 Format ICP data for LLM analysis with aquarium info for precise dosing calculations"""
         lines = []
         
-        lines.append("WATER PARAMETER ANALYSIS:")
-        lines.append("COLUMNS: ELEMENT | RECOMMENDED_RANGE | USER_RESULT | CHANGE | STATUS")
-        lines.append("-" * 80)
+        # 🎯 AQUARIUM INFO for dosing calculations
+        if metadata:
+            aquarium_info = metadata.get("aquarium_info", "")
+            test_date = metadata.get("test_date", "")
+            
+            # Extract volume from aquarium_info (e.g., "Domowe 1150 LPS")
+            import re
+            volume_match = re.search(r'(\d+)', aquarium_info) if aquarium_info else None
+            volume = volume_match.group(1) if volume_match else "unknown"
+            
+            lines.append(f"AQUARIUM: {volume}L | DATE: {test_date}")
+            lines.append("")
+        
+        lines.append("ELEMENT | RECOMMENDED | RESULT | CHANGE | STATUS")
+        lines.append("-" * 60)
         
         for param_name, data in parameters.items():
             element = data.get("element", param_name)
             
-            # 🆕 POPRAWKA FORMATOWANIA ELEMENTU
-            # "PO4Fosforany" → "PO4 Fosforany"
+            # Format element name: "PO4Fosforany" → "PO4 Fosforany"
             import re
-            # Wzorzec: litery/cyfry na początku (skrót) + wielka litera (początek nazwy)
             match = re.match(r'^([A-Za-z0-9]+)([A-Z][a-z]+.*)$', element)
             if match:
                 symbol = match.group(1)
                 name = match.group(2)
                 element_formatted = f"{symbol} {name}"
             else:
-                # Jeśli nie pasuje do wzorca, użyj oryginalnej nazwy
                 element_formatted = element
             
             recommended = data.get("recommended_range", "")
@@ -821,23 +830,15 @@ Think step by step through EACH reasoning step explicitly. Base ALL decisions on
             change = data.get("change", "")
             status = data.get("status", "unknown")
             
-            # 🎯 CLEAR STATUS INDICATORS (English)
             status_icon = {
-                "too_high": "⬆️ TOO_HIGH",
-                "too_low": "⬇️ TOO_LOW", 
-                "optimal": "✅ OPTIMAL",
-                "unknown": "❓ UNKNOWN"
+                "too_high": "⬆️ HIGH",
+                "too_low": "⬇️ LOW", 
+                "optimal": "✅ OK",
+                "unknown": "❓"
             }.get(status, status)
             
             line = f"{element_formatted} | {recommended} | {user_result} | {change} | {status_icon}"
             lines.append(line)
-        
-        lines.append("-" * 80)
-        lines.append("LLM INSTRUCTIONS:")
-        lines.append("- If status 'TOO_HIGH' → recommend products to lower this parameter")
-        lines.append("- If status 'TOO_LOW' → recommend products to raise this parameter") 
-        lines.append("- If status 'OPTIMAL' → praise and recommend maintaining the level")
-        lines.append("- Use products_turbo.json to automatically select appropriate products")
         
         return "\n".join(lines)
     
