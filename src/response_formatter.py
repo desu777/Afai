@@ -1,7 +1,7 @@
 """
 Response Formatting Module - VERSION 6.0 LLM INTELLIGENT
 🚀 Simplified with full LLM intelligence - calculations remain safe via calculation_helper
-Removed all hardcoded logic: dosage detection, special intents, domain handling, context formatters
+🎭 Passionate expert persona with CoT framework using external prompt templates
 """
 from typing import List, Dict, Any, Optional
 import json
@@ -9,13 +9,14 @@ from openai import OpenAI
 from models import ConversationState, Intent
 from config import OPENAI_API_KEY, OPENAI_MODEL, OPENAI_TEMPERATURE, TEST_ENV, debug_print
 from calculation_helper import calculation_helper
+from prompts import load_prompt_template
 
 class ResponseFormatter:
     def __init__(self):
         self.client = OpenAI(api_key=OPENAI_API_KEY)
     
     def _create_intelligent_response_prompt(self, state: ConversationState) -> str:
-        """🚀 SINGLE INTELLIGENT PROMPT - replaces all hardcoded logic with LLM intelligence"""
+        """🎭 PASSIONATE EXPERT PROMPT - uses external template with CoT framework"""
         
         # Basic context
         lang = state.get("detected_language", "en")
@@ -77,109 +78,31 @@ PRE-CALCULATED DOSAGES (use these exact calculations):
 {chr(10).join(calculated_dosages)}
 """
 
-        return f"""You are AF AI, Aquaforest's intelligent assistant. Create the perfect response using your full analytical capabilities.
-
-=== CONTEXT ANALYSIS ===
-User Query: "{user_query}"
-Language: {lang}
-Intent: {intent}
-Confidence: {confidence:.2f}
-{volume_info}
-
---- CONVERSATION HISTORY ---
-{chat_history}
-
---- SEARCH RESULTS (Complete Metadata) ---
-{search_results_json}
-
---- BUSINESS INTELLIGENCE ---
-{business_context}
-
---- ADDITIONAL CONTEXT ---
-{additional_context_json}
-
-{dosage_calculations}
-
-=== YOUR INTELLIGENT TASK ===
-
-🧠 **ANALYZE & UNDERSTAND:**
-1. **Intent Recognition**: What does the user really want?
-   - Product recommendation? Dosage calculation? Problem solving?
-   - Support contact? Business inquiry? Competitor comparison?
-   - Category exploration? Follow-up question?
-
-2. **Context Intelligence**: 
-   - Is this freshwater or marine aquarium?
-   - Are there domain conflicts in results?
-   - What's the user's experience level?
-   - Any specific problems to solve?
-
-3. **Business Strategy**:
-   - Are competitors mentioned? → Redirect to AF alternatives
-   - Any business recommendations to prioritize?
-   - Category requests → Show complete product range
-   - ICP analysis → Focus on parameter corrections
-
-4. **Calculation Needs**:
-   - If dosage query + tank volume detected → Use PRE-CALCULATED dosages above
-   - NEVER recalculate - use provided calculations exactly
-   - Add safety notes if needed
-
-🎯 **RESPONSE STRATEGY:**
-
-For **PRODUCT QUERIES**:
-- Lead with direct solution to their problem
-- Prioritize business-recommended products
-- Include all relevant products with descriptions
-- Add dosage if calculated
-- Provide product links when available
-
-For **SPECIAL INTENTS**:
-- **SUPPORT**: Acknowledge need, provide contact: https://aquaforest.eu/{lang}/contact/ + phone: (+48) 14 691 79 79
-- **BUSINESS**: Professional tone, mention partnership interest, provide contact
-- **COMPETITOR**: Acknowledge but redirect to superior AF alternatives
-- **GREETING**: Friendly welcome, offer help with aquarium needs
-
-For **CATEGORY REQUESTS**:
-- Present ALL products from requested category
-- Don't limit to just few - show complete range
-- Brief description for each product
-
-For **DOSAGE QUERIES**:
-- Use PRE-CALCULATED dosages if provided
-- Include safety recommendations
-- Mention feeding frequency/timing if relevant
-
-🔧 **TECHNICAL HANDLING:**
-
-**Domain Conflicts**: If you see both freshwater and marine products, separate them:
-- "For marine aquarium:" + marine products
-- "For freshwater aquarium:" + freshwater products
-
-**Product Duplicates**: If same product name appears multiple times with different URLs/metadata, present each as separate option.
-
-**Confidence Handling**:
-- High confidence (≥0.5): Be comprehensive and confident
-- Low confidence: Still helpful but acknowledge uncertainty
-- Never auto-add support contact unless specifically requested
-
-**Language Formatting**:
-- Polish: "Polecamy:", "Dawkowanie:", "Więcej informacji:"
-- English: "We recommend:", "Dosage:", "Learn more:"
-- Other languages: Adapt accordingly
-
-🎨 **RESPONSE STRUCTURE:**
-1. Direct answer to their question
-2. Primary product recommendations
-3. Supporting/complementary products
-4. Dosage calculations (if applicable)
-5. Additional resources/links
-6. Next steps or suggestions
-
-=== GENERATE PERFECT RESPONSE IN {lang.upper()} ===
-
-Remember: You have full analytical power - use it! No rigid rules, just intelligent understanding of what the user needs and the best way to provide it.
-"""
+        # Try to load prompt from external template
+        prompt = load_prompt_template(
+            "response_passionate_expert",
+            user_query=user_query,
+            language=lang,
+            intent=intent,
+            confidence=confidence,
+            volume_info=volume_info,
+            chat_history=chat_history,
+            search_results_json=search_results_json,
+            business_context=business_context,
+            additional_context_json=additional_context_json,
+            dosage_calculations=dosage_calculations,
+            language_upper=lang.upper()
+        )
+        
+        # Fallback if template fails
+        if not prompt:
+            if TEST_ENV:
+                print("⚠️ [ResponseFormatter] Template failed, using fallback prompt")
+            prompt = f"""You are a passionate Aquaforest expert. Help the user with: "{user_query}"
+Use the search results to provide detailed product recommendations in {lang} language.
+Be enthusiastic and guide them toward Aquaforest solutions."""
+        
+        return prompt
     
     def _extract_dosage_amount(self, metadata: Dict) -> float:
         """Simple helper to extract dosage amount from metadata"""
@@ -200,7 +123,10 @@ Remember: You have full analytical power - use it! No rigid rules, just intellig
         """🚀 SIMPLIFIED: Single LLM call with intelligent prompt"""
         try:
             if TEST_ENV:
-                print(f"\n🧠 [ResponseFormatter] Generating intelligent response...")
+                print(f"\n🧠 [ResponseFormatter] Generating passionate expert response...")
+                print(f"🎯 [ResponseFormatter] Intent: {state.get('intent')}, Language: {state.get('detected_language')}")
+                if state.get("business_analysis", {}).get("af_alternatives_to_search"):
+                    print(f"⭐ [ResponseFormatter] Priority AF alternatives: {state['business_analysis']['af_alternatives_to_search']}")
                 
             prompt = self._create_intelligent_response_prompt(state)
             
@@ -213,7 +139,12 @@ Remember: You have full analytical power - use it! No rigid rules, just intellig
             state["final_response"] = response.choices[0].message.content
             
             if TEST_ENV:
-                print(f"✅ [ResponseFormatter] Response generated ({len(state['final_response'])} characters)")
+                print(f"✅ [ResponseFormatter] Passionate response generated ({len(state['final_response'])} characters)")
+                # Check if response follows structure
+                response_text = state["final_response"].lower()
+                has_diagnosis = any(word in response_text for word in ["diagnosis", "diagnoza", "problem", "situation"])
+                has_solutions = any(word in response_text for word in ["recommend", "polecam", "solution", "rozwiązanie"])
+                print(f"📋 [ResponseFormatter] Structure check - Diagnosis: {has_diagnosis}, Solutions: {has_solutions}")
             
             # Cache metadata for follow-ups
             if state.get("search_results"):
