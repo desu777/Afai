@@ -260,11 +260,41 @@ You MUST work through each step systematically and document your reasoning:
 ## Step 4: Two-Stage Product Discovery & Selection
 - STAGE 1: Search products_turbo.json for direct matches to user query
 - STAGE 2: Search mapping databases for category/group matches
-- STAGE 3: Combine ALL products from both stages into priority_products
+- STAGE 3: Combine ALL products from both stages
 - 🚨 NO LIMITS: If 15 products match across both stages, include all 15
 - Document: Specific products found in each stage and reasoning
 
-## Step 5: Strategic Response Planning
+## Step 5: Intelligent Product Categorization
+After identifying all relevant products, organize them into logical categories:
+
+**DYNAMIC CATEGORIZATION RULES:**
+🚨 CRITICAL: Create categories ONLY based on user's actual query - DO NOT use all 6 categories for every query!
+
+**AVAILABLE CATEGORY OPTIONS:**
+- **startup_essentials**: Core foundation products (salts, live rock, basic supplements)
+- **water_chemistry**: All water parameter products (Ca, Mg, KH, trace elements, ICP corrections)
+- **biological_system**: Bacterial products, bio media, filtration aids, biological supplements
+- **feeding_nutrition**: All foods, feeding supplements, nutrition enhancers
+- **maintenance_control**: Test kits, carbon, problem solvers, maintenance products
+- **advanced_optimization**: Lab series, specialized/high-concentration products
+
+**SMART DYNAMIC LOGIC:**
+- ANALYZE user query to determine which categories are actually relevant
+- CREATE only the categories that match the user's specific question
+- Examples:
+  * "fish food" query → ONLY "feeding_nutrition" category
+  * "ICP low calcium" → ONLY "water_chemistry" category  
+  * "new tank setup" → "startup_essentials" + "biological_system" + "water_chemistry"
+  * "algae problem" → "maintenance_control" + maybe "biological_system"
+  * "fish recommendations and food" → ONLY "feeding_nutrition" category
+  * "salt recommendation" → ONLY "startup_essentials" category
+  * "calcium dosing" → ONLY "water_chemistry" category
+- Include 2-6 products per relevant category
+- NEVER create categories that don't match the user's query
+
+🚨 CRITICAL: Return ONLY relevant categories - if user asks about fish food, don't include salt or rock products!
+
+## Step 6: Strategic Response Planning
 - Determine response_strategy based on query type (direct/educational/comparative/troubleshooting)
 - Plan presentation approach based on detected patterns
 - Document: Response approach reasoning
@@ -282,13 +312,17 @@ The schema must match EXACTLY:
         "stage_1_products": "Products found directly in products_turbo.json with reasoning",
         "stage_2_products": "Products found in mapping databases with reasoning", 
         "product_selection_logic": "Combined reasoning for all products from both stages",
+        "categorization_logic": "Reasoning for how products were organized into categories",
         "response_strategy_logic": "Reasoning for chosen response approach"
     }},
     "business_interpretation": "Clear 1-2 sentence explanation of what user wants",
     "detected_scenario": "exact_scenario_key_from_scenarios_mapping_or_null",
     "detected_use_case": "exact_use_case_key_from_use_cases_mapping_or_null",
     "detected_competitors": ["exact_competitor_names_found_in_query"],
-    "priority_products": ["main_AF_products_from_mapping_priority_lists"],
+    "product_recommendations": {{
+        "category_name_based_on_query": ["relevant_products_only"],
+        "another_relevant_category_if_needed": ["more_relevant_products"]
+    }},
     "alternative_products": ["backup_AF_products_from_mapping"],  
     "complementary_products": ["products_that_work_together_from_groups_mapping"],
     "competitor_alternatives": {{"competitor_name": "AF_alternative_from_mapping"}},
@@ -410,27 +444,42 @@ Think step by step through EACH reasoning step explicitly. Base ALL decisions on
             debug_print(f"🎯 [BusinessReasoner] LLM detected use case: {use_case}")
         
         # 🚀 PRODUCT RECOMMENDATIONS - CRITICAL for Pinecone search
-        priority_products = decision.get("priority_products", [])
+        product_recommendations = decision.get("product_recommendations", {})
         
-        # 🆕 SIMPLIFIED: All products go through LLM intelligence (no hardcoded logic)
-        if priority_products:
-            state["af_alternatives_to_search"] = priority_products
-            debug_print(f"🧠 [BusinessReasoner] LLM selected {len(priority_products)} products via two-stage analysis")
+        # 🆕 INTELLIGENT CATEGORIZATION: Extract all products from categories
+        all_products = []
+        for category, products in product_recommendations.items():
+            if isinstance(products, list):
+                all_products.extend(products)
         
-            # Set first priority product as main correction for backward compatibility
-            state["business_analysis"]["product_name_corrections"] = priority_products[0]
+        # Backward compatibility: also check legacy priority_products field
+        legacy_products = decision.get("priority_products", [])
+        if legacy_products:
+            all_products.extend(legacy_products)
+        
+        if all_products:
+            state["af_alternatives_to_search"] = all_products
+            debug_print(f"🧠 [BusinessReasoner] LLM selected {len(all_products)} products via intelligent categorization")
+            
+            # Store categorized structure for Response Formatter
+            state["product_recommendations"] = product_recommendations
+            debug_print(f"📊 [BusinessReasoner] Categorized into {len(product_recommendations)} categories: {list(product_recommendations.keys())}")
+        
+            # Set first product as main correction for backward compatibility
+            if all_products:
+                state["business_analysis"]["product_name_corrections"] = all_products[0]
         else:
-            debug_print(f"⚠️ [BusinessReasoner] No priority products found by LLM analysis")
+            debug_print(f"⚠️ [BusinessReasoner] No products found by LLM analysis")
         
         # 🚀 COMPREHENSIVE BUSINESS RECOMMENDATIONS
         recommendations = []
         
-        # Priority products recommendation
-        if priority_products:
+        # Categorized products recommendation
+        if product_recommendations:
             recommendations.append({
-                "type": "priority_products",
-                "products": priority_products,
-                "reasoning": decision.get("reasoning_steps", {}).get("product_selection_logic", "LLM-selected based on comprehensive mapping analysis")
+                "type": "categorized_products",
+                "categories": product_recommendations,
+                "reasoning": decision.get("reasoning_steps", {}).get("categorization_logic", "LLM-organized into logical categories based on comprehensive analysis")
             })
         
         # 🚨 Alternative products (ONLY for competitor situations)
@@ -474,6 +523,15 @@ Think step by step through EACH reasoning step explicitly. Base ALL decisions on
         
         # 🚀 INTENT CORRECTION based on LLM analysis
         intent_suggestion = decision.get("intent_suggestion", "")
+        
+        # 🚨 CRITICAL FIX: FOLLOW_UP can only exist with chat history
+        chat_history = state.get("chat_history", [])
+        if intent_suggestion == "follow_up" and (not chat_history or len(chat_history) == 0):
+            debug_print(f"🚨 [BusinessReasoner] CRITICAL FIX: Preventing FOLLOW_UP intent without chat history")
+            debug_print(f"📋 [BusinessReasoner] Chat history length: {len(chat_history) if chat_history else 0}")
+            intent_suggestion = "product_query"  # Default to product_query for first messages
+            debug_print(f"✅ [BusinessReasoner] Corrected intent from follow_up to product_query")
+        
         if intent_suggestion and intent_suggestion != str(state.get("intent", "")):
             try:
                 state["intent"] = Intent(intent_suggestion)

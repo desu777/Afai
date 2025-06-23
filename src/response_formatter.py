@@ -42,7 +42,8 @@ class ResponseFormatter:
             "requested_category", "category_products", "identified_problem", 
             "recommended_solutions", "maintenance_solutions", "solution_note",
             "business_recommendations", "competitor_info", "scenario_info", 
-            "use_case_info", "af_alternatives_to_search", "domain_filter"
+            "use_case_info", "af_alternatives_to_search", "domain_filter",
+            "product_recommendations"  # 🆕 Add categorized products
         ]
         
         for field in context_fields:
@@ -133,6 +134,10 @@ Be enthusiastic and guide them toward Aquaforest solutions."""
                 print(f"🎯 [ResponseFormatter] Intent: {state.get('intent')}, Language: {state.get('detected_language')}")
                 if state.get("business_analysis", {}).get("af_alternatives_to_search"):
                     print(f"⭐ [ResponseFormatter] Priority AF alternatives: {state['business_analysis']['af_alternatives_to_search']}")
+                if state.get("product_recommendations"):
+                    print(f"📊 [ResponseFormatter] Categorized products: {state['product_recommendations']}")
+                    total_products = sum(len(products) for products in state['product_recommendations'].values() if isinstance(products, list))
+                    print(f"🔢 [ResponseFormatter] Total categorized products: {total_products}")
                 
             prompt = self._create_intelligent_response_prompt(state)
             
