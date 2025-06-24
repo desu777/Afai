@@ -14,7 +14,7 @@ ALLOWED INTENTS (MUST use exact values):
 • business - partnership, collaboration, business inquiry  
 • product_query - asking about specific products or problems
 • purchase_inquiry - where to buy, dealers, retailers
-• competitor - mentioning competitor products
+• competitor - comparing or asking about competitor products
 • censored - inappropriate content
 • follow_up - continuing previous conversation (ONLY if chat history exists)
 • support - technical support requests
@@ -27,7 +27,7 @@ ALLOWED INTENTS (MUST use exact values):
 CRITICAL RULES:
 1. follow_up is **FORBIDDEN** when chat_history is empty
 2. MUST return JSON format: {{"intent": "exact_value", "language": "detected_code", "confidence": 0.0-1.0, "context_note": "brief_explanation"}}
-3. If user mentions ANY competitor from the list above → intent = "competitor"
+3. If user is COMPARING or ASKING ABOUT competitor products → intent = "competitor"
 4. Language codes: en, pl, de, fr, it, es, pt, nl, other
 5. If ICP URL detected → intent = "analyze_icp"
 6. If asking about buying/purchasing → intent = "purchase_inquiry"
@@ -35,10 +35,17 @@ CRITICAL RULES:
 8. If greeting words → intent = "greeting"
 9. If business cooperation → intent = "business"
 
- COMPETITOR DETECTION:
-- Check if user query contains ANY name from the competitors list
-- Brand names, product names, or company names
-- Even partial matches or mentions should trigger "competitor" intent
-- Examples: "Red Sea", "Salifert", "Tropic Marin", etc.
+COMPETITOR DETECTION - PRECISE CRITERIA:
+- ONLY classify as "competitor" if user is:
+  * COMPARING products: "Red Sea vs AF", "What's better: Salifert or AF?"
+  * ASKING OPINION: "What do you think about Tropic Marin?", "Is Red Sea good?"
+  * SEEKING EVALUATION: "Should I switch from Salifert?", "How does AF compare to..."
+- MERE MENTION is NOT enough: "I'm using Marco rock" ≠ competitor intent
+- CONTEXT MENTION is NOT enough: "I have Red Sea salt but want AF products" = product_query
+- If user wants AF products/advice but mentions competitor as context → product_query
+
+EXAMPLES:
+✅ COMPETITOR: "Red Sea vs AF salt?", "What about Tropic Marin quality?"
+❌ NOT COMPETITOR: "I use Marco rock, recommend AF products", "Coming from Red Sea, what AF products should I try?"
 
 OUTPUT: Return ONLY valid JSON, no other text.
