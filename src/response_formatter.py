@@ -8,7 +8,7 @@ import json
 import re
 from openai import OpenAI
 from models import ConversationState, ProductInfo, Intent, Domain
-from config import OPENAI_API_KEY, OPENAI_MODEL, OPENAI_TEMPERATURE, TEST_ENV, debug_print
+from config import OPENAI_API_KEY, OPENAI_MODEL, OPENAI_MODEL2, OPENAI_TEMPERATURE, TEST_ENV, debug_print
 from calculation_helper import calculation_helper
 from prompts import load_prompt_template
 
@@ -166,6 +166,9 @@ class ResponseFormatter:
         aquarium_volume = None
         if is_dosage_query:
             aquarium_volume = calculation_helper.extract_volume_from_query(state.get("user_query", ""))
+            if TEST_ENV:
+                print(f"💊 [DEBUG ResponseFormatter] Dosage query detected!")
+                print(f"📏 [DEBUG ResponseFormatter] Extracted volume: {aquarium_volume}L" if aquarium_volume else "📏 [DEBUG ResponseFormatter] No volume extracted")
         
         # Category context
         category_context = ""
@@ -309,7 +312,7 @@ Respond in {lang} language.
         return prompt
 
     def _create_special_intent_prompt(self, state: ConversationState) -> str:
-        """Create prompts for special intents"""
+        """Create prompts for special intents using external template files"""
         lang = state.get("detected_language", "en")
         intent = state.get("intent", "other")
         user_query = state.get("user_query", "")
@@ -317,36 +320,27 @@ Respond in {lang} language.
         if TEST_ENV:
             print(f"🎯 [DEBUG ResponseFormatter] Creating prompt for special intent: {intent}")
         
-        # 🆕 SUPPORT intent handling
+        # 🆕 SUPPORT intent using template
         if intent == Intent.SUPPORT:
-            if lang == "pl":
-                return f"""
-You are AF AI. The user explicitly wants to contact support.
-User said: "{user_query}"
-
-Respond helpfully in Polish:
-1. Acknowledge their request for support
-2. Provide contact link: https://aquaforest.eu/pl/kontakt/
-3. Mention business hotline: (+48) 14 691 79 79 (Poniedziałek-Piątek, 8:00-16:00)
-4. Be warm and helpful, mention that our specialists are ready to help
-
-Generate response in Polish.
-"""
-            else:
-                return f"""
-You are AF AI. The user explicitly wants to contact support.
-User said: "{user_query}"
-
-Respond helpfully:
-1. Acknowledge their request for support
-2. Provide contact link: https://aquaforest.eu/en/contact-us/
-3. Mention business hotline: (+48) 14 691 79 79 (Monday-Friday, 8:00-16:00)
-4. Be warm and helpful, mention that our specialists are ready to provide full support
-
-Generate response in {lang} language.
-"""
+            prompt = load_prompt_template(
+                "intent_support",
+                user_query=user_query,
+                language=lang
+            )
+            if prompt:
+                return prompt
         
-        # Enhanced purchase inquiry
+        # 🆕 BUSINESS intent using template
+        if intent == Intent.BUSINESS:
+            prompt = load_prompt_template(
+                "intent_business",
+                user_query=user_query,
+                language=lang
+            )
+            if prompt:
+                return prompt
+        
+        # 🆕 PURCHASE inquiry using template
         if intent == Intent.PURCHASE_INQUIRY:
             purchase_product = state.get("purchase_product", "")
             product_url = ""
@@ -358,80 +352,81 @@ Generate response in {lang} language.
                         product_url = self._get_product_url(result, lang)
                         break
             
-            return f"""
-You are AF AI. The user is asking about purchasing/buying products.
-User said: "{user_query}"
-
-Product Context:
-- Identified product: "{purchase_product}"
-- Product URL: "{product_url}"
-
-Respond helpfully:
-1. If product was identified, acknowledge it specifically
-2. If we have the product URL, provide it
-3. Explain that Aquaforest sells only through authorized dealers
-4. Direct to dealer map: {"https://aquaforest.eu/pl/gdzie-kupic/" if lang == "pl" else "https://aquaforest.eu/en/where-to-buy/"}
-5. Be warm and helpful
-
-Generate response in {lang} language.
-"""
-
-        # Business inquiry
-        if intent == Intent.BUSINESS:
-            return f"""
-You are AF AI. The user is interested in business cooperation.
-User said: "{user_query}"
-
-Respond professionally but warmly:
-- Thank them for interest in partnership
-- Mention we're always looking for reliable partners
-- Provide contact form: {"https://aquaforest.eu/pl/kontakt/" if lang == "pl" else "https://aquaforest.eu/en/contact-us/"}
-- Business hotline: (+48) 14 691 79 79 (Monday-Friday, 8:00-16:00)
-- Express enthusiasm about potential cooperation
-
-Keep tone professional but friendly. Generate response in {lang} language.
-"""
-
-        # Other special intents remain similar...
-        intent_instructions = {
-            Intent.GREETING: f"""
-You are AF AI, Aquaforest's friendly assistant. Greet warmly and offer help.
-User said: "{user_query}"
-
-Be friendly and welcoming. Ask how you can help with their aquarium.
-Mention you can help with product recommendations, dosing calculations, or aquarium problems.
-
-Generate greeting in {lang} language.
-""",
-
-            Intent.COMPETITOR: f"""
-You are AF AI. The user mentioned a competitor.
-User said: "{user_query}"
-
-Be professional and confident without criticizing competitors.
-Focus on Aquaforest's strengths:
-- High quality and purity
-- Complete product range
-- Excellent customer support
-- Proven results
-
-Generate response in {lang} language.
-""",
-
-            Intent.CENSORED: f"""
-You are AF AI. The user asked about proprietary information.
-User said: "{user_query}"
-
-Politely explain that detailed formulations are proprietary.
-Offer to discuss product benefits and usage instead.
-Be helpful while protecting company secrets.
-
-Generate response in {lang} language.
-"""
-        }
+            prompt = load_prompt_template(
+                "intent_purchase",
+                user_query=user_query,
+                language=lang,
+                purchase_product=purchase_product,
+                product_url=product_url
+            )
+            if prompt:
+                return prompt
         
-        return intent_instructions.get(intent, f"Respond helpfully to: {user_query}")
-    
+        # 🆕 GREETING intent using template
+        if intent == Intent.GREETING:
+            prompt = load_prompt_template(
+                "intent_greeting",
+                user_query=user_query,
+                language=lang
+            )
+            if prompt:
+                return prompt
+        
+        # 🆕 COMPETITOR intent using template
+        if intent == Intent.COMPETITOR:
+            prompt = load_prompt_template(
+                "intent_competitor",
+                user_query=user_query,
+                language=lang
+            )
+            if prompt:
+                return prompt
+        
+        # 🆕 CENSORED intent using template
+        if intent == Intent.CENSORED:
+            prompt = load_prompt_template(
+                "intent_censored",
+                user_query=user_query,
+                language=lang
+            )
+            if prompt:
+                return prompt
+        
+        # 🚫 FALLBACK for unknown intents or template failures
+        if TEST_ENV:
+            print(f"⚠️ [ResponseFormatter] Using fallback for intent: {intent}")
+        
+        return f"""
+You are AF AI, Aquaforest's passionate assistant.
+User said: "{user_query}"
+
+Respond helpfully and professionally in {lang} language.
+Show enthusiasm for reef-keeping while addressing their needs.
+"""
+
+    def _generate_special_intent_response(self, state: ConversationState) -> str:
+        """🆕 Generate response for special intents using cheaper OPENAI_MODEL2"""
+        prompt = self._create_special_intent_prompt(state)
+        intent = state.get("intent", "other")
+        
+        if TEST_ENV:
+            print(f"💰 [DEBUG ResponseFormatter] Using OPENAI_MODEL2 for special intent: {intent}")
+        
+        try:
+            # Use cheaper model for simple intents
+            client = OpenAI(api_key=OPENAI_API_KEY)
+            response = client.chat.completions.create(
+                model=OPENAI_MODEL2,  # 🆕 Use cheaper model
+                temperature=OPENAI_TEMPERATURE,
+                messages=[{"role": "system", "content": prompt}]
+            )
+            return response.choices[0].message.content
+            
+        except Exception as e:
+            if TEST_ENV:
+                print(f"❌ [DEBUG ResponseFormatter] Error with special intent: {e}")
+            return self._handle_error(e, state)
+
     def _format_business_recommendations_context(self, recommendations: List[Dict]) -> str:
         """🚀 Format business recommendations into context"""
         if not recommendations:
@@ -503,7 +498,7 @@ Generate response in {lang} language.
             
             context_lines.append("- Focus on AF alternatives' benefits, not competitor praise")
             context_lines.append("- If no AF alternative specified, simply avoid praising competitor")
-            context_lines.append("🚨 END CRITICAL RULES")
+            context_lines.append("END CRITICAL RULES")
         
         context_lines.append("---")
         return "\n".join(context_lines)
@@ -550,20 +545,31 @@ Generate response in {lang} language.
         try:
             if TEST_ENV:
                 print(f"\n🔨 [DEBUG ResponseFormatter] Generating final response...")
-                
-            prompt = self._create_universal_prompt(state)
-            response = self.client.chat.completions.create(
-                model=OPENAI_MODEL,
-                temperature=OPENAI_TEMPERATURE,
-                messages=[{"role": "system", "content": prompt}]
-            )
-            state["final_response"] = response.choices[0].message.content
+            
+            # 🆕 Check if this is a special intent - use cheaper model
+            intent = state.get("intent", "product_query")
+            if intent in [Intent.GREETING, Intent.BUSINESS, Intent.PURCHASE_INQUIRY, 
+                         Intent.COMPETITOR, Intent.CENSORED, Intent.SUPPORT]:
+                if TEST_ENV:
+                    print(f"🎭 [DEBUG ResponseFormatter] Using cheaper model for special intent: {intent}")
+                state["final_response"] = self._generate_special_intent_response(state)
+            else:
+                # Use expensive model for complex product queries
+                if TEST_ENV:
+                    print(f"🧠 [DEBUG ResponseFormatter] Using complex model for intent: {intent}")
+                prompt = self._create_universal_prompt(state)
+                response = self.client.chat.completions.create(
+                    model=OPENAI_MODEL,  # 🔥 Expensive model for complex tasks
+                    temperature=OPENAI_TEMPERATURE,
+                    messages=[{"role": "system", "content": prompt}]
+                )
+                state["final_response"] = response.choices[0].message.content
             
             if TEST_ENV:
                 print(f"✅ [DEBUG ResponseFormatter] Response generated ({len(state['final_response'])} characters)")
             
-            # Cache metadata for follow-ups
-            if state.get("search_results"):
+            # Cache metadata for follow-ups (only for product queries)
+            if state.get("search_results") and intent not in [Intent.GREETING, Intent.BUSINESS, Intent.SUPPORT]:
                 # Cache more results if category request
                 cache_size = 10 if state.get("requested_category") else 5
                 state["context_cache"] = [r['metadata'] for r in state["search_results"][:cache_size]]
