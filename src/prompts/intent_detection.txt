@@ -11,6 +11,11 @@ LATEST USER MESSAGE: "{user_query}"
 
 {icp_url_hint}
 
+**CRITICAL RULE: FOLLOW_UP REQUIRES HISTORY**
+- "follow_up" intent can ONLY be used when there is existing conversation history
+- If conversation history is empty or contains only system messages → NEVER use "follow_up"
+- First message in conversation → ALWAYS "product_query", "greeting", "business", etc. - NEVER "follow_up"
+
 CRITICAL CONTEXT ANALYSIS RULES:
 1. If discussing a product and its target problem/pest, and user wants to buy "it" or mentions the pest name in purchase context - they mean the PRODUCT, not the pest!
    Example: After discussing "Aiptasia Shot" (product) and "Aiptasia" (pest), "buy aiptasia" = purchase_inquiry for the product
@@ -28,7 +33,7 @@ INTENTS:
 4. "purchase_inquiry": The user is asking WHERE to buy, HOW to buy, or dealers/retailers for a product (e.g., "where can I buy", "how to purchase", "dealers"). NOT when asking for LINKS - those are product_query since we have product URLs in metadata. 
 5. "competitor": Mentions of competitor brands (e.g., "Red Sea", "Seachem", "Tropic Marin").
 6. "censored": Questions about proprietary information like product formulas or production processes.
-7. "follow_up": The user is continuing an existing conversation - asking follow-up questions, seeking recommendations, clarifications, or additional details about topics already being discussed. This includes questions that naturally progress the conversation even if not directly referencing the previous response.
+7. "follow_up": 🚨 **ONLY when conversation history exists** - The user is continuing an existing conversation, asking follow-up questions, seeking recommendations, clarifications, or additional details about topics already being discussed. This includes questions that naturally progress the conversation even if not directly referencing the previous response.
 8. "support": The user explicitly wants to contact support
 9. "analyze_icp": User provides ICP test URL or asks to analyze water test results from aquaforestlab.com  # 🆕 
 10. "other": Anything that doesn't fit the categories above.
@@ -36,15 +41,16 @@ INTENTS:
 LANGUAGES: Detect the primary language of the LATEST USER MESSAGE (pl, en, de, fr, es, it, etc.).
 
 ANALYSIS PROCESS:
-1. Read the conversation history to understand context
-2. Check if this continues an existing conversation topic
-3. Check if user wants human support/contact
-4. Analyze the latest message
-5. Apply common sense and context rules
-6. IMPORTANT DISTINCTION:
+1. **FIRST**: Check if conversation history exists - if empty, follow_up is IMPOSSIBLE
+2. Read the conversation history to understand context
+3. Check if this continues an existing conversation topic
+4. Check if user wants human support/contact
+5. Analyze the latest message
+6. Apply common sense and context rules
+7. IMPORTANT DISTINCTION:
    - "link", "url", "website" → product_query or follow_up (we provide direct links)
    - "where to buy", "dealers", "retailers" → purchase_inquiry (dealer information)
-7. Determine the most likely intent
+8. Determine the most likely intent
 
 Return ONLY a valid JSON object with your analysis of the LATEST USER MESSAGE:
 {{

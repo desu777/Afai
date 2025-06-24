@@ -102,6 +102,16 @@ Return ONLY a valid JSON object:
             
             result = IntentDetectionResult(**result_data)
             
+            # 🚨 CRITICAL FIX: Prevent follow_up without chat history
+            chat_history = state.get("chat_history", [])
+            if result.intent == Intent.FOLLOW_UP and (not chat_history or len(chat_history) == 0):
+                if TEST_ENV:
+                    print(f"🚨 [DEBUG IntentDetector] CRITICAL FIX: Preventing FOLLOW_UP intent without chat history")
+                    print(f"📋 [DEBUG IntentDetector] Chat history length: {len(chat_history) if chat_history else 0}")
+                result.intent = Intent.PRODUCT_QUERY  # Default to product_query for first messages
+                if TEST_ENV:
+                    print(f"✅ [DEBUG IntentDetector] Corrected intent from follow_up to product_query")
+            
             # Update state
             state["intent"] = result.intent
             state["detected_language"] = result.language
