@@ -7,7 +7,8 @@ import {
   FeedbackSummaryResponse,
   AnalyticsSummaryResponse,
   AnalyticsQueryRequest,
-  AnalyticsQueryResponse
+  AnalyticsQueryResponse,
+  WorkflowUpdate
 } from '../types'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:2103';
@@ -75,6 +76,75 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify(requestData),
     });
+  }
+
+  // 🚀 NEW: Streaming message method
+  async sendMessageStream(
+    message: string,
+    chatHistory: Array<{role: string; content: string}> = [],
+    debug: boolean = false,
+    onUpdate: (update: WorkflowUpdate) => void
+  ): Promise<string> {
+    const requestData: ChatRequest = {
+      message,
+      chat_history: chatHistory,
+      debug
+    };
+
+    const url = `${API_BASE_URL}/chat/stream`;
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error('No response body reader available');
+    }
+
+    const decoder = new TextDecoder();
+    let finalResponse = '';
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const jsonStr = line.slice(6); // Remove 'data: ' prefix
+              if (jsonStr.trim()) {
+                const update: WorkflowUpdate = JSON.parse(jsonStr);
+                onUpdate(update);
+                
+                // If it's the final response, save it
+                if (update.status === 'complete') {
+                  finalResponse = update.message;
+                }
+              }
+            } catch (e) {
+              console.warn('Failed to parse SSE data:', e);
+            }
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+
+    return finalResponse;
   }
 
   async healthCheck(): Promise<{status: string; debug_mode: boolean; timestamp: number}> {

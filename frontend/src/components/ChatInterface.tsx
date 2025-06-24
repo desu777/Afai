@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Message } from '../types'
+import { Message, WorkflowUpdate } from '../types'
 import { apiService } from '../services/api'
 import Header from './Header'
 import MessageList from './MessageList'
@@ -17,6 +17,7 @@ const ChatInterface: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [currentWorkflowUpdate, setCurrentWorkflowUpdate] = useState<WorkflowUpdate | undefined>(undefined);
 
   const handleSend = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -34,6 +35,7 @@ const ChatInterface: React.FC = () => {
     const currentInput = inputValue;
     setInputValue('');
     setIsLoading(true);
+    setCurrentWorkflowUpdate(undefined);
 
     try {
       // Convert messages to chat history format for API
@@ -46,22 +48,32 @@ const ChatInterface: React.FC = () => {
       const debugMode = import.meta.env.VITE_TEST_ENV === 'true';
 
       if (debugMode) {
-        console.log('🔍 [Chat] Sending message:', currentInput);
+        console.log('🔍 [Chat] Sending streaming message:', currentInput);
         console.log('🔍 [Chat] Chat history:', chatHistory);
       }
 
-      // Send message to API
-      const response = await apiService.sendMessage(currentInput, chatHistory, debugMode);
+      // 🚀 Use streaming API with workflow updates
+      const finalResponse = await apiService.sendMessageStream(
+        currentInput, 
+        chatHistory, 
+        debugMode,
+        (update: WorkflowUpdate) => {
+          if (debugMode) {
+            console.log('📡 [Chat] Workflow update:', update);
+          }
+          setCurrentWorkflowUpdate(update);
+        }
+      );
 
       if (debugMode) {
-        console.log('✅ [Chat] Response received:', response);
+        console.log('✅ [Chat] Final response received:', finalResponse);
       }
 
       // Add AI response
       const aiResponse: Message = {
         id: userMessageId + 1,
         type: 'assistant',
-        content: response.response,
+        content: finalResponse,
         timestamp: new Date()
       };
 
@@ -81,6 +93,7 @@ const ChatInterface: React.FC = () => {
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
+      setCurrentWorkflowUpdate(undefined);
     }
   };
 
@@ -152,7 +165,8 @@ const ChatInterface: React.FC = () => {
           <MessageList 
             messages={messages} 
             isLoading={isLoading} 
-            onQuerySelect={handleQuerySelect} 
+            onQuerySelect={handleQuerySelect}
+            currentWorkflowUpdate={currentWorkflowUpdate}
           />
           <ChatInput
             inputValue={inputValue}

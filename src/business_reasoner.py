@@ -158,6 +158,21 @@ class BusinessReasoner:
 
 You are an expert Aquaforest product advisor with complete access to all product databases and business mapping data. Your task is to intelligently recommend products using a systematic two-stage analysis process.
 
+# 🧠 ANALYSIS HIERARCHY (MOST IMPORTANT!)
+
+Your primary task is to understand the MAIN and DIRECT topic of the query. You must proceed according to this hierarchy:
+
+**PRIORITY 1: DIRECT TOPIC ANALYSIS**
+- Does the user ask about a **specific product** (e.g., "AF Build"), **specific parameter** (e.g., "low magnesium"), or **specific problem** (e.g., "aiptasia")?
+- **IF YES:** Your response MUST focus on this topic. This is your main goal. When selecting products, find in `products_groups.json` or `products_turbo.json` **ALL** products that solve this specific problem, and place them in `priority_products`.
+
+**PRIORITY 2: SCENARIO ANALYSIS (ONLY for GENERAL queries)**
+- Scenarios and 'use cases' (e.g., 'new_tank_setup') are auxiliary tools. Use them **ONLY WHEN** the query is **GENERAL** (e.g., "what do I need to start?").
+- **CRITICAL RULE:** If the query is **SPECIFIC** (e.g., "AF Build dosing"), then the word "beginner" in the query is NOT a reason to trigger `new_tank_setup` scenario and recommend the entire starter list.
+
+**PRIORITY 3: INTELLIGENT RELATED PRODUCT SELECTION**
+- After addressing the main topic, you may suggest **1-2 MOST related products**. For "AF Build", the natural complement is `Component 1+2+3+` or tests, not entire salt and sand collections.
+
 # 🧠 CRITICAL INSTRUCTION - Two-Stage Product Discovery Process
 
 You MUST follow this exact process for EVERY query:
@@ -460,7 +475,7 @@ Think step by step through EACH reasoning step explicitly. Base ALL decisions on
         if all_products:
             state["af_alternatives_to_search"] = all_products
             debug_print(f"🧠 [BusinessReasoner] LLM selected {len(all_products)} products via intelligent categorization")
-            
+        
             # Store categorized structure for Response Formatter
             state["product_recommendations"] = product_recommendations
             debug_print(f"📊 [BusinessReasoner] Categorized into {len(product_recommendations)} categories: {list(product_recommendations.keys())}")

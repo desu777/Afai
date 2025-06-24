@@ -1,6 +1,7 @@
 """
-Query Optimization Module - Version 3.0 with Category Support
-Enhanced to work with business reasoner's category detection
+Query Optimization Module - VERSION 4.0 REVOLUTIONARY LLM INTELLIGENCE
+🚀 CONCEPT-BASED SEARCH: From "find AF Build" to "find calcium supplements for coral calcification"
+Complete evolution from name-based to concept-based intelligent discovery
 """
 import json
 import re
@@ -8,12 +9,12 @@ from typing import List, Dict
 from openai import OpenAI
 from models import ConversationState, QueryOptimizationResult
 from config import OPENAI_API_KEY, OPENAI_MODEL, OPENAI_TEMPERATURE, PRODUCTS_FILE_PATH, TEST_ENV, debug_print
-from prompts import load_prompt_template
 
 class QueryOptimizer:
     def __init__(self):
         self.client = OpenAI(api_key=OPENAI_API_KEY)
         self.product_names = self._load_product_names()
+        self.products_knowledge = self._load_products_knowledge()
         
     def _load_product_names(self) -> List[str]:
         """Load product names from JSON file"""
@@ -26,436 +27,381 @@ class QueryOptimizer:
                 print(f"❌ [DEBUG QueryOptimizer] Error loading products: {e}")
             return []
     
-    def _detect_comparison(self, query: str) -> List[str]:
-        """Detect if query is comparing products"""
-        comparison_patterns = [
-            r'(.+?)\s+vs\.?\s+(.+)',
-            r'(.+?)\s+versus\s+(.+)',
-            r'difference between\s+(.+?)\s+and\s+(.+)',
-            r'difference between\s+(.+?)\s+and\s+(.+)',
-            r'compare\s+(.+?)\s+and\s+(.+)',
-            r'compare\s+(.+?)\s+and\s+(.+)',
-        ]
+    def _load_products_knowledge(self) -> List[Dict]:
+        """🆕 Load detailed product knowledge for concept-based search"""
+        try:
+            with open("data/products_turbo.json", 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                debug_print(f"✅ [QueryOptimizer] Loaded {len(data)} products knowledge for concept analysis")
+                return data
+        except Exception as e:
+            debug_print(f"❌ [QueryOptimizer] Error loading products knowledge: {e}")
+            return []
+
+    def _create_revolutionary_prompt(self, state: ConversationState) -> str:
+        """🚀 REVOLUTIONARY: Create LLM prompt for concept-based search"""
         
-        for pattern in comparison_patterns:
-            match = re.search(pattern, query, re.IGNORECASE)
-            if match:
-                product1 = match.group(1).strip()
-                product2 = match.group(2).strip()
-                if TEST_ENV:
-                    print(f"🔍 [QueryOptimizer] Detected comparison: '{product1}' vs '{product2}'")
-                return [product1, product2]
-        return []
-    
-    def _create_optimization_prompt(self, state: ConversationState) -> str:
-        """Create query optimization prompt using external template"""
         query = state["user_query"]
         language = state["detected_language"]
-        chat_history = state.get("chat_history", [])
         
-        # Format recent conversation for context
-        conversation_context = ""
-        if chat_history:
-            recent_exchanges = chat_history[-4:]
-            recent_context = "\n".join([f"{msg['role'].upper()}: {msg['content']}" for msg in recent_exchanges])
-            conversation_context = f"""--- CONVERSATION CONTEXT ---
-{recent_context}
----"""
+        # Get priority products from Business Reasoner
+        priority_products = state.get("af_alternatives_to_search", [])
         
-        # Check for comparison
-        comparison_products = self._detect_comparison(query)
+        # Chat history for context
+        chat_history = ""
+        if state.get("chat_history"):
+            recent_messages = state["chat_history"][-4:]
+            chat_history = "\n".join([f"{msg['role'].upper()}: {msg['content']}" for msg in recent_messages])
         
-        # Get business intelligence context
+        # Business context
         business_context = ""
-        category_context = ""
         if state.get("business_analysis"):
             ba = state["business_analysis"]
-            
-            # Safe handling of products_in_category
-            products_in_category = ba.get('products_in_category', [])
-            if not isinstance(products_in_category, list):
-                products_in_category = []
-            
-            # Safe handling of solutions_for_problem
-            solutions_for_problem = ba.get('solutions_for_problem', [])
-            if isinstance(solutions_for_problem, dict):
-                # Extract solutions from dict structure
-                solutions_list = []
-                if 'correction' in solutions_for_problem:
-                    solutions_list.extend(solutions_for_problem['correction'])
-                if 'maintenance' in solutions_for_problem:
-                    solutions_list.extend(solutions_for_problem['maintenance'])
-                solutions_for_problem = solutions_list
-            elif not isinstance(solutions_for_problem, list):
-                solutions_for_problem = []
-            
-            business_context = f"""--- BUSINESS INTELLIGENCE ---
-Business Interpretation: {ba.get('business_interpretation', 'N/A')}
-Product Name Corrections: {ba.get('product_name_corrections', 'None')}
-Category Requested: {ba.get('category_requested', 'None')}
-Products in Category: {', '.join(products_in_category)}
-Problem Identified: {ba.get('problem_identified', 'None')}
-Solutions: {', '.join(solutions_for_problem)}
-Domain Hint: {ba.get('domain_hint', 'unknown')}
-Search Enhancement: {ba.get('search_enhancement', 'None')}
----"""
-            # Special handling for category requests
-            if ba.get('category_requested') and products_in_category:
-                category_context = f"""🆕 CATEGORY REQUEST DETECTED: "{ba['category_requested']}"
-Products to find: {', '.join(products_in_category)}
-
-SPECIAL INSTRUCTIONS:
-1. Create queries that will find ALL products in this category
-2. Include the exact product names as separate queries
-3. Add category-level queries like "{ba['category_requested']} products"
+            business_context = f"""
+Business Analysis:
+- Interpretation: {ba.get('business_interpretation', 'N/A')}
+- Detected Scenario: {ba.get('detected_scenario', 'None')}
+- Use Case: {ba.get('detected_use_case', 'None')}
+- Domain: {ba.get('domain_hint', 'unknown')}
 """
-        
-        # ENHANCED PROMPT WITH COMPARISON SUPPORT
-        comparison_instructions = ""
-        if comparison_products:
-            comparison_instructions = f"""🆕 COMPARISON DETECTED: User is comparing "{comparison_products[0]}" with "{comparison_products[1]}"
 
-SPECIAL INSTRUCTIONS FOR COMPARISONS:
-1. Create SEPARATE search queries for EACH product being compared
-2. Find the exact product names from the list
-3. Include queries that will help find both products' features
-4. Add general comparison queries
+        # 🚀 FILTER products_knowledge for priority products
+        priority_products_data = []
+        if priority_products:
+            for priority_product in priority_products:
+                for product_data in self.products_knowledge:
+                    if product_data.get("product_name") == priority_product:
+                        priority_products_data.append(product_data)
+                        break
 
-Example: For "lava soil vs lava soil black":
-- "AF Lava Soil"
-- "AF Lava Soil Black"
-- "lava soil substrate properties"
-- "black lava soil aquarium benefits"
-"""
-        
-        # 🆕 ENHANCED: Include guaranteed products info
-        guaranteed_products = state.get("guaranteed_products", [])
-        guaranteed_products_text = ', '.join(guaranteed_products) if guaranteed_products else "None"
-        
-        # Try to load prompt from template
-        prompt = load_prompt_template(
-            "query_optimization",
-            conversation_context=conversation_context,
-            business_context=business_context,
-            user_query=query,
-            language=language,
-            product_names=', '.join(self.product_names),
-            guaranteed_products=guaranteed_products_text,
-            category_context=category_context,
-            comparison_instructions=comparison_instructions
-        )
-        
-        # Fallback to simple prompt if template fails
-        if not prompt:
-            if TEST_ENV:
-                print("⚠️ [QueryOptimizer] Using fallback hardcoded prompt")
-            prompt = f"""
-Generate search queries for: "{query}"
-Return JSON: {{"optimized_queries": ["{query}"]}}
-"""
-        
+        priority_products_json = json.dumps(priority_products_data, indent=1, ensure_ascii=False)
+
+        prompt = f"""# REVOLUTIONARY QUERY OPTIMIZER - CONCEPT-BASED SEARCH
+
+You are transforming search from "name-based" to "concept-based" discovery. Your mission is to understand WHAT problems the priority products solve, and generate search queries that find related concepts, knowledge, and complementary products.
+
+## CORE PRINCIPLE: FROM NAMES TO CONCEPTS
+
+❌ OLD WAY (name-based): User asks about "AF Build" → search for "AF Build"
+✅ NEW WAY (concept-based): User asks about "AF Build" → understand it's for "coral calcification" → search for:
+- "coral calcification supplements"
+- "improving SPS skeletal growth"  
+- "calcium carbonate absorption"
+- "hard coral growth enhancement"
+
+## WHY THIS REVOLUTION MATTERS:
+1. **Knowledge Discovery**: Find articles about "coral calcification" that don't mention "AF Build" by name
+2. **Complementary Products**: Discover products that solve related problems or enhance the main product
+3. **Educational Context**: Surface guides, tips, and knowledge that provide deeper understanding
+4. **Intelligent Connections**: Connect user problems to broader aquarium concepts
+
+## USER CONTEXT
+
+**USER QUERY:** "{query}"
+**LANGUAGE:** {language}
+**PRIORITY PRODUCTS (from Business Reasoner):** {priority_products}
+
+**CONVERSATION HISTORY:**
+{chat_history if chat_history else "No previous conversation"}
+
+{business_context}
+
+## PRIORITY PRODUCTS DETAILED KNOWLEDGE
+
+These are the products Business Reasoner identified as most relevant. Your job is to understand their CONCEPTS and PURPOSES:
+
+{priority_products_json}
+
+## YOUR MISSION: CONCEPT EXTRACTION & INTELLIGENT SEARCH
+
+🧠 **STEP 1: CONCEPT ANALYSIS**
+For each priority product, analyze:
+- What PROBLEMS does it solve? (from solves_problems field)
+- What are its KEY FUNCTIONS? (from use_case field)  
+- What KEYWORDS represent its purpose? (from keywords field)
+- What CATEGORY does it belong to? (from category field)
+
+🎯 **STEP 2: CONCEPT-BASED QUERY GENERATION**
+Generate 8-12 search queries that will find:
+
+**PRIMARY CONCEPTS (40%)** - Core problems/functions:
+- Instead of "AF Build", search for "coral calcification enhancement", "SPS growth supplements"
+- Instead of "Ca Plus", search for "calcium supplementation reef", "marine calcium deficiency"
+- Instead of "Pro Bio S", search for "beneficial bacteria aquarium", "biological filtration enhancement"
+
+**KNOWLEDGE & EDUCATION (30%)** - Related articles and guides:
+- "how to improve coral calcification"
+- "reef tank calcium management guide"
+- "SPS coral care techniques"
+- "biological filtration principles"
+
+**COMPLEMENTARY CONCEPTS (20%)** - Related products and systems:
+- Products that work WITH the priority products
+- Supporting equipment or supplements
+- Testing and monitoring related to the concepts
+
+**PROBLEM VARIATIONS (10%)** - Different ways to express the same issues:
+- Alternative terminology for the same problems
+- Beginner vs advanced ways of describing issues
+
+## SPECIAL RULES
+
+🚨 **GUARANTEED SEARCH AWARENESS**: 
+- The priority products {priority_products} will be found through guaranteed search by exact name
+- DO NOT waste vector search on names - focus on CONCEPTS and RELATED CONTENT
+- Your queries should discover what guaranteed search CANNOT find
+
+🎯 **LANGUAGE ADAPTATION**:
+- Generate queries in {language} when appropriate
+- Include both technical and beginner-friendly terminology
+- Consider regional product naming conventions
+
+🔍 **DISCOVERY FOCUS**:
+- Prioritize queries that will find knowledge articles
+- Look for complementary products and systems
+- Find educational content that enhances understanding
+- Connect to broader aquarium keeping concepts
+
+## OUTPUT FORMAT
+
+Return ONLY valid JSON with this structure:
+
+{{
+    "reasoning": "Brief explanation of your concept analysis and why these queries will discover valuable related content",
+    "concept_analysis": [
+        {{"product": "Product Name", "core_concepts": ["concept1", "concept2"], "related_problems": ["problem1", "problem2"]}}
+    ],
+    "optimized_queries": [
+        "concept-based query 1",
+        "concept-based query 2", 
+        "educational query 3",
+        "complementary system query 4",
+        "problem variation query 5",
+        "knowledge article query 6",
+        "related product query 7",
+        "advanced technique query 8"
+    ]
+}}
+
+## EXAMPLE TRANSFORMATION
+
+**PRIORITY PRODUCT:** "AF Build"
+**CONCEPT ANALYSIS:** Calcium/carbonate supplement for coral calcification, pH buffering, hard coral growth
+**REVOLUTIONARY QUERIES:**
+- "coral calcification enhancement techniques"
+- "calcium carbonate absorption in SPS corals"  
+- "hard coral skeletal growth supplements"
+- "reef tank pH stabilization methods"
+- "SPS feeding and calcification guide"
+- "complementary calcium dosing systems"
+- "coral growth rate improvement"
+- "alkalinity and calcium balance"
+
+Notice: NO queries for "AF Build" itself - that's handled by guaranteed search!
+
+🚀 **NOW GENERATE YOUR REVOLUTIONARY CONCEPT-BASED QUERIES FOR INTELLIGENT DISCOVERY!**"""
+
         return prompt
 
     def optimize(self, state: ConversationState) -> ConversationState:
-        """Optimize query for better search results with enhanced intelligence"""
+        """🚀 REVOLUTIONARY: Concept-based optimization with full LLM intelligence"""
         query = state["user_query"]
-        chat_history = state.get("chat_history", [])
+        priority_products = state.get("af_alternatives_to_search", [])
         
-        # 🔍 DEBUG: Check AF alternatives
-        if state.get('af_alternatives_to_search'):
-            debug_print(f"🎯 [QueryOptimizer] Found af_alternatives_to_search: {len(state['af_alternatives_to_search'])} products")
+        debug_print(f"🚀 [QueryOptimizer] REVOLUTIONARY MODE: Concept-based search")
+        debug_print(f"🎯 [QueryOptimizer] Original query: '{query}'")
         
-        debug_print(f"🕵️ [QueryOptimizer] Original query: '{query}'")
-        if chat_history:
-            debug_print(f"📚 [QueryOptimizer] Context: last {len(chat_history[-4:])} messages")
-        
-        # 🆕 ENHANCED: Extract mentioned products from user query
-        mentioned_products = self._extract_mentioned_products(query)
-        if mentioned_products:
-            debug_print(f"🎯 [QueryOptimizer] User mentioned products: {mentioned_products}")
-        
-        # Check for comparison
-        comparison_products = self._detect_comparison(query)
-        if comparison_products:
-            debug_print(f"🔀 [QueryOptimizer] Product comparison detected: {comparison_products}")
-        
-        # 🆕 ENHANCED: Collect all critical queries BEFORE LLM call
-        critical_queries = []
-        guaranteed_products = set()  # Track products we'll find via guaranteed search
-        
-        # Add mentioned products as high-priority queries
-        critical_queries.extend(mentioned_products)
-        guaranteed_products.update(mentioned_products)
-        
-        # 🚀 ENHANCED: Add AF alternatives from competitor detection
-        if state.get("af_alternatives_to_search"):
-            af_alternatives = state["af_alternatives_to_search"]
-            debug_print(f"🎯 [QueryOptimizer] Adding AF alternatives: {af_alternatives}")
-            critical_queries.extend(af_alternatives)
-            guaranteed_products.update(af_alternatives)
-        
-        # Log business intelligence usage and extract solutions
-        if state.get("business_analysis"):
-            debug_print(f"🧠 [QueryOptimizer] Using business intelligence from business_reasoner")
-            ba = state["business_analysis"]
-            
-            if ba.get("product_name_corrections") and ba["product_name_corrections"] != "None":
-                debug_print(f"🔧 [QueryOptimizer] Product corrections: {ba['product_name_corrections']}")
-                critical_queries.append(ba["product_name_corrections"])
-                guaranteed_products.add(ba["product_name_corrections"])
-            
-            if ba.get("category_requested"):
-                debug_print(f"📦 [QueryOptimizer] Category: {ba['category_requested']} with {len(ba.get('products_in_category', []))} products")
-                # Add all category products as critical queries
-                products_in_category = ba.get('products_in_category', [])
-                if isinstance(products_in_category, list):
-                    critical_queries.extend(products_in_category)
-                    guaranteed_products.update(products_in_category)
-            
-            # 🆕 ENHANCED: Add solution products as critical queries
-            solutions_for_problem = ba.get('solutions_for_problem', [])
-            if isinstance(solutions_for_problem, dict):
-                # Extract solutions from dict structure
-                if 'correction' in solutions_for_problem:
-                    critical_queries.extend(solutions_for_problem['correction'])
-                    guaranteed_products.update(solutions_for_problem['correction'])
-                if 'maintenance' in solutions_for_problem:
-                    critical_queries.extend(solutions_for_problem['maintenance'])
-                    guaranteed_products.update(solutions_for_problem['maintenance'])
-            elif isinstance(solutions_for_problem, list):
-                critical_queries.extend(solutions_for_problem)
-                guaranteed_products.update(solutions_for_problem)
-            
-            # 🆕 ENHANCED: Add problem-specific queries (NOT product-specific)
-            if ba.get("problem_identified"):
-                domain = ba.get("domain_hint", "unknown")
-                problem_queries = self._create_problem_queries(ba["problem_identified"], domain)
-                critical_queries.extend(problem_queries)
-                debug_print(f"🔧 [QueryOptimizer] Added {len(problem_queries)} problem-specific queries for: {ba['problem_identified']}")
-            
-            if ba.get("domain_hint") and ba["domain_hint"] != "unknown":
-                debug_print(f"🎯 [QueryOptimizer] Domain hint: {ba['domain_hint']}")
-        
-        # Remove duplicates from critical queries
-        critical_queries = list(dict.fromkeys(critical_queries))  # Preserves order
-        
+        if priority_products:
+            debug_print(f"🧠 [QueryOptimizer] Priority products for concept analysis: {priority_products}")
+        else:
+            debug_print(f"⚠️ [QueryOptimizer] No priority products - using query-only analysis")
+
         try:
-            # 🆕 SMART PROMPT: Tell LLM about guaranteed products to avoid redundancy
-            enhanced_state = state.copy()
-            enhanced_state["guaranteed_products"] = list(guaranteed_products)
-            
+            # 🚀 REVOLUTIONARY LLM ANALYSIS
             response = self.client.chat.completions.create(
                 model=OPENAI_MODEL,
-                temperature=OPENAI_TEMPERATURE,
+                temperature=0.3,  # Slightly higher for creative concept discovery
                 messages=[
                     {
                         "role": "system", 
-                        "content": self._create_optimization_prompt(enhanced_state)
+                        "content": self._create_revolutionary_prompt(state)
                     }
                 ],
                 response_format={"type": "json_object"}
             )
             
             result = json.loads(response.choices[0].message.content)
-            llm_queries = result.get("optimized_queries", [query])
+            concept_queries = result.get("optimized_queries", [])
+            concept_analysis = result.get("concept_analysis", [])
+            reasoning = result.get("reasoning", "")
             
-            # 🆕 ENHANCED: Combine critical queries with LLM queries
-            # Critical queries go first (higher priority in search)
-            final_queries = critical_queries + [q for q in llm_queries if q not in critical_queries]
-            
+            # Store results
             state["original_query"] = query
-            state["optimized_queries"] = final_queries
+            state["optimized_queries"] = concept_queries
             
-            # Store comparison info if detected
-            if comparison_products:
-                state["comparison_products"] = comparison_products
+            # 🆕 Store concept analysis for Response Formatter
+            state["concept_analysis"] = {
+                "reasoning": reasoning,
+                "product_concepts": concept_analysis,
+                "query_strategy": "concept_based_discovery"
+            }
             
-            debug_print(f"✅ [QueryOptimizer] Final queries ({len(critical_queries)} critical + {len(llm_queries)} LLM): {state['optimized_queries']}")
+            debug_print(f"✅ [QueryOptimizer] Generated {len(concept_queries)} concept-based queries")
+            debug_print(f"🧠 [QueryOptimizer] Concept analysis: {reasoning[:100]}...")
+            
+            if TEST_ENV:
+                print(f"🚀 [QueryOptimizer] REVOLUTIONARY QUERIES:")
+                for i, q in enumerate(concept_queries, 1):
+                    print(f"   {i}. {q}")
+                    
+                if concept_analysis:
+                    print(f"🧠 [QueryOptimizer] CONCEPT ANALYSIS:")
+                    for analysis in concept_analysis:
+                        product = analysis.get("product", "Unknown")
+                        concepts = analysis.get("core_concepts", [])
+                        print(f"   • {product}: {', '.join(concepts)}")
                 
         except Exception as e:
             if TEST_ENV:
-                print(f"❌ [DEBUG QueryOptimizer] Query optimization error: {e}")
+                print(f"❌ [DEBUG QueryOptimizer] Revolutionary analysis error: {e}")
+            
+            # 🆕 INTELLIGENT FALLBACK: Basic concept extraction
             state["original_query"] = query
             
-            # 🆕 ENHANCED: Smart fallback using critical queries + intelligent backup
-            if critical_queries:
-                smart_fallback = self._create_smart_fallback(state, critical_queries)
-                state["optimized_queries"] = smart_fallback
-                debug_print(f"⚠️ [QueryOptimizer] Smart fallback with {len(smart_fallback)} queries: {state['optimized_queries']}")
-            elif state.get("business_analysis", {}).get("products_in_category"):
-                # If category detected, use product names as queries
-                products_in_category = state["business_analysis"]["products_in_category"]
-                if isinstance(products_in_category, list):
-                    state["optimized_queries"] = products_in_category + [query]
-                else:
-                    state["optimized_queries"] = [query]
-                debug_print(f"⚠️ [QueryOptimizer] Fallback to category products: {state['optimized_queries']}")
-            elif comparison_products:
-                # Fallback for comparisons
-                state["optimized_queries"] = comparison_products + [query]
-                debug_print(f"⚠️ [QueryOptimizer] Fallback for comparison: {state['optimized_queries']}")
+            if priority_products:
+                # Create basic concept queries from priority products
+                fallback_queries = []
+                for product in priority_products:
+                    # Find the product in knowledge base
+                    for product_data in self.products_knowledge:
+                        if product_data.get("product_name") == product:
+                            # Extract basic concepts from keywords and use_case
+                            keywords = product_data.get("keywords", [])
+                            if keywords:
+                                # Create concept queries from keywords
+                                fallback_queries.append(f"{' '.join(keywords[:3])}")
+                            
+                            use_case = product_data.get("use_case", "")
+                            if use_case and len(use_case) > 50:
+                                # Extract key phrases from use_case
+                                words = use_case.split()[:10]
+                                fallback_queries.append(" ".join(words))
+                            break
+                
+                # Add original query
+                fallback_queries.append(query)
+                state["optimized_queries"] = list(set(fallback_queries))  # Remove duplicates
+                
+                debug_print(f"⚠️ [QueryOptimizer] Intelligent fallback: {len(state['optimized_queries'])} concept queries")
             else:
-                # Generic fallback
+                # Basic fallback
                 state["optimized_queries"] = [query]
-                debug_print(f"⚠️ [QueryOptimizer] Fallback to original query: {[query]}")
+                debug_print(f"⚠️ [QueryOptimizer] Basic fallback to original query")
             
         return state
 
-    def _extract_mentioned_products(self, query: str) -> List[str]:
-        """Extract product names mentioned by user in the query"""
-        mentioned_products = []
-        query_lower = query.lower()
+    def optimize(self, state: ConversationState) -> ConversationState:
+        """🚀 REVOLUTIONARY: Concept-based optimization with full LLM intelligence"""
+        query = state["user_query"]
+        priority_products = state.get("af_alternatives_to_search", [])
         
-        # Check for exact product name matches (case insensitive)
-        for product in self.product_names:
-            product_lower = product.lower()
-            
-            # Check for exact match
-            if product_lower in query_lower:
-                mentioned_products.append(product)
-                continue
-            
-            # Check for partial matches (for products with common abbreviations)
-            # Handle common product name variations
-            if product == "AF NitraPhos Minus" and any(term in query_lower for term in ["nitraphos", "nitrafosfat", "nitraphos minus"]):
-                mentioned_products.append(product)
-            elif product == "Pro Bio S" and any(term in query_lower for term in ["bio s", "probio s"]):
-                mentioned_products.append(product)
-            elif product == "-NP Pro" and any(term in query_lower for term in ["np pro", "-np pro"]):
-                mentioned_products.append(product)
-            elif product == "Ca Plus" and any(term in query_lower for term in ["ca plus", "ca+"]):
-                mentioned_products.append(product)
-            elif product == "Ca plus" and any(term in query_lower for term in ["ca plus", "ca+"]):
-                mentioned_products.append(product)
-            elif product == "Zeo Mix" and any(term in query_lower for term in ["zeo mix", "zeomix"]):
-                mentioned_products.append(product)
-            elif product == "Phosphate Minus" and any(term in query_lower for term in ["phosphate minus", "po4 minus"]):
-                mentioned_products.append(product)
+        debug_print(f"🚀 [QueryOptimizer] REVOLUTIONARY MODE: Concept-based search")
+        debug_print(f"🎯 [QueryOptimizer] Original query: '{query}'")
         
-        return list(set(mentioned_products))  # Remove duplicates
-    
-    def _create_problem_queries(self, problem: str, domain: str = "unknown") -> List[str]:
-        """Create problem-specific search queries"""
-        problem_queries = []
-        
-        if problem == "high_nitrates":
-            problem_queries.extend([
-                "nitrate reduction aquarium",
-                "high nitrates solution",
-                "NO3 reduction reef tank",
-                "nitrate removal products"
-            ])
-            if domain == "seawater":
-                problem_queries.append("marine aquarium nitrate control")
-        
-        elif problem == "low_calcium":
-            problem_queries.extend([
-                "calcium supplement aquarium",
-                "raise calcium reef tank",
-                "low calcium solution",
-                "calcium deficiency marine"
-            ])
-        
-        elif problem == "low_magnesium":
-            problem_queries.extend([
-                "magnesium supplement aquarium",
-                "raise magnesium reef tank",
-                "low magnesium solution",
-                "Mg deficiency marine"
-            ])
-        
-        elif problem == "ph_dropping":
-            problem_queries.extend([
-                "pH buffer aquarium",
-                "raise pH reef tank",
-                "alkalinity buffer",
-                "KH buffer marine"
-            ])
-        
-        elif problem == "ph_rising":
-            problem_queries.extend([
-                "lower pH aquarium",
-                "pH minus reef tank",
-                "reduce alkalinity"
-            ])
-        
-        elif problem == "algae":
-            problem_queries.extend([
-                "algae control aquarium",
-                "algae removal products",
-                "phosphate reduction",
-                "nutrient control reef"
-            ])
-        
-        elif problem == "corals_browning":
-            problem_queries.extend([
-                "coral browning solution",
-                "coral color enhancement",
-                "amino acids corals",
-                "coral nutrition"
-            ])
-        
-        return problem_queries
+        if priority_products:
+            debug_print(f"🧠 [QueryOptimizer] Priority products for concept analysis: {priority_products}")
+        else:
+            debug_print(f"⚠️ [QueryOptimizer] No priority products - using query-only analysis")
 
-    def _create_smart_fallback(self, state: ConversationState, critical_queries: List[str]) -> List[str]:
-        """Create intelligent fallback queries when LLM fails"""
-        query = state["user_query"].lower()
-        fallback_queries = critical_queries.copy()
-        
-        # Add domain-specific queries
-        if "reef" in query or "marine" in query or "coral" in query:
-            fallback_queries.extend([
-                "marine aquarium products",
-                "reef tank supplements",
-                "coral care products"
-            ])
-        elif "freshwater" in query or "tropical" in query:
-            fallback_queries.extend([
-                "freshwater aquarium products",
-                "tropical fish care"
-            ])
-        
-        # Add action-based queries
-        if any(word in query for word in ["raise", "increase", "boost", "podnieść"]):
-            fallback_queries.extend([
-                "aquarium supplements",
-                "parameter correction products"
-            ])
-        elif any(word in query for word in ["reduce", "lower", "decrease", "obniżyć"]):
-            fallback_queries.extend([
-                "reduction products",
-                "control supplements"
-            ])
-        
-        # Add problem-specific queries based on keywords
-        if any(word in query for word in ["nitrate", "no3", "azotany"]):
-            fallback_queries.extend([
-                "nitrate reduction",
-                "NO3 control products"
-            ])
-        elif any(word in query for word in ["phosphate", "po4", "fosforany"]):
-            fallback_queries.extend([
-                "phosphate reduction",
-                "PO4 control products"
-            ])
-        elif any(word in query for word in ["calcium", "wapń", "ca"]):
-            fallback_queries.extend([
-                "calcium supplements",
-                "Ca products"
-            ])
-        elif any(word in query for word in ["magnesium", "magnez", "mg"]):
-            fallback_queries.extend([
-                "magnesium supplements",
-                "Mg products"
-            ])
-        
-        # Add the original query as last resort
-        fallback_queries.append(state["user_query"])
-        
-        # Remove duplicates while preserving order
-        return list(dict.fromkeys(fallback_queries))
+        try:
+            # 🚀 REVOLUTIONARY LLM ANALYSIS
+            response = self.client.chat.completions.create(
+                model=OPENAI_MODEL,
+                temperature=0.3,  # Slightly higher for creative concept discovery
+                messages=[
+                    {
+                        "role": "system", 
+                        "content": self._create_revolutionary_prompt(state)
+                    }
+                ],
+                response_format={"type": "json_object"}
+            )
+            
+            result = json.loads(response.choices[0].message.content)
+            concept_queries = result.get("optimized_queries", [])
+            concept_analysis = result.get("concept_analysis", [])
+            reasoning = result.get("reasoning", "")
+            
+            # Store results
+            state["original_query"] = query
+            state["optimized_queries"] = concept_queries
+            
+            # 🆕 Store concept analysis for Response Formatter
+            state["concept_analysis"] = {
+                "reasoning": reasoning,
+                "product_concepts": concept_analysis,
+                "query_strategy": "concept_based_discovery"
+            }
+            
+            debug_print(f"✅ [QueryOptimizer] Generated {len(concept_queries)} concept-based queries")
+            debug_print(f"🧠 [QueryOptimizer] Concept analysis: {reasoning[:100]}...")
+            
+            if TEST_ENV:
+                print(f"🚀 [QueryOptimizer] REVOLUTIONARY QUERIES:")
+                for i, q in enumerate(concept_queries, 1):
+                    print(f"   {i}. {q}")
+                    
+                if concept_analysis:
+                    print(f"🧠 [QueryOptimizer] CONCEPT ANALYSIS:")
+                    for analysis in concept_analysis:
+                        product = analysis.get("product", "Unknown")
+                        concepts = analysis.get("core_concepts", [])
+                        print(f"   • {product}: {', '.join(concepts)}")
+                
+        except Exception as e:
+            if TEST_ENV:
+                print(f"❌ [DEBUG QueryOptimizer] Revolutionary analysis error: {e}")
+            
+            # 🆕 INTELLIGENT FALLBACK: Basic concept extraction
+            state["original_query"] = query
+            
+            if priority_products:
+                # Create basic concept queries from priority products
+                fallback_queries = []
+                for product in priority_products:
+                    # Find the product in knowledge base
+                    for product_data in self.products_knowledge:
+                        if product_data.get("product_name") == product:
+                            # Extract basic concepts from keywords and use_case
+                            keywords = product_data.get("keywords", [])
+                            if keywords:
+                                # Create concept queries from keywords
+                                fallback_queries.append(f"{' '.join(keywords[:3])}")
+                            
+                            use_case = product_data.get("use_case", "")
+                            if use_case and len(use_case) > 50:
+                                # Extract key phrases from use_case
+                                words = use_case.split()[:10]
+                                fallback_queries.append(" ".join(words))
+                            break
+                
+                # Add original query
+                fallback_queries.append(query)
+                state["optimized_queries"] = list(set(fallback_queries))  # Remove duplicates
+                
+                debug_print(f"⚠️ [QueryOptimizer] Intelligent fallback: {len(state['optimized_queries'])} concept queries")
+            else:
+                # Basic fallback
+                state["optimized_queries"] = [query]
+                debug_print(f"⚠️ [QueryOptimizer] Basic fallback to original query")
+            
+        return state
 
+# 🚀 EXPORT FUNCTION - Same name for workflow compatibility
 def optimize_product_query(state: ConversationState) -> ConversationState:
-    """Node function for LangGraph"""
+    """
+    🚀 REVOLUTIONARY: Concept-based query optimization
+    Main entry point for LangGraph workflow
+    """
     optimizer = QueryOptimizer()
     return optimizer.optimize(state)

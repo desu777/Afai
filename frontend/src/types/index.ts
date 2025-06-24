@@ -104,4 +104,12 @@ export interface AnalyticsQueryResponse {
   success: boolean;
   count: number;
   data: AnalyticsItem[];
+}
+
+// 🚀 NEW: Streaming workflow types
+export interface WorkflowUpdate {
+  node: string;
+  status: 'processing' | 'complete' | 'error';
+  message: string;
+  elapsed_time: number;
 } 

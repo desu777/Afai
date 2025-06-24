@@ -49,6 +49,12 @@ class AnalyticsQuery(BaseModel):
     end_date: Optional[str] = None
     limit: int = 100
 
+class WorkflowUpdate(BaseModel):
+    node: str
+    status: str
+    message: str
+    elapsed_time: float
+
 # Initialize FastAPI app
 app = FastAPI(
     title="Aquaforest RAG API",
@@ -268,6 +274,131 @@ async def chat_endpoint(request: ChatRequest):
                 error="Internal server error",
                 execution_time=execution_time
             )
+
+# 🚀 NEW: Streaming Chat Endpoint with Workflow Updates
+@app.post("/chat/stream")
+async def chat_stream_endpoint(request: ChatRequest):
+    """
+    Streaming chat endpoint that provides real-time workflow updates
+    Returns Server-Sent Events (SSE) with status updates and final response
+    """
+    
+    async def generate_stream():
+        analytics.reset()
+        start_time = time.time()
+        
+        # Node translations for user-friendly messages (updated with correct node names)
+        node_messages = {
+            "detect_intent": "Understanding your question...",
+            "load_products": "Loading product database...",
+            "business_reasoner": "Analyzing your aquarium needs...",
+            "optimize_query": "Finding the best products for you...",
+            "search_pinecone": "Searching through our product catalog...",
+            "evaluate_confidence": "Validating the recommendations...", 
+            "format_response": "Preparing your personalized response...",
+            "follow_up_router": "Checking conversation context...",
+            "handle_follow_up": "Processing follow-up question...",
+            "escalate_support": "Escalating to human support..."
+        }
+        
+        try:
+            # Create ConversationState from request
+            conversation_state: ConversationState = {
+                "user_query": request.message,
+                "detected_language": "en",
+                "intent": "other",
+                "product_names": [],
+                "original_query": request.message,
+                "optimized_queries": [],
+                "search_results": [],
+                "confidence": 0.0,
+                "evaluation_reasoning": "",
+                "iteration": 0,
+                "final_response": "",
+                "escalate": False,
+                "domain_filter": None,
+                "chat_history": request.chat_history,
+                "context_cache": []
+            }
+            
+            # Send initial status
+            elapsed = time.time() - start_time
+            initial_update = WorkflowUpdate(
+                node="start",
+                status="processing",
+                message="Starting analysis of your question...",
+                elapsed_time=elapsed
+            )
+            yield f"data: {initial_update.model_dump_json()}\n\n"
+            
+            # Stream workflow execution
+            final_node_output = None
+            for chunk in assistant.workflow.stream(conversation_state):
+                node_name = list(chunk.keys())[0]
+                if node_name != "__end__":
+                    elapsed = time.time() - start_time
+                    user_message = node_messages.get(node_name, f"Processing {node_name}...")
+                    
+                    update = WorkflowUpdate(
+                        node=node_name,
+                        status="processing", 
+                        message=user_message,
+                        elapsed_time=elapsed
+                    )
+                    yield f"data: {update.model_dump_json()}\n\n"
+                    
+                    final_node_output = chunk[node_name]
+            
+            if not final_node_output:
+                error_update = WorkflowUpdate(
+                    node="error",
+                    status="error",
+                    message="An error occurred during processing",
+                    elapsed_time=time.time() - start_time
+                )
+                yield f"data: {error_update.model_dump_json()}\n\n"
+                return
+            
+            # Build final response state
+            result_state = final_node_output
+            if "chat_history" not in result_state:
+                result_state["chat_history"] = []
+            result_state["chat_history"].append({"role": "user", "content": conversation_state["user_query"]})
+            result_state["chat_history"].append({"role": "assistant", "content": result_state.get("final_response", "")})
+            
+            # Capture analytics from final state
+            analytics.capture_state_data(result_state)
+            save_analytics_to_db()
+            
+            # Send final response
+            elapsed = time.time() - start_time
+            final_update = WorkflowUpdate(
+                node="complete",
+                status="complete",
+                message=result_state.get("final_response", "Sorry, I couldn't process your request."),
+                elapsed_time=elapsed
+            )
+            yield f"data: {final_update.model_dump_json()}\n\n"
+            
+        except Exception as e:
+            elapsed = time.time() - start_time
+            error_update = WorkflowUpdate(
+                node="error",
+                status="error", 
+                message=f"An error occurred: {str(e)}" if TEST_ENV else "I apologize, but I encountered an error. Please try again.",
+                elapsed_time=elapsed
+            )
+            yield f"data: {error_update.model_dump_json()}\n\n"
+    
+    return StreamingResponse(
+        generate_stream(),
+        media_type="text/plain",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "Content-Type": "text/event-stream"
+        }
+    )
 
 def save_analytics_to_db():
     """Save analytics data to database"""
