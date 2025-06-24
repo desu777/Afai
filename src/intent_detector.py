@@ -7,7 +7,7 @@ import re  # 🆕 For ICP URL detection
 from typing import Dict
 from openai import OpenAI
 from models import ConversationState, Intent, IntentDetectionResult
-from config import OPENAI_API_KEY, OPENAI_MODEL, OPENAI_TEMPERATURE, TEST_ENV
+from config import OPENAI_API_KEY, OPENAI_MODEL2, OPENAI_TEMPERATURE, TEST_ENV
 from prompts import load_prompt_template
 
 class IntentDetector:
@@ -87,7 +87,7 @@ Return ONLY a valid JSON object:
         
         try:
             response = self.client.chat.completions.create(
-                model=OPENAI_MODEL,
+                model=OPENAI_MODEL2,
                 temperature=OPENAI_TEMPERATURE,
                 messages=[
                     {"role": "system", "content": self._create_intent_prompt(state)}

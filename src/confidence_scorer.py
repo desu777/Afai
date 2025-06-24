@@ -6,7 +6,7 @@ from typing import List, Dict, Any
 import json
 from openai import OpenAI
 from models import ConversationState
-from config import OPENAI_API_KEY, OPENAI_MODEL, OPENAI_TEMPERATURE, TEST_ENV, CONFIDENCE_THRESHOLD
+from config import OPENAI_API_KEY, OPENAI_MODEL2, OPENAI_TEMPERATURE, TEST_ENV, CONFIDENCE_THRESHOLD
 from prompts import load_prompt_template
 
 class ConfidenceScorer:
@@ -196,7 +196,7 @@ Return JSON: {{"confidence": 0.5, "reasoning": "fallback evaluation", "best_matc
         
         try:
             response = self.client.chat.completions.create(
-                model=OPENAI_MODEL,
+                model=OPENAI_MODEL2,
                 temperature=0,
                 messages=[
                     {

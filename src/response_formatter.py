@@ -1,12 +1,13 @@
 """
-Response Formatting Module - VERSION 6.0 LLM INTELLIGENT
-🚀 Simplified with full LLM intelligence - calculations remain safe via calculation_helper
-🎭 Passionate expert persona with CoT framework using external prompt templates
+Response Formatting Module - VERSION 5.0 HYBRID ENHANCED
+🚀 Enhanced with comprehensive mapping support, competitor handling, and scenario awareness
+Advanced metadata handling, category support, calculation safety, and business intelligence integration
 """
 from typing import List, Dict, Any, Optional
 import json
+import re
 from openai import OpenAI
-from models import ConversationState, Intent
+from models import ConversationState, ProductInfo, Intent, Domain
 from config import OPENAI_API_KEY, OPENAI_MODEL, OPENAI_TEMPERATURE, TEST_ENV, debug_print
 from calculation_helper import calculation_helper
 from prompts import load_prompt_template
@@ -14,210 +15,700 @@ from prompts import load_prompt_template
 class ResponseFormatter:
     def __init__(self):
         self.client = OpenAI(api_key=OPENAI_API_KEY)
+        self.dosage_keywords = [
+            'how much', 'combien', 'quanto', 'dosierung', 'dosis', 'how much needed',
+            'how to dose', 'how to dose', 'how much to add', 'how to apply', 'what dose',
+            'for', 'for', 'liters', 'liters', 'L'
+        ]
     
-    def _create_intelligent_response_prompt(self, state: ConversationState) -> str:
-        """🎭 PASSIONATE EXPERT PROMPT - uses external template with CoT framework"""
+    def _detect_dosage_query(self, query: str) -> bool:
+        """Detect if query is about dosage/calculation"""
+        query_lower = query.lower()
+        return any(keyword in query_lower for keyword in self.dosage_keywords)
+    
+    def _extract_dosage_info(self, metadata: Dict) -> Dict[str, Any]:
+        """Extract dosage information from product metadata"""
+        dosage_info = {
+            "has_dosage": False,
+            "base_amount": None,
+            "base_volume": 100,  # Default to 100L
+            "unit": "ml",
+            "frequency": "daily",
+            "timing": None,
+            "special_instructions": []
+        }
         
-        # Basic context
-        lang = state.get("detected_language", "en")
-        intent = state.get("intent", "product_query")
-        user_query = state.get("user_query", "")
-        confidence = state.get("confidence", 0.0)
-        
-        # Conversation history
-        chat_history = ""
-        if state.get("chat_history"):
-            recent_messages = state["chat_history"][-6:]
-            chat_history = "\n".join([f"{msg['role'].upper()}: {msg['content']}" for msg in recent_messages])
-        
-        # Search results with full metadata
-        search_results_json = json.dumps(state.get("search_results", []), indent=2, ensure_ascii=False)
-        
-        # Business intelligence context
-        business_context = json.dumps(state.get("business_analysis", {}), indent=2, ensure_ascii=False)
-        
-        # All additional context
-        additional_context = {}
-        context_fields = [
-            "requested_category", "category_products", "identified_problem", 
-            "recommended_solutions", "maintenance_solutions", "solution_note",
-            "business_recommendations", "competitor_info", "scenario_info", 
-            "use_case_info", "af_alternatives_to_search", "domain_filter",
-            "product_recommendations"  # 🆕 Add categorized products
+        # Check various dosage fields
+        if metadata.get("dosage_amount"):
+            dosage_info["has_dosage"] = True
+            dosage_info["base_amount"] = self._parse_amount(metadata["dosage_amount"])
+            
+        if metadata.get("dosage_volume"):
+            volume = self._parse_volume(metadata["dosage_volume"])
+            if volume:
+                dosage_info["base_volume"] = volume
+                
+        if metadata.get("dosage_unit"):
+            dosage_info["unit"] = metadata["dosage_unit"]
+            
+        if metadata.get("dosage_frequency"):
+            dosage_info["frequency"] = metadata["dosage_frequency"]
+            
+        if metadata.get("dosage_timing"):
+            dosage_info["timing"] = metadata["dosage_timing"]
+            
+        # Parse from full content if needed
+        if not dosage_info["has_dosage"] and metadata.get("full_content_en"):
+            dosage_info = self._parse_dosage_from_content(metadata["full_content_en"], dosage_info)
+            
+        return dosage_info
+    
+    def _parse_amount(self, amount_str: str) -> float:
+        """Parse amount from string like '10 ml' or '1 drop'"""
+        try:
+            # Extract number from string
+            match = re.search(r'(\d+(?:\.\d+)?)', str(amount_str))
+            if match:
+                return float(match.group(1))
+        except:
+            pass
+        return 0.0
+    
+    def _parse_volume(self, volume_str: str) -> Optional[int]:
+        """Parse volume from string like '100L' or '100 liters'"""
+        try:
+            match = re.search(r'(\d+)\s*[lL]', str(volume_str))
+            if match:
+                return int(match.group(1))
+        except:
+            pass
+        return None
+    
+    def _parse_dosage_from_content(self, content: str, dosage_info: Dict) -> Dict:
+        """Try to parse dosage from full content"""
+        # Common dosage patterns
+        patterns = [
+            r'(\d+(?:\.\d+)?)\s*(ml|drops?|kropli?|krople?)\s*(?:per|na)\s*(\d+)\s*[lL]',
+            r'dawkowanie:?\s*(\d+(?:\.\d+)?)\s*(ml|drops?)',
+            r'dose:?\s*(\d+(?:\.\d+)?)\s*(ml|drops?)',
         ]
         
-        for field in context_fields:
-            if state.get(field):
-                additional_context[field] = state[field]
-        
-        additional_context_json = json.dumps(additional_context, indent=2, ensure_ascii=False)
-        
-        # Try to extract volume for potential dosage calculations
-        extracted_volume = calculation_helper.extract_volume_from_query(user_query)
-        volume_info = f"Detected tank volume: {extracted_volume}L" if extracted_volume else "No tank volume detected"
-        
-        # Prepare pre-calculated dosages if volume detected
-        dosage_calculations = ""
-        if extracted_volume:
-            calculated_dosages = []
-            for result in state.get("search_results", []):
-                meta = result.get('metadata', {})
-                product_name = meta.get('product_name', '')
+        for pattern in patterns:
+            match = re.search(pattern, content, re.IGNORECASE)
+            if match:
+                dosage_info["has_dosage"] = True
+                dosage_info["base_amount"] = float(match.group(1))
+                dosage_info["unit"] = match.group(2).lower()
+                if len(match.groups()) >= 3:
+                    dosage_info["base_volume"] = int(match.group(3))
+                break
                 
-                # Try to extract dosage info from metadata
-                dosage_amount = self._extract_dosage_amount(meta)
-                if dosage_amount > 0:
-                    calc_result = calculation_helper.calculate_dosage(
-                        dosage_amount, 100, extracted_volume, "ml"
-                    )
-                    if calc_result["success"]:
-                        calculated_dosages.append(f"• {product_name}: {calc_result['calculation']}")
-            
-            if calculated_dosages:
-                dosage_calculations = f"""
-PRE-CALCULATED DOSAGES (use these exact calculations):
-{chr(10).join(calculated_dosages)}
-"""
-
-        # Choose appropriate template based on intent
-        if intent == Intent.FOLLOW_UP:
-            template_name = "response_follow_up"
-        else:
-            template_name = "response_passionate_expert"
+        return dosage_info
+    
+    def _get_product_url(self, product: Dict, language: str) -> str:
+        meta = product.get('metadata', {})
+        if language == 'pl' and meta.get('url_pl'):
+            return meta['url_pl']
+        return meta.get('url_en', '')
+    
+    def _has_mixed_domains(self, results: List[Dict]) -> bool:
+        """Check if results contain both freshwater and seawater products"""
+        domains = set()
+        for result in results:
+            domain = result.get('metadata', {}).get('domain')
+            if domain and domain != 'universal':
+                domains.add(domain)
+        return len(domains) > 1
+    
+    def _group_results_by_domain(self, results: List[Dict]) -> Dict[str, List[Dict]]:
+        """Group results by domain"""
+        grouped = {
+            'seawater': [],
+            'freshwater': [],
+            'universal': []
+        }
         
-        # Try to load prompt from external template
+        for result in results:
+            domain = result.get('metadata', {}).get('domain', 'universal')
+            if domain in grouped:
+                grouped[domain].append(result)
+        
+        return grouped
+
+    def _create_universal_prompt(self, state: ConversationState) -> str:
+        lang = state.get("detected_language", "en")
+        intent = state.get("intent", "product_query")
+        
+        if TEST_ENV:
+            print(f"\n📝 [DEBUG ResponseFormatter] Formatting response for intent='{intent}', language='{lang}'")
+        
+        # Handle special intents first
+        if intent in [Intent.GREETING, Intent.BUSINESS, 
+                     Intent.PURCHASE_INQUIRY, Intent.COMPETITOR, Intent.CENSORED, Intent.SUPPORT]:
+            if TEST_ENV:
+                print(f"🎭 [DEBUG ResponseFormatter] Handling special intent: {intent}")
+            return self._create_special_intent_prompt(state)
+        
+        # Format conversation history
+        chat_history_formatted = ""
+        if state.get("chat_history"):
+            chat_history_formatted = "\n".join([
+                f"{msg['role'].upper()}: {msg['content']}" 
+                for msg in state.get("chat_history", [])[-6:]
+            ])
+        
+        # Check for mixed domains
+        has_mixed = self._has_mixed_domains(state.get("search_results", []))
+        domain_not_specified = not state.get("domain_filter")
+        
+        # Check for dosage query
+        is_dosage_query = self._detect_dosage_query(state.get("user_query", ""))
+        aquarium_volume = None
+        if is_dosage_query:
+            aquarium_volume = calculation_helper.extract_volume_from_query(state.get("user_query", ""))
+        
+        # Category context
+        category_context = ""
+        if state.get("requested_category") and state.get("category_products"):
+            category_context = f"""
+--- CATEGORY REQUEST ---
+User asked for products in category: {state.get("requested_category")}
+Expected products to show: {', '.join(state.get("category_products", []))}
+Make sure to present ALL products from this category that were found!
+---
+"""
+        
+        # Problem-solution context
+        problem_context = ""
+        if state.get("identified_problem") and state.get("recommended_solutions"):
+            problem_context = f"""
+--- PROBLEM IDENTIFIED ---
+Problem: {state.get("identified_problem")}
+Recommended solutions: {', '.join(state.get("recommended_solutions", []))}
+Focus on these solutions in your response!
+---
+"""
+        
+        # Balling method context
+        balling_context = ""
+        if state.get("maintenance_solutions") and state.get("solution_note"):
+            balling_context = f"""
+--- BALLING METHOD NOTE ---
+User asked about correcting a single parameter.
+Maintenance products suggested: {', '.join(state.get("maintenance_solutions", []))}
+IMPORTANT NOTE: {state.get("solution_note", "")}
+You MUST mention that Balling/Component products contain multiple elements and are for daily maintenance, not single corrections!
+---
+"""
+        
+        # 🚀 ENHANCED BUSINESS RECOMMENDATIONS CONTEXT
+        business_context = ""
+        if state.get("business_recommendations"):
+            business_context = self._format_business_recommendations_context(state["business_recommendations"])
+        
+        # 🚀 COMPETITOR CONTEXT
+        competitor_context = ""
+        if state.get("competitor_info"):
+            competitor_context = self._format_competitor_context(state["competitor_info"])
+        
+        # 🚀 SCENARIO CONTEXT  
+        scenario_context = ""
+        if state.get("scenario_info"):
+            scenario_context = self._format_scenario_context(state["scenario_info"])
+        
+        # 🚀 USE CASE CONTEXT
+        use_case_context = ""
+        if state.get("use_case_info"):
+            use_case_context = self._format_use_case_context(state["use_case_info"])
+        
+        # Full metadata dump
+        all_results_metadata = []
+        dosage_calculations = []
+        
+        if state.get("search_results"):
+            if TEST_ENV:
+                print(f"📊 [DEBUG ResponseFormatter] Processing {len(state.get('search_results', []))} results")
+                if has_mixed and domain_not_specified:
+                    print(f"🎯 [DEBUG ResponseFormatter] Mixed domains detected, will present both")
+            
+            # Process results and prepare dosage calculations
+            for i, result in enumerate(state["search_results"]):
+                meta = result.get('metadata', {})
+                
+                # Extract dosage info if this is a dosage query
+                if is_dosage_query and aquarium_volume:
+                    dosage_info = self._extract_dosage_info(meta)
+                    if dosage_info["has_dosage"]:
+                        calc_result = calculation_helper.calculate_dosage(
+                            dosage_info["base_amount"],
+                            dosage_info["base_volume"],
+                            aquarium_volume,
+                            dosage_info["unit"]
+                        )
+                        if calc_result["success"]:
+                            dosage_calculations.append({
+                                "product": meta.get("product_name", "Unknown"),
+                                "calculation": calc_result
+                            })
+                
+                metadata_json = json.dumps(meta, indent=2, ensure_ascii=False)
+                all_results_metadata.append(f"""
+Result {i+1}:
+COMPLETE METADATA:
+{metadata_json}
+
+""")
+        
+        formatted_all_results = "".join(all_results_metadata) if all_results_metadata else "No search results found."
+        
+        # Format dosage calculations
+        dosage_context = ""
+        if dosage_calculations:
+            dosage_context = f"""
+--- DOSAGE CALCULATIONS ---
+Aquarium volume: {aquarium_volume}L
+Calculated dosages:
+"""
+            for calc in dosage_calculations:
+                dosage_context += f"\n- {calc['product']}: {calc['calculation']['calculation']}"
+            dosage_context += "\n---\n"
+
+        # Try to load prompt from template
         prompt = load_prompt_template(
-            template_name,
-            user_query=user_query,
+            "response_formatting",
             language=lang,
-            intent=intent,
-            confidence=confidence,
-            volume_info=volume_info,
-            chat_history=chat_history,
-            search_results_json=search_results_json,
+            chat_history_formatted=chat_history_formatted,
+            original_query=state.get('original_query', ''),
+            confidence=state.get('confidence', 0.0),
+            is_dosage_query=is_dosage_query,
+            aquarium_volume=aquarium_volume if aquarium_volume else "Not specified",
+            mixed_domains_detected=has_mixed and domain_not_specified,
+            category_context=category_context,
+            problem_context=problem_context,
+            balling_context=balling_context,
+            dosage_context=dosage_context,
             business_context=business_context,
-            additional_context_json=additional_context_json,
-            dosage_calculations=dosage_calculations,
+            competitor_context=competitor_context,
+            scenario_context=scenario_context,
+            use_case_context=use_case_context,
+            formatted_all_results=formatted_all_results,
             language_upper=lang.upper()
         )
         
-        # Fallback if template fails
+        # Fallback to simple prompt if template fails
         if not prompt:
             if TEST_ENV:
-                print("⚠️ [ResponseFormatter] Template failed, using fallback prompt")
-            prompt = f"""You are a passionate Aquaforest expert. Help the user with: "{user_query}"
-Use the search results to provide detailed product recommendations in {lang} language.
-Be enthusiastic and guide them toward Aquaforest solutions."""
+                print("⚠️ [ResponseFormatter] Using fallback hardcoded prompt")
+            prompt = f"""
+You are AF AI, assistant for Aquaforest. 
+Generate helpful response about: "{state.get('user_query', '')}"
+Use search results to provide specific product recommendations.
+Respond in {lang} language.
+"""
         
         return prompt
+
+    def _create_special_intent_prompt(self, state: ConversationState) -> str:
+        """Create prompts for special intents"""
+        lang = state.get("detected_language", "en")
+        intent = state.get("intent", "other")
+        user_query = state.get("user_query", "")
+        
+        if TEST_ENV:
+            print(f"🎯 [DEBUG ResponseFormatter] Creating prompt for special intent: {intent}")
+        
+        # 🆕 SUPPORT intent handling
+        if intent == Intent.SUPPORT:
+            if lang == "pl":
+                return f"""
+You are AF AI. The user explicitly wants to contact support.
+User said: "{user_query}"
+
+Respond helpfully in Polish:
+1. Acknowledge their request for support
+2. Provide contact link: https://aquaforest.eu/pl/kontakt/
+3. Mention business hotline: (+48) 14 691 79 79 (Poniedziałek-Piątek, 8:00-16:00)
+4. Be warm and helpful, mention that our specialists are ready to help
+
+Generate response in Polish.
+"""
+            else:
+                return f"""
+You are AF AI. The user explicitly wants to contact support.
+User said: "{user_query}"
+
+Respond helpfully:
+1. Acknowledge their request for support
+2. Provide contact link: https://aquaforest.eu/en/contact-us/
+3. Mention business hotline: (+48) 14 691 79 79 (Monday-Friday, 8:00-16:00)
+4. Be warm and helpful, mention that our specialists are ready to provide full support
+
+Generate response in {lang} language.
+"""
+        
+        # Enhanced purchase inquiry
+        if intent == Intent.PURCHASE_INQUIRY:
+            purchase_product = state.get("purchase_product", "")
+            product_url = ""
+            
+            # Try to find product in search results
+            if state.get("search_results"):
+                for result in state["search_results"]:
+                    if result.get('metadata', {}).get('product_name', '').lower() == purchase_product.lower():
+                        product_url = self._get_product_url(result, lang)
+                        break
+            
+            return f"""
+You are AF AI. The user is asking about purchasing/buying products.
+User said: "{user_query}"
+
+Product Context:
+- Identified product: "{purchase_product}"
+- Product URL: "{product_url}"
+
+Respond helpfully:
+1. If product was identified, acknowledge it specifically
+2. If we have the product URL, provide it
+3. Explain that Aquaforest sells only through authorized dealers
+4. Direct to dealer map: {"https://aquaforest.eu/pl/gdzie-kupic/" if lang == "pl" else "https://aquaforest.eu/en/where-to-buy/"}
+5. Be warm and helpful
+
+Generate response in {lang} language.
+"""
+
+        # Business inquiry
+        if intent == Intent.BUSINESS:
+            return f"""
+You are AF AI. The user is interested in business cooperation.
+User said: "{user_query}"
+
+Respond professionally but warmly:
+- Thank them for interest in partnership
+- Mention we're always looking for reliable partners
+- Provide contact form: {"https://aquaforest.eu/pl/kontakt/" if lang == "pl" else "https://aquaforest.eu/en/contact-us/"}
+- Business hotline: (+48) 14 691 79 79 (Monday-Friday, 8:00-16:00)
+- Express enthusiasm about potential cooperation
+
+Keep tone professional but friendly. Generate response in {lang} language.
+"""
+
+        # Other special intents remain similar...
+        intent_instructions = {
+            Intent.GREETING: f"""
+You are AF AI, Aquaforest's friendly assistant. Greet warmly and offer help.
+User said: "{user_query}"
+
+Be friendly and welcoming. Ask how you can help with their aquarium.
+Mention you can help with product recommendations, dosing calculations, or aquarium problems.
+
+Generate greeting in {lang} language.
+""",
+
+            Intent.COMPETITOR: f"""
+You are AF AI. The user mentioned a competitor.
+User said: "{user_query}"
+
+Be professional and confident without criticizing competitors.
+Focus on Aquaforest's strengths:
+- High quality and purity
+- Complete product range
+- Excellent customer support
+- Proven results
+
+Generate response in {lang} language.
+""",
+
+            Intent.CENSORED: f"""
+You are AF AI. The user asked about proprietary information.
+User said: "{user_query}"
+
+Politely explain that detailed formulations are proprietary.
+Offer to discuss product benefits and usage instead.
+Be helpful while protecting company secrets.
+
+Generate response in {lang} language.
+"""
+        }
+        
+        return intent_instructions.get(intent, f"Respond helpfully to: {user_query}")
     
-    def _extract_dosage_amount(self, metadata: Dict) -> float:
-        """Simple helper to extract dosage amount from metadata"""
-        # Try various dosage fields
-        for field in ['dosage_amount', 'amount', 'dose']:
-            if metadata.get(field):
-                try:
-                    # Extract first number from string
-                    import re
-                    match = re.search(r'(\d+(?:\.\d+)?)', str(metadata[field]))
-                    if match:
-                        return float(match.group(1))
-                except:
-                    continue
-        return 0.0
+    def _format_business_recommendations_context(self, recommendations: List[Dict]) -> str:
+        """🚀 Format business recommendations into context"""
+        if not recommendations:
+            return ""
+            
+        context_lines = ["--- ENHANCED BUSINESS RECOMMENDATIONS ---"]
+        
+        for rec in recommendations:
+            rec_type = rec.get("type", "unknown")
+            
+            if rec_type == "competitor_alternative":
+                context_lines.append(f"🏢 COMPETITOR ALTERNATIVE: {rec['competitor']} → {rec['af_alternative']}")
+                context_lines.append(f"   Message: {rec['message']}")
+                
+            elif rec_type == "setup_phase":
+                phase_priority = "HIGH PRIORITY" if rec.get("priority") else "STANDARD"
+                context_lines.append(f"📋 SETUP PHASE [{phase_priority}]: {rec['phase']}")
+                context_lines.append(f"   Duration: {rec['duration']}")
+                products_str = ", ".join([f"{cat}: {', '.join(prods)}" for cat, prods in rec['products'].items()])
+                context_lines.append(f"   Products: {products_str}")
+                
+            elif rec_type == "use_case_priority":
+                context_lines.append(f"🎯 USE CASE PRIORITY: {rec['use_case']}")
+                context_lines.append(f"   Priority products: {', '.join(rec['priority_products'])}")
+                if rec.get("timeline"):
+                    context_lines.append(f"   Timeline: {rec['timeline']}")
+                    
+            elif rec_type == "missing_alert":
+                alert_info = rec.get('note', 'Missing essential product')
+                context_lines.append(f"⚠️ MISSING PRODUCT ALERT: {alert_info}")
+                if 'products' in rec:
+                    context_lines.append(f"   Essential products: {', '.join(rec['products'])}")
+        
+        context_lines.append("---")
+        return "\n".join(context_lines)
     
+    def _format_competitor_context(self, competitor_info: Dict) -> str:
+        """Format competitor context with DYNAMIC negative instructions for ALL detected competitors"""
+        context_lines = ["--- COMPETITOR CONTEXT ---"]
+        
+        detected_competitors = []
+        alternatives_mapping = []
+        
+        for comp in competitor_info.get("competitors", []):
+            comp_name = comp["name"]
+            detected_competitors.append(comp_name)
+            context_lines.append(f"🏢 DETECTED COMPETITOR: {comp_name}")
+            
+            # Check if we have AF alternative
+            af_alternatives = competitor_info.get("af_alternatives", {})
+            if comp_name in af_alternatives:
+                alt = af_alternatives[comp_name]
+                context_lines.append(f"   → REDIRECT TO: {alt}")
+                alternatives_mapping.append(f"{comp_name} → {alt}")
+            else:
+                context_lines.append(f"   → NO SPECIFIC AF ALTERNATIVE (do not praise)")
+        
+        # 🚨 DYNAMIC CRITICAL RULES for ALL detected competitors
+        if detected_competitors:
+            context_lines.append("")
+            context_lines.append("🚨 CRITICAL COMPETITOR RULES:")
+            context_lines.append(f"- NEVER praise these products: {', '.join(detected_competitors)}")
+            context_lines.append(f"- NEVER write 'excellent choice', 'good decision', '{detected_competitors[0]} is great' about competitors")
+            
+            if alternatives_mapping:
+                context_lines.append("- ALWAYS redirect using these mappings:")
+                for mapping in alternatives_mapping:
+                    context_lines.append(f"  * While {mapping.split(' → ')[0]} is mentioned, I recommend our {mapping.split(' → ')[1]}")
+            
+            context_lines.append("- Focus on AF alternatives' benefits, not competitor praise")
+            context_lines.append("- If no AF alternative specified, simply avoid praising competitor")
+            context_lines.append("🚨 END CRITICAL RULES")
+        
+        context_lines.append("---")
+        return "\n".join(context_lines)
+    
+    def _format_scenario_context(self, scenario_info: Dict) -> str:
+        """🚀 Format scenario context"""
+        context_lines = ["--- SCENARIO CONTEXT ---"]
+        
+        context_lines.append(f"📋 DETECTED SCENARIO: {scenario_info['name']}")
+        
+        priority_order = scenario_info.get("priority_order", [])
+        if priority_order:
+            context_lines.append(f"⚡ PRIORITY ORDER: {' → '.join(priority_order)}")
+        
+        mandatory_categories = scenario_info.get("mandatory_categories", [])
+        if mandatory_categories:
+            context_lines.append(f"🎯 MANDATORY CATEGORIES: {', '.join(mandatory_categories)}")
+        
+        context_lines.append("---")
+        return "\n".join(context_lines)
+    
+    def _format_use_case_context(self, use_case_info: Dict) -> str:
+        """🚀 Format use case context"""
+        context_lines = ["--- USE CASE CONTEXT ---"]
+        
+        context_lines.append(f"🎯 IDENTIFIED USE CASE: {use_case_info['name']}")
+        
+        matching_keywords = use_case_info.get("matching_keywords", [])
+        if matching_keywords:
+            context_lines.append(f"🔍 MATCHING KEYWORDS: {', '.join(matching_keywords)}")
+        
+        priority_products = use_case_info.get("priority_products", [])
+        if priority_products:
+            context_lines.append(f"⭐ PRIORITY PRODUCTS: {', '.join(priority_products)}")
+        
+        timeline = use_case_info.get("timeline", "")
+        if timeline:
+            context_lines.append(f"⏱️ TIMELINE: {timeline}")
+        
+        context_lines.append("---")
+        return "\n".join(context_lines)
+
     def format_response(self, state: ConversationState) -> ConversationState:
-        """🚀 SIMPLIFIED: Single LLM call with intelligent prompt"""
         try:
             if TEST_ENV:
-                print(f"\n🧠 [ResponseFormatter] Generating passionate expert response...")
-                print(f"🎯 [ResponseFormatter] Intent: {state.get('intent')}, Language: {state.get('detected_language')}")
-                if state.get("business_analysis", {}).get("af_alternatives_to_search"):
-                    print(f"⭐ [ResponseFormatter] Priority AF alternatives: {state['business_analysis']['af_alternatives_to_search']}")
-                if state.get("product_recommendations"):
-                    print(f"📊 [ResponseFormatter] Categorized products: {state['product_recommendations']}")
-                    total_products = sum(len(products) for products in state['product_recommendations'].values() if isinstance(products, list))
-                    print(f"🔢 [ResponseFormatter] Total categorized products: {total_products}")
+                print(f"\n🔨 [DEBUG ResponseFormatter] Generating final response...")
                 
-                # Check for knowledge articles in search results
-                knowledge_articles = [r for r in state.get("search_results", []) if r.get('metadata', {}).get('content_type') == 'knowledge']
-                if knowledge_articles:
-                    print(f"📚 [ResponseFormatter] Found {len(knowledge_articles)} knowledge articles:")
-                    for article in knowledge_articles[:3]:  # Show first 3
-                        title = article.get('metadata', {}).get('title_en', 'Unknown')
-                        url_pl = article.get('metadata', {}).get('url_pl', 'No URL')
-                        url_en = article.get('metadata', {}).get('url_en', 'No URL')
-                        print(f"   - {title}")
-                        print(f"     URL_PL: {url_pl}")
-                        print(f"     URL_EN: {url_en}")
-                else:
-                    print(f"📚 [ResponseFormatter] NO knowledge articles found in search results")
-                
-            prompt = self._create_intelligent_response_prompt(state)
-            
+            prompt = self._create_universal_prompt(state)
             response = self.client.chat.completions.create(
                 model=OPENAI_MODEL,
                 temperature=OPENAI_TEMPERATURE,
                 messages=[{"role": "system", "content": prompt}]
             )
-            
             state["final_response"] = response.choices[0].message.content
             
             if TEST_ENV:
-                print(f"✅ [ResponseFormatter] Passionate response generated ({len(state['final_response'])} characters)")
-                # Check if response follows structure
-                response_text = state["final_response"].lower()
-                has_diagnosis = any(word in response_text for word in ["diagnosis", "diagnoza", "problem", "situation"])
-                has_solutions = any(word in response_text for word in ["recommend", "polecam", "solution", "rozwiązanie"])
-                print(f"📋 [ResponseFormatter] Structure check - Diagnosis: {has_diagnosis}, Solutions: {has_solutions}")
+                print(f"✅ [DEBUG ResponseFormatter] Response generated ({len(state['final_response'])} characters)")
             
             # Cache metadata for follow-ups
             if state.get("search_results"):
+                # Cache more results if category request
                 cache_size = 10 if state.get("requested_category") else 5
                 state["context_cache"] = [r['metadata'] for r in state["search_results"][:cache_size]]
                 if TEST_ENV:
-                    print(f"💾 [ResponseFormatter] Cached metadata for {len(state['context_cache'])} results")
+                    print(f"💾 [DEBUG ResponseFormatter] Cached metadata for {len(state['context_cache'])} results")
                     
         except Exception as e:
             if TEST_ENV:
-                print(f"❌ [ResponseFormatter] Error: {e}")
+                print(f"❌ [DEBUG ResponseFormatter] Formatting error: {e}")
             state["final_response"] = self._handle_error(e, state)
         
         return state
     
     def _handle_error(self, error: Exception, state: ConversationState) -> str:
-        """Simple error handling"""
-        debug_print(f"❌ [ResponseFormatter] Error: {str(error)}")
+        """Enhanced error handling for formatting failures"""
+        debug_print(f"❌ [ResponseFormatter] Error during formatting: {str(error)}")
         
+        # Get user language for appropriate error response
         language = state.get("detected_language", "en")
+        
         if language == "pl":
-            return "Przepraszam, wystąpił błąd. Spróbuj ponownie lub skontaktuj się z naszym wsparciem."
+            return "Przepraszam, wystąpił błąd podczas przetwarzania. Spróbuj ponownie lub jeśli problem się powtarza, możesz skontaktować się z naszym supportem."
         else:
-            return "Sorry, an error occurred. Please try again or contact our support."
+            return "Sorry, an error occurred during processing. Please try again or contact our support if the problem persists."
+
+
+# Follow-up handling functions
+def _create_follow_up_prompt(state: ConversationState) -> str:
+    """Creates a prompt to answer a follow-up question using cached context and external template"""
+    lang = state.get("detected_language", "en")
+    chat_history_formatted = "\n".join([f"{msg['role']}: {msg['content']}" for msg in state.get("chat_history", [])])
+    
+    if TEST_ENV:
+        print(f"\n🔄 [DEBUG Follow-up] Creating prompt for follow-up in language: {lang}")
+        print(f"📦 [DEBUG Follow-up] Cache contains {len(state.get('context_cache', []))} items")
+    
+    # Check if follow-up is about dosage
+    is_dosage_followup = any(word in state["user_query"].lower() 
+                           for word in ["dawkowanie", "ile", "how much", "dosage", "oblicz"])
+    
+    # Format cached metadata
+    cached_full_metadata = []
+    if state.get("context_cache"):
+        for i, meta in enumerate(state.get("context_cache", [])):
+            metadata_json = json.dumps(meta, indent=2, ensure_ascii=False)
+            cached_full_metadata.append(f"""Cached Item {i+1}:
+COMPLETE METADATA:
+{metadata_json}
+
+""")
+    
+    cached_context_formatted = "".join(cached_full_metadata)
+    
+    dosage_followup_note = "The user might be asking about dosage. Use dosage information from cached metadata if available." if is_dosage_followup else ""
+
+    # Try to load prompt from template
+    prompt = load_prompt_template(
+        "response_followup",
+        chat_history_formatted=chat_history_formatted,
+        user_query=state['user_query'],
+        cached_context_formatted=cached_context_formatted,
+        dosage_followup_note=dosage_followup_note,
+        language=lang
+    )
+    
+    # Fallback to simple prompt if template fails
+    if not prompt:
+        if TEST_ENV:
+            print("⚠️ [Follow-up] Using fallback hardcoded prompt")
+        prompt = f"""
+Answer follow-up question: "{state['user_query']}"
+Based on conversation history and cached product information.
+Respond in {lang} language.
+"""
+    
+    return prompt
 
 def format_final_response(state: ConversationState) -> ConversationState:
-    """🚀 SIMPLIFIED: Main entry point"""
     formatter = ResponseFormatter()
     return formatter.format_response(state)
 
 def escalate_to_human(state: ConversationState) -> ConversationState:
-    """🚀 SIMPLIFIED: LLM handles escalation intelligently"""
+    """🆕 UPDATED: Escalate without automatically adding support contact"""
     if TEST_ENV:
-        print(f"\n⚠️ [Escalate] Low confidence - LLM will handle gracefully")
-    
+        print(f"\n🚨 [DEBUG Escalate] Escalating due to low confidence")
     state["escalate"] = True
     
-    # Let the main formatter handle escalation intelligently
-    formatter = ResponseFormatter()
-    return formatter.format_response(state)
+    # Create a custom prompt for escalation that doesn't include contact info
+    lang = state.get("detected_language", "en")
+    user_query = state.get("user_query", "")
+    
+    escalation_prompt = f"""
+You are AF AI. The search results have low confidence for this query.
+User asked: "{user_query}"
+
+Generate a helpful response that:
+1. Acknowledges you found some information but it might not be exactly what they're looking for
+2. Share what relevant information you DID find (if any)
+3. Suggest they rephrase their question or provide more details
+4. DO NOT automatically provide support contact information unless they specifically ask for it
+
+Be helpful and apologetic about not finding perfect matches.
+
+Respond in {lang} language.
+"""
+    
+    try:
+        client = OpenAI(api_key=OPENAI_API_KEY)
+        response = client.chat.completions.create(
+            model=OPENAI_MODEL,
+            temperature=OPENAI_TEMPERATURE,
+            messages=[{"role": "system", "content": escalation_prompt}]
+        )
+        state["final_response"] = response.choices[0].message.content
+    except Exception as e:
+        if TEST_ENV:
+            print(f"❌ [DEBUG Escalate] Error generating escalation response: {e}")
+        formatter = ResponseFormatter()
+        state["final_response"] = formatter._handle_error(e, state)
+    
+    return state
 
 def handle_follow_up(state: ConversationState) -> ConversationState:
-    """🚀 SIMPLIFIED: LLM handles follow-ups with cached context"""
+    """Handle follow-up questions using cached metadata"""
     if TEST_ENV:
-        print(f"\n🔄 [Follow-up] LLM handling with cached context")
+        print(f"\n🔄 [DEBUG Follow-up Handler] Handling follow-up question with cache")
         
-    # Add follow-up context to prompt
-    state["is_follow_up"] = True
-    
-    formatter = ResponseFormatter()
-    return formatter.format_response(state)
+    try:
+        client = OpenAI(api_key=OPENAI_API_KEY)
+        prompt = _create_follow_up_prompt(state)
+        response = client.chat.completions.create(
+            model=OPENAI_MODEL,
+            temperature=OPENAI_TEMPERATURE,
+            messages=[{"role": "system", "content": prompt}]
+        )
+        state["final_response"] = response.choices[0].message.content
+        
+        if TEST_ENV:
+            print(f"✅ [DEBUG Follow-up Handler] Response generated using cache")
+            
+    except Exception as e:
+        if TEST_ENV:
+            print(f"❌ [DEBUG Follow-up Handler] Follow-up handling error: {e}")
+        
+        formatter = ResponseFormatter()
+        state["final_response"] = formatter._handle_error(e, state)
+        
+    return state
