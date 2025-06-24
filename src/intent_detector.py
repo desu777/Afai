@@ -4,16 +4,45 @@ Detects user intent and language from the query with better context understandin
 """
 import json
 import re  # 🆕 For ICP URL detection
-from typing import Dict
+from pathlib import Path
+from typing import Dict, Any
 from openai import OpenAI
 from models import ConversationState, Intent, IntentDetectionResult
-from config import OPENAI_API_KEY, OPENAI_MODEL2, OPENAI_TEMPERATURE, TEST_ENV
+from config import OPENAI_API_KEY, OPENAI_MODEL2, OPENAI_TEMPERATURE, TEST_ENV, debug_print
 from prompts import load_prompt_template
 
 class IntentDetector:
     def __init__(self):
         self.client = OpenAI(api_key=OPENAI_API_KEY)
+        
+        # 🆕 Load competitors mapping for better detection
+        self.competitors_list = self._load_competitors()
+        
+        if TEST_ENV and self.competitors_list:
+            debug_print(f"🏢 [IntentDetector] Loaded {len(self.competitors_list)} competitor names for detection")
     
+    def _load_competitors(self) -> list:
+        """Load competitor names from mapping for better intent detection"""
+        try:
+            mapping_file = Path(__file__).parent / "mapping" / "competitors.json"
+            if mapping_file.exists():
+                with open(mapping_file, 'r', encoding='utf-8') as f:
+                    competitors_data = json.load(f)
+                
+                # Extract all competitor names
+                competitor_names = []
+                for category, items in competitors_data.items():
+                    if isinstance(items, dict):
+                        competitor_names.extend(items.keys())
+                    elif isinstance(items, list):
+                        competitor_names.extend(items)
+                
+                return competitor_names
+        except Exception as e:
+            if TEST_ENV:
+                debug_print(f"⚠️ [IntentDetector] Could not load competitors: {e}")
+        return []
+
     def _create_intent_prompt(self, state: ConversationState) -> str:
         """Create intent detection prompt using external template"""
         
@@ -48,7 +77,8 @@ This is very likely intent: "analyze_icp" - user wants analysis of their water p
             chat_history_formatted=chat_history_formatted,
             user_query=state['user_query'],
             conversation_context_hint=conversation_context_hint,
-            icp_url_hint=icp_url_hint  # 🆕 Pass ICP URL hint to template
+            icp_url_hint=icp_url_hint,  # 🆕 Pass ICP URL hint to template
+            competitors=self.competitors_list  # 🆕 Pass competitors list to template
         )
         
         # Fallback to hardcoded prompt if template fails

@@ -21,16 +21,24 @@ ALLOWED INTENTS (MUST use exact values):
 • analyze_icp - ICP test results analysis
 • other - anything else
 
+ KNOWN COMPETITORS:
+{competitors}
+
 CRITICAL RULES:
 1. follow_up is **FORBIDDEN** when chat_history is empty
-2. MUST return exactly one of the allowed intents above
-3. If user wants business partnership/collaboration → use "business" (not "business_inquiry")
-4. Languages: return ISO-639-1 code (pl, en, de, fr, etc.)
+2. MUST return JSON format: {{"intent": "exact_value", "language": "detected_code", "confidence": 0.0-1.0, "context_note": "brief_explanation"}}
+3. If user mentions ANY competitor from the list above → intent = "competitor"
+4. Language codes: en, pl, de, fr, it, es, pt, nl, other
+5. If ICP URL detected → intent = "analyze_icp"
+6. If asking about buying/purchasing → intent = "purchase_inquiry"
+7. If asking for technical help/support → intent = "support"
+8. If greeting words → intent = "greeting"
+9. If business cooperation → intent = "business"
 
-REQUIRED OUTPUT FORMAT (JSON only):
-{{
-  "intent": "<exact_intent_from_list_above>",
-  "language": "<lang_code>",
-  "confidence": <0.0_to_1.0>,
-  "context_note": "<optional_15_words_max>"
-}}
+ COMPETITOR DETECTION:
+- Check if user query contains ANY name from the competitors list
+- Brand names, product names, or company names
+- Even partial matches or mentions should trigger "competitor" intent
+- Examples: "Red Sea", "Salifert", "Tropic Marin", etc.
+
+OUTPUT: Return ONLY valid JSON, no other text.
