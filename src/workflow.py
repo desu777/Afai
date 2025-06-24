@@ -21,9 +21,13 @@ from config import PRODUCTS_FILE_PATH, OPENAI_API_KEY, OPENAI_MODEL, TEST_ENV, d
 workflow_analytics = None
 
 def timing_wrapper(func):
-    """Decorator to measure execution time of workflow nodes with analytics"""
+    """Decorator to measure execution time of workflow nodes with analytics and streaming"""
     @wraps(func)
     def wrapper(state: ConversationState) -> ConversationState:
+        # Capture node start for streaming
+        if workflow_analytics:
+            workflow_analytics.capture_node_start(func.__name__)
+        
         start_time = time.time()
         result = func(state)
         end_time = time.time()
@@ -32,6 +36,7 @@ def timing_wrapper(func):
         # Capture timing for analytics
         if workflow_analytics:
             workflow_analytics.capture_node_timing(func.__name__, execution_time)
+            workflow_analytics.capture_node_complete(func.__name__)
         
         if TEST_ENV:
             print(f"⏱️  [{func.__name__}] Node execution time: {execution_time:.3f}s")

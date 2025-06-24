@@ -10,7 +10,7 @@ import json
 import csv
 import io
 from datetime import datetime
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Generator
 from contextlib import contextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -124,10 +124,11 @@ def init_database():
 # Initialize database on startup
 init_database()
 
-# Analytics capture class
+# Enhanced analytics capture class with streaming support
 class WorkflowAnalytics:
     def __init__(self):
         self.reset()
+        self.streaming_callback = None
     
     def reset(self):
         self.data = {
@@ -136,9 +137,73 @@ class WorkflowAnalytics:
             "workflow_data": {}
         }
         self.start_time = time.time()
+        self.current_node = None
+    
+    def set_streaming_callback(self, callback):
+        """Set callback for streaming workflow updates"""
+        self.streaming_callback = callback
     
     def capture_node_timing(self, node_name: str, duration: float):
         self.data["node_timings"][node_name] = duration
+    
+    def capture_node_start(self, node_name: str, message: str = ""):
+        """Capture when a node starts execution"""
+        self.current_node = node_name
+        elapsed_time = time.time() - self.start_time
+        
+        if not message:
+            message = self._get_node_message(node_name)
+        
+        if self.streaming_callback:
+            self.streaming_callback({
+                "node": node_name,
+                "status": "processing",
+                "message": message,
+                "elapsed_time": elapsed_time
+            })
+    
+    def capture_node_complete(self, node_name: str, message: str = ""):
+        """Capture when a node completes execution"""
+        elapsed_time = time.time() - self.start_time
+        
+        if not message:
+            message = f"✅ {self._get_node_message(node_name)} - Complete"
+        
+        if self.streaming_callback:
+            self.streaming_callback({
+                "node": node_name,
+                "status": "complete",
+                "message": message,
+                "elapsed_time": elapsed_time
+            })
+    
+    def capture_workflow_complete(self, final_response: str):
+        """Capture when entire workflow completes"""
+        elapsed_time = time.time() - self.start_time
+        
+        if self.streaming_callback:
+            self.streaming_callback({
+                "node": "complete",
+                "status": "complete", 
+                "message": final_response,
+                "elapsed_time": elapsed_time
+            })
+    
+    def _get_node_message(self, node_name: str) -> str:
+        """Get user-friendly message for each node"""
+        messages = {
+            "detect_intent": "🔍 Understanding your question...",
+            "load_products": "📋 Loading product database...",
+            "business_reasoner": "🧠 Analyzing your needs...",
+            "optimize_query": "🔎 Optimizing search...",
+            "search_pinecone": "🗃️ Searching product catalog...",
+            "evaluate_confidence": "✅ Validating results...",
+            "format_response": "📝 Preparing response...",
+            "handle_follow_up": "🔄 Processing follow-up...",
+            "escalate_support": "🆘 Escalating to support...",
+            "follow_up_router": "🤔 Analyzing context..."
+        }
+        return messages.get(node_name, f"Processing {node_name}...")
     
     def capture_state_data(self, state: ConversationState):
         """Extract analytics data from workflow state"""
@@ -194,6 +259,88 @@ assistant = None  # Will be initialized after analytics is created
 
 # Initialize the assistant with analytics support
 assistant = AquaforestAssistant(analytics_instance=analytics)
+
+# 🚀 NEW: Streaming chat endpoint with Server-Sent Events
+@app.post("/chat/stream")
+async def chat_stream_endpoint(request: ChatRequest):
+    """
+    Streaming chat endpoint that provides real-time workflow updates via Server-Sent Events
+    """
+    def generate_stream():
+        analytics.reset()
+        
+        # Storage for streaming updates
+        streaming_updates = []
+        
+        def streaming_callback(update):
+            streaming_updates.append(update)
+            # Send SSE formatted data
+            yield f"data: {json.dumps(update)}\n\n"
+        
+        # Set up streaming callback
+        analytics.set_streaming_callback(streaming_callback)
+        
+        try:
+            debug_print(f"📨 [StreamServer] Received streaming chat request: {request.message[:50]}...", "🔍")
+            
+            # Create ConversationState from request
+            conversation_state: ConversationState = {
+                "user_query": request.message,
+                "detected_language": "en",
+                "intent": "other",
+                "product_names": [],
+                "original_query": request.message,
+                "optimized_queries": [],
+                "search_results": [],
+                "confidence": 0.0,
+                "evaluation_reasoning": "",
+                "iteration": 0,
+                "final_response": "",
+                "escalate": False,
+                "domain_filter": None,
+                "chat_history": request.chat_history,
+                "context_cache": []
+            }
+            
+            debug_print(f"🔄 [StreamServer] Processing with streaming workflow (debug={request.debug})", "⚙️")
+            
+            # Process with analytics capture and streaming
+            result_state = assistant.process_query_sync(conversation_state, debug=request.debug)
+            
+            # Send final completion update
+            analytics.capture_workflow_complete(result_state.get("final_response", ""))
+            
+            # Capture analytics from final state
+            analytics.capture_state_data(result_state)
+            
+            # Save analytics to database
+            save_analytics_to_db()
+            
+            debug_print(f"✅ [StreamServer] Streaming response completed", "⏱️")
+            
+        except Exception as e:
+            error_msg = f"An error occurred while processing your request: {str(e)}"
+            debug_print(f"❌ [StreamServer] Error: {error_msg}", "🚨")
+            
+            # Send error update
+            error_response = "I apologize, but I encountered an error. Please try again or contact support@aquaforest.eu"
+            error_update = {
+                "node": "error",
+                "status": "error",
+                "message": error_response if not TEST_ENV else f"Debug Error: {error_msg}",
+                "elapsed_time": time.time() - analytics.start_time
+            }
+            yield f"data: {json.dumps(error_update)}\n\n"
+    
+    return StreamingResponse(
+        generate_stream(),
+        media_type="text/plain",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "Content-Type": "text/event-stream"
+        }
+    )
 
 # Modified chat endpoint with analytics
 @app.post("/chat", response_model=ChatResponse)
