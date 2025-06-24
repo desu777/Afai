@@ -278,7 +278,7 @@ Calculated dosages:
             "response_formatting",
             language=lang,
             chat_history_formatted=chat_history_formatted,
-            original_query=state.get('original_query', ''),
+            user_query=state.get('user_query', ''),  # Fixed: user_query instead of original_query
             confidence=state.get('confidence', 0.0),
             is_dosage_query=is_dosage_query,
             aquarium_volume=aquarium_volume if aquarium_volume else "Not specified",
