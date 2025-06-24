@@ -126,17 +126,24 @@ class PineconeSearchClient:
         critical_products.extend(mentioned_products)
         critical_products = list(set(critical_products))  # Remove duplicates
         
-        # 🆕 GUARANTEED SEARCH for critical products
+        # 🆕 GUARANTEED SEARCH for critical products + collect not found
         guaranteed_results = {}
+        fallback_queries = []  # 🆕 Collect products not found for vector search
         if critical_products:
             debug_print(f"🎯 [PineconeSearch] Performing guaranteed search for: {critical_products}")
-            guaranteed = self._guaranteed_product_search(critical_products, domain_filter)
+            guaranteed, not_found_products = self._guaranteed_product_search(critical_products, domain_filter)
             for result in guaranteed:
                 guaranteed_results[result.id] = result
+            
+            # 🆕 FALLBACK: Add not found products to vector search
+            if not_found_products:
+                fallback_queries.extend(not_found_products)
+                debug_print(f"🔄 [PineconeSearch] Fallback: Adding {len(not_found_products)} not found products to vector search: {not_found_products}")
         
-        # 🆕 VECTOR SEARCH for all queries
+        # 🆕 VECTOR SEARCH for all queries + fallback queries
+        all_queries = queries + fallback_queries  # 🆕 Include fallback queries
         all_results = {}
-        for query in queries:
+        for query in all_queries:
             try:
                 embedding = self._get_embedding(query)
                 filter_dict = {}
@@ -210,9 +217,13 @@ class PineconeSearchClient:
         domains.discard(Domain.UNIVERSAL.value)
         return "⚠️ Found products for both marine and freshwater aquariums. Please specify which type!" if len(domains) > 1 else None
 
-    def _guaranteed_product_search(self, product_names: List[str], domain_filter: Optional[Domain] = None) -> List[SearchResult]:
-        """Guaranteed search for specific products using metadata filtering"""
+    def _guaranteed_product_search(self, product_names: List[str], domain_filter: Optional[Domain] = None) -> tuple[List[SearchResult], List[str]]:
+        """
+        Guaranteed search for specific products using metadata filtering
+        Returns: (found_results, not_found_product_names)
+        """
         guaranteed_results = []
+        not_found_products = []  # 🆕 Track products not found for fallback
         
         for product_name in product_names:
             try:
@@ -242,11 +253,13 @@ class PineconeSearchClient:
                     debug_print(f"✅ [PineconeSearch] Guaranteed found: {product_name}")
                 else:
                     debug_print(f"⚠️ [PineconeSearch] Product not found in database: {product_name}")
+                    not_found_products.append(product_name)  # 🆕 Add to fallback list
                     
             except Exception as e:
                 debug_print(f"❌ [PineconeSearch] Error in guaranteed search for {product_name}: {e}")
+                not_found_products.append(product_name)  # 🆕 Add to fallback list on error
         
-        return guaranteed_results
+        return guaranteed_results, not_found_products  # �� Return both lists
 
 # 🆕 UPDATED FUNCTIONS - now use dynamic ENHANCED_K_VALUE
 def search_products_k20(state: ConversationState) -> ConversationState:

@@ -12,6 +12,12 @@ load_dotenv()
 # Add test environment flag - can be dynamically changed
 TEST_ENV = os.getenv("TEST_ENV", "false").lower() == "true"
 
+# 🆕 FLAG TO DISABLE BUSINESS MAPPINGS FOR TESTING
+DISABLE_BUSINESS_MAPPINGS = os.getenv("DISABLE_BUSINESS_MAPPINGS", "false").lower() == "true"
+
+# 🆕 FLAG TO ENABLE ONLY COMPETITORS MAPPING
+ENABLE_COMPETITORS_ONLY = os.getenv("ENABLE_COMPETITORS_ONLY", "false").lower() == "true"
+
 # Debug print function
 def debug_print(message: str, emoji: str = "🔍"):
     """Print debug message if TEST_ENV is True"""
@@ -66,6 +72,8 @@ if TEST_ENV:
     print("🔧 CONFIGURATION LOADED")
     print("="*60)
     print(f"📍 Debug Mode: ENABLED")
+    print(f"📍 Business Mappings: {'DISABLED' if DISABLE_BUSINESS_MAPPINGS else 'ENABLED'}")
+    print(f"📍 Competitors Only: {'ENABLED' if ENABLE_COMPETITORS_ONLY else 'DISABLED'}")
     print(f"📍 OpenAI Model (Complex): {OPENAI_MODEL}")
     print(f"📍 OpenAI Model (Simple): {OPENAI_MODEL2}")
     print(f"📍 Embedding Model: {OPENAI_EMBEDDING_MODEL}")

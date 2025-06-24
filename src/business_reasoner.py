@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Set
 from openai import OpenAI
 from models import ConversationState, Intent
-from config import OPENAI_API_KEY, OPENAI_MODEL, TEST_ENV, debug_print, PRODUCTS_FILE_PATH
+from config import OPENAI_API_KEY, OPENAI_MODEL, TEST_ENV, debug_print, PRODUCTS_FILE_PATH, DISABLE_BUSINESS_MAPPINGS, ENABLE_COMPETITORS_ONLY
 from icp_scraper import ICPScraper  # 🆕 Separated web scraping
 from prompts import load_prompt_template  # 🆕 External prompt template
 
@@ -28,15 +28,26 @@ class BusinessReasoner:
         self.products_list = self._load_products_list()
         self.products_knowledge = self._load_products_knowledge()
         
-        # 🚀 LOAD ALL MAPPING DATA FOR LLM
-        self._load_mapping_data()
-        
-        debug_print(f"🚀 [BusinessReasoner] VERSION 4.1 REFACTORED initialized")
-        debug_print(f"📊 [BusinessReasoner] Loaded {len(self.products_knowledge)} products")
-        debug_print(f"🏢 [BusinessReasoner] Competitors: {len(self.competitors_data.get('competitors', {}))}")
-        debug_print(f"📋 [BusinessReasoner] Scenarios: {len(self.scenarios_data.get('tank_setup_scenarios', {}))}")
-        debug_print(f"🎯 [BusinessReasoner] Use cases: {len(self.use_cases_data.get('use_cases', {}))}")
-        debug_print(f"🛍️ [BusinessReasoner] Product groups: {len(self.product_groups_data.get('product_groups', {}))}")
+        # 🚀 LOAD MAPPING DATA (with different modes)
+        if ENABLE_COMPETITORS_ONLY:
+            self._load_competitors_only()
+            debug_print(f"🚀 [BusinessReasoner] VERSION 4.1 COMPETITORS-ONLY initialized")
+            debug_print(f"📊 [BusinessReasoner] Loaded {len(self.products_knowledge)} products")
+            debug_print(f"🏢 [BusinessReasoner] Competitors: {len(self.competitors_data.get('competitors', {}))}")
+            debug_print("⚠️ [BusinessReasoner] Other mappings disabled - using LLM intelligence only")
+        elif not DISABLE_BUSINESS_MAPPINGS:
+            self._load_mapping_data()
+            debug_print(f"🚀 [BusinessReasoner] VERSION 4.1 REFACTORED initialized")
+            debug_print(f"📊 [BusinessReasoner] Loaded {len(self.products_knowledge)} products")
+            debug_print(f"🏢 [BusinessReasoner] Competitors: {len(self.competitors_data.get('competitors', {}))}")
+            debug_print(f"📋 [BusinessReasoner] Scenarios: {len(self.scenarios_data.get('tank_setup_scenarios', {}))}")
+            debug_print(f"🎯 [BusinessReasoner] Use cases: {len(self.use_cases_data.get('use_cases', {}))}")
+            debug_print(f"🛍️ [BusinessReasoner] Product groups: {len(self.product_groups_data.get('product_groups', {}))}")
+        else:
+            debug_print("⚠️ [BusinessReasoner] MAPPINGS DISABLED - Running without mapping data")
+            self._initialize_fallback_mappings()
+            debug_print(f"🚀 [BusinessReasoner] VERSION 4.1 LITE initialized (no mappings)")
+            debug_print(f"📊 [BusinessReasoner] Loaded {len(self.products_knowledge)} products")
     
     def _load_products_list(self) -> List[str]:
         """Load simple product names list"""
@@ -88,6 +99,28 @@ class BusinessReasoner:
         except Exception as e:
             debug_print(f"❌ [BusinessReasoner] Failed to load mapping data: {e}")
             # Initialize empty mappings as fallback
+            self._initialize_fallback_mappings()
+    
+    def _load_competitors_only(self):
+        """🆕 Load only competitors mapping, initialize others as empty"""
+        try:
+            mapping_dir = Path(__file__).parent / "mapping"
+            
+            # Load only competitors mapping
+            with open(mapping_dir / "competitors.json", 'r', encoding='utf-8') as f:
+                self.competitors_data = json.load(f)
+                debug_print("✅ [BusinessReasoner] Loaded competitors mapping (ONLY)")
+            
+            # Initialize other mappings as empty
+            self.scenarios_data = {"tank_setup_scenarios": {}}
+            self.product_groups_data = {"product_groups": {}}
+            self.use_cases_data = {"use_cases": {}}
+            
+            debug_print(f"🎯 [BusinessReasoner] Competitors-only mode: {len(self.competitors_data.get('competitors', {}))} competitor categories loaded")
+            
+        except Exception as e:
+            debug_print(f"❌ [BusinessReasoner] Failed to load competitors mapping: {e}")
+            # Fallback to empty mappings
             self._initialize_fallback_mappings()
     
     def _initialize_fallback_mappings(self):
@@ -400,8 +433,6 @@ Return JSON with product recommendations and business analysis.
             debug_print(f"🔧 [BusinessReasoner] af_alternatives_to_search SET: {len(state['af_alternatives_to_search'])} products")
         
         return state
-    
-
     
     def _fallback_analysis(self, state: ConversationState) -> ConversationState:
         """Minimal fallback when LLM analysis fails"""
