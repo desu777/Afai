@@ -17,7 +17,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
       try {
         const savedAccess = localStorage.getItem('af_access_code');
         if (savedAccess) {
-          const { code, timestamp, level } = JSON.parse(savedAccess);
+          const { timestamp, level } = JSON.parse(savedAccess);
           const now = Date.now();
           const twentyFourHours = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
           

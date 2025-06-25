@@ -9,6 +9,7 @@ interface StreamingLoadingMessageProps {
 const StreamingLoadingMessage: React.FC<StreamingLoadingMessageProps> = ({ currentUpdate }) => {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [startTime] = useState(Date.now());
+  const [previousProgress, setPreviousProgress] = useState(0);
 
   // Update elapsed time - use either backend time or local timer
   useEffect(() => {
@@ -44,23 +45,41 @@ const StreamingLoadingMessage: React.FC<StreamingLoadingMessageProps> = ({ curre
     // Map some common nodes to approximate progress
     const progressMap: Record<string, number> = {
       'start': 5,
-      'detect_intent': 15,
-      'load_products': 25,
+      'detect_intent_and_language': 15,
+      'load_product_names': 25,
       'business_reasoner': 40,
-      'optimize_query': 55,
-      'search_pinecone': 70,
+      'optimize_product_query': 55,
+      'search_products_k20': 70,
       'evaluate_confidence': 85,
-      'format_response': 95,
+      'format_final_response': 95,
       'follow_up_router': 30,
       'handle_follow_up': 90,
-      'escalate_support': 100,
+      'escalate_to_human': 100,
       'complete': 100
     };
     
-    return progressMap[currentUpdate.node] || Math.min(90, elapsedTime * 2); // Fallback: 2% per second, max 90%
+    const mappedProgress = progressMap[currentUpdate.node];
+    const fallbackProgress = Math.min(90, elapsedTime * 2);
+    
+    // Debug logging
+    if (import.meta.env.VITE_TEST_ENV === 'true') {
+      console.log(`📈 [Progress] Node: ${currentUpdate.node}, Mapped: ${mappedProgress}, Fallback: ${fallbackProgress}`);
+    }
+    
+    return mappedProgress || fallbackProgress;
   };
 
   const progress = getSimpleProgress();
+  
+  // Track progress changes and log direction
+  useEffect(() => {
+    if (progress !== previousProgress && import.meta.env.VITE_TEST_ENV === 'true') {
+      const direction = progress > previousProgress ? 'forward' : 'backward';
+      console.log(`📈 [Progress] Progress ${direction}: ${previousProgress}% → ${progress}% (node: ${currentUpdate?.node})`);
+      setPreviousProgress(progress);
+    }
+  }, [progress, previousProgress, currentUpdate?.node]);
+  
   const currentStep = workflowSteps.findIndex(step => step.node === currentUpdate?.node) + 1;
 
   const formatTime = (seconds: number) => {

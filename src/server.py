@@ -9,6 +9,8 @@ import sqlite3
 import json
 import csv
 import io
+import threading
+import queue
 from datetime import datetime
 from typing import Dict, List, Optional, Any, Generator
 from contextlib import contextmanager
@@ -154,13 +156,24 @@ class WorkflowAnalytics:
         if not message:
             message = self._get_node_message(node_name)
         
+        # 🔍 DEBUG: Check streaming callback
+        if TEST_ENV:
+            debug_print(f"🔍 [DEBUG capture_node_start] node_name='{node_name}', message='{message}'", "🔍")
+            debug_print(f"🔍 [DEBUG capture_node_start] self.streaming_callback={self.streaming_callback}", "🔍")
+        
         if self.streaming_callback:
-            self.streaming_callback({
+            update_data = {
                 "node": node_name,
                 "status": "processing",
                 "message": message,
                 "elapsed_time": elapsed_time
-            })
+            }
+            if TEST_ENV:
+                debug_print(f"🚀 [DEBUG capture_node_start] Calling streaming_callback with: {update_data}", "🚀")
+            self.streaming_callback(update_data)
+        else:
+            if TEST_ENV:
+                debug_print(f"⚠️ [DEBUG capture_node_start] streaming_callback is None!", "⚠️")
     
     def capture_node_complete(self, node_name: str, message: str = ""):
         """Capture when a node completes execution"""
@@ -192,16 +205,23 @@ class WorkflowAnalytics:
     def _get_node_message(self, node_name: str) -> str:
         """Get user-friendly message for each node"""
         messages = {
+            "detect_intent_and_language": "🔍 Understanding your question...",
+            "load_product_names": "📋 Loading product database...", 
+            "business_reasoner": "🧠 Analyzing your needs...",
+            "optimize_product_query": "🔎 Optimizing search...",
+            "search_products_k20": "🗃️ Searching product catalog...",
+            "evaluate_confidence": "✅ Validating results...",
+            "format_final_response": "📝 Preparing response...",
+            "handle_follow_up": "🔄 Processing follow-up...",
+            "escalate_to_human": "🆘 Escalating to support...",
+            "follow_up_router": "🤔 Analyzing context...",
+            # Legacy names for compatibility
             "detect_intent": "🔍 Understanding your question...",
             "load_products": "📋 Loading product database...",
-            "business_reasoner": "🧠 Analyzing your needs...",
             "optimize_query": "🔎 Optimizing search...",
             "search_pinecone": "🗃️ Searching product catalog...",
-            "evaluate_confidence": "✅ Validating results...",
             "format_response": "📝 Preparing response...",
-            "handle_follow_up": "🔄 Processing follow-up...",
-            "escalate_support": "🆘 Escalating to support...",
-            "follow_up_router": "🤔 Analyzing context..."
+            "escalate_support": "🆘 Escalating to support..."
         }
         return messages.get(node_name, f"Processing {node_name}...")
     
@@ -269,68 +289,113 @@ async def chat_stream_endpoint(request: ChatRequest):
     def generate_stream():
         analytics.reset()
         
-        # Storage for streaming updates
-        streaming_updates = []
+        # 🚀 Real-time streaming with threading
+        update_queue = queue.Queue()
+        workflow_finished = threading.Event()
         
         def streaming_callback(update):
-            streaming_updates.append(update)
-            # Send SSE formatted data
-            yield f"data: {json.dumps(update)}\n\n"
+            if TEST_ENV:
+                debug_print(f"📡 [StreamServer] Adding update to queue: {update}", "🔊")
+            # Add to queue for immediate streaming
+            update_queue.put(update)
+        
+        def run_workflow():
+            """Run workflow in separate thread"""
+            try:
+                debug_print(f"📨 [StreamServer] Received streaming chat request: {request.message[:50]}...", "🔍")
+                
+                # Create ConversationState from request
+                conversation_state: ConversationState = {
+                    "user_query": request.message,
+                    "detected_language": "en",
+                    "intent": "other",
+                    "product_names": [],
+                    "original_query": request.message,
+                    "optimized_queries": [],
+                    "search_results": [],
+                    "confidence": 0.0,
+                    "evaluation_reasoning": "",
+                    "iteration": 0,
+                    "final_response": "",
+                    "escalate": False,
+                    "domain_filter": None,
+                    "chat_history": request.chat_history,
+                    "context_cache": []
+                }
+                
+                debug_print(f"🔄 [StreamServer] Processing with streaming workflow (debug={request.debug})", "⚙️")
+                
+                # Process with analytics capture and streaming
+                result_state = assistant.process_query_sync(conversation_state, debug=request.debug)
+                
+                # Send final completion update
+                analytics.capture_workflow_complete(result_state.get("final_response", ""))
+                
+                # Capture analytics from final state
+                analytics.capture_state_data(result_state)
+                
+                # Save analytics to database
+                save_analytics_to_db()
+                
+                debug_print(f"✅ [StreamServer] Streaming response completed", "⏱️")
+                
+            except Exception as e:
+                error_msg = f"An error occurred while processing your request: {str(e)}"
+                debug_print(f"❌ [StreamServer] Error: {error_msg}", "🚨")
+                
+                # Send error update
+                error_response = "I apologize, but I encountered an error. Please try again or contact support@aquaforest.eu"
+                error_update = {
+                    "node": "error",
+                    "status": "error",
+                    "message": error_response if not TEST_ENV else f"Debug Error: {error_msg}",
+                    "elapsed_time": time.time() - analytics.start_time
+                }
+                update_queue.put(error_update)
+            finally:
+                # Signal that workflow is finished
+                workflow_finished.set()
         
         # Set up streaming callback
         analytics.set_streaming_callback(streaming_callback)
         
-        try:
-            debug_print(f"📨 [StreamServer] Received streaming chat request: {request.message[:50]}...", "🔍")
-            
-            # Create ConversationState from request
-            conversation_state: ConversationState = {
-                "user_query": request.message,
-                "detected_language": "en",
-                "intent": "other",
-                "product_names": [],
-                "original_query": request.message,
-                "optimized_queries": [],
-                "search_results": [],
-                "confidence": 0.0,
-                "evaluation_reasoning": "",
-                "iteration": 0,
-                "final_response": "",
-                "escalate": False,
-                "domain_filter": None,
-                "chat_history": request.chat_history,
-                "context_cache": []
-            }
-            
-            debug_print(f"🔄 [StreamServer] Processing with streaming workflow (debug={request.debug})", "⚙️")
-            
-            # Process with analytics capture and streaming
-            result_state = assistant.process_query_sync(conversation_state, debug=request.debug)
-            
-            # Send final completion update
-            analytics.capture_workflow_complete(result_state.get("final_response", ""))
-            
-            # Capture analytics from final state
-            analytics.capture_state_data(result_state)
-            
-            # Save analytics to database
-            save_analytics_to_db()
-            
-            debug_print(f"✅ [StreamServer] Streaming response completed", "⏱️")
-            
-        except Exception as e:
-            error_msg = f"An error occurred while processing your request: {str(e)}"
-            debug_print(f"❌ [StreamServer] Error: {error_msg}", "🚨")
-            
-            # Send error update
-            error_response = "I apologize, but I encountered an error. Please try again or contact support@aquaforest.eu"
-            error_update = {
-                "node": "error",
-                "status": "error",
-                "message": error_response if not TEST_ENV else f"Debug Error: {error_msg}",
-                "elapsed_time": time.time() - analytics.start_time
-            }
-            yield f"data: {json.dumps(error_update)}\n\n"
+        # Start workflow in separate thread
+        workflow_thread = threading.Thread(target=run_workflow)
+        workflow_thread.start()
+        
+        # Stream updates in real-time
+        sent_count = 0
+        while True:
+            try:
+                # Try to get update from queue (with timeout)
+                update = update_queue.get(timeout=1.0)
+                sent_count += 1
+                
+                if TEST_ENV:
+                    debug_print(f"📤 [StreamServer] Streaming update #{sent_count}: {update['node']}", "📤")
+                
+                yield f"data: {json.dumps(update)}\n\n"
+                
+            except queue.Empty:
+                # Check if workflow is finished
+                if workflow_finished.is_set():
+                    # Try to get any remaining updates
+                    try:
+                        while True:
+                            update = update_queue.get_nowait()
+                            sent_count += 1
+                            if TEST_ENV:
+                                debug_print(f"📤 [StreamServer] Final update #{sent_count}: {update['node']}", "📤")
+                            yield f"data: {json.dumps(update)}\n\n"
+                    except queue.Empty:
+                        break
+                    break
+        
+        # Wait for workflow thread to complete
+        workflow_thread.join()
+        
+        if TEST_ENV:
+            debug_print(f"🏁 [StreamServer] Streaming completed. Total updates sent: {sent_count}", "🏁")
     
     return StreamingResponse(
         generate_stream(),

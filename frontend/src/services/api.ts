@@ -93,6 +93,11 @@ class ApiService {
 
     const url = `${API_BASE_URL}/chat/stream`;
     
+    if (import.meta.env.VITE_TEST_ENV === 'true') {
+      console.log('🚀 [API Stream] Starting streaming request to:', url);
+      console.log('🚀 [API Stream] Request data:', requestData);
+    }
+    
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -105,6 +110,10 @@ class ApiService {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
 
+    if (import.meta.env.VITE_TEST_ENV === 'true') {
+      console.log('✅ [API Stream] Response received, starting to read stream...');
+    }
+
     const reader = response.body?.getReader();
     if (!reader) {
       throw new Error('No response body reader available');
@@ -112,13 +121,24 @@ class ApiService {
 
     const decoder = new TextDecoder();
     let finalResponse = '';
+    let updateCount = 0;
 
     try {
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {
+          if (import.meta.env.VITE_TEST_ENV === 'true') {
+            console.log('🏁 [API Stream] Stream reading completed');
+          }
+          break;
+        }
 
         const chunk = decoder.decode(value, { stream: true });
+        
+        if (import.meta.env.VITE_TEST_ENV === 'true') {
+          console.log('📦 [API Stream] Received chunk:', chunk);
+        }
+        
         const lines = chunk.split('\n');
 
         for (const line of lines) {
@@ -127,21 +147,42 @@ class ApiService {
               const jsonStr = line.slice(6); // Remove 'data: ' prefix
               if (jsonStr.trim()) {
                 const update: WorkflowUpdate = JSON.parse(jsonStr);
+                updateCount++;
+                
+                if (import.meta.env.VITE_TEST_ENV === 'true') {
+                  console.log(`📡 [API Stream] Update #${updateCount}:`, update);
+                  console.log('📞 [API Stream] Calling onUpdate callback...');
+                }
+                
                 onUpdate(update);
                 
+                if (import.meta.env.VITE_TEST_ENV === 'true') {
+                  console.log('✅ [API Stream] onUpdate callback completed');
+                }
+                
                 // If it's the final response, save it
-                if (update.status === 'complete') {
+                if (update.status === 'complete' && update.node === 'complete') {
                   finalResponse = update.message;
+                  if (import.meta.env.VITE_TEST_ENV === 'true') {
+                    console.log('🎯 [API Stream] Final response captured:', finalResponse.substring(0, 100) + '...');
+                  }
                 }
               }
             } catch (e) {
-              console.warn('Failed to parse SSE data:', e);
+              console.warn('❌ [API Stream] Failed to parse SSE data:', e, 'Line:', line);
             }
           }
         }
       }
     } finally {
       reader.releaseLock();
+      if (import.meta.env.VITE_TEST_ENV === 'true') {
+        console.log(`🔒 [API Stream] Reader released. Total updates received: ${updateCount}`);
+      }
+    }
+
+    if (import.meta.env.VITE_TEST_ENV === 'true') {
+      console.log('🔚 [API Stream] Returning final response:', finalResponse ? 'Found' : 'Not found');
     }
 
     return finalResponse;

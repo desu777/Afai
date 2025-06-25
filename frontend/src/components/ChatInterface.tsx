@@ -59,9 +59,13 @@ const ChatInterface: React.FC = () => {
         debugMode,
         (update: WorkflowUpdate) => {
           if (debugMode) {
-            console.log('📡 [Chat] Workflow update:', update);
+            console.log('📡 [Chat] Workflow update received:', update);
+            console.log('🔄 [Chat] Setting currentWorkflowUpdate state...');
           }
           setCurrentWorkflowUpdate(update);
+          if (debugMode) {
+            console.log('✅ [Chat] currentWorkflowUpdate state updated');
+          }
         }
       );
 

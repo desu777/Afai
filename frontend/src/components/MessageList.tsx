@@ -14,6 +14,11 @@ interface MessageListProps {
 
 const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, onQuerySelect, currentWorkflowUpdate }) => {
 
+  // 🔍 DEBUG: Log currentWorkflowUpdate
+  if (import.meta.env.VITE_TEST_ENV === 'true' && currentWorkflowUpdate) {
+    console.log('📋 [MessageList] currentWorkflowUpdate received:', currentWorkflowUpdate);
+  }
+
   return (
     <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-8">
       <div className="max-w-4xl mx-auto space-y-8">
@@ -26,9 +31,14 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, onQueryS
         ))}
 
         {isLoading && (
-          currentWorkflowUpdate 
-            ? <StreamingLoadingMessage currentUpdate={currentWorkflowUpdate} />
-            : <LoadingMessage />
+          <>
+            {import.meta.env.VITE_TEST_ENV === 'true' && (
+              console.log('🔄 [MessageList] isLoading=true, currentWorkflowUpdate=', currentWorkflowUpdate)
+            )}
+            {currentWorkflowUpdate 
+              ? <StreamingLoadingMessage currentUpdate={currentWorkflowUpdate} />
+              : <LoadingMessage />}
+          </>
         )}
       </div>
     </div>

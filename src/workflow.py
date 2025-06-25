@@ -24,9 +24,18 @@ def timing_wrapper(func):
     """Decorator to measure execution time of workflow nodes with analytics and streaming"""
     @wraps(func)
     def wrapper(state: ConversationState) -> ConversationState:
+        # 🔍 DEBUG: Check if workflow_analytics is set
+        if TEST_ENV:
+            print(f"🔍 [DEBUG timing_wrapper] workflow_analytics is: {workflow_analytics}")
+        
         # Capture node start for streaming
         if workflow_analytics:
             workflow_analytics.capture_node_start(func.__name__)
+            if TEST_ENV:
+                print(f"📡 [DEBUG timing_wrapper] Sent node_start for: {func.__name__}")
+        else:
+            if TEST_ENV:
+                print(f"⚠️ [DEBUG timing_wrapper] workflow_analytics is None - no streaming")
         
         start_time = time.time()
         result = func(state)
@@ -37,6 +46,8 @@ def timing_wrapper(func):
         if workflow_analytics:
             workflow_analytics.capture_node_timing(func.__name__, execution_time)
             workflow_analytics.capture_node_complete(func.__name__)
+            if TEST_ENV:
+                print(f"📡 [DEBUG timing_wrapper] Sent node_complete for: {func.__name__}")
         
         if TEST_ENV:
             print(f"⏱️  [{func.__name__}] Node execution time: {execution_time:.3f}s")
