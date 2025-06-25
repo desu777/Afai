@@ -12,7 +12,7 @@ LATEST USER MESSAGE: "{user_query}"
 
 {dosage_followup_note}
 
-🧠 **FOLLOW-UP ANALYSIS - THINK STEP BY STEP:**
+ **FOLLOW-UP ANALYSIS - THINK STEP BY STEP:**
 
 **STEP 1 - UNDERSTAND THE FOLLOW-UP:**
 - What specific aspect are they asking about from our previous discussion?
@@ -29,7 +29,7 @@ LATEST USER MESSAGE: "{user_query}"
 - If asking about dosage: precise calculations with explanations
 - If asking "which one": help them choose based on their specific needs
 
-🚨 **CRITICAL: MAINTAIN CONSISTENCY**
+ **CRITICAL: MAINTAIN CONSISTENCY**
 - Reference products exactly as discussed before
 - Keep the same expert, caring tone from our conversation
 - Build trust by showing you remember their specific situation

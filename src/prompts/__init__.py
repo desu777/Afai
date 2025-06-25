@@ -24,8 +24,12 @@ def load_prompt_template(template_name: str, **kwargs) -> str:
         with open(template_path, 'r', encoding='utf-8') as f:
             template = f.read()
             
-        # Format template with provided variables
-        return template.format(**kwargs)
+        # Safe formatting - replace only known placeholders
+        for key, value in kwargs.items():
+            placeholder = "{" + key + "}"
+            template = template.replace(placeholder, str(value))
+            
+        return template
         
     except Exception as e:
         # Fallback - return empty string so calling code can handle
