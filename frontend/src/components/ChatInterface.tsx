@@ -70,14 +70,19 @@ const ChatInterface: React.FC = () => {
       );
 
       if (debugMode) {
-        console.log('✅ [Chat] Final response received:', finalResponse);
+        console.log('✅ [Chat] Final response received:', finalResponse ? finalResponse.substring(0, 100) + '...' : 'EMPTY');
       }
+
+      // 🆕 Check if we have a valid response
+      const responseContent = finalResponse && finalResponse.trim() 
+        ? finalResponse 
+        : 'I apologize, but I encountered an issue processing your request. Please try again.';
 
       // Add AI response
       const aiResponse: Message = {
         id: userMessageId + 1,
         type: 'assistant',
-        content: finalResponse,
+        content: responseContent,
         timestamp: new Date()
       };
 

@@ -374,7 +374,12 @@ async def chat_stream_endpoint(request: ChatRequest):
                 if TEST_ENV:
                     debug_print(f"📤 [StreamServer] Streaming update #{sent_count}: {update['node']}", "📤")
                 
-                yield f"data: {json.dumps(update)}\n\n"
+                # 🆕 Handle very long messages
+                json_data = json.dumps(update)
+                if len(json_data) > 8192 and TEST_ENV:
+                    debug_print(f"⚠️ [StreamServer] Large final message ({len(json_data)} bytes)", "⚠️")
+                
+                yield f"data: {json_data}\n\n"
                 
             except queue.Empty:
                 # Check if workflow is finished
@@ -386,7 +391,13 @@ async def chat_stream_endpoint(request: ChatRequest):
                             sent_count += 1
                             if TEST_ENV:
                                 debug_print(f"📤 [StreamServer] Final update #{sent_count}: {update['node']}", "📤")
-                            yield f"data: {json.dumps(update)}\n\n"
+                            
+                            # 🆕 Handle very long messages
+                            json_data = json.dumps(update)
+                            if len(json_data) > 8192 and TEST_ENV:
+                                debug_print(f"⚠️ [StreamServer] Large final message ({len(json_data)} bytes)", "⚠️")
+                            
+                            yield f"data: {json_data}\n\n"
                     except queue.Empty:
                         break
                     break

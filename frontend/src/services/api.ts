@@ -122,6 +122,7 @@ class ApiService {
     const decoder = new TextDecoder();
     let finalResponse = '';
     let updateCount = 0;
+    let buffer = ''; // 🆕 Buffer for incomplete messages
 
     try {
       while (true) {
@@ -134,12 +135,15 @@ class ApiService {
         }
 
         const chunk = decoder.decode(value, { stream: true });
+        buffer += chunk; // 🆕 Add chunk to buffer
         
         if (import.meta.env.VITE_TEST_ENV === 'true') {
-          console.log('📦 [API Stream] Received chunk:', chunk);
+          console.log('📦 [API Stream] Received chunk, buffer length:', buffer.length);
         }
         
-        const lines = chunk.split('\n');
+        // 🆕 Process complete lines from buffer
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || ''; // Keep incomplete line in buffer
 
         for (const line of lines) {
           if (line.startsWith('data: ')) {
@@ -169,11 +173,28 @@ class ApiService {
                 }
               }
             } catch (e) {
-              console.warn('❌ [API Stream] Failed to parse SSE data:', e, 'Line:', line);
+              console.warn('❌ [API Stream] Failed to parse SSE data:', e, 'Line length:', line.length);
             }
           }
         }
       }
+      
+      // 🆕 Process any remaining data in buffer
+      if (buffer.trim() && buffer.startsWith('data: ')) {
+        try {
+          const jsonStr = buffer.slice(6);
+          if (jsonStr.trim()) {
+            const update: WorkflowUpdate = JSON.parse(jsonStr);
+            onUpdate(update);
+            if (update.status === 'complete' && update.node === 'complete') {
+              finalResponse = update.message;
+            }
+          }
+        } catch (e) {
+          console.warn('❌ [API Stream] Failed to parse final buffer data:', e);
+        }
+      }
+      
     } finally {
       reader.releaseLock();
       if (import.meta.env.VITE_TEST_ENV === 'true') {
