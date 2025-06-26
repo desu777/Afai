@@ -28,7 +28,7 @@
       "Neptune Systems", "neptune apex", "apex controller",
       "Ecotech Marine", "ecotech", "radion", "vortech",
       "Tunze", "tunze pump", "tunze skimmer",
-      "Bubble Magus", "bubble magus", "skimmer bubble magus"
+      "Bubble Magus", "bubble magus", "skimmer bubble magus", "reactor bubble magus", "bubble magus reactor"
     ],
     "probiotics": [
       "Red Sea Reef Mature", "reef mature", "red sea mature",
@@ -56,7 +56,8 @@
       "Reef Nutrition": "AF Energy",
       "Ocean Nutrition": "Fish V",
       "Red Sea Reef Mature": "Bio S",
-      "Dr. Tim's": "Pro Bio S"
+      "Dr. Tim's": "Pro Bio S",
+      "Bubble Magus": "AF Media Reactor Series"
     }
   }
 }

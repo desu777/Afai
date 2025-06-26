@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Dict, Any
 from openai import OpenAI
 from models import ConversationState, Intent, IntentDetectionResult
-from config import OPENAI_API_KEY, OPENAI_MODEL2, OPENAI_TEMPERATURE, TEST_ENV, debug_print
+from config import OPENAI_API_KEY, OPENAI_MODEL, OPENAI_TEMPERATURE, TEST_ENV, debug_print
 from prompts import load_prompt_template
 
 class IntentDetector:
@@ -117,7 +117,7 @@ Return ONLY a valid JSON object:
         
         try:
             response = self.client.chat.completions.create(
-                model=OPENAI_MODEL2,
+                model=OPENAI_MODEL,
                 temperature=OPENAI_TEMPERATURE,
                 messages=[
                     {"role": "system", "content": self._create_intent_prompt(state)}
