@@ -7,6 +7,9 @@ import requests
 from bs4 import BeautifulSoup
 from typing import Dict
 from config import debug_print
+import json
+from openai import OpenAI
+from config import OPENAI_API_KEY, OPENAI_MODEL2
 
 class ICPScraper:
     """Web scraper for Aquaforest Lab ICP test results"""
@@ -276,6 +279,94 @@ class ICPScraper:
             lines.append(line)
         
         return "\n".join(lines)
+
+    def extract_structured_recommendations(self, raw_data: str, metadata: Dict = None) -> Dict:
+        """📋 Extract structured recommendations using GPT-4o-mini from raw ICP page data"""
+        try:
+            # Initialize OpenAI client
+            client = OpenAI(api_key=OPENAI_API_KEY)
+            
+            # Create prompt for GPT-4o-mini to analyze raw ICP data
+            prompt = f"""
+You are an expert marine aquarium analyst. Analyze the RAW ICP test results page content and extract structured recommendations with products and dosages.
+
+RAW ICP PAGE DATA:
+{raw_data}
+
+METADATA (if available):
+{json.dumps(metadata, indent=2, ensure_ascii=False) if metadata else "No metadata available"}
+
+Analyze the complete page content and extract detailed information as JSON with these exact fields:
+
+{{
+    "recommendations": {{
+        "increase": [
+            {{
+                "parameter": "element name",
+                "current_value": "current measured value",
+                "target_range": "recommended range",
+                "suggested_products": ["product name 1", "product name 2"],
+                "dosage": "dosage instruction if available"
+            }}
+        ],
+        "decrease": [
+            {{
+                "parameter": "element name", 
+                "current_value": "current measured value",
+                "target_range": "recommended range",
+                "suggested_products": ["product name 1"],
+                "dosage": "dosage instruction if available"
+            }}
+        ],
+        "maintain": [
+            {{
+                "parameter": "element name",
+                "current_value": "current measured value", 
+                "target_range": "recommended range",
+                "suggested_products": ["maintenance product"],
+                "dosage": "maintenance dosage"
+            }}
+        ]
+    }},
+    "aquarium_info": {{
+        "volume": "tank volume in liters",
+        "type": "reef type (SPS/LPS/Mixed)"
+    }},
+    "priority_actions": [
+        "most critical correction needed",
+        "second priority action"
+    ]
+}}
+
+Focus on:
+- Only parameters that need correction (too high/too low)
+- Generic product names (like "Calcium supplement", "Phosphate remover") 
+- Practical dosage instructions
+- Priority order of corrections
+
+Return ONLY the JSON object, no explanations."""
+
+            # Call GPT-4o-mini
+            response = client.chat.completions.create(
+                model=OPENAI_MODEL2,  # gpt-4o-mini
+                temperature=0.1,
+                messages=[{"role": "user", "content": prompt}],
+                response_format={"type": "json_object"}
+            )
+            
+            # Parse response
+            structured_data = json.loads(response.choices[0].message.content)
+            debug_print(f"🤖 [ICPScraper] Structured recommendations extracted successfully")
+            
+            return structured_data
+            
+        except Exception as e:
+            debug_print(f"❌ [ICPScraper] Error extracting structured recommendations: {e}")
+            return {
+                "recommendations": {"increase": [], "decrease": [], "maintain": []},
+                "aquarium_info": {},
+                "priority_actions": []
+            }
 
 
 # 🚀 UTILITY FUNCTIONS for backward compatibility

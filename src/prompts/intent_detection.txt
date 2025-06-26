@@ -18,11 +18,11 @@ LATEST USER MESSAGE: "{user_query}"
 ALLOWED INTENTS (MUST use exact values):
 • greeting - hello, hi, good morning
 • business - partnership, collaboration, business inquiry  
-• product_query - asking about specific products or problems
+• product_query - asking about specific products or problems (ONLY for FIRST message or COMPLETELY NEW TOPIC)
 • purchase_inquiry - where to buy, dealers, retailers
 • competitor - comparing or asking about competitor products
 • censored - inappropriate content
-• follow_up - continuing previous conversation (ONLY if chat history exists)
+• follow_up - continuing previous conversation (WHEN chat history exists)
 • support - technical support requests
 • analyze_icp - ICP test results analysis
 • other - anything else
@@ -32,19 +32,33 @@ ALLOWED INTENTS (MUST use exact values):
 
 ## STEP 2: INTENT CLASSIFICATION RULES
 
+🚨 **CRITICAL FOLLOW-UP RULE:**
+- If chat_history exists AND user is NOT starting a completely new topic (greeting, business inquiry, etc.) → MUST be "follow_up"
+- If chat_history is empty → follow_up is FORBIDDEN, use product_query instead
+- follow_up takes PRIORITY over product_query when chat history exists
+
+**FOLLOW-UP INDICATORS:**
+- Asking questions about previously mentioned products
+- Using words like "która", "which", "ten", "this", "that", "it"  
+- Asking for clarification, details, comparisons from previous response
+- Continuing the conversation flow naturally
+- Making references to previous context (even without explicit mentions)
+
 CRITICAL RULES:
 1. follow_up is **FORBIDDEN** when chat_history is empty
-2. MUST return JSON format: {{"intent": "exact_value", "language": "detected_code", "confidence": 0.0-1.0, "context_note": "brief_explanation"}}
-3. If user is COMPARING or ASKING ABOUT competitor products → intent = "competitor"
-4. Language codes: en, pl, de, fr, it, es, pt, nl, other
-5. If ICP URL detected → intent = "analyze_icp"
-6. If asking about buying/purchasing → intent = "purchase_inquiry"
-7. If asking for technical help/support → intent = "support"
-8. If greeting words → intent = "greeting"
-9. If business cooperation → intent = "business"
+2. follow_up is **REQUIRED** when chat_history exists AND user continues the conversation 
+3. MUST return JSON format: {{"intent": "exact_value", "language": "detected_code", "confidence": 0.0-1.0, "context_note": "brief_explanation"}}
+4. If user is COMPARING or ASKING ABOUT competitor products → intent = "competitor"
+5. Language codes: en, pl, de, fr, it, es, pt, nl, other
+6. If ICP URL detected → intent = "analyze_icp"
+7. If asking about buying/purchasing → intent = "purchase_inquiry"
+8. If asking for technical help/support → intent = "support"
+9. If greeting words → intent = "greeting"
+10. If business cooperation → intent = "business"
 
 INTENT CLASSIFICATION LOGIC:
-- **product_query**: User wants information about AF products, recommendations, or product advice (INCLUDING asking for help with aquarium problems that can be solved with products)
+- **product_query**: User wants information about AF products, recommendations, or product advice (ONLY for first message or completely new topic)
+- **follow_up**: User continues previous conversation, asks about mentioned products, seeks clarification (PRIORITY when chat_history exists)
 - **purchase_inquiry**: User wants to know WHERE to buy, dealer locations, or availability through retailers
 - **support**: User wants to CONTACT support team or has issues with customer service (NOT aquarium problems)
 - **competitor**: User is comparing or evaluating competitor products vs AF products
@@ -63,6 +77,10 @@ COMPETITOR DETECTION - PRECISE CRITERIA:
 - If user wants AF products/advice but mentions competitor as context → product_query
 
 ## STEP 3: EXAMPLES FOR CLARITY
+
+**FOLLOW-UP vs PRODUCT_QUERY:**
+✅ FOLLOW-UP (when chat_history exists): "która z tych będzie najlepsza?", "which one should I choose?", "tell me more about this", "how to use it?", "what's the difference?", "can you compare them?"
+❌ NOT FOLLOW-UP (no chat_history): "Do you have products for reef tank?" (→ product_query)
 
 PURCHASE_INQUIRY vs PRODUCT_QUERY:
 ✅ PURCHASE_INQUIRY: "Where can I buy AF products?", "Do you have dealers in Warsaw?", "How to order AF salt?"
