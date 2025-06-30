@@ -157,12 +157,21 @@ class BusinessReasoner:
                     if icp_data.get("parameters"):
                         icp_summary = self.icp_scraper.format_icp_data_for_llm(icp_data["parameters"], icp_data.get("metadata", {}))
                         enhanced_query = f"{state['user_query']}\n\n📊 ICP TEST RESULTS:\n{icp_summary}"
+                        
+                        # 🆕 ADD LAB DOSING RECOMMENDATIONS from ICP page
+                        if icp_data.get("raw_data"):
+                            icp_recommendations = self.icp_scraper.extract_icp_recommendations_text(icp_data["raw_data"])
+                            if icp_recommendations:
+                                recs_text = "\n".join(icp_recommendations)
+                                enhanced_query += f"\n\n🔬 LAB DOSING RECOMMENDATIONS:\n{recs_text}"
+                                debug_print(f"📋 [BusinessReasoner] Added {len(icp_recommendations)} lab dosing recommendations")
+                        
                         state["user_query"] = enhanced_query
-                        debug_print(f"📋 [BusinessReasoner] Enhanced query with ICP data")
+                        debug_print(f"📋 [BusinessReasoner] Enhanced query with ICP data + lab recommendations")
                         
                         # 🔍 DEBUG: Print full ICP results for debugging
-                        debug_print(f"📊 [BusinessReasoner] ICP TEST RESULTS:")
-                        debug_print(f"{icp_summary}")
+                        debug_print(f"📊 [BusinessReasoner] COMPLETE ICP ANALYSIS:")
+                        debug_print(f"{enhanced_query}")
                 else:
                     debug_print(f"⚠️ [BusinessReasoner] ANALYZE_ICP intent but no URL found in query")
             

@@ -5,7 +5,7 @@ Extracted from business_reasoner.py for better code organization
 import re
 import requests
 from bs4 import BeautifulSoup
-from typing import Dict
+from typing import Dict, List
 from config import debug_print
 import json
 from openai import OpenAI
@@ -43,6 +43,7 @@ class ICPScraper:
                 "url": url,
                 "parameters": {},
                 "metadata": metadata,  # 🆕 Add metadata
+                "raw_data": soup.get_text(),  # 🆕 Add raw text for recommendations extraction
                 "status": "success",
                 "debug_info": {
                     "tables_found": len(tables),
@@ -367,6 +368,59 @@ Return ONLY the JSON object, no explanations."""
                 "aquarium_info": {},
                 "priority_actions": []
             }
+
+    def extract_icp_recommendations_text(self, raw_data: str) -> List[str]:
+        """📋 Extract individual recommendation sentences for each element from ICP raw data"""
+        try:
+            recommendations = []
+            
+            # 🎯 Lista pierwiastków jako separatorów
+            elements = [
+                "Al Glin", "As Arsen", "B Bor", "Ba Bar", "Be Beryl", "Cd Kadm", 
+                "Co Kobalt", "Cr Chrom", "Cu Miedź", "Fe Żelazo", "Hg Rtęć", 
+                "I Jod", "La Lantan", "Li Lit", "Mn Mangan", "Mo Molibden", 
+                "Ni Nikiel", "Pb Ołów", "Sb Antymon", "Sc Skand", "Se Selen", 
+                "Si Krzem", "Sn Cyna", "Ti Tytan", "V Wanad", "W Wolfram", 
+                "Zn Cynk", "P Fosfor", "Na Sód", "Ca Wapń", "Mg Magnez", 
+                "K Potas", "Br Brom", "Sr Stront", "S Siarka", "NO3 NO3",
+                "PO4 Fosforany", "KH KH", "Zasolenie", "ALL RIGHTS RESERVED"
+            ]
+            
+            # Escape special characters in element names for regex
+            escaped_elements = [re.escape(elem) for elem in elements]
+            elements_pattern = '|'.join(escaped_elements)
+            
+            # 🎯 Pattern that finds "Zalecenia" and stops at next element or end
+            pattern = rf'Zalecenia(.*?)(?=({elements_pattern})|$)'
+            
+            matches = re.findall(pattern, raw_data, re.IGNORECASE | re.DOTALL)
+            debug_print(f"🔬 [ICPScraper] Found {len(matches)} potential recommendation matches")
+            
+            for i, match_tuple in enumerate(matches):
+                # match_tuple is (recommendation_text, element_name) due to groups in regex
+                recommendation_text = match_tuple[0] if isinstance(match_tuple, tuple) else match_tuple
+                
+                # Clean up the text
+                clean_text = re.sub(r'\s+', ' ', recommendation_text).strip()
+                debug_print(f"🔬 [ICPScraper] Match {i+1} length: {len(clean_text)}")
+                debug_print(f"🔬 [ICPScraper] Match {i+1} preview: {clean_text[:100]}...")
+                
+                # Filter: must be substantial text with key dosing terms
+                if (len(clean_text) > 20 and 
+                    ('Uwaga!' in clean_text or 'dawka' in clean_text or 'stosując' in clean_text or 
+                     'podmień' in clean_text or 'użyj' in clean_text or 'zastosuj' in clean_text)):
+                    
+                    recommendations.append(f"🔬 ZALECENIE: {clean_text}")
+                    debug_print(f"✅ [ICPScraper] Added recommendation {i+1}")
+                else:
+                    debug_print(f"❌ [ICPScraper] Skipped recommendation {i+1} (too short or no key terms)")
+            
+            debug_print(f"🔬 [ICPScraper] Final recommendations count: {len(recommendations)}")
+            return recommendations
+            
+        except Exception as e:
+            debug_print(f"❌ [ICPScraper] Error extracting recommendations: {e}")
+            return []
 
 
 # 🚀 UTILITY FUNCTIONS for backward compatibility
