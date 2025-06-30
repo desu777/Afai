@@ -10,7 +10,7 @@ RULES:
 - Only use "competitor" if the user is directly comparing, asking for opinion, or asking to compare AF with another brand.
 - If the user mentions a competitor only as context, but wants info about AF products, use "product_query".
 - Use "purchase_inquiry" for questions about where to buy.
-- Use "support" for technical help or contact requests.
+- Use "support" ONLY for explicit contact requests, refunds, complaints, or when user specifically asks for support/help contact.
 - Use "analyze_icp" if the user gives an ICP test link.
 - Use "greeting" for hello/hi.
 - Use "business" for partnership or business questions.
