@@ -14,7 +14,7 @@ import queue
 from datetime import datetime
 from typing import Dict, List, Optional, Any, Generator
 from contextlib import contextmanager
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -24,6 +24,7 @@ import uvicorn
 from config import debug_print, TEST_ENV, CORS_ORIGINS
 from models import ConversationState
 from main import AquaforestAssistant
+import messenger_server
 
 # Database configuration
 DB_PATH = "aquaforest_analytics.db"
@@ -882,6 +883,22 @@ async def toggle_debug():
         "debug_mode": new_debug,
         "message": f"Debug mode {'enabled' if new_debug else 'disabled'}"
     }
+
+# 🚀 FACEBOOK MESSENGER WEBHOOK ENDPOINTS
+
+@app.get("/webhook")
+async def webhook_verify_endpoint(
+    hub_mode: str = Query(None, alias="hub.mode"),
+    hub_challenge: str = Query(None, alias="hub.challenge"), 
+    hub_verify_token: str = Query(None, alias="hub.verify_token")
+):
+    """Webhook verification endpoint for Facebook - delegates to messenger_server"""
+    return await messenger_server.webhook_verify(hub_mode, hub_challenge, hub_verify_token)
+
+@app.post("/webhook")
+async def webhook_handler_endpoint(request: Request):
+    """Main webhook handler for Facebook Messenger - delegates to messenger_server"""
+    return await messenger_server.webhook_handler(request, assistant)
 
 def run_server():
     """Run the FastAPI server"""

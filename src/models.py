@@ -123,3 +123,4 @@ class QueryOptimizationResult(BaseModel):
     optimized_queries: List[str]
     detected_products: List[str]
     detected_problems: List[str]
+

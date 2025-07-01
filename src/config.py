@@ -3,6 +3,7 @@ Configuration module for Aquaforest RAG System
 Handles all environment variables and system settings
 """
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -47,11 +48,17 @@ CONFIDENCE_THRESHOLD = float(os.getenv("CONFIDENCE_THRESHOLD", "0.5"))
 
 SUPPORTED_LANGUAGES = os.getenv("SUPPORTED_LANGUAGES", "pl,en,de,fr,es,it").split(",")
 
-# Paths
-PRODUCTS_FILE_PATH = os.getenv("PRODUCTS_FILE_PATH", "data/products.json")
+# Paths - Use absolute path based on file location
+PRODUCTS_FILE_PATH = os.getenv("PRODUCTS_FILE_PATH") or str(Path(__file__).parent.parent / "data" / "products.json")
 
 # Server Configuration
 CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:8080").split(",")
+
+# 🚀 FACEBOOK MESSENGER CONFIGURATION
+MESSENGER_ON = os.getenv("MESSENGER_ON", "true").lower() == "true"
+MESSENGER_PAGE_ACCESS_TOKEN = os.getenv("MESSENGER_TOKEN")
+MESSENGER_VERIFY_TOKEN = os.getenv("MESSENGER_VERIFY_TOKEN", "aquaforest_webhook_2025")
+FACEBOOK_API_VERSION = os.getenv("FACEBOOK_API_VERSION", "v22.0")
 
 # 🆕 COMPETITOR LIST
 COMPETITORS = [
@@ -65,6 +72,8 @@ if not PINECONE_API_KEY:
     raise ValueError("PINECONE_API_KEY is required")
 if not OPENAI_API_KEY:
     raise ValueError("OPENAI_API_KEY is required")
+if MESSENGER_ON and not MESSENGER_PAGE_ACCESS_TOKEN:
+    raise ValueError("MESSENGER_TOKEN is required when MESSENGER_ON=true")
 
 # Print configuration status on import (only in debug mode)
 if TEST_ENV:
@@ -84,4 +93,6 @@ if TEST_ENV:
     print(f"📍 Supported Languages: {', '.join(SUPPORTED_LANGUAGES)}")
     print(f"📍 CORS Origins: {', '.join(CORS_ORIGINS)}")
     print(f"📍 Competitors tracked: {len(COMPETITORS)}")
+    print(f"📍 Messenger Integration: {'ENABLED' if MESSENGER_ON else 'DISABLED'}")
+    print(f"📍 Facebook API Version: {FACEBOOK_API_VERSION}")
     print("="*60 + "\n")

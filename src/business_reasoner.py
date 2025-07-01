@@ -61,7 +61,9 @@ class BusinessReasoner:
     def _load_products_knowledge(self) -> List[Dict]:
         """Load detailed product knowledge from products_turbo.json"""
         try:
-            with open("data/products_turbo.json", 'r', encoding='utf-8') as f:
+            # Use absolute path based on file location, similar to mapping files
+            products_turbo_path = Path(__file__).parent.parent / "data" / "products_turbo.json"
+            with open(products_turbo_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
                 debug_print(f"✅ [BusinessReasoner] Loaded products_turbo.json")
                 return data
