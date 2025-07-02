@@ -26,16 +26,16 @@ const StreamingLoadingMessage: React.FC<StreamingLoadingMessageProps> = ({ curre
   }, [currentUpdate?.elapsed_time, startTime]);
 
   // Workflow steps for progress indication (updated with correct node names)
-  const workflowSteps = [
-    { node: 'start', label: 'Starting analysis' },
-    { node: 'detect_intent', label: 'Understanding question' },
-    { node: 'load_products', label: 'Loading products' },
+  const nodeInfo = [
+    { node: 'detect_intent_and_language', label: 'Understanding query' },
+    { node: 'load_product_names', label: 'Loading products' },
     { node: 'business_reasoner', label: 'Analyzing needs' },
-    { node: 'optimize_query', label: 'Finding products' },
-    { node: 'search_pinecone', label: 'Searching catalog' },
-    { node: 'evaluate_confidence', label: 'Validating results' },
-    { node: 'format_response', label: 'Preparing response' },
-    { node: 'complete', label: 'Complete' }
+    { node: 'optimize_product_query', label: 'Optimizing search' },
+    { node: 'search_products_k20', label: 'Searching catalog' },
+    { node: 'format_final_response', label: 'Generating response' },
+    { node: 'escalate_to_human', label: 'Escalating to support' },
+    { node: 'handle_follow_up', label: 'Processing follow-up' },
+    { node: 'follow_up_router', label: 'Analyzing context' }
   ];
 
   // Simple progress calculation - just increment when we get updates
@@ -43,22 +43,19 @@ const StreamingLoadingMessage: React.FC<StreamingLoadingMessageProps> = ({ curre
     if (!currentUpdate) return 0;
     
     // Map some common nodes to approximate progress
-    const progressMap: Record<string, number> = {
-      'start': 5,
+    const nodeProgressMap: Record<string, number> = {
       'detect_intent_and_language': 15,
       'load_product_names': 25,
-      'business_reasoner': 40,
+      'business_reasoner': 45,
       'optimize_product_query': 55,
-      'search_products_k20': 70,
-      'evaluate_confidence': 85,
+      'search_products_k20': 75,
       'format_final_response': 95,
-      'follow_up_router': 30,
-      'handle_follow_up': 90,
-      'escalate_to_human': 100,
-      'complete': 100
+      'escalate_to_human': 90,
+      'handle_follow_up': 95,
+      'follow_up_router': 35
     };
     
-    const mappedProgress = progressMap[currentUpdate.node];
+    const mappedProgress = nodeProgressMap[currentUpdate.node];
     const fallbackProgress = Math.min(90, elapsedTime * 2);
     
     // Debug logging
@@ -80,7 +77,7 @@ const StreamingLoadingMessage: React.FC<StreamingLoadingMessageProps> = ({ curre
     }
   }, [progress, previousProgress, currentUpdate?.node]);
   
-  const currentStep = workflowSteps.findIndex(step => step.node === currentUpdate?.node) + 1;
+  const currentStep = nodeInfo.findIndex(step => step.node === currentUpdate?.node) + 1;
 
   const formatTime = (seconds: number) => {
     return `${seconds.toFixed(1)}s`;

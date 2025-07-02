@@ -26,6 +26,54 @@ def clean_processed_messages_cache():
         processed_messages = set(list(processed_messages)[-500:])
         debug_print(f"🧹 [Cache] Cleaned message cache, now has {len(processed_messages)} entries", "🧹")
 
+# 🆕 MARKDOWN TO CLEAN TEXT CONVERTER
+def convert_markdown_to_messenger_text(text: str) -> str:
+    """Convert Markdown formatting to clean, readable text for Facebook Messenger"""
+    if not text:
+        return text
+    
+    import re
+    
+    # Convert headers - simple, clean formatting
+    text = re.sub(r'^### (.+)$', r'▶ \1', text, flags=re.MULTILINE)
+    text = re.sub(r'^## (.+)$', r'📋 \1', text, flags=re.MULTILINE)
+    text = re.sub(r'^# (.+)$', r'🔹 \1', text, flags=re.MULTILINE)
+    
+    # Convert bold and italic - remove formatting, keep text clean
+    text = re.sub(r'\*\*(.+?)\*\*', r'\1', text)  # Remove bold completely
+    text = re.sub(r'\*(.+?)\*', r'\1', text)      # Remove italic completely
+    
+    # Convert inline code - just use quotes
+    text = re.sub(r'`(.+?)`', r'"\1"', text)
+    
+    # Convert code blocks - simple format
+    text = re.sub(r'```[\w]*\n(.*?)\n```', r'\1', text, flags=re.DOTALL)
+    
+    # Convert links - clean format
+    text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'\1: \2', text)
+    
+    # Convert bullet points - minimal formatting
+    text = re.sub(r'^- (.+)$', r'• \1', text, flags=re.MULTILINE)
+    text = re.sub(r'^\* (.+)$', r'• \1', text, flags=re.MULTILINE)
+    
+    # Convert numbered lists - clean numbers
+    text = re.sub(r'^\d+\. (.+)$', r'\1', text, flags=re.MULTILINE)
+    
+    # Clean up multiple newlines (keep max 2)
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    
+    # Clean up extra spaces
+    text = re.sub(r' {2,}', ' ', text)
+    
+    # Convert horizontal rules - just remove them
+    text = re.sub(r'^---+$', '', text, flags=re.MULTILINE)
+    
+    # Remove any remaining markdown artifacts
+    text = re.sub(r'\*+', '', text)  # Remove stray asterisks
+    text = re.sub(r'#+\s*', '', text)  # Remove stray hashes
+    
+    return text.strip()
+
 # 🚀 FACEBOOK MESSENGER MODELS
 class MessengerUser(BaseModel):
     """Facebook Messenger user"""
@@ -164,7 +212,11 @@ def split_long_message(message: str, max_length: int = 1950) -> list[str]:
 def send_messenger_messages(user_id: str, message: str) -> bool:
     """Send message(s) via Facebook Messenger API with intelligent splitting"""
     try:
-        chunks = split_long_message(message)
+        # 🆕 Convert Markdown to Messenger-friendly text
+        cleaned_message = convert_markdown_to_messenger_text(message)
+        debug_print(f"📝 [Messenger] Converted Markdown to plain text ({len(message)} → {len(cleaned_message)} chars)", "📝")
+        
+        chunks = split_long_message(cleaned_message)
         debug_print(f"📤 [Messenger] Sending {len(chunks)} message chunk(s) to {user_id}", "📤")
         
         all_success = True
@@ -206,7 +258,8 @@ async def webhook_verify(
         debug_print("❌ [Webhook] Verification failed!", "🔐")
         raise HTTPException(status_code=403, detail="Forbidden")
 
-async def webhook_handler(request: Request, assistant: AquaforestAssistant):
+async def webhook_handler(request: Request, assistant: AquaforestAssistant, 
+                          load_history_func=None, save_message_func=None):
     """Main webhook handler for Facebook Messenger"""
     # 🚫 Check if Messenger is enabled
     if not MESSENGER_ON:
@@ -252,7 +305,9 @@ async def webhook_handler(request: Request, assistant: AquaforestAssistant):
                     
                     # 🚀 PROCESS ASYNCHRONOUSLY - don't wait for completion
                     import asyncio
-                    task = asyncio.create_task(process_messenger_message(messaging_event, assistant))
+                    task = asyncio.create_task(process_messenger_message(
+                        messaging_event, assistant, load_history_func, save_message_func
+                    ))
                     debug_print(f"🚀 [Webhook] Started async processing for {message_id}", "🚀")
                     
                 elif messaging_event.delivery:
@@ -269,7 +324,8 @@ async def webhook_handler(request: Request, assistant: AquaforestAssistant):
         # Return 200 to avoid Facebook retry loops
         return {"status": "ERROR", "message": str(e)}
 
-async def process_messenger_message(messaging_event, assistant: AquaforestAssistant):
+async def process_messenger_message(messaging_event, assistant: AquaforestAssistant, 
+                                    load_history_func=None, save_message_func=None):
     """Process individual Messenger message with RAG - runs asynchronously"""
     message_id = messaging_event.message.mid
     try:
@@ -278,23 +334,35 @@ async def process_messenger_message(messaging_event, assistant: AquaforestAssist
         
         debug_print(f"💬 [Messenger] Processing message from {user_id}: '{message_text[:50]}...'", "🧠")
         
-        # Create conversation state for RAG processing
-        conversation_state: ConversationState = {
+        # 🆕 Load chat history for context (last exchange only)
+        chat_history = []
+        if load_history_func:
+            chat_history = load_history_func(user_id)
+            if chat_history:
+                debug_print(f"📚 [Messenger] Using {len(chat_history)} messages for context", "📚")
+        
+        # 🆕 Save user message to history
+        if save_message_func:
+            save_message_func(user_id, "user", message_text, message_id)
+        
+        # Create conversation state for RAG workflow
+        conversation_state = {
             "user_query": message_text,
-            "detected_language": "en",  # Will be detected by intent detector
+            "detected_language": "en",
             "intent": "other",
             "product_names": [],
-            "original_query": message_text,
+            "original_query": "",
             "optimized_queries": [],
             "search_results": [],
-            "confidence": 0.0,
-            "evaluation_reasoning": "",
             "iteration": 0,
             "final_response": "",
             "escalate": False,
             "domain_filter": None,
-            "chat_history": [],  # TODO: Load user's chat history from database
-            "context_cache": []
+            "chat_history": chat_history,
+            "context_cache": [],
+            "node_timings": {},
+            "routing_decisions": [],
+            "total_execution_time": 0.0
         }
         
         debug_print(f"🔄 [Messenger] Processing with RAG workflow", "⚙️")
@@ -306,6 +374,10 @@ async def process_messenger_message(messaging_event, assistant: AquaforestAssist
         ai_response = result_state.get("final_response", "Sorry, I couldn't process your request.")
         
         debug_print(f"✅ [Messenger] Generated response ({len(ai_response)} chars): '{ai_response[:100]}...'", "🤖")
+        
+        # 🆕 Save assistant response to history
+        if save_message_func:
+            save_message_func(user_id, "assistant", ai_response)
         
         # Send response back to user
         success = send_messenger_messages(user_id, ai_response)

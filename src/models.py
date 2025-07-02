@@ -33,8 +33,6 @@ class ConversationState(TypedDict):
     original_query: str
     optimized_queries: List[str]
     search_results: List[Dict[str, Any]]
-    confidence: float
-    evaluation_reasoning: str
     iteration: int
     final_response: str
     escalate: bool

@@ -111,8 +111,6 @@ def init_database():
                 pinecone_top_results TEXT,
                 filter_decision TEXT,
                 filtered_results_count INTEGER,
-                confidence_score REAL,
-                confidence_reasoning TEXT,
                 final_response TEXT,
                 total_execution_time REAL,
                 node_timings TEXT,
@@ -121,11 +119,104 @@ def init_database():
             )
         """)
         
+        # 🆕 Create messenger_history table for Facebook Messenger conversations
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS messenger_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id TEXT NOT NULL,
+                message_role TEXT NOT NULL CHECK (message_role IN ('user', 'assistant')),
+                message_content TEXT NOT NULL,
+                message_id TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
+        # Create index for faster queries
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_messenger_history_user_time 
+            ON messenger_history(user_id, created_at DESC)
+        """)
+        
         conn.commit()
-        print("✅ Database initialized successfully")
+        debug_print("✅ Database initialized successfully")
+        debug_print("🗄️ 📅 [Messenger] Chat history database initialized")
 
 # Initialize database on startup
 init_database()
+
+# 🆕 MESSENGER HISTORY MANAGEMENT FUNCTIONS
+def load_messenger_chat_history(user_id: str) -> List[Dict[str, str]]:
+    """Load last exchange (user question + assistant response) for context"""
+    try:
+        with get_db() as conn:
+            cursor = conn.cursor()
+            
+            # Get last 2 messages (1 exchange) for lightweight context
+            cursor.execute("""
+                SELECT message_role, message_content 
+                FROM messenger_history 
+                WHERE user_id = ? 
+                ORDER BY created_at DESC 
+                LIMIT 2
+            """, (user_id,))
+            
+            messages = cursor.fetchall()
+            
+            # Reverse to get chronological order (older first)
+            chat_history = []
+            for row in reversed(messages):
+                chat_history.append({
+                    "role": row["message_role"], 
+                    "content": row["message_content"]
+                })
+            
+            if chat_history:
+                debug_print(f"📚 [Messenger] Loaded {len(chat_history)} messages for context for user {user_id}")
+                return chat_history
+            else:
+                debug_print(f"📭 [Messenger] No chat history found for user {user_id}")
+                return []
+                
+    except Exception as e:
+        debug_print(f"❌ [Messenger] Error loading chat history for {user_id}: {e}")
+        return []
+
+def save_messenger_message(user_id: str, role: str, content: str, message_id: str = None):
+    """Save a message to messenger history"""
+    try:
+        with get_db() as conn:
+            cursor = conn.cursor()
+            
+            cursor.execute("""
+                INSERT INTO messenger_history (user_id, message_role, message_content, message_id)
+                VALUES (?, ?, ?, ?)
+            """, (user_id, role, content, message_id))
+            
+            conn.commit()
+            debug_print(f"💾 [Messenger] Saved {role} message for user {user_id}")
+            
+    except Exception as e:
+        debug_print(f"❌ [Messenger] Error saving message for {user_id}: {e}")
+
+def cleanup_old_messenger_history(days_to_keep: int = 30):
+    """Clean up old messages to prevent database bloat"""
+    try:
+        with get_db() as conn:
+            cursor = conn.cursor()
+            
+            cursor.execute("""
+                DELETE FROM messenger_history 
+                WHERE created_at < datetime('now', '-{} days')
+            """.format(days_to_keep))
+            
+            deleted_count = cursor.rowcount
+            conn.commit()
+            
+            if deleted_count > 0:
+                debug_print(f"🧹 [Messenger] Cleaned up {deleted_count} old messages (older than {days_to_keep} days)")
+                
+    except Exception as e:
+        debug_print(f"❌ [Messenger] Error cleaning up old messages: {e}")
 
 # Enhanced analytics capture class with streaming support
 class WorkflowAnalytics:
@@ -204,30 +295,23 @@ class WorkflowAnalytics:
             })
     
     def _get_node_message(self, node_name: str) -> str:
-        """Get user-friendly message for each node"""
+        """Get human-readable message for node execution"""
         messages = {
             "detect_intent_and_language": "🔍 Understanding your question...",
-            "load_product_names": "📋 Loading product database...", 
+            "load_product_names": "📋 Loading product database...",
             "business_reasoner": "🧠 Analyzing your needs...",
             "optimize_product_query": "🔎 Optimizing search...",
             "search_products_k20": "🗃️ Searching product catalog...",
-            "evaluate_confidence": "✅ Validating results...",
-            "format_final_response": "📝 Preparing response...",
-            "handle_follow_up": "🔄 Processing follow-up...",
+            "format_final_response": "✍️ Generating response...",
             "escalate_to_human": "🆘 Escalating to support...",
-            "follow_up_router": "🤔 Analyzing context...",
-            # Legacy names for compatibility
-            "detect_intent": "🔍 Understanding your question...",
-            "load_products": "📋 Loading product database...",
-            "optimize_query": "🔎 Optimizing search...",
-            "search_pinecone": "🗃️ Searching product catalog...",
-            "format_response": "📝 Preparing response...",
-            "escalate_support": "🆘 Escalating to support..."
+            "handle_follow_up": "🔄 Processing follow-up...",
+            "follow_up_router": "🔄 Analyzing context..."
         }
-        return messages.get(node_name, f"Processing {node_name}...")
+        return messages.get(node_name, f"⚙️ Processing {node_name}...")
     
     def capture_state_data(self, state: ConversationState):
-        """Extract analytics data from workflow state"""
+        """Capture comprehensive workflow data"""
+        # Basic query data
         self.data["user_query"] = state.get("user_query", "")
         self.data["detected_language"] = state.get("detected_language", "")
         
@@ -238,38 +322,45 @@ class WorkflowAnalytics:
         business_analysis = state.get("business_analysis", {})
         self.data["intent_confidence"] = 0.8  # Default value, as it's not explicitly stored
         
-        # Business reasoner
-        self.data["business_reasoner_decision"] = business_analysis.get("business_interpretation", "")
-        self.data["business_corrections"] = business_analysis.get("product_name_corrections", "")
+        # Business reasoning
+        if business_analysis:
+            self.data["business_reasoner_decision"] = business_analysis.get("business_interpretation", "")
+            self.data["business_corrections"] = business_analysis.get("product_name_corrections", "")
         
         # Query optimization
-        self.data["query_optimizer_queries"] = json.dumps(state.get("optimized_queries", []))
+        optimized_queries = state.get("optimized_queries", [])
+        self.data["query_optimizer_queries"] = json.dumps(optimized_queries) if optimized_queries else ""
         
-        # Pinecone results
+        # Pinecone search results
         search_results = state.get("search_results", [])
         self.data["pinecone_results_count"] = len(search_results)
+        
+        # Top 3 results for analysis
         top_results = []
         for result in search_results[:3]:
-            meta = result.get("metadata", {})
+            metadata = result.get('metadata', {})
             top_results.append({
-                "product": meta.get("product_name", ""),
-                "score": result.get("score", 0)
+                "product_name": metadata.get('product_name', ''),
+                "score": result.get('score', 0),
+                "domain": metadata.get('domain', '')
             })
         self.data["pinecone_top_results"] = json.dumps(top_results)
         
-        # Filtering
-        self.data["filter_decision"] = state.get("filter_reasoning", "")
-        self.data["filtered_results_count"] = len(search_results)  # After filtering
+        # Filter results (if any filtering was done)
+        self.data["filter_decision"] = state.get("filter_reasoning", "Direct routing - no filtering")
+        self.data["filtered_results_count"] = len(search_results)  # Same as pinecone since no filtering
         
-        # Confidence
-        self.data["confidence_score"] = state.get("confidence", 0.0)
-        self.data["confidence_reasoning"] = state.get("evaluation_reasoning", "")
-        
-        # Response
+        # Final response
         self.data["final_response"] = state.get("final_response", "")
+        
+        # Escalation
         self.data["escalated"] = state.get("escalate", False)
         
-        # Total time
+        # Node timings
+        node_timings = state.get("node_timings", {})
+        self.data["node_timings"] = json.dumps(node_timings)
+        
+        # Total execution time
         self.data["total_execution_time"] = time.time() - self.start_time
 
 # Global analytics instance
@@ -305,23 +396,24 @@ async def chat_stream_endpoint(request: ChatRequest):
             try:
                 debug_print(f"📨 [StreamServer] Received streaming chat request: {request.message[:50]}...", "🔍")
                 
-                # Create ConversationState from request
-                conversation_state: ConversationState = {
+                # Create conversation state
+                conversation_state = {
                     "user_query": request.message,
                     "detected_language": "en",
                     "intent": "other",
                     "product_names": [],
-                    "original_query": request.message,
+                    "original_query": "",
                     "optimized_queries": [],
                     "search_results": [],
-                    "confidence": 0.0,
-                    "evaluation_reasoning": "",
                     "iteration": 0,
                     "final_response": "",
                     "escalate": False,
                     "domain_filter": None,
                     "chat_history": request.chat_history,
-                    "context_cache": []
+                    "context_cache": [],
+                    "node_timings": {},
+                    "routing_decisions": [],
+                    "total_execution_time": 0.0
                 }
                 
                 debug_print(f"🔄 [StreamServer] Processing with streaming workflow (debug={request.debug})", "⚙️")
@@ -431,23 +523,24 @@ async def chat_endpoint(request: ChatRequest):
     try:
         debug_print(f"📨 [Server] Received chat request: {request.message[:50]}...", "🔍")
         
-        # Create ConversationState from request
-        conversation_state: ConversationState = {
+        # Create conversation state
+        conversation_state = {
             "user_query": request.message,
             "detected_language": "en",
             "intent": "other",
             "product_names": [],
-            "original_query": request.message,
+            "original_query": "",
             "optimized_queries": [],
             "search_results": [],
-            "confidence": 0.0,
-            "evaluation_reasoning": "",
             "iteration": 0,
             "final_response": "",
             "escalate": False,
             "domain_filter": None,
             "chat_history": request.chat_history,
-            "context_cache": []
+            "context_cache": [],
+            "node_timings": {},
+            "routing_decisions": [],
+            "total_execution_time": 0.0
         }
         
         debug_print(f"🔄 [Server] Processing with workflow (debug={request.debug})", "⚙️")
@@ -494,19 +587,19 @@ async def chat_endpoint(request: ChatRequest):
             )
 
 def save_analytics_to_db():
-    """Save analytics data to database"""
+    """Save analytics data to SQLite database"""
     try:
         with get_db() as conn:
             cursor = conn.cursor()
+            
             cursor.execute("""
                 INSERT INTO analyze (
                     user_query, detected_language, intent_detector_decision,
                     intent_confidence, business_reasoner_decision, business_corrections,
                     query_optimizer_queries, pinecone_results_count, pinecone_top_results,
-                    filter_decision, filtered_results_count, confidence_score,
-                    confidence_reasoning, final_response, total_execution_time,
-                    node_timings, escalated
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    filter_decision, filtered_results_count,
+                    final_response, total_execution_time, node_timings, escalated
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 analytics.data.get("user_query", ""),
                 analytics.data.get("detected_language", ""),
@@ -514,21 +607,22 @@ def save_analytics_to_db():
                 analytics.data.get("intent_confidence", 0.0),
                 analytics.data.get("business_reasoner_decision", ""),
                 analytics.data.get("business_corrections", ""),
-                analytics.data.get("query_optimizer_queries", "[]"),
+                analytics.data.get("query_optimizer_queries", ""),
                 analytics.data.get("pinecone_results_count", 0),
-                analytics.data.get("pinecone_top_results", "[]"),
+                analytics.data.get("pinecone_top_results", ""),
                 analytics.data.get("filter_decision", ""),
                 analytics.data.get("filtered_results_count", 0),
-                analytics.data.get("confidence_score", 0.0),
-                analytics.data.get("confidence_reasoning", ""),
                 analytics.data.get("final_response", ""),
                 analytics.data.get("total_execution_time", 0.0),
-                json.dumps(analytics.data.get("node_timings", {})),
+                analytics.data.get("node_timings", ""),
                 analytics.data.get("escalated", False)
             ))
+            
             conn.commit()
+            debug_print("✅ Analytics saved to database")
+            
     except Exception as e:
-        debug_print(f"❌ [Analytics] Failed to save analytics: {e}", "🚨")
+        debug_print(f"❌ Error saving analytics: {e}")
 
 # Feedback endpoint
 @app.post("/feedback")
@@ -614,46 +708,40 @@ async def get_analytics_summary():
             cursor.execute("SELECT AVG(total_execution_time) as avg_time FROM analyze")
             avg_time = cursor.fetchone()["avg_time"] or 0
             
-            # Confidence distribution
-            cursor.execute("""
-                SELECT 
-                    SUM(CASE WHEN confidence_score >= 0.8 THEN 1 ELSE 0 END) as high_confidence,
-                    SUM(CASE WHEN confidence_score >= 0.5 AND confidence_score < 0.8 THEN 1 ELSE 0 END) as medium_confidence,
-                    SUM(CASE WHEN confidence_score < 0.5 THEN 1 ELSE 0 END) as low_confidence
-                FROM analyze
-            """)
-            confidence_dist = dict(cursor.fetchone())
-            
             # Intent distribution
             cursor.execute("""
                 SELECT intent_detector_decision, COUNT(*) as count
-                FROM analyze
-                GROUP BY intent_detector_decision
+                FROM analyze 
+                WHERE intent_detector_decision != ''
+                GROUP BY intent_detector_decision 
+                ORDER BY count DESC
             """)
             intent_dist = {row["intent_detector_decision"]: row["count"] for row in cursor.fetchall()}
             
-            # Language distribution
+            # Response time distribution
             cursor.execute("""
-                SELECT detected_language, COUNT(*) as count
+                SELECT 
+                    AVG(total_execution_time) as avg_time,
+                    MIN(total_execution_time) as min_time,
+                    MAX(total_execution_time) as max_time
                 FROM analyze
-                GROUP BY detected_language
             """)
-            language_dist = {row["detected_language"]: row["count"] for row in cursor.fetchall()}
+            timing_stats = dict(cursor.fetchone())
             
             # Escalation rate
             cursor.execute("SELECT SUM(CASE WHEN escalated THEN 1 ELSE 0 END) as escalated FROM analyze")
             escalated_count = cursor.fetchone()["escalated"] or 0
             
             return {
-                "success": True,
-                "summary": {
-                    "total_queries": total_queries,
-                    "average_execution_time": round(avg_time, 3),
-                    "confidence_distribution": confidence_dist,
-                    "intent_distribution": intent_dist,
-                    "language_distribution": language_dist,
-                    "escalation_rate": round(escalated_count / total_queries * 100, 2) if total_queries > 0 else 0
-                }
+                "message": "Analytics summary",
+                "total_queries": total_queries,
+                "date_range": {
+                    "start": query.start_date,
+                    "end": query.end_date
+                },
+                "intent_distribution": intent_dist,
+                "timing_stats": timing_stats,
+                "escalation_rate": f"{(escalated_count / total_queries * 100):.1f}%" if total_queries > 0 else "0%"
             }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -728,31 +816,31 @@ async def export_analytics_csv(start_date: Optional[str] = None, end_date: Optio
             output = io.StringIO()
             writer = csv.writer(output, delimiter=';', quotechar='"', quoting=csv.QUOTE_ALL)
             
-            # Write headers - complete column set for analytics export
+            # CSV headers
             headers = [
                 "ID", "User Query", "Detected Language", "Intent Decision", "Intent Confidence",
-                "Business Interpretation", "Business Corrections", "Query Optimizer Queries",
-                "Pinecone Results Count", "Pinecone Top Results", "Filter Decision", 
-                "Filtered Results Count", "Confidence Score", "Confidence Reasoning",
-                "Final Response (Full)", "Total Execution Time (s)", "Node Timings (JSON)",
-                "Escalated", "Created At"
+                "Business Decision", "Business Corrections", "Query Optimizer", 
+                "Pinecone Results", "Top Results", "Filter Decision", 
+                "Filtered Results Count", "Final Response",
+                "Total Time", "Node Timings", "Escalated", "Created At"
             ]
-            writer.writerow(headers)
             
-            # Helper function to clean text for CSV
             def clean_text(text):
+                """Clean text for CSV export"""
                 if not text:
                     return ""
-                # Replace problematic characters and normalize newlines
-                return str(text).replace('\n', ' ').replace('\r', ' ').replace('\t', ' ').strip()
+                # Remove newlines and extra whitespace
+                cleaned = str(text).replace('\n', ' ').replace('\r', ' ')
+                # Limit length to prevent huge CSV cells
+                return cleaned[:500] + "..." if len(cleaned) > 500 else cleaned
             
-            # Write data - full data without truncation
+            # Write data
             for row in cursor.fetchall():
                 writer.writerow([
                     row["id"],
                     clean_text(row["user_query"]),
-                    clean_text(row["detected_language"]),
-                    clean_text(row["intent_detector_decision"]),
+                    row["detected_language"] or "",
+                    row["intent_detector_decision"] or "",
                     row["intent_confidence"] or 0,
                     clean_text(row["business_reasoner_decision"]),
                     clean_text(row["business_corrections"]),
@@ -761,13 +849,11 @@ async def export_analytics_csv(start_date: Optional[str] = None, end_date: Optio
                     clean_text(row["pinecone_top_results"]),
                     clean_text(row["filter_decision"]),
                     row["filtered_results_count"] or 0,
-                    row["confidence_score"] or 0,
-                    clean_text(row["confidence_reasoning"]),
-                    clean_text(row["final_response"]),  # Full response, cleaned
+                    clean_text(row["final_response"]),
                     row["total_execution_time"] or 0,
                     clean_text(row["node_timings"]),
                     "Yes" if row["escalated"] else "No",
-                    row["created_at"] or ""
+                    row["created_at"]
                 ])
             
             # Create response
@@ -884,6 +970,62 @@ async def toggle_debug():
         "message": f"Debug mode {'enabled' if new_debug else 'disabled'}"
     }
 
+@app.get("/debug/messenger-history/{user_id}")
+async def get_messenger_history_debug(user_id: str, limit: int = 10):
+    """Debug endpoint to view messenger conversation history"""
+    try:
+        with get_db() as conn:
+            cursor = conn.cursor()
+            
+            cursor.execute("""
+                SELECT message_role, message_content, created_at, message_id
+                FROM messenger_history 
+                WHERE user_id = ? 
+                ORDER BY created_at DESC 
+                LIMIT ?
+            """, (user_id, limit))
+            
+            messages = []
+            for row in cursor.fetchall():
+                messages.append({
+                    "role": row["message_role"],
+                    "content": row["message_content"][:200] + "..." if len(row["message_content"]) > 200 else row["message_content"],
+                    "timestamp": row["created_at"],
+                    "message_id": row["message_id"]
+                })
+            
+            return {
+                "user_id": user_id,
+                "message_count": len(messages),
+                "messages": messages
+            }
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching history: {str(e)}")
+
+@app.post("/debug/test-markdown-conversion")
+async def test_markdown_conversion(request: dict):
+    """Test endpoint for Markdown to Messenger text conversion"""
+    try:
+        from messenger_server import convert_markdown_to_messenger_text
+        
+        original_text = request.get("text", "")
+        if not original_text:
+            raise HTTPException(status_code=400, detail="No text provided")
+        
+        converted_text = convert_markdown_to_messenger_text(original_text)
+        
+        return {
+            "original_length": len(original_text),
+            "converted_length": len(converted_text),
+            "original_text": original_text,
+            "converted_text": converted_text,
+            "preview": converted_text[:500] + "..." if len(converted_text) > 500 else converted_text
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Conversion error: {str(e)}")
+
 # 🚀 FACEBOOK MESSENGER WEBHOOK ENDPOINTS
 
 @app.get("/webhook")
@@ -898,7 +1040,11 @@ async def webhook_verify_endpoint(
 @app.post("/webhook")
 async def webhook_handler_endpoint(request: Request):
     """Main webhook handler for Facebook Messenger - delegates to messenger_server"""
-    return await messenger_server.webhook_handler(request, assistant)
+    return await messenger_server.webhook_handler(
+        request, assistant, 
+        load_history_func=load_messenger_chat_history,
+        save_message_func=save_messenger_message
+    )
 
 def run_server():
     """Run the FastAPI server"""
@@ -909,6 +1055,10 @@ def run_server():
     print(f"📍 Debug Mode: {'ON' if TEST_ENV else 'OFF'}")
     print(f"📍 CORS Origins: {CORS_ORIGINS}")
     print(f"📊 Analytics Database: {DB_PATH}")
+    
+    # Clean up old messenger history on startup
+    cleanup_old_messenger_history()
+    
     print("="*60 + "\n")
     
     uvicorn.run(

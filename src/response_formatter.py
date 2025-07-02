@@ -282,7 +282,6 @@ Calculated dosages:
             language=lang,
             chat_history_formatted=chat_history_formatted,
             user_query=state.get('user_query', ''),  # Fixed: user_query instead of original_query
-            confidence=state.get('confidence', 0.0),
             is_dosage_query=is_dosage_query,
             aquarium_volume=aquarium_volume if aquarium_volume else "Not specified",
             mixed_domains_detected=has_mixed and domain_not_specified,
@@ -654,7 +653,7 @@ def format_final_response(state: ConversationState) -> ConversationState:
 def escalate_to_human(state: ConversationState) -> ConversationState:
     """🆕 UPDATED: Escalate without automatically adding support contact"""
     if TEST_ENV:
-        print(f"\n🚨 [DEBUG Escalate] Escalating due to low confidence")
+        print(f"\n🚨 [DEBUG Escalate] Escalating due to routing decision")
     state["escalate"] = True
     
     # Create a custom prompt for escalation that doesn't include contact info
@@ -662,7 +661,7 @@ def escalate_to_human(state: ConversationState) -> ConversationState:
     user_query = state.get("user_query", "")
     
     escalation_prompt = f"""
-You are AF AI. The search results have low confidence for this query.
+You are AF AI. This query needs special handling.
 User asked: "{user_query}"
 
 Generate a helpful response that:

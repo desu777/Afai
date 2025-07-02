@@ -43,9 +43,6 @@ OPENAI_TEMPERATURE = float(os.getenv("OPENAI_TEMPERATURE", "0.3"))
 DEFAULT_K_VALUE = int(os.getenv("DEFAULT_K_VALUE", "12"))
 ENHANCED_K_VALUE = int(os.getenv("ENHANCED_K_VALUE", "12"))
 
-# 🆕 LOWERED CONFIDENCE THRESHOLD from 0.6 to 0.5
-CONFIDENCE_THRESHOLD = float(os.getenv("CONFIDENCE_THRESHOLD", "0.5"))
-
 SUPPORTED_LANGUAGES = os.getenv("SUPPORTED_LANGUAGES", "pl,en,de,fr,es,it").split(",")
 
 # Paths - Use absolute path based on file location
@@ -89,10 +86,10 @@ if TEST_ENV:
     print(f"📍 Pinecone Index: {PINECONE_INDEX_NAME}")
     print(f"📍 Default K Value: {DEFAULT_K_VALUE}")
     print(f"📍 Enhanced K Value: {ENHANCED_K_VALUE}")  
-    print(f"📍 Confidence Threshold: {CONFIDENCE_THRESHOLD} (🆕 LOWERED)")
     print(f"📍 Supported Languages: {', '.join(SUPPORTED_LANGUAGES)}")
     print(f"📍 CORS Origins: {', '.join(CORS_ORIGINS)}")
     print(f"📍 Competitors tracked: {len(COMPETITORS)}")
     print(f"📍 Messenger Integration: {'ENABLED' if MESSENGER_ON else 'DISABLED'}")
     print(f"📍 Facebook API Version: {FACEBOOK_API_VERSION}")
+    print(f"🗑️ Confidence Scorer: REMOVED for better performance")
     print("="*60 + "\n")

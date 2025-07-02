@@ -111,7 +111,7 @@ def main():
         return {
             "user_query": "", "detected_language": "en", "intent": "other", "product_names": [],
             "original_query": "", "optimized_queries": [], "search_results": [],
-            "confidence": 0.0, "evaluation_reasoning": "", "iteration": 0, "final_response": "",
+            "iteration": 0, "final_response": "",
             "escalate": False, "domain_filter": None, "chat_history": [], "context_cache": []
         }
 

@@ -12,7 +12,6 @@ from business_reasoner import business_reasoner
 from query_optimizer import optimize_product_query
 from pinecone_client import search_products_k20
 # 🗑️ REMOVED: from results_filter import intelligent_results_filter - Business Reasoner does smart filtering
-from confidence_scorer import evaluate_confidence, route_based_on_confidence
 from response_formatter import format_final_response, escalate_to_human, handle_follow_up
 import json
 from config import PRODUCTS_FILE_PATH, OPENAI_API_KEY, OPENAI_MODEL, TEST_ENV, debug_print, ENHANCED_K_VALUE
@@ -119,62 +118,85 @@ def route_follow_up(state: ConversationState) -> str:
     if "routing_decisions" not in state:
         state["routing_decisions"] = []
     
-    if not state.get("context_cache"):
-        debug_print(f"❌ [Follow-up Router] No cache, routing to optimize_query")
+    # 🆕 Check both context_cache AND chat_history (for Messenger)
+    has_context_cache = bool(state.get("context_cache"))
+    has_chat_history = bool(state.get("chat_history"))
+    
+    debug_print(f"🔍 [Follow-up Router] context_cache: {len(state.get('context_cache', []))}, chat_history: {len(state.get('chat_history', []))}")
+    
+    if not has_context_cache and not has_chat_history:
+        debug_print(f"❌ [Follow-up Router] No cache or history, routing to optimize_query")
         state["routing_decisions"].append({
             "router": "route_follow_up",
-            "decision": "no_cache",
+            "decision": "no_cache_no_history",
             "next_node": "optimize_query"
         })
         return "optimize_query"
     
-    # Check if query references cached products or categories
-    cached_products = []
+    # 🆕 Enhanced product reference detection from both cache and chat history
+    referenced_products = []
+    
+    # Get products from context_cache
     for item in state.get("context_cache", []):
         if item.get('product_name'):
-            cached_products.append(item['product_name'].lower())
+            referenced_products.append(item['product_name'].lower())
+    
+    # 🆕 Extract products mentioned in chat history (from assistant responses)
+    for msg in state.get("chat_history", []):
+        if msg.get("role") == "assistant":
+            content = msg.get("content", "").lower()
+            # Simple extraction of product names (Ca Plus, Component 1+2+3+, etc.)
+            if "ca plus" in content:
+                referenced_products.append("ca plus")
+            if "component" in content:
+                referenced_products.append("component")
+            if "calcium" in content:
+                referenced_products.append("calcium")
     
     query_lower = state["user_query"].lower()
     
     # Check for product references
-    products_referenced = any(product in query_lower for product in cached_products)
+    products_referenced = any(product in query_lower for product in referenced_products)
     
-    # Check for contextual references
+    # 🆕 Enhanced contextual references (multi-language)
     contextual_keywords = [
         'to', 'ten', 'ta', 'te', 'it', 'this', 'that', 'those', 'them',
-        'one', 'which', 'one', 'first', 'second',
-        'what about', 'how to use', 'dosage',
-        'more', 'details', 'details', 'different', 'other'
+        'one', 'which', 'który', 'która', 'które', 'first', 'second',
+        'what about', 'how to use', 'dosage', 'dawkowanie',
+        'more', 'details', 'different', 'other', 'polecisz', 'recommend'
     ]
     has_contextual_reference = any(keyword in query_lower for keyword in contextual_keywords)
     
     # Check if asking about something from previous response
-    previous_context_words = ['also', 'also', 'still', 'additionally', 'besides', 'besides']
+    previous_context_words = ['also', 'still', 'additionally', 'besides', 'też', 'także']
     references_previous = any(word in query_lower for word in previous_context_words)
     
+    debug_print(f"🔍 [Follow-up Router] products_referenced: {products_referenced}, contextual: {has_contextual_reference}, previous: {references_previous}")
+    
     if products_referenced or has_contextual_reference or references_previous:
-        debug_print(f"✅ [Follow-up Router] Found reference to cached content, using cache")
+        debug_print(f"✅ [Follow-up Router] Found reference to previous content, using follow-up handler")
         state["routing_decisions"].append({
             "router": "route_follow_up",
-            "decision": "cache_reference_found",
+            "decision": "context_reference_found",
             "next_node": "handle_follow_up"
         })
         return "handle_follow_up"
     
-    # If still unsure, check with LLM
+    # 🆕 Enhanced LLM check using both cache and chat history
     client = OpenAI(api_key=OPENAI_API_KEY)
     chat_history_formatted = "\n".join([f"{msg['role']}: {msg['content']}" for msg in state.get("chat_history", [])])
     
-    # Create a more focused prompt
+    # Create a more focused prompt with both sources
     cached_context_summary = f"Cached products: {', '.join([item.get('product_name', 'Unknown') for item in state.get('context_cache', [])])}"
+    referenced_products_summary = f"Referenced products from history: {', '.join(referenced_products)}"
     
     # Check if previous response mentioned a category
     category_mentioned = state.get("requested_category") is not None
     
-    debug_print(f"🤔 [Follow-up Router] LLM check for cache sufficiency")
+    debug_print(f"🤔 [Follow-up Router] LLM check for context sufficiency (cache + history)")
     
     prompt = f"""
-Is the user's latest message asking about something from the previous response?
+Is the user's latest message asking about something from the previous conversation?
 
 --- CONVERSATION HISTORY ---
 {chat_history_formatted}
@@ -182,18 +204,19 @@ Is the user's latest message asking about something from the previous response?
 LATEST USER MESSAGE: "{state['user_query']}"
 ---
 {cached_context_summary}
+{referenced_products_summary}
 Category was discussed: {category_mentioned}
 ---
 
 The user might be:
-1. Asking for more details about a mentioned product
+1. Asking for recommendations ("który polecisz?" = "which do you recommend?")
 2. Asking to compare mentioned products  
 3. Asking "which one" from previously shown options
-4. Using references like "it", "this", "that"
+4. Using references like "it", "this", "that", "ten", "ta"
 5. Asking about usage/dosage of discussed products
 6. Asking about a different aspect of the same topic
 
-Respond with only "yes" if the query is about cached content, or "no" if it needs new search.
+Respond with only "yes" if the query is about previous conversation content, or "no" if it needs new search.
 """
     
     try:
@@ -207,18 +230,18 @@ Respond with only "yes" if the query is about cached content, or "no" if it need
         debug_print(f"🤖 [Follow-up Router] LLM decision: '{decision}'")
         
         if "yes" in decision:
-            debug_print(f"✅ [Follow-up Router] Cache is sufficient, routing to handle_follow_up")
+            debug_print(f"✅ [Follow-up Router] Context is sufficient, routing to handle_follow_up")
             state["routing_decisions"].append({
                 "router": "route_follow_up",
-                "decision": f"llm_cache_sufficient: {decision}",
+                "decision": f"llm_context_sufficient: {decision}",
                 "next_node": "handle_follow_up"
             })
             return "handle_follow_up"
         else:
-            debug_print(f"❌ [Follow-up Router] Cache insufficient, routing to optimize_query")
+            debug_print(f"❌ [Follow-up Router] Context insufficient, routing to optimize_query")
             state["routing_decisions"].append({
                 "router": "route_follow_up",
-                "decision": f"llm_cache_insufficient: {decision}",
+                "decision": f"llm_context_insufficient: {decision}",
                 "next_node": "optimize_query"
             })
             return "optimize_query"
@@ -239,7 +262,8 @@ def create_workflow() -> StateGraph:
     debug_print("🏗️ [Workflow] Creating enhanced LangGraph workflow with analytics...")
     debug_print(f"🔧 [Workflow] Using ENHANCED_K_VALUE={ENHANCED_K_VALUE}")
     debug_print("🚀 [Workflow] REMOVED intelligent_filter - Business Reasoner provides superior filtering")
-    debug_print("⚡ [Workflow] Performance improvement: ~10 seconds saved per query + reduced token usage")
+    debug_print("🗑️ [Workflow] REMOVED confidence_scorer - Direct routing for better performance")
+    debug_print("⚡ [Workflow] Performance improvement: ~18 seconds saved per query + reduced token usage")
         
     workflow = StateGraph(ConversationState)
     
@@ -250,8 +274,7 @@ def create_workflow() -> StateGraph:
         ("business_reasoner", business_reasoner),
         ("optimize_query", optimize_product_query),
         ("search_pinecone", search_products_k20),
-        # 🗑️ REMOVED: ("intelligent_filter", intelligent_results_filter) - Business Reasoner does smart filtering
-        ("evaluate_confidence", evaluate_confidence),
+        # 🗑️ REMOVED: ("evaluate_confidence", evaluate_confidence) - CONFIDENCE SCORER DELETED
         ("format_response", format_final_response),
         ("escalate_support", escalate_to_human),
         ("handle_follow_up", handle_follow_up),
@@ -283,22 +306,15 @@ def create_workflow() -> StateGraph:
         }
     )
     workflow.add_edge("optimize_query", "search_pinecone")
-    # 🚀 SKIP intelligent_filter - Business Reasoner already does smart filtering
-    workflow.add_edge("search_pinecone", "evaluate_confidence")
-    workflow.add_conditional_edges(
-        "evaluate_confidence", route_based_on_confidence,
-        {
-            "format_response": "format_response", 
-            "escalate_support": "escalate_support"
-        }
-    )
+    # 🚀 DIRECT ROUTING: search_pinecone → format_response (no confidence check)
+    workflow.add_edge("search_pinecone", "format_response")
     
     # All paths lead to END
     workflow.add_edge("format_response", END)
     workflow.add_edge("escalate_support", END)
     workflow.add_edge("handle_follow_up", END)
     
-    debug_print("✅ [Workflow] Enhanced workflow with analytics created and compiled")
+    debug_print("✅ [Workflow] Enhanced workflow with direct routing created and compiled")
         
     return workflow.compile()
 
