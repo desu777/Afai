@@ -7,15 +7,16 @@ import {
   Menu, 
   X,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  HelpCircle
 } from 'lucide-react'
 import FeedbackModal from './FeedbackModal'
 
 interface SidebarProps {
   onNewChat: () => void;
   accessLevel: 'test' | 'admin';
-  onViewChange?: (view: 'chat' | 'feedback' | 'analytics') => void;
-  activeView?: 'chat' | 'feedback' | 'analytics';
+  onViewChange?: (view: 'chat' | 'feedback' | 'analytics' | 'examples') => void;
+  activeView?: 'chat' | 'feedback' | 'analytics' | 'examples';
   isCollapsed?: boolean;
   onToggleCollapse?: (collapsed: boolean) => void;
 }
@@ -41,7 +42,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     setIsFeedbackModalOpen(false);
   };
 
-  const handleViewChange = (view: 'chat' | 'feedback' | 'analytics') => {
+  const handleViewChange = (view: 'chat' | 'feedback' | 'analytics' | 'examples') => {
     onViewChange?.(view);
     setIsMobileOpen(false);
   };
@@ -71,7 +72,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     };
   }, [isMobileOpen]);
 
-  const getButtonClass = (view: 'chat' | 'feedback' | 'analytics', isActive: boolean) => {
+  const getButtonClass = (view: 'chat' | 'feedback' | 'analytics' | 'examples', isActive: boolean) => {
     if (isCollapsed) {
       const baseClassCollapsed = "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 hover:bg-purple-50 text-sm font-medium group mx-auto";
       const activeClassCollapsed = "bg-purple-100 text-purple-700 border border-purple-200/50";
@@ -223,6 +224,16 @@ const Sidebar: React.FC<SidebarProps> = ({
                 </button>
               </>
             )}
+
+            {/* Examples Button - available for all users */}
+            <button 
+              onClick={() => handleViewChange('examples')}
+              className={getButtonClass('examples', activeView === 'examples')}
+              title={isCollapsed ? 'Examples' : ''}
+            >
+              <HelpCircle className="w-5 h-5 flex-shrink-0" />
+              {!isCollapsed && <span>Examples</span>}
+            </button>
           </div>
 
           {/* Footer Info Section */}

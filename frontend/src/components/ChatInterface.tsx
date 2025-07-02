@@ -7,13 +7,14 @@ import ChatInput from './ChatInput'
 import SplashScreen from './SplashScreen'
 import AdminFeedbackPanel from './AdminFeedbackPanel'
 import AdminAnalyticsPanel from './AdminAnalyticsPanel'
+import ExamplesPanel from './ExamplesPanel'
 
 const ChatInterface: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
   const [accessLevel, setAccessLevel] = useState<'test' | 'admin'>('test');
-  const [activeView, setActiveView] = useState<'chat' | 'feedback' | 'analytics'>('chat');
+  const [activeView, setActiveView] = useState<'chat' | 'feedback' | 'analytics' | 'examples'>('chat');
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -132,13 +133,18 @@ const ChatInterface: React.FC = () => {
     }, 300);
   };
 
-  const handleViewChange = (view: 'chat' | 'feedback' | 'analytics') => {
+  const handleViewChange = (view: 'chat' | 'feedback' | 'analytics' | 'examples') => {
     setActiveView(view);
     
     // If switching to chat, treat as new chat
     if (view === 'chat') {
       handleNewChat();
     }
+  };
+
+  const handleExampleSelect = (example: string) => {
+    setInputValue(example);
+    setActiveView('chat');
   };
 
   // Show splash screen during transition or when not authenticated
@@ -202,6 +208,10 @@ const ChatInterface: React.FC = () => {
         
         {activeView === 'analytics' && accessLevel === 'admin' && (
           <AdminAnalyticsPanel accessLevel={accessLevel} />
+        )}
+        
+        {activeView === 'examples' && (
+          <ExamplesPanel onExampleSelect={handleExampleSelect} />
         )}
       </div>
     </div>
