@@ -262,4 +262,16 @@ textarea {
 
 .animate-dropdown-out {
   animation: dropdown-out 0.15s ease-in forwards;
+}
+
+/* Progress bar glow animation for StreamingLoadingMessage */
+@keyframes pulse-glow {
+  0% { 
+    box-shadow: 0 0 5px rgba(124, 58, 237, 0.5);
+    filter: brightness(1);
+  }
+  100% { 
+    box-shadow: 0 0 15px rgba(124, 58, 237, 0.8), 0 0 25px rgba(124, 58, 237, 0.4);
+    filter: brightness(1.1);
+  }
 } 
