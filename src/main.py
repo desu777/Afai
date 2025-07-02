@@ -6,15 +6,14 @@ import asyncio
 import os
 import time
 from typing import Dict, Any, Optional
-from workflow import app, set_workflow_analytics
+from workflow import app
 from models import ConversationState
 import config
 
 class AquaforestAssistant:
     def __init__(self, analytics_instance=None):
         self.workflow = app
-        if analytics_instance:
-            set_workflow_analytics(analytics_instance)
+        self.analytics_instance = analytics_instance
         
     def process_query_sync(self, state: ConversationState, debug: bool = False) -> ConversationState:
         """
@@ -23,6 +22,10 @@ class AquaforestAssistant:
         """
         # Start timing
         start_time = time.time()
+        
+        # 🆕 Add analytics instance to state for per-session streaming
+        if self.analytics_instance:
+            state["analytics_instance"] = self.analytics_instance
         
         # Temporarily set TEST_ENV based on debug parameter
         original_test_env = os.environ.get("TEST_ENV", "false")

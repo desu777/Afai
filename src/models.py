@@ -44,6 +44,7 @@ class ConversationState(TypedDict):
     node_timings: Dict[str, float]  # Tracks execution time for each node
     routing_decisions: List[Dict[str, str]]  # Tracks routing decisions
     total_execution_time: float  # Total workflow execution time
+    analytics_instance: Optional[Any]  # Per-session analytics instance for streaming
     
     # Optional fields added during workflow
     business_analysis: Optional[Dict[str, Any]]

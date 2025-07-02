@@ -306,10 +306,10 @@ textarea {
 }
 
 @keyframes pulse-glow {
-  0% {
+  0% { 
     box-shadow: 0 0 5px rgba(124, 58, 237, 0.5);
   }
-  100% {
+  100% { 
     box-shadow: 0 0 20px rgba(124, 58, 237, 0.8), 0 0 30px rgba(124, 58, 237, 0.6);
   }
 } 

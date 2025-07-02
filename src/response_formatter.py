@@ -1,20 +1,51 @@
 """
-Response Formatting Module - VERSION 5.0 HYBRID ENHANCED
-🚀 Enhanced with comprehensive mapping support, competitor handling, and scenario awareness
-Advanced metadata handling, category support, calculation safety, and business intelligence integration
+Response Formatting Module - VERSION 6.0 with OpenRouter Support 
+🚀 Enhanced with OpenRouter integration for 2025 model alternatives
+Supports GPT-4.1-mini halucination mitigation with Qwen3, DeepSeek R1, and other models
 """
 from typing import List, Dict, Any, Optional
 import json
 import re
 from openai import OpenAI
 from models import ConversationState, ProductInfo, Intent, Domain
-from config import OPENAI_API_KEY, OPENAI_MODEL, OPENAI_MODEL2, OPENAI_TEMPERATURE, TEST_ENV, debug_print
+from config import (
+    OPENAI_API_KEY, OPENAI_MODEL, OPENAI_MODEL2, OPENAI_TEMPERATURE, TEST_ENV, debug_print,
+    USE_OPENROUTER, OPENROUTER_API_KEY, OPENROUTER_MODEL_COMPLEX
+)
 from calculation_helper import calculation_helper
 from prompts import load_prompt_template
 
+def create_llm_client():
+    """
+    🆕 2025: Create LLM client based on configuration (OpenAI or OpenRouter)
+    Returns either OpenAI client or OpenRouter-compatible client
+    """
+    if USE_OPENROUTER:
+        debug_print(f"🚀 [LLMClient] Using OpenRouter with model: {OPENROUTER_MODEL_COMPLEX}")
+        return OpenAI(
+            api_key=OPENROUTER_API_KEY,
+            base_url="https://openrouter.ai/api/v1"
+        )
+    else:
+        debug_print(f"🔧 [LLMClient] Using OpenAI with model: {OPENAI_MODEL}")
+        return OpenAI(api_key=OPENAI_API_KEY)
+
+def get_model_name():
+    """Get the appropriate model name based on configuration"""
+    if USE_OPENROUTER:
+        return OPENROUTER_MODEL_COMPLEX
+    else:
+        return OPENAI_MODEL
+
 class ResponseFormatter:
     def __init__(self):
-        self.client = OpenAI(api_key=OPENAI_API_KEY)
+        self.client = create_llm_client()
+        self.model_name = get_model_name()
+        
+        if TEST_ENV:
+            debug_print(f"📝 [ResponseFormatter] Initialized with {'OpenRouter' if USE_OPENROUTER else 'OpenAI'} client")
+            debug_print(f"🎯 [ResponseFormatter] Using model: {self.model_name}")
+        
         self.dosage_keywords = [
             'how much', 'combien', 'quanto', 'dosierung', 'dosis', 'how much needed',
             'how to dose', 'how to dose', 'how much to add', 'how to apply', 'what dose',
@@ -558,7 +589,7 @@ Show enthusiasm for reef-keeping while addressing their needs.
                     print(f"🧠 [DEBUG ResponseFormatter] Using complex model for intent: {intent}")
                 prompt = self._create_universal_prompt(state)
                 response = self.client.chat.completions.create(
-                    model=OPENAI_MODEL,  # 🔥 Expensive model for complex tasks
+                    model=self.model_name,  # 🔥 Expensive model for complex tasks
                     temperature=OPENAI_TEMPERATURE,
                     messages=[{"role": "system", "content": prompt}]
                 )
@@ -676,9 +707,9 @@ Respond in {lang} language.
 """
     
     try:
-        client = OpenAI(api_key=OPENAI_API_KEY)
+        client = create_llm_client()
         response = client.chat.completions.create(
-            model=OPENAI_MODEL,
+            model=get_model_name(),
             temperature=OPENAI_TEMPERATURE,
             messages=[{"role": "system", "content": escalation_prompt}]
         )
@@ -697,10 +728,10 @@ def handle_follow_up(state: ConversationState) -> ConversationState:
         print(f"\n🔄 [DEBUG Follow-up Handler] Handling follow-up question with cache")
         
     try:
-        client = OpenAI(api_key=OPENAI_API_KEY)
+        client = create_llm_client()
         prompt = _create_follow_up_prompt(state)
         response = client.chat.completions.create(
-            model=OPENAI_MODEL,
+            model=get_model_name(),
             temperature=OPENAI_TEMPERATURE,
             messages=[{"role": "system", "content": prompt}]
         )

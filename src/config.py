@@ -39,6 +39,11 @@ OPENAI_EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-s
 OPENAI_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS", "16384"))
 OPENAI_TEMPERATURE = float(os.getenv("OPENAI_TEMPERATURE", "0.3"))
 
+# 🆕 OpenRouter Configuration (2025)
+USE_OPENROUTER = os.getenv("USE_OPENROUTER", "false").lower() == "true"
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+OPENROUTER_MODEL_COMPLEX = os.getenv("OPENROUTER_MODEL_COMPLEX", "qwen/qwen3-32b")  # Default to Qwen3 32B
+
 # App Configuration
 DEFAULT_K_VALUE = int(os.getenv("DEFAULT_K_VALUE", "12"))
 ENHANCED_K_VALUE = int(os.getenv("ENHANCED_K_VALUE", "12"))
@@ -71,6 +76,8 @@ if not OPENAI_API_KEY:
     raise ValueError("OPENAI_API_KEY is required")
 if MESSENGER_ON and not MESSENGER_PAGE_ACCESS_TOKEN:
     raise ValueError("MESSENGER_TOKEN is required when MESSENGER_ON=true")
+if USE_OPENROUTER and not OPENROUTER_API_KEY:
+    raise ValueError("OPENROUTER_API_KEY is required when USE_OPENROUTER=true")
 
 # Print configuration status on import (only in debug mode)
 if TEST_ENV:
@@ -83,6 +90,9 @@ if TEST_ENV:
     print(f"📍 OpenAI Model (Complex): {OPENAI_MODEL}")
     print(f"📍 OpenAI Model (Simple): {OPENAI_MODEL2}")
     print(f"📍 Embedding Model: {OPENAI_EMBEDDING_MODEL}")
+    print(f"🚀 OpenRouter: {'ENABLED' if USE_OPENROUTER else 'DISABLED'}")
+    if USE_OPENROUTER:
+        print(f"📍 OpenRouter Model (Complex): {OPENROUTER_MODEL_COMPLEX}")
     print(f"📍 Pinecone Index: {PINECONE_INDEX_NAME}")
     print(f"📍 Default K Value: {DEFAULT_K_VALUE}")
     print(f"📍 Enhanced K Value: {ENHANCED_K_VALUE}")  

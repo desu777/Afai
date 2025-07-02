@@ -16,25 +16,25 @@ from response_formatter import format_final_response, escalate_to_human, handle_
 import json
 from config import PRODUCTS_FILE_PATH, OPENAI_API_KEY, OPENAI_MODEL, TEST_ENV, debug_print, ENHANCED_K_VALUE
 
-# Global analytics capture (will be set by server)
-workflow_analytics = None
-
 def timing_wrapper(func):
     """Decorator to measure execution time of workflow nodes with analytics and streaming"""
     @wraps(func)
     def wrapper(state: ConversationState) -> ConversationState:
-        # 🔍 DEBUG: Check if workflow_analytics is set
+        # 🆕 Get analytics instance from state instead of global variable
+        session_analytics = state.get("analytics_instance")
+        
+        # 🔍 DEBUG: Check if analytics is set
         if TEST_ENV:
-            print(f"🔍 [DEBUG timing_wrapper] workflow_analytics is: {workflow_analytics}")
+            print(f"🔍 [DEBUG timing_wrapper] session_analytics is: {session_analytics}")
         
         # Capture node start for streaming
-        if workflow_analytics:
-            workflow_analytics.capture_node_start(func.__name__)
+        if session_analytics:
+            session_analytics.capture_node_start(func.__name__)
             if TEST_ENV:
                 print(f"📡 [DEBUG timing_wrapper] Sent node_start for: {func.__name__}")
         else:
             if TEST_ENV:
-                print(f"⚠️ [DEBUG timing_wrapper] workflow_analytics is None - no streaming")
+                print(f"⚠️ [DEBUG timing_wrapper] session_analytics is None - no streaming")
         
         start_time = time.time()
         result = func(state)
@@ -42,9 +42,9 @@ def timing_wrapper(func):
         execution_time = end_time - start_time
         
         # Capture timing for analytics
-        if workflow_analytics:
-            workflow_analytics.capture_node_timing(func.__name__, execution_time)
-            workflow_analytics.capture_node_complete(func.__name__)
+        if session_analytics:
+            session_analytics.capture_node_timing(func.__name__, execution_time)
+            session_analytics.capture_node_complete(func.__name__)
             if TEST_ENV:
                 print(f"📡 [DEBUG timing_wrapper] Sent node_complete for: {func.__name__}")
         
@@ -321,7 +321,4 @@ def create_workflow() -> StateGraph:
 # Create and export the workflow app
 app = create_workflow()
 
-def set_workflow_analytics(analytics_instance):
-    """Set the analytics instance for workflow timing capture"""
-    global workflow_analytics
-    workflow_analytics = analytics_instance
+# 🗑️ REMOVED: set_workflow_analytics - analytics now passed via state

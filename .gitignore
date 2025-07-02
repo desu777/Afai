@@ -57,13 +57,4 @@ frontend/.nyc_output/
 # Frontend - Dependency directories
 frontend/jspm_packages/
 
-# Ignore all JSON files in the root, but not in data/, mapping/, and full/
-*.json
-!data/*.json
-!src/mapping/*.json
-!full/*.json
-
-# Ignore all JSON files in the root, but not in data/ and mapping/
-*.json
-!data/*.json
-!src/mapping/*.json 
+# JSON files are allowed - configuration files need to be tracked 

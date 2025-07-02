@@ -238,6 +238,15 @@ class WorkflowAnalytics:
         self.streaming_callback = callback
     
     def capture_node_timing(self, node_name: str, duration: float):
+        # Zabezpieczenie przed błędem gdy node_timings jest stringiem zamiast słownikiem
+        if isinstance(self.data["node_timings"], str):
+            try:
+                self.data["node_timings"] = json.loads(self.data["node_timings"])
+            except:
+                self.data["node_timings"] = {}
+        elif not isinstance(self.data["node_timings"], dict):
+            self.data["node_timings"] = {}
+        
         self.data["node_timings"][node_name] = duration
     
     def capture_node_start(self, node_name: str, message: str = ""):
@@ -356,21 +365,21 @@ class WorkflowAnalytics:
         # Escalation
         self.data["escalated"] = state.get("escalate", False)
         
-        # Node timings
-        node_timings = state.get("node_timings", {})
-        self.data["node_timings"] = json.dumps(node_timings)
+        # Node timings - merge with existing timings collected during workflow
+        state_node_timings = state.get("node_timings", {})
+        if isinstance(self.data["node_timings"], dict):
+            self.data["node_timings"].update(state_node_timings)
+        else:
+            self.data["node_timings"] = state_node_timings
         
         # Total execution time
         self.data["total_execution_time"] = time.time() - self.start_time
 
-# Global analytics instance
-analytics = WorkflowAnalytics()
+# Global analytics instance for non-streaming requests (fallback)
+global_analytics = WorkflowAnalytics()
 
-# Initialize the assistant
-assistant = None  # Will be initialized after analytics is created
-
-# Initialize the assistant with analytics support
-assistant = AquaforestAssistant(analytics_instance=analytics)
+# Initialize the assistant without analytics (will be set per request)
+assistant = AquaforestAssistant(analytics_instance=None)
 
 # 🚀 NEW: Streaming chat endpoint with Server-Sent Events
 @app.post("/chat/stream")
@@ -379,7 +388,14 @@ async def chat_stream_endpoint(request: ChatRequest):
     Streaming chat endpoint that provides real-time workflow updates via Server-Sent Events
     """
     def generate_stream():
-        analytics.reset()
+        # 🆕 Create dedicated analytics instance for this stream with unique ID
+        import uuid
+        session_id = str(uuid.uuid4())[:8]  # Short unique identifier
+        session_analytics = WorkflowAnalytics()
+        session_analytics.reset()
+        
+        if TEST_ENV:
+            debug_print(f"🆔 [StreamServer] Starting session {session_id}: {request.message[:30]}...", "🆔")
         
         # 🚀 Real-time streaming with threading
         update_queue = queue.Queue()
@@ -394,9 +410,9 @@ async def chat_stream_endpoint(request: ChatRequest):
         def run_workflow():
             """Run workflow in separate thread"""
             try:
-                debug_print(f"📨 [StreamServer] Received streaming chat request: {request.message[:50]}...", "🔍")
+                debug_print(f"📨 [StreamServer] Session {session_id} - Received streaming chat request: {request.message[:50]}...", "🔍")
                 
-                # Create conversation state
+                # Create conversation state with session analytics
                 conversation_state = {
                     "user_query": request.message,
                     "detected_language": "en",
@@ -413,24 +429,28 @@ async def chat_stream_endpoint(request: ChatRequest):
                     "context_cache": [],
                     "node_timings": {},
                     "routing_decisions": [],
-                    "total_execution_time": 0.0
+                    "total_execution_time": 0.0,
+                    "analytics_instance": session_analytics
                 }
                 
                 debug_print(f"🔄 [StreamServer] Processing with streaming workflow (debug={request.debug})", "⚙️")
                 
+                # 🆕 Create dedicated assistant instance for this session
+                session_assistant = AquaforestAssistant(analytics_instance=session_analytics)
+                
                 # Process with analytics capture and streaming
-                result_state = assistant.process_query_sync(conversation_state, debug=request.debug)
+                result_state = session_assistant.process_query_sync(conversation_state, debug=request.debug)
                 
                 # Send final completion update
-                analytics.capture_workflow_complete(result_state.get("final_response", ""))
+                session_analytics.capture_workflow_complete(result_state.get("final_response", ""))
                 
                 # Capture analytics from final state
-                analytics.capture_state_data(result_state)
+                session_analytics.capture_state_data(result_state)
                 
                 # Save analytics to database
-                save_analytics_to_db()
+                save_analytics_to_db(session_analytics)
                 
-                debug_print(f"✅ [StreamServer] Streaming response completed", "⏱️")
+                debug_print(f"✅ [StreamServer] Session {session_id} - Streaming response completed", "⏱️")
                 
             except Exception as e:
                 error_msg = f"An error occurred while processing your request: {str(e)}"
@@ -442,15 +462,15 @@ async def chat_stream_endpoint(request: ChatRequest):
                     "node": "error",
                     "status": "error",
                     "message": error_response if not TEST_ENV else f"Debug Error: {error_msg}",
-                    "elapsed_time": time.time() - analytics.start_time
+                    "elapsed_time": time.time() - session_analytics.start_time
                 }
                 update_queue.put(error_update)
             finally:
                 # Signal that workflow is finished
                 workflow_finished.set()
         
-        # Set up streaming callback
-        analytics.set_streaming_callback(streaming_callback)
+        # Set up streaming callback for this session
+        session_analytics.set_streaming_callback(streaming_callback)
         
         # Start workflow in separate thread
         workflow_thread = threading.Thread(target=run_workflow)
@@ -517,13 +537,13 @@ async def chat_endpoint(request: ChatRequest):
     """
     Main chat endpoint that processes user messages and returns AI responses
     """
-    analytics.reset()
+    global_analytics.reset()
     start_time = time.time()
     
     try:
         debug_print(f"📨 [Server] Received chat request: {request.message[:50]}...", "🔍")
         
-        # Create conversation state
+        # Create conversation state with global analytics
         conversation_state = {
             "user_query": request.message,
             "detected_language": "en",
@@ -540,19 +560,23 @@ async def chat_endpoint(request: ChatRequest):
             "context_cache": [],
             "node_timings": {},
             "routing_decisions": [],
-            "total_execution_time": 0.0
+            "total_execution_time": 0.0,
+            "analytics_instance": global_analytics
         }
         
         debug_print(f"🔄 [Server] Processing with workflow (debug={request.debug})", "⚙️")
         
+        # Create assistant instance with global analytics for non-streaming requests
+        non_streaming_assistant = AquaforestAssistant(analytics_instance=global_analytics)
+        
         # Process with analytics capture
-        result_state = assistant.process_query_sync(conversation_state, debug=request.debug)
+        result_state = non_streaming_assistant.process_query_sync(conversation_state, debug=request.debug)
         
         # Capture analytics from final state
-        analytics.capture_state_data(result_state)
+        global_analytics.capture_state_data(result_state)
         
         # Save analytics to database
-        save_analytics_to_db()
+        save_analytics_to_db(global_analytics)
         
         # Calculate execution time
         execution_time = time.time() - start_time
@@ -586,8 +610,11 @@ async def chat_endpoint(request: ChatRequest):
                 execution_time=execution_time
             )
 
-def save_analytics_to_db():
+def save_analytics_to_db(analytics_instance=None):
     """Save analytics data to SQLite database"""
+    # Use provided analytics instance or fallback to global
+    analytics_obj = analytics_instance or global_analytics
+    
     try:
         with get_db() as conn:
             cursor = conn.cursor()
@@ -601,21 +628,21 @@ def save_analytics_to_db():
                     final_response, total_execution_time, node_timings, escalated
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
-                analytics.data.get("user_query", ""),
-                analytics.data.get("detected_language", ""),
-                analytics.data.get("intent_detector_decision", ""),
-                analytics.data.get("intent_confidence", 0.0),
-                analytics.data.get("business_reasoner_decision", ""),
-                analytics.data.get("business_corrections", ""),
-                analytics.data.get("query_optimizer_queries", ""),
-                analytics.data.get("pinecone_results_count", 0),
-                analytics.data.get("pinecone_top_results", ""),
-                analytics.data.get("filter_decision", ""),
-                analytics.data.get("filtered_results_count", 0),
-                analytics.data.get("final_response", ""),
-                analytics.data.get("total_execution_time", 0.0),
-                analytics.data.get("node_timings", ""),
-                analytics.data.get("escalated", False)
+                analytics_obj.data.get("user_query", ""),
+                analytics_obj.data.get("detected_language", ""),
+                analytics_obj.data.get("intent_detector_decision", ""),
+                analytics_obj.data.get("intent_confidence", 0.0),
+                analytics_obj.data.get("business_reasoner_decision", ""),
+                analytics_obj.data.get("business_corrections", ""),
+                analytics_obj.data.get("query_optimizer_queries", ""),
+                analytics_obj.data.get("pinecone_results_count", 0),
+                analytics_obj.data.get("pinecone_top_results", ""),
+                analytics_obj.data.get("filter_decision", ""),
+                analytics_obj.data.get("filtered_results_count", 0),
+                analytics_obj.data.get("final_response", ""),
+                analytics_obj.data.get("total_execution_time", 0.0),
+                json.dumps(analytics_obj.data.get("node_timings", {})) if isinstance(analytics_obj.data.get("node_timings"), dict) else analytics_obj.data.get("node_timings", ""),
+                analytics_obj.data.get("escalated", False)
             ))
             
             conn.commit()
