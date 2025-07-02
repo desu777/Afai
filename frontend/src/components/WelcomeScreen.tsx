@@ -1,22 +1,19 @@
-import { Send } from 'lucide-react'
-import { useRef, useEffect } from 'react'
+import React from 'react'
 
-interface ChatInputProps {
+interface WelcomeScreenProps {
   inputValue: string;
   isLoading: boolean;
   onInputChange: (value: string) => void;
   onSend: () => void;
-  hasMessages?: boolean;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ 
-  inputValue, 
-  isLoading, 
-  onInputChange, 
-  onSend,
-  hasMessages = false
+const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
+  inputValue,
+  isLoading,
+  onInputChange,
+  onSend
 }) => {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -33,7 +30,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
     }
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     autoResize();
   }, [inputValue]);
 
@@ -43,8 +40,26 @@ const ChatInput: React.FC<ChatInputProps> = ({
   };
 
   return (
-    <div className="px-3 sm:px-6 py-4 sm:py-6">
-      <div className={hasMessages ? "max-w-4xl mx-auto" : "mx-auto"}>
+    <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 max-w-4xl mx-auto">
+      {/* AF AI Icon */}
+      <div className="w-20 h-20 bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 rounded-3xl flex items-center justify-center shadow-2xl mb-6 overflow-hidden">
+        <div className="circle">
+          <div className="wave"></div>
+        </div>
+      </div>
+      
+      {/* Welcome Message */}
+      <div className="text-center max-w-md mb-8">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
+          Welcome to AF AI
+        </h1>
+        <p className="text-lg md:text-xl text-gray-600 font-medium">
+          I'm here to make your reef even better.
+        </p>
+      </div>
+
+      {/* Chat Input */}
+      <div className="w-full max-w-3xl">
         <div className="relative">
           <textarea
             ref={textareaRef}
@@ -69,21 +84,21 @@ const ChatInput: React.FC<ChatInputProps> = ({
             disabled={!inputValue.trim() || isLoading}
             className="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 hover:from-purple-700 hover:via-purple-800 hover:to-violet-900 disabled:from-gray-400 disabled:via-gray-500 disabled:to-gray-600 disabled:cursor-not-allowed rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-105 active:scale-95"
           >
-            <Send className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
           </button>
         </div>
         
-        {/* Footer note - only show when no messages */}
-        {!hasMessages && (
-          <div className="text-center mt-4 space-y-2">
-            <p className="text-xs text-gray-500 font-medium">
-              AF AI can make mistakes. Check important data.
-            </p>
-          </div>
-        )}
+        {/* Footer note */}
+        <div className="text-center mt-4">
+          <p className="text-xs text-gray-500 font-medium">
+            AF AI can make mistakes. Check important data.
+          </p>
+        </div>
       </div>
     </div>
   );
 };
 
-export default ChatInput 
+export default WelcomeScreen; 

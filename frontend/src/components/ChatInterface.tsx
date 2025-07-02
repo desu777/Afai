@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Message, WorkflowUpdate } from '../types'
 import { apiService } from '../services/api'
-import Header from './Header'
+import Sidebar from './Sidebar'
 import MessageList from './MessageList'
 import ChatInput from './ChatInput'
 import SplashScreen from './SplashScreen'
@@ -18,6 +18,7 @@ const ChatInterface: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [currentWorkflowUpdate, setCurrentWorkflowUpdate] = useState<WorkflowUpdate | undefined>(undefined);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const handleSend = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -106,9 +107,7 @@ const ChatInterface: React.FC = () => {
     }
   };
 
-  const handleQuerySelect = (query: string) => {
-    setInputValue(query);
-  };
+
 
   const handleNewChat = () => {
     setMessages([]);
@@ -157,42 +156,54 @@ const ChatInterface: React.FC = () => {
 
   return (
     <div 
-      className={`flex flex-col h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-violet-100 transition-all duration-500 ease-out ${
+      className={`flex h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-violet-100 transition-all duration-500 ease-out ${
         isTransitioning ? 'opacity-0 transform translate-y-4' : 'opacity-100 transform translate-y-0'
       }`}
     >
-      <Header 
+      <Sidebar 
         onNewChat={handleNewChat} 
         accessLevel={accessLevel} 
         onViewChange={handleViewChange}
         activeView={activeView}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={setIsSidebarCollapsed}
       />
       
-      {/* Conditional Rendering based on activeView */}
-      {activeView === 'chat' && (
-        <>
-          <MessageList 
-            messages={messages} 
-            isLoading={isLoading} 
-            onQuerySelect={handleQuerySelect}
-            currentWorkflowUpdate={currentWorkflowUpdate}
-          />
-          <ChatInput
-            inputValue={inputValue}
-            isLoading={isLoading}
-            onInputChange={setInputValue}
-            onSend={handleSend}
-          />
-        </>
-      )}
-      
-      {activeView === 'feedback' && accessLevel === 'admin' && (
-        <AdminFeedbackPanel accessLevel={accessLevel} />
-      )}
-      
-      {activeView === 'analytics' && accessLevel === 'admin' && (
-        <AdminAnalyticsPanel accessLevel={accessLevel} />
-      )}
+      {/* Main Content Area */}
+      <div className={`flex-1 flex flex-col transition-all duration-300 ${
+        isSidebarCollapsed ? 'md:ml-0' : 'md:ml-0'
+      } ml-0`}>
+        {/* Conditional Rendering based on activeView */}
+        {activeView === 'chat' && (
+          <>
+            <MessageList 
+              messages={messages} 
+              isLoading={isLoading} 
+              currentWorkflowUpdate={currentWorkflowUpdate}
+              inputValue={inputValue}
+              onInputChange={setInputValue}
+              onSend={handleSend}
+            />
+            {(messages.length > 0 || isLoading) && (
+              <ChatInput
+                inputValue={inputValue}
+                isLoading={isLoading}
+                onInputChange={setInputValue}
+                onSend={handleSend}
+                hasMessages={true}
+              />
+            )}
+          </>
+        )}
+        
+        {activeView === 'feedback' && accessLevel === 'admin' && (
+          <AdminFeedbackPanel accessLevel={accessLevel} />
+        )}
+        
+        {activeView === 'analytics' && accessLevel === 'admin' && (
+          <AdminAnalyticsPanel accessLevel={accessLevel} />
+        )}
+      </div>
     </div>
   );
 };
