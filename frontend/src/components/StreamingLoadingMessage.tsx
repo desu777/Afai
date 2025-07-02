@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { Clock, CheckCircle, AlertCircle } from 'lucide-react'
 import { ThreeDot } from 'react-loading-indicators'
 import BlurText from './BlurText'
@@ -9,7 +9,6 @@ interface StreamingLoadingMessageProps {
 }
 
 const StreamingLoadingMessage: React.FC<StreamingLoadingMessageProps> = ({ currentUpdate }) => {
-  const [startTime] = useState(Date.now());
   const [liveTimer, setLiveTimer] = useState(1);
   const [previousProgress, setPreviousProgress] = useState(0);
   const [dotCount, setDotCount] = useState(1);

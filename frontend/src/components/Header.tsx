@@ -1,15 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
-import { MoreVertical, MessageSquarePlus, MessageCircle, BarChart3, Send, FileText } from 'lucide-react'
+import { MoreVertical, MessageSquarePlus, BarChart3, Send, FileText } from 'lucide-react'
 import FeedbackModal from './FeedbackModal'
 
 interface HeaderProps {
-  onNewChat: () => void;
   accessLevel: 'test' | 'admin';
   onViewChange?: (view: 'chat' | 'feedback' | 'analytics') => void;
   activeView?: 'chat' | 'feedback' | 'analytics';
 }
 
-const Header: React.FC<HeaderProps> = ({ onNewChat, accessLevel, onViewChange, activeView = 'chat' }) => {
+const Header: React.FC<HeaderProps> = ({ accessLevel, onViewChange, activeView = 'chat' }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);

@@ -22,7 +22,6 @@ const LoadingMessage: React.FC = () => {
 
   const [currentTopicIndex, setCurrentTopicIndex] = useState(0);
   const [dots, setDots] = useState('');
-  const [dotCycles, setDotCycles] = useState(0);
   const [isChanging, setIsChanging] = useState(false);
 
   const currentTopic = thinkingTopics[currentTopicIndex];
@@ -32,26 +31,17 @@ const LoadingMessage: React.FC = () => {
       const dotsInterval = setInterval(() => {
         setDots(prev => {
         if (prev === '...') {
-          // Completed a cycle, increment counter
-          setDotCycles(prevCycles => {
-            const newCycles = prevCycles + 1;
-            // After 2 cycles, change topic with animation
-            if (newCycles >= 2) {
-              // Start fade out animation
-              setIsChanging(true);
-              
-              // After fade out completes, change topic and fade in
-              setTimeout(() => {
-                setCurrentTopicIndex(prevIndex => (prevIndex + 1) % thinkingTopics.length);
-                setTimeout(() => {
-                  setIsChanging(false);
-                }, 100); // Small delay before fade in
-              }, 300); // Duration of fade out
-              
-              return 0; // Reset cycle counter
-            }
-            return newCycles;
-          });
+          // Completed a cycle, change topic with animation
+          setIsChanging(true);
+          
+          // After fade out completes, change topic and fade in
+          setTimeout(() => {
+            setCurrentTopicIndex(prevIndex => (prevIndex + 1) % thinkingTopics.length);
+            setTimeout(() => {
+              setIsChanging(false);
+            }, 100); // Small delay before fade in
+          }, 300); // Duration of fade out
+          
           return '';
         }
           return prev + '.';

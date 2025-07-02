@@ -14,7 +14,6 @@ import {
 import FeedbackModal from './FeedbackModal'
 
 interface SidebarProps {
-  onNewChat: () => void;
   accessLevel: 'test' | 'admin';
   onViewChange?: (view: 'chat' | 'feedback' | 'analytics' | 'examples' | 'updates') => void;
   activeView?: 'chat' | 'feedback' | 'analytics' | 'examples' | 'updates';
@@ -23,7 +22,6 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ 
-  onNewChat, 
   accessLevel, 
   onViewChange, 
   activeView = 'chat',
@@ -73,7 +71,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     };
   }, [isMobileOpen]);
 
-  const getButtonClass = (view: 'chat' | 'feedback' | 'analytics' | 'examples' | 'updates', isActive: boolean) => {
+  const getButtonClass = (_view: 'chat' | 'feedback' | 'analytics' | 'examples' | 'updates', isActive: boolean) => {
     if (isCollapsed) {
       const baseClassCollapsed = "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 hover:bg-purple-50 text-sm font-medium group mx-auto";
       const activeClassCollapsed = "bg-purple-100 text-purple-700 border border-purple-200/50";

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Download, BarChart3, User, Clock, Brain, Search, ChevronDown, ChevronUp, Target } from 'lucide-react'
 import { apiService } from '../services/api'
-import { AnalyticsSummaryResponse, AnalyticsItem, AnalyticsQueryResponse } from '../types'
+import { AnalyticsSummaryResponse, AnalyticsItem } from '../types'
 
 interface AdminAnalyticsPanelProps {
   accessLevel: 'test' | 'admin';

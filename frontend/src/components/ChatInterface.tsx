@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Message, WorkflowUpdate } from '../types'
 import { apiService } from '../services/api'
 import Sidebar from './Sidebar'
@@ -168,7 +168,6 @@ const ChatInterface: React.FC = () => {
       }`}
     >
       <Sidebar 
-        onNewChat={handleNewChat} 
         accessLevel={accessLevel} 
         onViewChange={handleViewChange}
         activeView={activeView}
