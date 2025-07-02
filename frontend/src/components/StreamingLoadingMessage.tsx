@@ -123,18 +123,18 @@ const StreamingLoadingMessage: React.FC<StreamingLoadingMessageProps> = ({ curre
     
     switch (currentUpdate.status) {
       case 'complete':
-        return <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-green-600 flex-shrink-0" />;
+        return <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-green-600 flex-shrink-0" />;
       case 'error':
-        return <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-red-600 flex-shrink-0" />;
+        return <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-red-600 flex-shrink-0" />;
       default:
         return (
-                  <ThreeDot 
-          variant="pulsate"
-          color="#7c3aed" 
-          size="small" 
-          text="" 
-          textColor="" 
-        />
+          <ThreeDot 
+            variant="pulsate"
+            color="#7c3aed" 
+            size="small" 
+            text="" 
+            textColor="" 
+          />
         );
     }
   };
@@ -176,15 +176,16 @@ const StreamingLoadingMessage: React.FC<StreamingLoadingMessageProps> = ({ curre
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   return (
-    <div className="flex justify-start mb-6">
-      <div className="flex items-start space-x-3 sm:space-x-4 lg:space-x-5 max-w-3xl w-full">
-        <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 flex items-center justify-center shadow-md flex-shrink-0">
+    <div className="flex justify-start mb-4 sm:mb-6">
+      <div className="flex items-start space-x-2 sm:space-x-4 max-w-[90%] sm:max-w-3xl w-full">
+        {/* Avatar - ukryty na mobile */}
+        <div className="hidden sm:flex w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 items-center justify-center shadow-md flex-shrink-0">
           <div className="circle">
             <div className="wave"></div>
           </div>
         </div>
         
-        <div className="rounded-2xl sm:rounded-3xl px-4 py-3 sm:px-6 sm:py-4 lg:px-8 lg:py-6 bg-white/95 backdrop-blur-md border border-purple-200/40 shadow-sm flex-1 min-w-0">
+        <div className="rounded-2xl sm:rounded-3xl px-4 py-3 sm:px-6 sm:py-4 bg-white/95 backdrop-blur-md border border-purple-200/40 shadow-sm flex-1 min-w-0">
           {/* Status Message with Icon */}
           <div className="flex items-start space-x-3 sm:space-x-4 mb-4">
             <div className="flex-shrink-0 mt-1">
@@ -194,66 +195,47 @@ const StreamingLoadingMessage: React.FC<StreamingLoadingMessageProps> = ({ curre
             <div className="flex-1 min-w-0">
               {/* Animated Text Message with Re-animation */}
               {prefersReducedMotion ? (
-                <div className={`text-base sm:text-lg md:text-xl lg:text-2xl font-semibold break-words ${getStatusColor()}`}>
+                <div className={`text-sm sm:text-base md:text-lg font-semibold break-words ${getStatusColor()}`}>
                   {getMessage()}{currentUpdate?.status !== 'complete' && currentUpdate?.status !== 'error' && getDots()}
                 </div>
               ) : (
                 <BlurText
-                  key={`blur-text-${animationKey}-${currentUpdate?.node || 'default'}`}
-                  text={`${getMessage()}${currentUpdate?.status !== 'complete' && currentUpdate?.status !== 'error' ? getDots() : ''}`}
-                  delay={120}
-                  animateBy="words"
-                  direction="top"
+                  key={animationKey}
+                  text={getMessage() + (currentUpdate?.status !== 'complete' && currentUpdate?.status !== 'error' ? getDots() : '')}
+                  delay={50}
+                  className={`text-sm sm:text-base md:text-lg font-semibold break-words ${getStatusColor()}`}
                   onAnimationComplete={handleAnimationComplete}
-                  className={`text-base sm:text-lg md:text-xl lg:text-2xl font-semibold break-words ${getStatusColor()}`}
-                  stepDuration={0.4}
                 />
               )}
             </div>
-            
-            {/* Live Timer */}
-            <div className="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm text-gray-500 flex-shrink-0">
-              <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span className="font-mono tabular-nums">{liveTimer}s</span>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="mb-3">
+            <div className="flex justify-between items-center text-xs text-gray-500 mb-2">
+              <span>Progress</span>
+              <span>{Math.round(progress)}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-gradient-to-r from-purple-600 to-violet-700 h-2 rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${progress}%` }}
+              ></div>
             </div>
           </div>
 
-          {/* Progressive steps indicator */}
-          {currentUpdate?.status !== 'complete' && currentUpdate?.status !== 'error' && (
-            <div className="space-y-3">
-              {/* Enhanced Progress Bar with Smooth Animation */}
-              <div className="w-full bg-gray-200 rounded-full h-2 sm:h-2.5 overflow-hidden">
-                <div 
-                  className="bg-gradient-to-r from-purple-600 via-purple-500 to-violet-600 h-2 sm:h-2.5 rounded-full transition-all duration-700 ease-in-out transform-gpu"
-                  style={{ 
-                    width: `${progress}%`,
-                    animation: progress > 0 ? 'pulse-glow 2s ease-in-out infinite alternate' : 'none'
-                  }}
-                ></div>
-              </div>
-
-              {/* Step indicators */}
-              <div className="flex justify-between text-xs sm:text-sm text-gray-500">
-                <span className="text-left font-medium">
-                  Processing{getDots()}
-                </span>
-                <span className="text-right font-mono tabular-nums">
-                  {progress.toFixed(0)}% complete
-                </span>
-              </div>
+          {/* Timing Information */}
+          <div className="flex items-center justify-between text-xs text-gray-500">
+            <div className="flex items-center space-x-1">
+              <Clock className="w-3 h-3" />
+              <span>Thinking: {liveTimer}s</span>
             </div>
-          )}
-
-          {/* Success/Error state - no progress bar */}
-          {(currentUpdate?.status === 'complete' || currentUpdate?.status === 'error') && (
-            <div className="text-xs sm:text-sm text-gray-500 text-center mt-3 font-medium">
-              {currentUpdate.status === 'complete' ? (
-                <span className="text-green-600">✨ Analysis complete!</span>
-              ) : (
-                <span className="text-red-600">⚠️ An error occurred</span>
-              )}
-            </div>
-          )}
+            
+            {/* Show node timing only when complete or error */}
+            {currentUpdate?.elapsed_time && (currentUpdate?.status === 'complete' || currentUpdate?.status === 'error') && (
+              <span>Node: {(currentUpdate.elapsed_time / 1000).toFixed(1)}s</span>
+            )}
+          </div>
         </div>
       </div>
     </div>

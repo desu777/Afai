@@ -8,15 +8,16 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  HelpCircle
+  HelpCircle,
+  History
 } from 'lucide-react'
 import FeedbackModal from './FeedbackModal'
 
 interface SidebarProps {
   onNewChat: () => void;
   accessLevel: 'test' | 'admin';
-  onViewChange?: (view: 'chat' | 'feedback' | 'analytics' | 'examples') => void;
-  activeView?: 'chat' | 'feedback' | 'analytics' | 'examples';
+  onViewChange?: (view: 'chat' | 'feedback' | 'analytics' | 'examples' | 'updates') => void;
+  activeView?: 'chat' | 'feedback' | 'analytics' | 'examples' | 'updates';
   isCollapsed?: boolean;
   onToggleCollapse?: (collapsed: boolean) => void;
 }
@@ -42,7 +43,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     setIsFeedbackModalOpen(false);
   };
 
-  const handleViewChange = (view: 'chat' | 'feedback' | 'analytics' | 'examples') => {
+  const handleViewChange = (view: 'chat' | 'feedback' | 'analytics' | 'examples' | 'updates') => {
     onViewChange?.(view);
     setIsMobileOpen(false);
   };
@@ -72,7 +73,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     };
   }, [isMobileOpen]);
 
-  const getButtonClass = (view: 'chat' | 'feedback' | 'analytics' | 'examples', isActive: boolean) => {
+  const getButtonClass = (view: 'chat' | 'feedback' | 'analytics' | 'examples' | 'updates', isActive: boolean) => {
     if (isCollapsed) {
       const baseClassCollapsed = "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 hover:bg-purple-50 text-sm font-medium group mx-auto";
       const activeClassCollapsed = "bg-purple-100 text-purple-700 border border-purple-200/50";
@@ -90,13 +91,15 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <>
-      {/* Mobile Menu Button - Fixed position */}
-      <button
-        onClick={toggleMobileMenu}
-        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white/95 backdrop-blur-md rounded-xl shadow-lg border border-purple-200/50 hover:bg-purple-50 transition-all duration-200"
-      >
-        <Menu className="w-5 h-5 text-gray-700" />
-      </button>
+      {/* Mobile Menu Button - Fixed position - ukryty gdy sidebar otwarty */}
+      {!isMobileOpen && (
+        <button
+          onClick={toggleMobileMenu}
+          className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white/95 backdrop-blur-md rounded-xl shadow-lg border border-purple-200/50 hover:bg-purple-50 transition-all duration-200"
+        >
+          <Menu className="w-5 h-5 text-gray-700" />
+        </button>
+      )}
 
       {/* Mobile Overlay */}
       {isMobileOpen && (
@@ -115,19 +118,19 @@ const Sidebar: React.FC<SidebarProps> = ({
       >
         <div className="flex flex-col h-full">
           {/* Header Section */}
-          <div className="flex items-center justify-between p-4 border-b border-purple-200/30">
+          <div className="flex items-center justify-between p-4 md:p-6 border-b border-purple-200/30">
             {!isCollapsed && (
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
                   <img 
                     src="/horse.png" 
                     alt="Konik morski" 
-                    className="w-6 h-6 object-contain"
+                    className="w-7 h-7 md:w-8 md:h-8 object-contain"
                   />
                 </div>
                 <div className="flex flex-col">
-                  <div className="h-8">
-                    <svg viewBox="0 0 140 30" className="w-full h-full max-w-[200px]">
+                  <div className="h-8 md:h-10">
+                    <svg viewBox="0 0 140 30" className="w-full h-full max-w-[200px] md:max-w-[240px]">
                       <defs>
                         <linearGradient id="sidebar-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
                           <stop offset="0%" style={{stopColor: '#9333ea'}} />
@@ -147,8 +150,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                           </path>
                         </pattern>
                       </defs>
-                      <text textAnchor="middle" x="70" y="21" fontSize="16" fontWeight="bold" fill="#1f2937" fillOpacity="0.15">AF AI Assistant</text>
-                      <text textAnchor="middle" x="70" y="21" fontSize="16" fontWeight="bold" fill="url(#sidebar-wave)" fillOpacity="1">AF AI Assistant</text>
+                      <text textAnchor="middle" x="70" y="21" fontSize="18" fontWeight="bold" fill="#1f2937" fillOpacity="0.15">AF AI Assistant</text>
+                      <text textAnchor="middle" x="70" y="21" fontSize="18" fontWeight="bold" fill="url(#sidebar-wave)" fillOpacity="1">AF AI Assistant</text>
                     </svg>
                   </div>
                 </div>
@@ -234,6 +237,16 @@ const Sidebar: React.FC<SidebarProps> = ({
               <HelpCircle className="w-5 h-5 flex-shrink-0" />
               {!isCollapsed && <span>Examples</span>}
             </button>
+
+            {/* Updates Button - available for all users */}
+            <button 
+              onClick={() => handleViewChange('updates')}
+              className={getButtonClass('updates', activeView === 'updates')}
+              title={isCollapsed ? 'Updates' : ''}
+            >
+              <History className="w-5 h-5 flex-shrink-0" />
+              {!isCollapsed && <span>Updates</span>}
+            </button>
           </div>
 
           {/* Footer Info Section */}
@@ -242,7 +255,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               {/* Version Badge */}
               <div className="flex justify-center">
                 <div className="inline-block bg-purple-100/80 backdrop-blur-md rounded-full px-3 py-1 shadow-sm border border-purple-200/50">
-                  <span className="text-xs font-semibold text-purple-700">v1.2</span>
+                  <span className="text-xs font-semibold text-purple-700">Current version: 1.3</span>
                 </div>
               </div>
 

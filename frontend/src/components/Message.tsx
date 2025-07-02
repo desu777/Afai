@@ -68,7 +68,7 @@ const Message: React.FC<MessageProps> = ({ message }) => {
       const fullHtmlContent = `
         <html>
           <head>
-            <title>AF AI Response - ${new Date().toLocaleDateString()}</title>
+            <title>AF AI Response - Reef Expert made by Aquaforest - ${new Date().toLocaleDateString()}</title>
             <style>
               body { 
                 font-family: Arial, sans-serif; 
@@ -77,11 +77,21 @@ const Message: React.FC<MessageProps> = ({ message }) => {
                 color: #333;
               }
               h1, h2, h3 { color: #7c3aed; margin-top: 20px; }
-              .header { 
-                border-bottom: 2px solid #7c3aed; 
-                padding-bottom: 10px; 
-                margin-bottom: 20px; 
-              }
+                             .header { 
+                 border-bottom: 2px solid #7c3aed; 
+                 padding-bottom: 10px; 
+                 margin-bottom: 20px; 
+               }
+               .header a {
+                 color: #7c3aed;
+                 text-decoration: none;
+                 font-weight: bold;
+               }
+               .header a:after {
+                 content: " ↗";
+                 font-size: 0.8em;
+                 opacity: 0.7;
+               }
               .timestamp { color: #666; font-size: 12px; }
               .content { 
                 font-size: 14px;
@@ -99,10 +109,10 @@ const Message: React.FC<MessageProps> = ({ message }) => {
             </style>
           </head>
           <body>
-            <div class="header">
-              <h1>AF AI Response</h1>
-              <div class="timestamp">Generated: ${message.timestamp.toLocaleString()}</div>
-            </div>
+                         <div class="header">
+               <h1>AF AI Response - Reef Expert made by <a href="https://aquaforest.eu/">Aquaforest</a></h1>
+               <div class="timestamp">Generated: ${message.timestamp.toLocaleString()}</div>
+             </div>
             <div class="content">${htmlContent}</div>
           </body>
         </html>
@@ -122,11 +132,10 @@ const Message: React.FC<MessageProps> = ({ message }) => {
   };
 
   return (
-    <div
-      className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'} mb-6`}
-    >
-      <div className={`flex items-start space-x-4 max-w-3xl ${message.type === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
-        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 flex items-center justify-center flex-shrink-0 shadow-md">
+    <div className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'} mb-4 sm:mb-6`}>
+      <div className={`flex items-start ${message.type === 'user' ? 'space-x-3 sm:space-x-4 flex-row-reverse space-x-reverse' : 'space-x-2 sm:space-x-4'} max-w-[90%] sm:max-w-3xl`}>
+        {/* Avatar - ukryty na mobile */}
+        <div className="hidden sm:flex w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 items-center justify-center flex-shrink-0 shadow-md">
           {message.type === 'user' ? (
             <User className="w-5 h-5 text-white" />
           ) : (
@@ -135,8 +144,9 @@ const Message: React.FC<MessageProps> = ({ message }) => {
             </div>
           )}
         </div>
-        <div className="flex flex-col space-y-2">
-          <div className={`rounded-3xl px-6 py-4 shadow-sm backdrop-blur-md border ${
+        
+        <div className="flex flex-col space-y-2 min-w-0 flex-1">
+          <div className={`rounded-2xl sm:rounded-3xl px-4 sm:px-6 py-3 sm:py-4 shadow-sm backdrop-blur-md border break-words ${
             message.type === 'user'
               ? 'bg-gradient-to-r from-purple-600 to-violet-700 text-white border-purple-500/20'
               : 'bg-white/95 text-gray-800 border-purple-200/40'
@@ -146,6 +156,7 @@ const Message: React.FC<MessageProps> = ({ message }) => {
               isUser={message.type === 'user'} 
             />
           </div>
+          
           <div className={`flex items-center ${
             message.type === 'user' ? 'justify-end' : 'justify-between'
           } px-2`}>
