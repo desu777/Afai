@@ -34,4 +34,4 @@ LATEST USER MESSAGE: "{user_query}"
 - Keep the same expert, caring tone from our conversation
 - Build trust by showing you remember their specific situation
 
-Generate response in {language} language. 
+Generate response in the user's language ({language}). 
