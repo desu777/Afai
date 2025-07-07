@@ -711,10 +711,30 @@ async def get_analytics(query: AnalyticsQuery):
             results = []
             for row in cursor.fetchall():
                 result = dict(row)
-                # Parse JSON fields
-                result["query_optimizer_queries"] = json.loads(result.get("query_optimizer_queries", "[]"))
-                result["pinecone_top_results"] = json.loads(result.get("pinecone_top_results", "[]"))
-                result["node_timings"] = json.loads(result.get("node_timings", "{}"))
+                
+                # Parse JSON fields with error handling
+                try:
+                    result["query_optimizer_queries"] = json.loads(result.get("query_optimizer_queries") or "[]")
+                except (json.JSONDecodeError, TypeError):
+                    result["query_optimizer_queries"] = []
+                    debug_print(f"⚠️ [Analytics] Failed to parse query_optimizer_queries for record {result.get('id')}")
+                
+                try:
+                    result["pinecone_top_results"] = json.loads(result.get("pinecone_top_results") or "[]")
+                except (json.JSONDecodeError, TypeError):
+                    result["pinecone_top_results"] = []
+                    debug_print(f"⚠️ [Analytics] Failed to parse pinecone_top_results for record {result.get('id')}")
+                
+                try:
+                    result["node_timings"] = json.loads(result.get("node_timings") or "{}")
+                except (json.JSONDecodeError, TypeError):
+                    result["node_timings"] = {}
+                    debug_print(f"⚠️ [Analytics] Failed to parse node_timings for record {result.get('id')}")
+                
+                # Add missing fields required by frontend types
+                result["confidence_score"] = result.get("intent_confidence", 0)
+                result["confidence_reasoning"] = "Based on intent confidence score"
+                
                 results.append(result)
             
             return {
@@ -723,6 +743,7 @@ async def get_analytics(query: AnalyticsQuery):
                 "data": results
             }
     except Exception as e:
+        debug_print(f"❌ [Analytics] Error in get_analytics: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/analytics/summary")
@@ -750,32 +771,49 @@ async def get_analytics_summary():
             """)
             intent_dist = {row["intent_detector_decision"]: row["count"] for row in cursor.fetchall()}
             
-            # Response time distribution
+            # Language distribution
+            cursor.execute("""
+                SELECT detected_language, COUNT(*) as count
+                FROM analyze 
+                WHERE detected_language != ''
+                GROUP BY detected_language 
+                ORDER BY count DESC
+            """)
+            language_dist = {row["detected_language"]: row["count"] for row in cursor.fetchall()}
+            
+            # Confidence distribution
             cursor.execute("""
                 SELECT 
-                    AVG(total_execution_time) as avg_time,
-                    MIN(total_execution_time) as min_time,
-                    MAX(total_execution_time) as max_time
+                    SUM(CASE WHEN intent_confidence >= 0.8 THEN 1 ELSE 0 END) as high_confidence,
+                    SUM(CASE WHEN intent_confidence >= 0.5 AND intent_confidence < 0.8 THEN 1 ELSE 0 END) as medium_confidence,
+                    SUM(CASE WHEN intent_confidence < 0.5 THEN 1 ELSE 0 END) as low_confidence
                 FROM analyze
+                WHERE intent_confidence IS NOT NULL
             """)
-            timing_stats = dict(cursor.fetchone())
+            confidence_stats = cursor.fetchone()
             
             # Escalation rate
             cursor.execute("SELECT SUM(CASE WHEN escalated THEN 1 ELSE 0 END) as escalated FROM analyze")
             escalated_count = cursor.fetchone()["escalated"] or 0
+            escalation_rate = (escalated_count / total_queries * 100) if total_queries > 0 else 0
             
             return {
-                "message": "Analytics summary",
-                "total_queries": total_queries,
-                "date_range": {
-                    "start": query.start_date,
-                    "end": query.end_date
-                },
-                "intent_distribution": intent_dist,
-                "timing_stats": timing_stats,
-                "escalation_rate": f"{(escalated_count / total_queries * 100):.1f}%" if total_queries > 0 else "0%"
+                "success": True,
+                "summary": {
+                    "total_queries": total_queries,
+                    "average_execution_time": round(avg_time, 3),
+                    "confidence_distribution": {
+                        "high_confidence": confidence_stats["high_confidence"] or 0,
+                        "medium_confidence": confidence_stats["medium_confidence"] or 0,
+                        "low_confidence": confidence_stats["low_confidence"] or 0
+                    },
+                    "intent_distribution": intent_dist,
+                    "language_distribution": language_dist,
+                    "escalation_rate": round(escalation_rate, 1)
+                }
             }
     except Exception as e:
+        debug_print(f"❌ [Analytics] Error in get_analytics_summary: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/feedback/summary")
