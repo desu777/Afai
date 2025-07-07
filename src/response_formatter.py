@@ -150,7 +150,7 @@ class ResponseFormatter:
         
         # Handle special intents first
         if intent in [Intent.GREETING, Intent.BUSINESS, 
-                     Intent.PURCHASE_INQUIRY, Intent.COMPETITOR, Intent.CENSORED, Intent.SUPPORT]:
+                     Intent.PURCHASE_INQUIRY, Intent.COMPETITOR, Intent.CENSORED, Intent.SUPPORT, Intent.OTHER]:
             if TEST_ENV:
                 print(f"🎭 [DEBUG ResponseFormatter] Handling special intent: {intent}")
             return self._create_special_intent_prompt(state)
@@ -397,6 +397,16 @@ Respond in {lang} language.
             if prompt:
                 return prompt
         
+        # 🆕 OTHER intent using template
+        if intent == Intent.OTHER:
+            prompt = load_prompt_template(
+                "intent_others",
+                user_query=user_query,
+                language=lang
+            )
+            if prompt:
+                return prompt
+        
         # 🚫 FALLBACK for unknown intents or template failures
         if TEST_ENV:
             print(f"⚠️ [ResponseFormatter] Using fallback for intent: {intent}")
@@ -554,7 +564,7 @@ Show enthusiasm for reef-keeping while addressing their needs.
             # 🆕 Check if this is a special intent - use cheaper model
             intent = state.get("intent", "product_query")
             if intent in [Intent.GREETING, Intent.BUSINESS, Intent.PURCHASE_INQUIRY, 
-                         Intent.COMPETITOR, Intent.CENSORED, Intent.SUPPORT]:
+                         Intent.COMPETITOR, Intent.CENSORED, Intent.SUPPORT, Intent.OTHER]:
                 if TEST_ENV:
                     print(f"🎭 [DEBUG ResponseFormatter] Using cheaper model for special intent: {intent}")
                 state["final_response"] = self._generate_special_intent_response(state)
@@ -574,7 +584,7 @@ Show enthusiasm for reef-keeping while addressing their needs.
                 print(f"✅ [DEBUG ResponseFormatter] Response generated ({len(state['final_response'])} characters)")
             
             # Cache metadata for follow-ups (only for product queries)
-            if state.get("search_results") and intent not in [Intent.GREETING, Intent.BUSINESS, Intent.SUPPORT]:
+            if state.get("search_results") and intent not in [Intent.GREETING, Intent.BUSINESS, Intent.SUPPORT, Intent.OTHER, Intent.CENSORED, Intent.COMPETITOR, Intent.PURCHASE_INQUIRY]:
                 # Cache more results if category request
                 cache_size = 10 if state.get("requested_category") else 5
                 state["context_cache"] = [r['metadata'] for r in state["search_results"][:cache_size]]

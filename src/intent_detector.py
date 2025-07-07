@@ -128,13 +128,12 @@ Return ONLY a valid JSON object:
         """Create messages for vision analysis with OpenRouter/Gemini"""
         
         # Build system prompt for vision analysis
-        system_prompt = f"""You are an aquarium expert AI assistant analyzing images and text for Aquaforest products support.
+        system_prompt = f"""You are an aquarium expert AI assistant analyzing images for Aquaforest products support.
 
 Your task is to:
 1. Analyze the image carefully - describe what you see in the aquarium
 2. Identify any problems, issues, or concerns visible in the image
-3. Detect intent and language from the user's text message
-4. Provide image analysis that will help with product recommendations
+3. Provide detailed image analysis that will help with product recommendations
 
 Focus on:
 - Water quality issues (algae, cloudiness, discoloration)
@@ -147,9 +146,6 @@ User's message: "{state['user_query']}"
 
 Return ONLY a valid JSON object:
 {{
-    "intent": "product_query",
-    "language": "en", 
-    "confidence": 0.9,
     "image_analysis": "Detailed description of what you see in the image and any problems identified"
 }}
 """
@@ -205,9 +201,9 @@ Return ONLY a valid JSON object:
             if image_analysis:
                 state["image_analysis"] = image_analysis
                 
-                # 🆕 ENHANCE USER QUERY with image description
-                language = result_data.get("language", "en")
-                if language == "pl":
+                # 🆕 ENHANCE USER QUERY with image description (use language from text analysis)
+                detected_language = state.get("detected_language", "en")
+                if detected_language == "pl":
                     enhanced_query = f"{state['user_query']}\n\nUser dodał zdjęcie -> Opis zdjęcia: {image_analysis}"
                 else:
                     enhanced_query = f"{state['user_query']}\n\nUser added image -> Image description: {image_analysis}"
@@ -216,17 +212,11 @@ Return ONLY a valid JSON object:
                 
                 if TEST_ENV:
                     print(f"📝 [DEBUG IntentDetector] Enhanced query with image analysis")
-                    print(f"🔍 [DEBUG IntentDetector] Original: {state['user_query'].split('User added image')[0]}")
+                    print(f"🔍 [DEBUG IntentDetector] Original: {state['user_query'].split('User added image')[0].split('User dodał zdjęcie')[0]}")
                     print(f"🖼️ [DEBUG IntentDetector] Image analysis: {image_analysis}")
+                    print(f"✅ [DEBUG IntentDetector] Vision analysis complete - keeping language: {detected_language}")
                 
-                # Update intent and language from vision analysis
-                state["intent"] = result_data.get("intent", "product_query")
-                state["detected_language"] = result_data.get("language", "en")
-                
-                if TEST_ENV:
-                    print(f"✅ [DEBUG IntentDetector] Vision analysis complete - Intent: {state['intent']}, Language: {state['detected_language']}")
-                
-                return state
+            return state
             
         except Exception as e:
             if TEST_ENV:
@@ -247,17 +237,11 @@ Return ONLY a valid JSON object:
             if state.get("image_url"):
                 print(f"📸 [DEBUG IntentDetector] Image provided: {state['image_url'][:100]}...")
         
-        # 🆕 VISION ANALYSIS FIRST - if image is provided
-        if state.get("image_url"):
-            if TEST_ENV:
-                print(f"📸 [DEBUG IntentDetector] Processing with vision analysis...")
-            # Analyze image content and enhance user query
-            state = self._analyze_image_content(state)
-            # Vision analysis already set intent and language, return early
-            return state
-        
-        # 🔄 STANDARD TEXT ANALYSIS - if no image
+        # 🔄 STANDARD TEXT ANALYSIS FIRST - always detect language and intent from text
         try:
+            if TEST_ENV:
+                print(f"🔍 [DEBUG IntentDetector] Processing text analysis...")
+                
             response = self.client.chat.completions.create(
                 model=self.model_name,
                 temperature=OPENAI_TEMPERATURE,
@@ -270,7 +254,7 @@ Return ONLY a valid JSON object:
             result_data = json.loads(response.choices[0].message.content)
             
             if TEST_ENV:
-                print(f"🤖 [DEBUG IntentDetector] LLM Response: {result_data}")
+                print(f"🤖 [DEBUG IntentDetector] Text analysis result: {result_data}")
             
             result = IntentDetectionResult(**result_data)
             
@@ -284,12 +268,12 @@ Return ONLY a valid JSON object:
                 if TEST_ENV:
                     print(f"✅ [DEBUG IntentDetector] Corrected intent from follow_up to product_query")
             
-            # Update state
+            # Update state with text analysis
             state["intent"] = result.intent
             state["detected_language"] = result.language
             
             if TEST_ENV:
-                print(f"✅ [DEBUG IntentDetector] Detected: Intent='{result.intent}', Language='{result.language}', Confidence={result.confidence}")
+                print(f"✅ [DEBUG IntentDetector] Text analysis: Intent='{result.intent}', Language='{result.language}', Confidence={result.confidence}")
                 if result_data.get("context_note"):
                     print(f"🧠 [DEBUG IntentDetector] Context note: {result_data['context_note']}")
             
@@ -301,11 +285,18 @@ Return ONLY a valid JSON object:
                 
         except Exception as e:
             if TEST_ENV:
-                print(f"❌ [DEBUG IntentDetector] Intent detection error: {e}")
-                print(f"❌ [DEBUG IntentDetector] Detection error, using default values")
+                print(f"❌ [DEBUG IntentDetector] Text analysis error: {e}")
+                print(f"❌ [DEBUG IntentDetector] Using default values")
             # Default fallback
             state["intent"] = Intent.PRODUCT_QUERY
             state["detected_language"] = "en"
+        
+        # 🆕 VISION ANALYSIS SECOND - if image is provided, add image analysis
+        if state.get("image_url"):
+            if TEST_ENV:
+                print(f"📸 [DEBUG IntentDetector] Adding vision analysis...")
+            # Analyze image content and enhance user query (but keep language from text analysis)
+            state = self._analyze_image_content(state)
             
         return state
 

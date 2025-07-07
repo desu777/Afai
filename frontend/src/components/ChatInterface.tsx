@@ -37,11 +37,19 @@ const ChatInterface: React.FC = () => {
     if (!inputValue.trim() || isLoading) return;
 
     const userMessageId = messages.length + 1;
+    
+    // 🆕 Konwersja obrazka na base64 jeśli został wybrany (dla wyświetlenia w historii)
+    let imageUrlForMessage: string | undefined;
+    if (selectedImage) {
+      imageUrlForMessage = await convertFileToBase64(selectedImage);
+    }
+    
     const userMessage: Message = {
       id: userMessageId,
       type: 'user',
       content: inputValue,
-      timestamp: new Date()
+      timestamp: new Date(),
+      imageUrl: imageUrlForMessage  // 🆕 Dodanie imageUrl do wiadomości
     };
 
     // Add user message immediately
@@ -60,7 +68,7 @@ const ChatInterface: React.FC = () => {
         content: msg.content
       }));
 
-      // 🆕 Konwersja obrazka na base64 jeśli został wybrany
+      // 🆕 Konwersja obrazka na base64 jeśli został wybrany (dla API)
       let imageUrl: string | undefined;
       if (currentImage) {
         imageUrl = await convertFileToBase64(currentImage);

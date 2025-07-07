@@ -151,6 +151,17 @@ const Message: React.FC<MessageProps> = ({ message }) => {
               ? 'bg-gradient-to-r from-purple-600 to-violet-700 text-white border-purple-500/20'
               : 'bg-white/95 text-gray-800 border-purple-200/40'
           }`}>
+            {/* 🆕 Wyświetlanie zdjęcia jeśli jest dostępne */}
+            {message.imageUrl && (
+              <div className="mb-3">
+                <img
+                  src={message.imageUrl}
+                  alt="User attached image"
+                  className="max-w-full max-h-64 rounded-lg shadow-sm border border-white/20"
+                />
+              </div>
+            )}
+            
             <MessageContent 
               content={message.content} 
               isUser={message.type === 'user'} 

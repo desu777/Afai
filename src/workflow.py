@@ -90,13 +90,13 @@ def route_intent(state: ConversationState) -> str:
     })
     
     if intent in [Intent.GREETING, Intent.BUSINESS, Intent.COMPETITOR, 
-                  Intent.CENSORED, Intent.PURCHASE_INQUIRY, Intent.SUPPORT]:
+                  Intent.CENSORED, Intent.PURCHASE_INQUIRY, Intent.SUPPORT, Intent.OTHER]:
         debug_print(f"➡️ [Router] Routing to: format_response (special intent)")
         state["routing_decisions"][-1]["next_node"] = "format_response"
         return "format_response"
     elif intent in [Intent.PRODUCT_QUERY, Intent.ANALYZE_ICP]:
-        debug_print(f"➡️ [Router] Routing to: optimize_query (product query/ICP analysis)")
-        state["routing_decisions"][-1]["next_node"] = "optimize_query"
+        debug_print(f"➡️ [Router] Routing to: business_reasoner (product query/ICP analysis)")
+        state["routing_decisions"][-1]["next_node"] = "business_reasoner"
         return "optimize_query"
     elif intent == Intent.FOLLOW_UP:
         debug_print(f"➡️ [Router] Routing to: follow_up_router (follow-up question)")
@@ -290,16 +290,18 @@ def create_workflow() -> StateGraph:
     # Define edges
     workflow.set_entry_point("detect_intent")
     workflow.add_edge("detect_intent", "load_products")
-    workflow.add_edge("load_products", "business_reasoner")
+    # 🚀 OPTIMIZATION: Route directly after load_products to skip business_reasoner for special intents
     workflow.add_conditional_edges(
-        "business_reasoner", route_intent,
+        "load_products", route_intent,
         {
             "format_response": "format_response", 
             "escalate_support": "escalate_support",
-            "optimize_query": "optimize_query", 
+            "optimize_query": "business_reasoner",  # Product queries need business analysis
             "follow_up_router": "follow_up_router"
         }
     )
+    # Business reasoner now only handles product queries
+    workflow.add_edge("business_reasoner", "optimize_query")
     workflow.add_conditional_edges(
         "follow_up_router", route_follow_up,
         {
