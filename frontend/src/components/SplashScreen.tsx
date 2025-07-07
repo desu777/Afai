@@ -118,7 +118,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
           </div>
           
           <div className="inline-block bg-white/80 backdrop-blur-md rounded-full px-4 py-2 shadow-lg border border-purple-200/50">
-            <span className="text-sm font-semibold text-purple-700">v1.2</span>
+            <span className="text-sm font-semibold text-purple-700">v1.4</span>
           </div>
         </div>
 

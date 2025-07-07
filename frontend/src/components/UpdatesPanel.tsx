@@ -15,6 +15,34 @@ interface Update {
 
 const updates: Update[] = [
   {
+    version: "1.4V",
+    date: "2025-07-07",
+    type: "minor",
+    title: "🚀 Professional AI Model Upgrade & Visual Diagnostics",
+    description: "Revolutionary upgrade to professional Gemini-2.5-Flash model with dramatic performance improvements and new visual diagnostic capabilities for comprehensive aquarium problem analysis.",
+    changes: [
+      {
+        category: "new",
+        items: [
+          "📸 Visual Diagnostics - Upload photos of your aquarium for AI-powered problem identification and solutions",
+          "🔬 Image Analysis - Advanced recognition of coral health, algae issues, water clarity problems, and equipment setup",
+          "📷 Multi-format Support - Accept images in JPG, PNG, WebP formats for comprehensive visual analysis",
+          "🎯 Photo-based Product Recommendations - Get targeted AF product suggestions based on visual assessment"
+        ]
+      },
+      {
+        category: "improved",
+        items: [
+          "🧠 Professional AI Model - Upgraded to Google Gemini-2.5-Flash for superior intelligence and reasoning",
+          "⚡ ~50% Faster Response Times - Dramatic speed improvement with more eloquent and detailed responses",
+          "🎭 Enhanced Expert Personality - More knowledgeable and passionate aquarium expertise",
+          "💡 Smarter Problem Analysis - Better understanding of complex aquarium chemistry and biology",
+          "🔄 Improved Context Retention - Better conversation flow and follow-up understanding"
+        ]
+      }
+    ]
+  },
+  {
     version: "1.3",
     date: "2025-07-02",
     type: "minor",

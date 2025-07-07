@@ -253,7 +253,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               {/* Version Badge */}
               <div className="flex justify-center">
                 <div className="inline-block bg-purple-100/80 backdrop-blur-md rounded-full px-3 py-1 shadow-sm border border-purple-200/50">
-                  <span className="text-xs font-semibold text-purple-700">Current version: 1.3</span>
+                  <span className="text-xs font-semibold text-purple-700">Current version: 1.4</span>
                 </div>
               </div>
 
