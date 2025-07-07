@@ -360,6 +360,8 @@ async def process_messenger_message(messaging_event, assistant: AquaforestAssist
             "domain_filter": None,
             "chat_history": chat_history,
             "context_cache": [],
+            "image_url": None,  # 🆕 Vision analysis - TODO: add Messenger image support
+            "image_analysis": None,  # 🆕 Will be filled by intent detector
             "node_timings": {},
             "routing_decisions": [],
             "total_execution_time": 0.0

@@ -9,6 +9,7 @@ export interface ChatRequest {
   message: string;
   chat_history: Array<{role: string; content: string}>;
   debug: boolean;
+  image_url?: string;
 }
 
 export interface ChatResponse {

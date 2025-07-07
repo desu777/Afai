@@ -40,6 +40,10 @@ class ConversationState(TypedDict):
     chat_history: List[Dict[str, str]]
     context_cache: List[Dict[str, Any]]
     
+    # 🆕 VISION ANALYSIS FIELDS
+    image_url: Optional[str]  # URL do zdjęcia przesłanego przez użytkownika
+    image_analysis: Optional[str]  # Opis zdjęcia wygenerowany przez LLM
+    
     # Analytics fields
     node_timings: Dict[str, float]  # Tracks execution time for each node
     routing_decisions: List[Dict[str, str]]  # Tracks routing decisions

@@ -12,9 +12,11 @@ interface MessageListProps {
   inputValue: string;
   onInputChange: (value: string) => void;
   onSend: () => void;
+  selectedImage?: File | null;
+  onImageSelect?: (image: File | null) => void;
 }
 
-const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, currentWorkflowUpdate, inputValue, onInputChange, onSend }) => {
+const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, currentWorkflowUpdate, inputValue, onInputChange, onSend, selectedImage, onImageSelect }) => {
 
   // 🔍 DEBUG: Log currentWorkflowUpdate
   if (import.meta.env.VITE_TEST_ENV === 'true' && currentWorkflowUpdate) {
@@ -33,6 +35,8 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, currentW
             isLoading={isLoading}
             onInputChange={onInputChange}
             onSend={onSend}
+            selectedImage={selectedImage}
+            onImageSelect={onImageSelect}
           />
         )}
 

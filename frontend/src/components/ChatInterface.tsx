@@ -21,6 +21,17 @@ const ChatInterface: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentWorkflowUpdate, setCurrentWorkflowUpdate] = useState<WorkflowUpdate | undefined>(undefined);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+
+  // 🆕 Funkcja konwersji pliku na base64 data URL
+  const convertFileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
 
   const handleSend = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -36,7 +47,9 @@ const ChatInterface: React.FC = () => {
     // Add user message immediately
     setMessages(prev => [...prev, userMessage]);
     const currentInput = inputValue;
+    const currentImage = selectedImage;
     setInputValue('');
+    setSelectedImage(null);  // 🆕 Resetuj wybrany obrazek
     setIsLoading(true);
     setCurrentWorkflowUpdate(undefined);
 
@@ -47,12 +60,19 @@ const ChatInterface: React.FC = () => {
         content: msg.content
       }));
 
+      // 🆕 Konwersja obrazka na base64 jeśli został wybrany
+      let imageUrl: string | undefined;
+      if (currentImage) {
+        imageUrl = await convertFileToBase64(currentImage);
+      }
+
       // Debug mode based on environment variable
       const debugMode = import.meta.env.VITE_TEST_ENV === 'true';
 
       if (debugMode) {
         console.log('🔍 [Chat] Sending streaming message:', currentInput);
         console.log('🔍 [Chat] Chat history:', chatHistory);
+        console.log('🔍 [Chat] Image URL:', imageUrl ? 'Present' : 'None');
       }
 
       // 🚀 Use streaming API with workflow updates
@@ -69,7 +89,8 @@ const ChatInterface: React.FC = () => {
           if (debugMode) {
             console.log('✅ [Chat] currentWorkflowUpdate state updated');
           }
-        }
+        },
+        imageUrl  // 🆕 Przekazanie image_url
       );
 
       if (debugMode) {
@@ -109,13 +130,12 @@ const ChatInterface: React.FC = () => {
     }
   };
 
-
-
   const handleNewChat = () => {
     setMessages([]);
     setInputValue('');
     setIsLoading(false);
     setActiveView('chat');
+    setSelectedImage(null);  // 🆕 Resetuj wybrany obrazek
   };
 
   const handleAuthenticate = (level: 'test' | 'admin') => {
@@ -189,6 +209,8 @@ const ChatInterface: React.FC = () => {
               inputValue={inputValue}
               onInputChange={setInputValue}
               onSend={handleSend}
+              selectedImage={selectedImage}
+              onImageSelect={setSelectedImage}
             />
             {(messages.length > 0 || isLoading) && (
               <ChatInput
@@ -197,6 +219,8 @@ const ChatInterface: React.FC = () => {
                 onInputChange={setInputValue}
                 onSend={handleSend}
                 hasMessages={true}
+                selectedImage={selectedImage}
+                onImageSelect={setSelectedImage}
               />
             )}
           </>

@@ -76,6 +76,15 @@ IMPORTANT: User provided an ICP test results URL from aquaforestlab.com
 This is very likely intent: "analyze_icp" - user wants analysis of their water parameters!
 """
 
+        # 🆕 IMAGE ANALYSIS HINT
+        image_hint = ""
+        if state.get("image_url") and state.get("image_analysis"):
+            image_hint = f"""
+IMPORTANT: User provided an image with their question!
+Image description: {state['image_analysis']}
+This is very likely intent: "product_query" - user wants help with aquarium problems shown in image!
+"""
+
         # Try to load prompt from template
         prompt = load_prompt_template(
             "intent_detection",
@@ -83,6 +92,7 @@ This is very likely intent: "analyze_icp" - user wants analysis of their water p
             user_query=state['user_query'],
             conversation_context_hint=conversation_context_hint,
             icp_url_hint=icp_url_hint,  # 🆕 Pass ICP URL hint to template
+            image_hint=image_hint,  # 🆕 Pass image hint to template
             competitors=self.competitors_list  # 🆕 Pass competitors list to template
         )
         
@@ -101,6 +111,7 @@ LATEST USER MESSAGE: "{state['user_query']}"
 ---
 
 {conversation_context_hint}
+{image_hint}
 
 Return ONLY a valid JSON object:
 {{
@@ -113,13 +124,139 @@ Return ONLY a valid JSON object:
         
         return prompt
 
+    def _create_vision_messages(self, state: ConversationState) -> list:
+        """Create messages for vision analysis with OpenRouter/Gemini"""
+        
+        # Build system prompt for vision analysis
+        system_prompt = f"""You are an aquarium expert AI assistant analyzing images and text for Aquaforest products support.
+
+Your task is to:
+1. Analyze the image carefully - describe what you see in the aquarium
+2. Identify any problems, issues, or concerns visible in the image
+3. Detect intent and language from the user's text message
+4. Provide image analysis that will help with product recommendations
+
+Focus on:
+- Water quality issues (algae, cloudiness, discoloration)
+- Coral health problems (bleaching, diseases, pests)
+- Equipment issues
+- Tank setup problems
+- Any visible aquarium problems
+
+User's message: "{state['user_query']}"
+
+Return ONLY a valid JSON object:
+{{
+    "intent": "product_query",
+    "language": "en", 
+    "confidence": 0.9,
+    "image_analysis": "Detailed description of what you see in the image and any problems identified"
+}}
+"""
+        
+        # Create messages with image
+        messages = [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": system_prompt
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": state["image_url"]
+                        }
+                    }
+                ]
+            }
+        ]
+        
+        return messages
+
+    def _analyze_image_content(self, state: ConversationState) -> ConversationState:
+        """Analyze image content and extract problems/issues"""
+        if not state.get("image_url"):
+            return state
+            
+        if TEST_ENV:
+            print(f"📸 [DEBUG IntentDetector] Analyzing image: {state['image_url'][:100]}...")
+        
+        try:
+            # Create vision messages
+            messages = self._create_vision_messages(state)
+            
+            # Call OpenRouter/Gemini with vision
+            response = self.client.chat.completions.create(
+                model=self.model_name,
+                temperature=OPENAI_TEMPERATURE,
+                messages=messages,
+                response_format={"type": "json_object"}
+            )
+            
+            result_data = json.loads(response.choices[0].message.content)
+            
+            if TEST_ENV:
+                print(f"🤖 [DEBUG IntentDetector] Vision analysis result: {result_data}")
+            
+            # Extract image analysis
+            image_analysis = result_data.get("image_analysis", "")
+            if image_analysis:
+                state["image_analysis"] = image_analysis
+                
+                # 🆕 ENHANCE USER QUERY with image description
+                language = result_data.get("language", "en")
+                if language == "pl":
+                    enhanced_query = f"{state['user_query']}\n\nUser dodał zdjęcie -> Opis zdjęcia: {image_analysis}"
+                else:
+                    enhanced_query = f"{state['user_query']}\n\nUser added image -> Image description: {image_analysis}"
+                
+                state["user_query"] = enhanced_query
+                
+                if TEST_ENV:
+                    print(f"📝 [DEBUG IntentDetector] Enhanced query with image analysis")
+                    print(f"🔍 [DEBUG IntentDetector] Original: {state['user_query'].split('User added image')[0]}")
+                    print(f"🖼️ [DEBUG IntentDetector] Image analysis: {image_analysis}")
+                
+                # Update intent and language from vision analysis
+                state["intent"] = result_data.get("intent", "product_query")
+                state["detected_language"] = result_data.get("language", "en")
+                
+                if TEST_ENV:
+                    print(f"✅ [DEBUG IntentDetector] Vision analysis complete - Intent: {state['intent']}, Language: {state['detected_language']}")
+                
+                return state
+            
+        except Exception as e:
+            if TEST_ENV:
+                print(f"❌ [DEBUG IntentDetector] Vision analysis error: {e}")
+            debug_print(f"❌ [IntentDetector] Vision analysis failed: {e}")
+            
+            # Fallback - still process as text-only
+            return state
+            
+        return state
+
     def detect(self, state: ConversationState) -> ConversationState:
         """Detect intent and language from user query"""
         if TEST_ENV:
             print(f"\n🎯 [DEBUG IntentDetector] Analyzing query: '{state['user_query']}'")
             if state.get("chat_history"):
                 print(f"💬 [DEBUG IntentDetector] Conversation history: {len(state.get('chat_history', []))} messages")
+            if state.get("image_url"):
+                print(f"📸 [DEBUG IntentDetector] Image provided: {state['image_url'][:100]}...")
         
+        # 🆕 VISION ANALYSIS FIRST - if image is provided
+        if state.get("image_url"):
+            if TEST_ENV:
+                print(f"📸 [DEBUG IntentDetector] Processing with vision analysis...")
+            # Analyze image content and enhance user query
+            state = self._analyze_image_content(state)
+            # Vision analysis already set intent and language, return early
+            return state
+        
+        # 🔄 STANDARD TEXT ANALYSIS - if no image
         try:
             response = self.client.chat.completions.create(
                 model=self.model_name,

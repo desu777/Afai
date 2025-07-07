@@ -34,6 +34,7 @@ class ChatRequest(BaseModel):
     message: str
     chat_history: List[Dict[str, str]] = []
     debug: bool = False
+    image_url: Optional[str] = None  # 🆕 URL do zdjęcia dla analizy vision
 
 class ChatResponse(BaseModel):
     response: str
@@ -427,6 +428,8 @@ async def chat_stream_endpoint(request: ChatRequest):
                     "domain_filter": None,
                     "chat_history": request.chat_history,
                     "context_cache": [],
+                    "image_url": request.image_url,  # 🆕 Vision analysis
+                    "image_analysis": None,  # 🆕 Will be filled by intent detector
                     "node_timings": {},
                     "routing_decisions": [],
                     "total_execution_time": 0.0,
@@ -558,6 +561,8 @@ async def chat_endpoint(request: ChatRequest):
             "domain_filter": None,
             "chat_history": request.chat_history,
             "context_cache": [],
+            "image_url": request.image_url,  # 🆕 Vision analysis
+            "image_analysis": None,  # 🆕 Will be filled by intent detector
             "node_timings": {},
             "routing_decisions": [],
             "total_execution_time": 0.0,
@@ -999,32 +1004,32 @@ async def toggle_debug():
 
 @app.get("/debug/messenger-history/{user_id}")
 async def get_messenger_history_debug(user_id: str, limit: int = 10):
-    """Debug endpoint to view messenger conversation history"""
+    """Debug endpoint to view messenger chat history"""
     try:
         with get_db() as conn:
             cursor = conn.cursor()
-            
             cursor.execute("""
-                SELECT message_role, message_content, created_at, message_id
+                SELECT message_role, message_content, created_at 
                 FROM messenger_history 
                 WHERE user_id = ? 
                 ORDER BY created_at DESC 
                 LIMIT ?
             """, (user_id, limit))
             
-            messages = []
-            for row in cursor.fetchall():
-                messages.append({
+            messages = cursor.fetchall()
+            
+            history = []
+            for row in messages:
+                history.append({
                     "role": row["message_role"],
-                    "content": row["message_content"][:200] + "..." if len(row["message_content"]) > 200 else row["message_content"],
-                    "timestamp": row["created_at"],
-                    "message_id": row["message_id"]
+                    "content": row["message_content"],
+                    "timestamp": row["created_at"]
                 })
             
             return {
                 "user_id": user_id,
-                "message_count": len(messages),
-                "messages": messages
+                "message_count": len(history),
+                "messages": history
             }
             
     except Exception as e:
@@ -1072,6 +1077,92 @@ async def webhook_handler_endpoint(request: Request):
         load_history_func=load_messenger_chat_history,
         save_message_func=save_messenger_message
     )
+
+# 🆕 VISION ANALYSIS TEST ENDPOINT
+@app.post("/debug/test-vision")
+async def test_vision_analysis(request: ChatRequest):
+    """Test endpoint for vision analysis functionality"""
+    
+    if not request.image_url:
+        raise HTTPException(status_code=400, detail="image_url is required for vision testing")
+    
+    try:
+        debug_print(f"📸 [VisionTest] Testing vision analysis with: {request.image_url[:100]}...", "🧪")
+        
+        # Create test conversation state
+        conversation_state = {
+            "user_query": request.message,
+            "detected_language": "en",
+            "intent": "other",
+            "product_names": [],
+            "original_query": "",
+            "optimized_queries": [],
+            "search_results": [],
+            "iteration": 0,
+            "final_response": "",
+            "escalate": False,
+            "domain_filter": None,
+            "chat_history": request.chat_history,
+            "context_cache": [],
+            "image_url": request.image_url,
+            "image_analysis": None,
+            "node_timings": {},
+            "routing_decisions": [],
+            "total_execution_time": 0.0,
+            "analytics_instance": None
+        }
+        
+        # Test just the intent detector with vision
+        from intent_detector import IntentDetector
+        detector = IntentDetector()
+        
+        # Analyze with vision
+        result_state = detector.detect(conversation_state)
+        
+        return {
+            "success": True,
+            "original_query": request.message,
+            "enhanced_query": result_state.get("user_query", ""),
+            "image_analysis": result_state.get("image_analysis", ""),
+            "detected_intent": result_state.get("intent", ""),
+            "detected_language": result_state.get("detected_language", ""),
+            "image_url": request.image_url
+        }
+        
+    except Exception as e:
+        debug_print(f"❌ [VisionTest] Error: {e}", "🚨")
+        raise HTTPException(status_code=500, detail=f"Vision analysis error: {str(e)}")
+
+# 🆕 VISION ANALYSIS EXAMPLES ENDPOINT
+@app.get("/debug/vision-examples")
+async def get_vision_examples():
+    """Get example image URLs for testing vision analysis"""
+    
+    examples = [
+        {
+            "name": "Coral with algae problem",
+            "url": "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800",
+            "description": "Example coral with algae issues",
+            "suggested_query": "Co to za problem z moimi koralami?"
+        },
+        {
+            "name": "Aquarium with equipment",
+            "url": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800", 
+            "description": "General aquarium setup",
+            "suggested_query": "Jak ustawić mój akwarium?"
+        },
+        {
+            "name": "Fish tank with plants",
+            "url": "https://images.unsplash.com/photo-1520637836862-4d197d17c669?w=800",
+            "description": "Freshwater aquarium with plants",
+            "suggested_query": "Moje rośliny nie rosną dobrze"
+        }
+    ]
+    
+    return {
+        "examples": examples,
+        "instructions": "Use POST /debug/test-vision with image_url and message to test vision analysis"
+    }
 
 def run_server():
     """Run the FastAPI server"""

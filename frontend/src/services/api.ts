@@ -64,12 +64,14 @@ class ApiService {
   async sendMessage(
     message: string, 
     chatHistory: Array<{role: string; content: string}> = [],
-    debug: boolean = false
+    debug: boolean = false,
+    imageUrl?: string
   ): Promise<ChatResponse> {
     const requestData: ChatRequest = {
       message,
       chat_history: chatHistory,
-      debug
+      debug,
+      image_url: imageUrl
     };
 
     return this.request<ChatResponse>('/chat', {
@@ -83,12 +85,14 @@ class ApiService {
     message: string,
     chatHistory: Array<{role: string; content: string}> = [],
     debug: boolean = false,
-    onUpdate: (update: WorkflowUpdate) => void
+    onUpdate: (update: WorkflowUpdate) => void,
+    imageUrl?: string
   ): Promise<string> {
     const requestData: ChatRequest = {
       message,
       chat_history: chatHistory,
-      debug
+      debug,
+      image_url: imageUrl
     };
 
     const url = `${API_BASE_URL}/chat/stream`;

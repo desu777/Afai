@@ -115,7 +115,8 @@ def main():
             "user_query": "", "detected_language": "en", "intent": "other", "product_names": [],
             "original_query": "", "optimized_queries": [], "search_results": [],
             "iteration": 0, "final_response": "",
-            "escalate": False, "domain_filter": None, "chat_history": [], "context_cache": []
+            "escalate": False, "domain_filter": None, "chat_history": [], "context_cache": [],
+            "image_url": None, "image_analysis": None  # 🆕 Vision analysis fields
         }
 
     conversation_state = get_new_state()
