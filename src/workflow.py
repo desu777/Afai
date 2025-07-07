@@ -14,7 +14,8 @@ from pinecone_client import search_products_k20
 # 🗑️ REMOVED: from results_filter import intelligent_results_filter - Business Reasoner does smart filtering
 from response_formatter import format_final_response, escalate_to_human, handle_follow_up
 import json
-from config import PRODUCTS_FILE_PATH, OPENAI_API_KEY, OPENAI_MODEL, TEST_ENV, debug_print, ENHANCED_K_VALUE
+from config import PRODUCTS_FILE_PATH, TEST_ENV, debug_print, ENHANCED_K_VALUE
+from llm_client_factory import LLMClientFactory
 
 def timing_wrapper(func):
     """Decorator to measure execution time of workflow nodes with analytics and streaming"""
@@ -183,7 +184,8 @@ def route_follow_up(state: ConversationState) -> str:
         return "handle_follow_up"
     
     # 🆕 Enhanced LLM check using both cache and chat history
-    client = OpenAI(api_key=OPENAI_API_KEY)
+    # Use intent detector for this simple classification task
+    client, model_name = LLMClientFactory.create_client("intent_detector")
     chat_history_formatted = "\n".join([f"{msg['role']}: {msg['content']}" for msg in state.get("chat_history", [])])
     
     # Create a more focused prompt with both sources
@@ -221,7 +223,7 @@ Respond with only "yes" if the query is about previous conversation content, or 
     
     try:
         response = client.chat.completions.create(
-            model=OPENAI_MODEL, 
+            model=model_name, 
             temperature=0, 
             messages=[{"role": "system", "content": prompt}]
         )

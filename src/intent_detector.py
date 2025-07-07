@@ -1,5 +1,6 @@
 """
-Intent and Language Detection Module - Enhanced Version 2.2 with Debug
+Intent and Language Detection Module - Enhanced Version 3.0 with OpenRouter
+🚀 Migrated to OpenRouter per-node configuration (2025)
 Detects user intent and language from the query with better context understanding
 """
 import json
@@ -8,12 +9,16 @@ from pathlib import Path
 from typing import Dict, Any
 from openai import OpenAI
 from models import ConversationState, Intent, IntentDetectionResult
-from config import OPENAI_API_KEY, OPENAI_MODEL, OPENAI_TEMPERATURE, TEST_ENV, debug_print
+from config import OPENAI_TEMPERATURE, TEST_ENV, debug_print
 from prompts import load_prompt_template
+from llm_client_factory import create_intent_detector_client
 
 class IntentDetector:
     def __init__(self):
-        self.client = OpenAI(api_key=OPENAI_API_KEY)
+        self.client, self.model_name = create_intent_detector_client()
+        
+        if TEST_ENV:
+            debug_print(f"🎯 [IntentDetector] Initialized with model: {self.model_name}")
         
         # 🆕 Load competitors mapping for better detection
         self.competitors_list = self._load_competitors()
@@ -117,7 +122,7 @@ Return ONLY a valid JSON object:
         
         try:
             response = self.client.chat.completions.create(
-                model=OPENAI_MODEL,
+                model=self.model_name,
                 temperature=OPENAI_TEMPERATURE,
                 messages=[
                     {"role": "system", "content": self._create_intent_prompt(state)}

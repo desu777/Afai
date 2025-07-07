@@ -1,5 +1,6 @@
 """
-Query Optimization Module - Version 3.0 with Category Support
+Query Optimization Module - Version 4.0 with OpenRouter
+🚀 Migrated to OpenRouter per-node configuration (2025)
 Enhanced to work with business reasoner's category detection
 """
 import json
@@ -7,12 +8,16 @@ import re
 from typing import List, Dict
 from openai import OpenAI
 from models import ConversationState, QueryOptimizationResult
-from config import OPENAI_API_KEY, OPENAI_MODEL2, OPENAI_TEMPERATURE, PRODUCTS_FILE_PATH, TEST_ENV, debug_print
+from config import OPENAI_TEMPERATURE, PRODUCTS_FILE_PATH, TEST_ENV, debug_print
 from prompts import load_prompt_template
+from llm_client_factory import create_query_optimizer_client
 
 class QueryOptimizer:
     def __init__(self):
-        self.client = OpenAI(api_key=OPENAI_API_KEY)
+        self.client, self.model_name = create_query_optimizer_client()
+        
+        if TEST_ENV:
+            debug_print(f"🔍 [QueryOptimizer] Initialized with model: {self.model_name}")
         self.product_names = self._load_product_names()
         
     def _load_product_names(self) -> List[str]:
@@ -245,7 +250,7 @@ Return JSON: {{"optimized_queries": ["{query}"]}}
             enhanced_state["guaranteed_products"] = list(guaranteed_products)
             
             response = self.client.chat.completions.create(
-                model=OPENAI_MODEL2,
+                model=self.model_name,
                 temperature=OPENAI_TEMPERATURE,
                 messages=[
                     {

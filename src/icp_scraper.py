@@ -9,10 +9,18 @@ from typing import Dict, List
 from config import debug_print
 import json
 from openai import OpenAI
-from config import OPENAI_API_KEY, OPENAI_MODEL2
+from config import TEST_ENV
+from llm_client_factory import LLMClientFactory
 
 class ICPScraper:
     """Web scraper for Aquaforest Lab ICP test results"""
+    
+    def __init__(self):
+        # Use query optimizer for ICP text analysis (simple task)
+        self.client, self.model_name = LLMClientFactory.create_client("query_optimizer")
+        
+        if TEST_ENV:
+            debug_print(f"🔬 [ICPScraper] Initialized with model: {self.model_name}")
     
     def extract_icp_data_from_url(self, url: str) -> Dict:
         """🆕 Extract ICP test data from Aquaforest Lab URL"""
@@ -284,10 +292,7 @@ class ICPScraper:
     def extract_structured_recommendations(self, raw_data: str, metadata: Dict = None) -> Dict:
         """📋 Extract structured recommendations using GPT-4o-mini from raw ICP page data"""
         try:
-            # Initialize OpenAI client
-            client = OpenAI(api_key=OPENAI_API_KEY)
-            
-            # Create prompt for GPT-4o-mini to analyze raw ICP data
+            # Use configured client for ICP analysis
             prompt = f"""
 You are an expert marine aquarium analyst. Analyze the RAW ICP test results page content and extract structured recommendations with products and dosages.
 
@@ -347,9 +352,9 @@ Focus on:
 
 Return ONLY the JSON object, no explanations."""
 
-            # Call GPT-4o-mini
-            response = client.chat.completions.create(
-                model=OPENAI_MODEL2,  # gpt-4o-mini
+            # Call configured model
+            response = self.client.chat.completions.create(
+                model=self.model_name,
                 temperature=0.1,
                 messages=[{"role": "user", "content": prompt}],
                 response_format={"type": "json_object"}

@@ -31,18 +31,26 @@ PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "aqua")
 PINECONE_ENVIRONMENT = os.getenv("PINECONE_ENVIRONMENT", "us-east-1-aws")
 
-# OpenAI Configuration
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")  # Complex tasks (Business Reasoner, Response Formatter)
-OPENAI_MODEL2 = os.getenv("OPENAI_MODEL2", "gpt-4o-mini")  # Simple tasks (Intent Detection, Query Optimizer, Confidence)
+# 🚀 OpenRouter Per-Node Configuration (2025)
+# Per-node API keys: each workflow component has its own OpenRouter API key
+INTENT_DETECTOR_API = os.getenv("INTENT_DETECTOR_API")
+BUSINESS_REASONER_API = os.getenv("BUSINESS_REASONER_API")
+QUERY_OPTIMIZER_API = os.getenv("QUERY_OPTIMIZER_API")
+RESPONSE_FORMATTER_API = os.getenv("RESPONSE_FORMATTER_API")
+
+# Per-node model selection: each workflow component can use different model
+INTENT_DETECTOR_MODEL = os.getenv("INTENT_DETECTOR_MODEL")
+BUSINESS_REASONER_MODEL = os.getenv("BUSINESS_REASONER_MODEL")
+QUERY_OPTIMIZER_MODEL = os.getenv("QUERY_OPTIMIZER_MODEL")
+RESPONSE_FORMATTER_MODEL = os.getenv("RESPONSE_FORMATTER_MODEL")
+
+# Fallback API Keys
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # Keep for backwards compatibility
+
+# Common settings
 OPENAI_EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
 OPENAI_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS", "16384"))
-OPENAI_TEMPERATURE = float(os.getenv("OPENAI_TEMPERATURE", "0.3"))
-
-# 🆕 OpenRouter Configuration (2025)
-USE_OPENROUTER = os.getenv("USE_OPENROUTER", "false").lower() == "true"
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-OPENROUTER_MODEL_COMPLEX = os.getenv("OPENROUTER_MODEL_COMPLEX", "qwen/qwen3-32b")  # Default to Qwen3 32B
+OPENAI_TEMPERATURE = float(os.getenv("OPENAI_TEMPERATURE", "0.3"))  # Default to Qwen3 32B
 
 # App Configuration
 DEFAULT_K_VALUE = int(os.getenv("DEFAULT_K_VALUE", "12"))
@@ -72,12 +80,23 @@ COMPETITORS = [
 # Validate required variables
 if not PINECONE_API_KEY:
     raise ValueError("PINECONE_API_KEY is required")
-if not OPENAI_API_KEY:
-    raise ValueError("OPENAI_API_KEY is required")
+
+# Validate per-node API keys
+missing_api_keys = []
+if not INTENT_DETECTOR_API:
+    missing_api_keys.append("INTENT_DETECTOR_API")
+if not BUSINESS_REASONER_API:
+    missing_api_keys.append("BUSINESS_REASONER_API")
+if not QUERY_OPTIMIZER_API:
+    missing_api_keys.append("QUERY_OPTIMIZER_API")
+if not RESPONSE_FORMATTER_API:
+    missing_api_keys.append("RESPONSE_FORMATTER_API")
+
+if missing_api_keys:
+    raise ValueError(f"Missing per-node API keys: {', '.join(missing_api_keys)}")
+
 if MESSENGER_ON and not MESSENGER_PAGE_ACCESS_TOKEN:
     raise ValueError("MESSENGER_TOKEN is required when MESSENGER_ON=true")
-if USE_OPENROUTER and not OPENROUTER_API_KEY:
-    raise ValueError("OPENROUTER_API_KEY is required when USE_OPENROUTER=true")
 
 # Print configuration status on import (only in debug mode)
 if TEST_ENV:
@@ -87,12 +106,12 @@ if TEST_ENV:
     print(f"📍 Debug Mode: ENABLED")
     print(f"📍 Business Mappings: {'DISABLED' if DISABLE_BUSINESS_MAPPINGS else 'ENABLED'}")
     print(f"📍 Competitors Only: {'ENABLED' if ENABLE_COMPETITORS_ONLY else 'DISABLED'}")
-    print(f"📍 OpenAI Model (Complex): {OPENAI_MODEL}")
-    print(f"📍 OpenAI Model (Simple): {OPENAI_MODEL2}")
+    print(f"🚀 OpenRouter Per-Node Configuration (2025)")
+    print(f"🎯 Intent Detector: {INTENT_DETECTOR_API[:12]}... → {INTENT_DETECTOR_MODEL}")
+    print(f"🧠 Business Reasoner: {BUSINESS_REASONER_API[:12]}... → {BUSINESS_REASONER_MODEL}")
+    print(f"🔍 Query Optimizer: {QUERY_OPTIMIZER_API[:12]}... → {QUERY_OPTIMIZER_MODEL}")
+    print(f"📝 Response Formatter: {RESPONSE_FORMATTER_API[:12]}... → {RESPONSE_FORMATTER_MODEL}")
     print(f"📍 Embedding Model: {OPENAI_EMBEDDING_MODEL}")
-    print(f"🚀 OpenRouter: {'ENABLED' if USE_OPENROUTER else 'DISABLED'}")
-    if USE_OPENROUTER:
-        print(f"📍 OpenRouter Model (Complex): {OPENROUTER_MODEL_COMPLEX}")
     print(f"📍 Pinecone Index: {PINECONE_INDEX_NAME}")
     print(f"📍 Default K Value: {DEFAULT_K_VALUE}")
     print(f"📍 Enhanced K Value: {ENHANCED_K_VALUE}")  

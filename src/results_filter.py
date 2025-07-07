@@ -7,12 +7,14 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import List, Dict, Any, Tuple
 from openai import OpenAI
 from models import ConversationState
-from config import OPENAI_API_KEY, OPENAI_MODEL, OPENAI_TEMPERATURE, TEST_ENV, ENHANCED_K_VALUE
+from config import OPENAI_TEMPERATURE, TEST_ENV, ENHANCED_K_VALUE
+from llm_client_factory import LLMClientFactory
 from prompts import load_prompt_template
 
 class DynamicParallelResultsFilter:
     def __init__(self):
-        self.client = OpenAI(api_key=OPENAI_API_KEY)
+        # Use business reasoner for filtering logic
+        self.client, self.model_name = LLMClientFactory.create_client("business_reasoner")
         self.chunk_size = ENHANCED_K_VALUE // 2
         if TEST_ENV:
             print(f"🔧 [DynamicFilter] Using ENHANCED_K_VALUE={ENHANCED_K_VALUE}, chunk_size={self.chunk_size}")
@@ -91,7 +93,7 @@ Return JSON: {{"keep_indices": {list(range(len(chunk_results)))}, "reasoning": "
             prompt = self._create_chunk_filter_prompt(state, chunk_results, chunk_num)
             
             response = self.client.chat.completions.create(
-                model=OPENAI_MODEL,
+                model=self.model_name,
                 temperature=0.1,
                 messages=[{"role": "system", "content": prompt}],
                 response_format={"type": "json_object"}

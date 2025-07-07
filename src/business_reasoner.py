@@ -1,6 +1,6 @@
 """
-Business Logic Reasoner - VERSION 4.1 REFACTORED
-🚀 Complete LLM-based business intelligence with clean architecture
+Business Logic Reasoner - VERSION 5.0 with OpenRouter
+🚀 Complete LLM-based business intelligence with OpenRouter per-node configuration
 Separated web scraping and prompt template for better organization
 Maintains same class names and API for seamless integration
 """
@@ -11,9 +11,10 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Set
 from openai import OpenAI
 from models import ConversationState, Intent
-from config import OPENAI_API_KEY, OPENAI_MODEL, TEST_ENV, debug_print, PRODUCTS_FILE_PATH, DISABLE_BUSINESS_MAPPINGS, ENABLE_COMPETITORS_ONLY
+from config import TEST_ENV, debug_print, PRODUCTS_FILE_PATH, DISABLE_BUSINESS_MAPPINGS, ENABLE_COMPETITORS_ONLY
 from icp_scraper import ICPScraper  # 🆕 Separated web scraping
 from prompts import load_prompt_template  # 🆕 External prompt template
+from llm_client_factory import create_business_reasoner_client
 
 class BusinessReasoner:
     """
@@ -21,7 +22,10 @@ class BusinessReasoner:
     Maintains same API for backward compatibility
     """
     def __init__(self):
-        self.client = OpenAI(api_key=OPENAI_API_KEY)
+        self.client, self.model_name = create_business_reasoner_client()
+        
+        if TEST_ENV:
+            debug_print(f"🧠 [BusinessReasoner] Initialized with model: {self.model_name}")
         self.icp_scraper = ICPScraper()  # 🆕 Separated ICP scraping
         
         # Load all data sources for comprehensive LLM analysis
@@ -233,7 +237,7 @@ Return JSON with product recommendations and business analysis.
             
             # Call GPT-4.1-mini with JSON mode (more reliable than structured outputs)
             response = self.client.chat.completions.create(
-                model=OPENAI_MODEL,  # Should be gpt-4.1-mini
+                model=self.model_name,  # OpenRouter per-node model
                 temperature=0.1,  # Low for consistency
                 messages=[{"role": "system", "content": prompt}],
                 response_format={"type": "json_object"}  # JSON mode

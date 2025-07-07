@@ -1,49 +1,24 @@
 """
-Response Formatting Module - VERSION 6.0 with OpenRouter Support 
-🚀 Enhanced with OpenRouter integration for 2025 model alternatives
-Supports GPT-4.1-mini halucination mitigation with Qwen3, DeepSeek R1, and other models
+Response Formatting Module - VERSION 7.0 with OpenRouter Per-Node
+🚀 Fully migrated to OpenRouter per-node configuration (2025)
+Unified client management with per-node model selection
 """
 from typing import List, Dict, Any, Optional
 import json
 import re
 from openai import OpenAI
 from models import ConversationState, ProductInfo, Intent, Domain
-from config import (
-    OPENAI_API_KEY, OPENAI_MODEL, OPENAI_MODEL2, OPENAI_TEMPERATURE, TEST_ENV, debug_print,
-    USE_OPENROUTER, OPENROUTER_API_KEY, OPENROUTER_MODEL_COMPLEX
-)
+from config import OPENAI_TEMPERATURE, TEST_ENV, debug_print
 from calculation_helper import calculation_helper
 from prompts import load_prompt_template
-
-def create_llm_client():
-    """
-    🆕 2025: Create LLM client based on configuration (OpenAI or OpenRouter)
-    Returns either OpenAI client or OpenRouter-compatible client
-    """
-    if USE_OPENROUTER:
-        debug_print(f"🚀 [LLMClient] Using OpenRouter with model: {OPENROUTER_MODEL_COMPLEX}")
-        return OpenAI(
-            api_key=OPENROUTER_API_KEY,
-            base_url="https://openrouter.ai/api/v1"
-        )
-    else:
-        debug_print(f"🔧 [LLMClient] Using OpenAI with model: {OPENAI_MODEL}")
-        return OpenAI(api_key=OPENAI_API_KEY)
-
-def get_model_name():
-    """Get the appropriate model name based on configuration"""
-    if USE_OPENROUTER:
-        return OPENROUTER_MODEL_COMPLEX
-    else:
-        return OPENAI_MODEL
+from llm_client_factory import create_response_formatter_client
 
 class ResponseFormatter:
     def __init__(self):
-        self.client = create_llm_client()
-        self.model_name = get_model_name()
+        self.client, self.model_name = create_response_formatter_client()
         
         if TEST_ENV:
-            debug_print(f"📝 [ResponseFormatter] Initialized with {'OpenRouter' if USE_OPENROUTER else 'OpenAI'} client")
+            debug_print(f"📝 [ResponseFormatter] Initialized with OpenRouter per-node configuration")
             debug_print(f"🎯 [ResponseFormatter] Using model: {self.model_name}")
         
         self.dosage_keywords = [
@@ -435,18 +410,18 @@ Show enthusiasm for reef-keeping while addressing their needs.
 """
 
     def _generate_special_intent_response(self, state: ConversationState) -> str:
-        """🆕 Generate response for special intents using cheaper OPENAI_MODEL2"""
+        """🆕 Generate response for special intents using per-node configured model"""
         prompt = self._create_special_intent_prompt(state)
         intent = state.get("intent", "other")
         
         if TEST_ENV:
-            print(f"💰 [DEBUG ResponseFormatter] Using OPENAI_MODEL2 for special intent: {intent}")
+            print(f"💰 [DEBUG ResponseFormatter] Using per-node model for special intent: {intent}")
         
         try:
-            # Use cheaper model for simple intents
-            client = OpenAI(api_key=OPENAI_API_KEY)
+            # Use configured model for simple intents
+            client, model_name = create_response_formatter_client()
             response = client.chat.completions.create(
-                model=OPENAI_MODEL2,  # 🆕 Use cheaper model
+                model=model_name,  # 🆕 Use per-node configured model
                 temperature=OPENAI_TEMPERATURE,
                 messages=[{"role": "system", "content": prompt}]
             )
@@ -707,9 +682,9 @@ Respond in {lang} language.
 """
     
     try:
-        client = create_llm_client()
+        client, model_name = create_response_formatter_client()
         response = client.chat.completions.create(
-            model=get_model_name(),
+            model=model_name,
             temperature=OPENAI_TEMPERATURE,
             messages=[{"role": "system", "content": escalation_prompt}]
         )
@@ -728,10 +703,10 @@ def handle_follow_up(state: ConversationState) -> ConversationState:
         print(f"\n🔄 [DEBUG Follow-up Handler] Handling follow-up question with cache")
         
     try:
-        client = create_llm_client()
+        client, model_name = create_response_formatter_client()
         prompt = _create_follow_up_prompt(state)
         response = client.chat.completions.create(
-            model=get_model_name(),
+            model=model_name,
             temperature=OPENAI_TEMPERATURE,
             messages=[{"role": "system", "content": prompt}]
         )
