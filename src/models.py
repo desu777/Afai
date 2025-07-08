@@ -80,6 +80,11 @@ class ConversationState(TypedDict):
     search_enhancement_keywords: Optional[List[str]]
     trending_products: Optional[List[str]]
     response_strategy: Optional[str]
+    
+    # 🆕 FOLLOW-UP ROUTER FIELDS
+    follow_up_evaluation: Optional[Dict[str, Any]]
+    cache_response_data: Optional[Dict[str, Any]]
+    smart_business_prompt: Optional[str]
 
 class SearchResult(BaseModel):
     """Pinecone search result with metadata"""

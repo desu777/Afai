@@ -209,6 +209,17 @@ def main():
             conversation_state["user_query"] = user_input
             conversation_state["iteration"] = 0
 
+            # 🔧 DEBUG: Session ID tracking zgodnie z rules (TEST_ENV)
+            if config.TEST_ENV or debug_mode:
+                print(f"🔍 [DEBUG Main] Processing query with session_id: {conversation_state.get('session_id', 'NONE')}")
+                from session_manager import get_session_manager
+                session_manager = get_session_manager()
+                existing_cache = session_manager.get_session_cache(conversation_state.get('session_id'))
+                if existing_cache:
+                    print(f"✅ [DEBUG Main] Found existing cache with {len(existing_cache.get('metadata', []))} items")
+                else:
+                    print(f"⚠️ [DEBUG Main] No existing cache found for session")
+
             print("\n🤖 Assistant: ", end="", flush=True)
             
             updated_state = assistant.process_query_sync(conversation_state, debug=debug_mode)

@@ -562,6 +562,12 @@ Show enthusiasm for reef-keeping while addressing their needs.
             if TEST_ENV:
                 print(f"\n🔨 [DEBUG ResponseFormatter] Generating final response...")
             
+            # 🔧 PRIORITY: Check if this is a follow-up with cache response data
+            if state.get("cache_response_data"):
+                if TEST_ENV:
+                    print(f"🔄 [DEBUG ResponseFormatter] Using cached response data for follow-up")
+                return self._generate_cache_based_response(state)
+            
             # 🆕 Check if this is a special intent - use cheaper model
             intent = state.get("intent", "product_query")
             if intent in [Intent.GREETING, Intent.BUSINESS, Intent.PURCHASE_INQUIRY, 
@@ -649,6 +655,79 @@ Show enthusiasm for reef-keeping while addressing their needs.
                 extended_cache["conversation_context"][field] = state[field]
         
         return extended_cache
+
+    def _generate_cache_based_response(self, state: ConversationState) -> ConversationState:
+        """Generate response for follow-up questions using cached data
+        🔧 FIXED: Handle cache-based follow-up responses efficiently
+        """
+        try:
+            if TEST_ENV:
+                print(f"🔄 [DEBUG ResponseFormatter] Generating cache-based response")
+            
+            cached_data = state["cache_response_data"]
+            lang = state.get("detected_language", "en")
+            user_query = state.get("user_query", "")
+            
+            # Format cached metadata for prompt
+            cached_metadata = cached_data.get("metadata", [])
+            formatted_metadata = ""
+            
+            # 🔧 CHANGED: Include ALL cached metadata items, not just top 5
+            for i, meta in enumerate(cached_metadata):
+                product_name = meta.get("product_name", "Unknown")
+                description = meta.get("full_content_en", meta.get("full_content_pl", ""))
+                if len(description) > 200:
+                    description = description[:200] + "..."
+                url = meta.get("url_pl" if lang == "pl" else "url_en", "")
+                
+                formatted_metadata += f"""
+ Product {i+1}: {product_name}
+ Description: {description}
+ URL: {url}
+
+ """
+            
+            # Get previous responses for context
+            previous_responses = cached_data.get("previous_responses", [])
+            context_responses = ""
+            if previous_responses:
+                # 🔧 CHANGED: Include ALL previous responses for full context
+                for i, resp in enumerate(previous_responses):
+                    snippet = resp if len(resp) <= 300 else resp[:300] + "..."
+                    context_responses += f"Previous Response {i+1}: {snippet}\n\n"
+            
+            # Create prompt for cache-based response using external template
+            prompt = load_prompt_template(
+                "response_followup_cache",
+                formatted_metadata=formatted_metadata,
+                context_responses=context_responses,
+                user_query=user_query,
+                lang=lang
+            )
+            if not prompt:
+                # Fallback to previous inline prompt if template missing
+                prompt = f"Cached data present but template missing. Answer user's question: {user_query}"
+            
+            # Generate response using cached data
+            response = self.client.chat.completions.create(
+                model=self.model_name,
+                temperature=OPENAI_TEMPERATURE,
+                messages=[{"role": "system", "content": prompt}]
+            )
+            
+            state["final_response"] = response.choices[0].message.content
+            
+            if TEST_ENV:
+                print(f"✅ [DEBUG ResponseFormatter] Cache-based response generated ({len(state['final_response'])} characters)")
+            
+            return state
+            
+        except Exception as e:
+            if TEST_ENV:
+                print(f"❌ [DEBUG ResponseFormatter] Cache-based response error: {e}")
+            # Fallback to error handling
+            state["final_response"] = self._handle_error(e, state)
+            return state
 
     def _handle_error(self, error: Exception, state: ConversationState) -> str:
         """Enhanced error handling for formatting failures"""

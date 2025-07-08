@@ -129,17 +129,20 @@ Consider:
 2. Are there previous responses that address similar questions?
 3. Is the context sufficient to understand what the user is asking about?
 4. Can you provide specific details (dosage, usage, comparisons) from the cache?
+5. Can you reliably **augment** the cached information with your own domain knowledge to fill minor gaps?
+
+If you can combine the cache **plus** your own knowledge to generate a complete, helpful answer, mark it as **sufficient**.
 
 Respond in JSON format:
 {{
     "sufficient": true/false,
     "confidence": 0.0-1.0,
     "reasoning": "Detailed explanation of your decision",
-    "key_findings": ["specific relevant information found in cache"],
+    "key_findings": ["specific relevant information found in cache or domain knowledge"],
     "missing_info": ["what information is missing if insufficient"]
 }}
 
-Be conservative - only mark as sufficient if you can provide a complete, helpful answer."""
+Be conservative, but you may leverage your own knowledge to complement the cache when deciding sufficiency."""
     
     def _parse_evaluation_response(self, response_text: str) -> Dict[str, Any]:
         """Parse evaluation response from Gemini Flash"""

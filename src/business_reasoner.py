@@ -228,6 +228,33 @@ Return JSON with product recommendations and business analysis.
 
         return prompt
     
+    def _robust_json_parse(self, text: str) -> Dict:
+        """Attempt to extract and parse a JSON object from arbitrary LLM output."""
+        try:
+            # Direct parse
+            return json.loads(text)
+        except Exception:
+            # Strip code fences ```json ... ``` or ``` ... ```
+            if "```" in text:
+                # Keep everything between the first pair of fences that contains '{'
+                blocks = text.split("```")
+                for block in blocks:
+                    if "{" in block and "}" in block:
+                        candidate = block[block.find("{"): block.rfind("}")+1]
+                        try:
+                            return json.loads(candidate)
+                        except Exception:
+                            continue
+            # Fallback: extract substring between first '{' and last '}'
+            if "{" in text and "}" in text:
+                candidate = text[text.find("{") : text.rfind("}")+1]
+                try:
+                    return json.loads(candidate)
+                except Exception:
+                    pass
+            # Give up
+            raise ValueError("Unable to parse JSON from LLM output")
+    
     def _analyze_with_full_llm(self, state: ConversationState) -> Dict:
         """🚀 Pure LLM analysis using all mapping data with GPT-4.1-mini"""
         
@@ -244,7 +271,13 @@ Return JSON with product recommendations and business analysis.
             )
             
             # Parse the JSON response
-            decision_data = json.loads(response.choices[0].message.content)
+            raw_content = response.choices[0].message.content
+            try:
+                decision_data = json.loads(raw_content)
+            except json.JSONDecodeError:
+                # 🔧 Fallback robust parsing for models that add prose or code fences
+                decision_data = self._robust_json_parse(raw_content)
+            
             debug_print(f"🤖 [BusinessReasoner] Full LLM analysis completed")
             
             if TEST_ENV:

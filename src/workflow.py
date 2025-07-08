@@ -60,7 +60,6 @@ def timing_wrapper(func):
         return result
     return wrapper
 
-@timing_wrapper
 def load_product_names(state: ConversationState) -> ConversationState:
     """Load product names into state"""
     try:
@@ -107,9 +106,10 @@ def route_intent(state: ConversationState) -> str:
         state["routing_decisions"][-1]["next_node"] = "format_response"
         return "format_response"
 
-@timing_wrapper
 def enhanced_follow_up_router(state: ConversationState) -> ConversationState:
-    """Enhanced follow-up router with session-based cache and Flash 2.0 evaluation"""
+    """Enhanced follow-up router with session-based cache and Flash 2.0 evaluation
+    🔧 FIXED: Removed double timing_wrapper to eliminate state synchronization issues
+    """
     from session_manager import get_session_manager
     from follow_up_evaluator import evaluate_follow_up_cache
     
@@ -160,7 +160,9 @@ def enhanced_follow_up_router(state: ConversationState) -> ConversationState:
     return state
 
 def route_enhanced_follow_up(state: ConversationState) -> str:
-    """Enhanced follow-up router based on Flash 2.0 evaluation"""
+    """Enhanced follow-up router based on Flash 2.0 evaluation with confidence threshold
+    🔧 ADDED: Confidence threshold 0.7 - use cache if confidence >= 0.7
+    """
     # Store routing decision for analytics
     if "routing_decisions" not in state:
         state["routing_decisions"] = []
@@ -177,19 +179,40 @@ def route_enhanced_follow_up(state: ConversationState) -> str:
         })
         return "business_reasoner"
     
-    if evaluation["sufficient"]:
-        debug_print(f"✅ [Enhanced Follow-up Router] Cache sufficient - routing to format_response")
+    # 🔧 NEW: Confidence threshold logic - override LLM decision if confidence >= 0.7
+    confidence = evaluation.get("confidence", 0.0)
+    sufficient = evaluation.get("sufficient", False)
+    
+    # Use cache if either LLM says sufficient OR confidence >= 0.7
+    use_cache = sufficient or confidence >= 0.7
+    
+    if use_cache:
+        # Ensure cache_response_data is prepared for threshold override cases
+        if not state.get("cache_response_data") and confidence >= 0.7:
+            # Prepare cache data for threshold override
+            from session_manager import get_session_manager
+            session_manager = get_session_manager()
+            session_id = state.get("session_id")
+            if session_id:
+                extended_cache = session_manager.get_session_cache(session_id)
+                if extended_cache:
+                    from follow_up_evaluator import follow_up_evaluator
+                    response_data = follow_up_evaluator._prepare_response_data(state, extended_cache)
+                    state["cache_response_data"] = response_data
+        
+        decision_reason = "cache_sufficient" if sufficient else f"confidence_threshold_override_{confidence:.2f}"
+        debug_print(f"✅ [Enhanced Follow-up Router] Using cache (sufficient={sufficient}, confidence={confidence:.2f}) - routing to format_response")
         state["routing_decisions"].append({
             "router": "route_enhanced_follow_up", 
-            "decision": f"cache_sufficient_confidence_{evaluation['confidence']}",
+            "decision": decision_reason,
             "next_node": "format_response"
         })
         return "format_response"
     else:
-        debug_print(f"❌ [Enhanced Follow-up Router] Cache insufficient - routing to business_reasoner")
+        debug_print(f"❌ [Enhanced Follow-up Router] Cache insufficient (sufficient={sufficient}, confidence={confidence:.2f} < 0.7) - routing to business_reasoner")
         state["routing_decisions"].append({
             "router": "route_enhanced_follow_up",
-            "decision": f"cache_insufficient: {evaluation['reasoning'][:50]}...",
+            "decision": f"confidence_below_threshold_{confidence:.2f}: {evaluation['reasoning'][:50]}...",
             "next_node": "business_reasoner"
         })
         return "business_reasoner"
@@ -206,19 +229,19 @@ def create_workflow() -> StateGraph:
     
     # Add nodes with timing wrapper
     nodes = [
-        ("detect_intent", detect_intent_and_language),
-        ("load_products", load_product_names),
-        ("business_reasoner", business_reasoner),
-        ("optimize_query", optimize_product_query),
-        ("search_pinecone", search_products_k20),
+        ("detect_intent", timing_wrapper(detect_intent_and_language)),
+        ("load_products", timing_wrapper(load_product_names)),
+        ("business_reasoner", timing_wrapper(business_reasoner)),
+        ("optimize_query", timing_wrapper(optimize_product_query)),
+        ("search_pinecone", timing_wrapper(search_products_k20)),
         # 🗑️ REMOVED: ("evaluate_confidence", evaluate_confidence) - CONFIDENCE SCORER DELETED
-        ("format_response", format_final_response),
-
+        ("format_response", timing_wrapper(format_final_response)),
+        # 🔧 FIXED: No timing_wrapper to avoid double wrapping
         ("enhanced_follow_up_router", enhanced_follow_up_router)
     ]
     
     for node_name, node_func in nodes:
-        workflow.add_node(node_name, timing_wrapper(node_func))
+        workflow.add_node(node_name, node_func)
         debug_print(f"   ➕ Added node: {node_name}")
     
     # Define edges
@@ -235,6 +258,7 @@ def create_workflow() -> StateGraph:
     )
     # Business reasoner now only handles product queries
     workflow.add_edge("business_reasoner", "optimize_query")
+    # 🔧 FIXED: Enhanced follow-up router with proper conditional edge function
     workflow.add_conditional_edges(
         "enhanced_follow_up_router", route_enhanced_follow_up,
         {
