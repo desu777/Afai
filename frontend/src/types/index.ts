@@ -11,6 +11,7 @@ export interface ChatRequest {
   chat_history: Array<{role: string; content: string}>;
   debug: boolean;
   image_url?: string;
+  session_id?: string;
 }
 
 export interface ChatResponse {
@@ -18,6 +19,7 @@ export interface ChatResponse {
   success: boolean;
   error?: string;
   execution_time?: number;
+  session_id?: string;
 }
 
 export interface FeedbackRequest {

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Message, WorkflowUpdate } from '../types'
 import { apiService } from '../services/api'
 import Sidebar from './Sidebar'
@@ -22,6 +22,37 @@ const ChatInterface: React.FC = () => {
   const [currentWorkflowUpdate, setCurrentWorkflowUpdate] = useState<WorkflowUpdate | undefined>(undefined);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+
+  // 🆕 Session ID localStorage management
+  useEffect(() => {
+    const storedSessionId = localStorage.getItem('af_session_id');
+    if (storedSessionId) {
+      setSessionId(storedSessionId);
+      
+      // Debug log
+      if (import.meta.env.VITE_TEST_ENV === 'true') {
+        console.log('🆔 [Session] Loaded session ID from localStorage:', storedSessionId);
+      }
+    }
+  }, []);
+
+  // 🆕 Function to update session ID
+  const updateSessionId = (newSessionId: string | null) => {
+    setSessionId(newSessionId);
+    
+    if (newSessionId) {
+      localStorage.setItem('af_session_id', newSessionId);
+      if (import.meta.env.VITE_TEST_ENV === 'true') {
+        console.log('🆔 [Session] Saved session ID to localStorage:', newSessionId);
+      }
+    } else {
+      localStorage.removeItem('af_session_id');
+      if (import.meta.env.VITE_TEST_ENV === 'true') {
+        console.log('🆔 [Session] Removed session ID from localStorage');
+      }
+    }
+  };
 
   // 🆕 Funkcja konwersji pliku na base64 data URL
   const convertFileToBase64 = (file: File): Promise<string> => {
@@ -35,6 +66,17 @@ const ChatInterface: React.FC = () => {
 
   const handleSend = async () => {
     if (!inputValue.trim() || isLoading) return;
+
+    // 🆕 Generate session ID if none exists (for first-time users)
+    let currentSessionId = sessionId;
+    if (!currentSessionId) {
+      currentSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      updateSessionId(currentSessionId);
+      
+      if (import.meta.env.VITE_TEST_ENV === 'true') {
+        console.log('🆔 [Chat] Generated new session ID on frontend:', currentSessionId);
+      }
+    }
 
     const userMessageId = messages.length + 1;
     
@@ -81,6 +123,7 @@ const ChatInterface: React.FC = () => {
         console.log('🔍 [Chat] Sending streaming message:', currentInput);
         console.log('🔍 [Chat] Chat history:', chatHistory);
         console.log('🔍 [Chat] Image URL:', imageUrl ? 'Present' : 'None');
+        console.log('🆔 [Chat] Session ID:', currentSessionId);
       }
 
       // 🚀 Use streaming API with workflow updates
@@ -98,7 +141,8 @@ const ChatInterface: React.FC = () => {
             console.log('✅ [Chat] currentWorkflowUpdate state updated');
           }
         },
-        imageUrl  // 🆕 Przekazanie image_url
+        imageUrl,  // 🆕 Przekazanie image_url
+        currentSessionId  // 🆕 Przekazanie session_id
       );
 
       if (debugMode) {
@@ -144,6 +188,7 @@ const ChatInterface: React.FC = () => {
     setIsLoading(false);
     setActiveView('chat');
     setSelectedImage(null);  // 🆕 Resetuj wybrany obrazek
+    updateSessionId(null);   // 🆕 Clear session ID for new chat
   };
 
   const handleAuthenticate = (level: 'test' | 'admin') => {

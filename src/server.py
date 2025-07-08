@@ -391,9 +391,18 @@ async def chat_stream_endpoint(request: ChatRequest):
     Streaming chat endpoint that provides real-time workflow updates via Server-Sent Events
     """
     def generate_stream():
-        # 🆕 Create dedicated analytics instance for this stream with unique ID
-        import uuid
-        session_id = str(uuid.uuid4())[:8]  # Short unique identifier
+        # 🆕 Handle session management using SessionManager
+        from session_manager import get_session_manager
+        session_manager = get_session_manager()
+        
+        session_id = request.session_id
+        if not session_id:
+            # Generate new session for first-time users
+            session_id = session_manager.generate_session_id()
+            debug_print(f"🆕 [StreamServer] Generated new session: {session_id}")
+        else:
+            debug_print(f"🔄 [StreamServer] Using existing session: {session_id}")
+        
         session_analytics = WorkflowAnalytics()
         session_analytics.reset()
         
@@ -415,7 +424,7 @@ async def chat_stream_endpoint(request: ChatRequest):
             try:
                 debug_print(f"📨 [StreamServer] Session {session_id} - Received streaming chat request: {request.message[:50]}...", "🔍")
                 
-                # Create conversation state with session analytics
+                # Create conversation state with session analytics and session management
                 conversation_state = {
                     "user_query": request.message,
                     "detected_language": "en",
@@ -430,6 +439,8 @@ async def chat_stream_endpoint(request: ChatRequest):
                     "domain_filter": None,
                     "chat_history": request.chat_history,
                     "context_cache": [],
+                    "session_id": session_id,  # 🆕 Session ID for cache management
+                    "extended_cache": None,    # 🆕 Will be populated during workflow
                     "image_url": request.image_url,  # 🆕 Vision analysis
                     "image_analysis": None,  # 🆕 Will be filled by intent detector
                     "node_timings": {},
@@ -445,6 +456,11 @@ async def chat_stream_endpoint(request: ChatRequest):
                 
                 # Process with analytics capture and streaming
                 result_state = session_assistant.process_query_sync(conversation_state, debug=request.debug)
+                
+                # 🆕 Save extended cache to session if available
+                if result_state.get("extended_cache"):
+                    session_manager.update_session_cache(session_id, result_state["extended_cache"])
+                    debug_print(f"💾 [StreamServer] Updated session cache for {session_id}")
                 
                 # Send final completion update
                 session_analytics.capture_workflow_complete(result_state.get("final_response", ""))
