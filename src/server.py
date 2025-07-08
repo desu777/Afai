@@ -35,12 +35,14 @@ class ChatRequest(BaseModel):
     chat_history: List[Dict[str, str]] = []
     debug: bool = False
     image_url: Optional[str] = None  # 🆕 URL do zdjęcia dla analizy vision
+    session_id: Optional[str] = None  # 🆕 Session ID for cache management
 
 class ChatResponse(BaseModel):
     response: str
     success: bool = True
     error: Optional[str] = None
     execution_time: Optional[float] = None
+    session_id: Optional[str] = None  # 🆕 Session ID returned to frontend
 
 class FeedbackRequest(BaseModel):
     message_id: Optional[int] = None
@@ -313,7 +315,7 @@ class WorkflowAnalytics:
             "optimize_product_query": "🔎 Optimizing search...",
             "search_products_k20": "🗃️ Searching product catalog...",
             "format_final_response": "✍️ Generating response...",
-            "escalate_to_human": "🆘 Escalating to support...",
+
             "handle_follow_up": "🔄 Processing follow-up...",
             "follow_up_router": "🔄 Analyzing context..."
         }
@@ -546,7 +548,19 @@ async def chat_endpoint(request: ChatRequest):
     try:
         debug_print(f"📨 [Server] Received chat request: {request.message[:50]}...", "🔍")
         
-        # Create conversation state with global analytics
+        # 🆕 Handle session management
+        from session_manager import get_session_manager
+        session_manager = get_session_manager()
+        
+        session_id = request.session_id
+        if not session_id:
+            # Generate new session for first-time users
+            session_id = session_manager.generate_session_id()
+            debug_print(f"🆕 [Server] Generated new session: {session_id}")
+        else:
+            debug_print(f"🔄 [Server] Using existing session: {session_id}")
+        
+        # Create conversation state with global analytics and session
         conversation_state = {
             "user_query": request.message,
             "detected_language": "en",
@@ -561,6 +575,8 @@ async def chat_endpoint(request: ChatRequest):
             "domain_filter": None,
             "chat_history": request.chat_history,
             "context_cache": [],
+            "session_id": session_id,  # 🆕 Session ID for cache management
+            "extended_cache": None,    # 🆕 Will be populated during workflow
             "image_url": request.image_url,  # 🆕 Vision analysis
             "image_analysis": None,  # 🆕 Will be filled by intent detector
             "node_timings": {},
@@ -580,6 +596,11 @@ async def chat_endpoint(request: ChatRequest):
         # Capture analytics from final state
         global_analytics.capture_state_data(result_state)
         
+        # 🆕 Save extended cache to session if available
+        if result_state.get("extended_cache"):
+            session_manager.update_session_cache(session_id, result_state["extended_cache"])
+            debug_print(f"💾 [Server] Updated session cache for {session_id}")
+        
         # Save analytics to database
         save_analytics_to_db(global_analytics)
         
@@ -591,7 +612,8 @@ async def chat_endpoint(request: ChatRequest):
         return ChatResponse(
             response=result_state.get("final_response", "Sorry, I couldn't process your request."),
             success=True,
-            execution_time=execution_time
+            execution_time=execution_time,
+            session_id=session_id  # 🆕 Return session_id to frontend
         )
         
     except Exception as e:
@@ -605,14 +627,16 @@ async def chat_endpoint(request: ChatRequest):
                 response=f"Debug Error: {error_msg}",
                 success=False,
                 error=str(e),
-                execution_time=execution_time
+                execution_time=execution_time,
+                session_id=session_id if 'session_id' in locals() else None
             )
         else:
             return ChatResponse(
                 response="I apologize, but I encountered an error. Please try again or contact support@aquaforest.eu",
                 success=False,
                 error="Internal server error",
-                execution_time=execution_time
+                execution_time=execution_time,
+                session_id=session_id if 'session_id' in locals() else None
             )
 
 def save_analytics_to_db(analytics_instance=None):
@@ -657,6 +681,64 @@ def save_analytics_to_db(analytics_instance=None):
         debug_print(f"❌ Error saving analytics: {e}")
 
 # Feedback endpoint
+# 🆕 SESSION MANAGEMENT ENDPOINTS
+@app.get("/session/new")
+async def create_new_session():
+    """Create a new session and return session ID"""
+    from session_manager import get_session_manager
+    
+    session_manager = get_session_manager()
+    session_id = session_manager.generate_session_id()
+    
+    return {
+        "session_id": session_id,
+        "status": "created",
+        "ttl_minutes": session_manager.ttl_minutes
+    }
+
+@app.get("/session/{session_id}/stats")
+async def get_session_stats(session_id: str):
+    """Get session statistics and cache info"""
+    from session_manager import get_session_manager
+    
+    session_manager = get_session_manager()
+    extended_cache = session_manager.get_session_cache(session_id)
+    
+    if not extended_cache:
+        raise HTTPException(status_code=404, detail="Session not found or expired")
+    
+    return {
+        "session_id": session_id,
+        "cache_sections": len(extended_cache),
+        "metadata_count": len(extended_cache.get("metadata", [])),
+        "responses_count": len(extended_cache.get("model_responses", [])),
+        "context_fields": len(extended_cache.get("conversation_context", {})),
+        "timestamp": extended_cache.get("timestamp")
+    }
+
+@app.delete("/session/{session_id}")
+async def clear_session(session_id: str):
+    """Clear specific session cache"""
+    from session_manager import get_session_manager
+    
+    session_manager = get_session_manager()
+    success = session_manager.clear_session(session_id)
+    
+    if not success:
+        raise HTTPException(status_code=404, detail="Session not found")
+    
+    return {"session_id": session_id, "status": "cleared"}
+
+@app.get("/sessions/stats")
+async def get_all_sessions_stats():
+    """Get global session manager statistics"""
+    from session_manager import get_session_manager
+    
+    session_manager = get_session_manager()
+    stats = session_manager.get_session_stats()
+    
+    return stats
+
 @app.post("/feedback")
 async def submit_feedback(feedback: FeedbackRequest):
     """Submit user feedback"""

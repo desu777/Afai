@@ -105,21 +105,31 @@ def main():
     print("  • 'quit' or 'exit' - Exit the program")
     print("  • 'debug' - Toggle debug mode")
     print("  • 'new' - Start a new conversation")
+    print("  • 'session' - Show session cache stats")
+    print("  • 'cleanup' - Manual cleanup of expired sessions")
     print("  • 'help' - Show this help message")
     print("\n" + "="*60 + "\n")
     
     debug_mode = False
+    query_count = 0
     
     def get_new_state() -> ConversationState:
+        from session_manager import get_session_manager
+        session_manager = get_session_manager()
+        session_id = session_manager.generate_session_id()
+        
         return {
             "user_query": "", "detected_language": "en", "intent": "other", "product_names": [],
             "original_query": "", "optimized_queries": [], "search_results": [],
             "iteration": 0, "final_response": "",
             "escalate": False, "domain_filter": None, "chat_history": [], "context_cache": [],
-            "image_url": None, "image_analysis": None  # 🆕 Vision analysis fields
+            "session_id": session_id, "extended_cache": None,  # 🆕 Session fields
+            "image_url": None, "image_analysis": None,  # 🆕 Vision analysis fields
+            "node_timings": {}, "routing_decisions": [], "total_execution_time": 0.0, "analytics_instance": None
         }
 
     conversation_state = get_new_state()
+    print(f"🆔 Session ID: {conversation_state['session_id']}")
 
     while True:
         try:
@@ -136,9 +146,41 @@ def main():
                 continue
 
             if user_input.lower() == 'new':
-                print("\n🆕 Starting new conversation...")
-                print("-"*40)
                 conversation_state = get_new_state()
+                print(f"\n🆕 Starting new conversation...")
+                print(f"🆔 Session ID: {conversation_state['session_id']}")
+                print("-"*40)
+                continue
+                
+            if user_input.lower() == 'session':
+                from session_manager import get_session_manager
+                session_manager = get_session_manager()
+                extended_cache = session_manager.get_session_cache(conversation_state['session_id'])
+                
+                print(f"\n📊 Session Cache Stats:")
+                print(f"🆔 Session ID: {conversation_state['session_id']}")
+                if extended_cache:
+                    print(f"📦 Metadata items: {len(extended_cache.get('metadata', []))}")
+                    print(f"🤖 Model responses: {len(extended_cache.get('model_responses', []))}")
+                    print(f"🎯 Context fields: {len(extended_cache.get('conversation_context', {}))}")
+                    print(f"⏰ Last updated: {extended_cache.get('timestamp', 'unknown')}")
+                else:
+                    print("❌ No cache found for this session")
+                
+                global_stats = session_manager.get_session_stats()
+                print(f"\n🌍 Global Stats:")
+                print(f"📈 Total sessions: {global_stats['total_sessions']}")
+                print(f"🟢 Active sessions: {global_stats['active_sessions']}")
+                print(f"⏱️ TTL: {global_stats['ttl_minutes']} minutes")
+                print("-"*40)
+                continue
+                
+            if user_input.lower() == 'cleanup':
+                from session_manager import get_session_manager
+                session_manager = get_session_manager()
+                cleaned = session_manager.manual_cleanup()
+                print(f"\n🧹 Manually cleaned {cleaned} expired sessions")
+                print("-"*40)
                 continue
                 
             if user_input.lower() == 'help':
@@ -146,12 +188,23 @@ def main():
                 print("  • 'quit'/'exit' - Exit the program")
                 print("  • 'debug' - Toggle debug mode (currently: {})".format('ON' if debug_mode else 'OFF'))
                 print("  • 'new' - Start a new conversation")
+                print("  • 'session' - Show session cache stats")
+                print("  • 'cleanup' - Manual cleanup of expired sessions")
                 print("  • 'help' - Show this help message")
                 print("-"*40)
                 continue
 
             if not user_input:
                 continue
+                
+            # Manual cleanup every 10 queries
+            query_count += 1
+            if query_count % 10 == 0:
+                from session_manager import get_session_manager
+                session_manager = get_session_manager()
+                cleaned = session_manager.manual_cleanup()
+                if cleaned > 0 and debug_mode:
+                    print(f"🧹 Cleaned {cleaned} expired sessions")
                 
             conversation_state["user_query"] = user_input
             conversation_state["iteration"] = 0

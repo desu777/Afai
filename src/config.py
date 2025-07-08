@@ -37,12 +37,14 @@ INTENT_DETECTOR_API = os.getenv("INTENT_DETECTOR_API")
 BUSINESS_REASONER_API = os.getenv("BUSINESS_REASONER_API")
 QUERY_OPTIMIZER_API = os.getenv("QUERY_OPTIMIZER_API")
 RESPONSE_FORMATTER_API = os.getenv("RESPONSE_FORMATTER_API")
+FOLLOW_UP_API = os.getenv("FOLLOW_UP_API")
 
 # Per-node model selection: each workflow component can use different model
 INTENT_DETECTOR_MODEL = os.getenv("INTENT_DETECTOR_MODEL")
 BUSINESS_REASONER_MODEL = os.getenv("BUSINESS_REASONER_MODEL")
 QUERY_OPTIMIZER_MODEL = os.getenv("QUERY_OPTIMIZER_MODEL")
 RESPONSE_FORMATTER_MODEL = os.getenv("RESPONSE_FORMATTER_MODEL")
+FOLLOW_UP_MODEL = os.getenv("FOLLOW_UP_MODEL")
 
 # Fallback API Keys
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # Keep for backwards compatibility
@@ -91,6 +93,8 @@ if not QUERY_OPTIMIZER_API:
     missing_api_keys.append("QUERY_OPTIMIZER_API")
 if not RESPONSE_FORMATTER_API:
     missing_api_keys.append("RESPONSE_FORMATTER_API")
+if not FOLLOW_UP_API:
+    missing_api_keys.append("FOLLOW_UP_API")
 
 if missing_api_keys:
     raise ValueError(f"Missing per-node API keys: {', '.join(missing_api_keys)}")
@@ -111,6 +115,7 @@ if TEST_ENV:
     print(f"🧠 Business Reasoner: {BUSINESS_REASONER_API[:12]}... → {BUSINESS_REASONER_MODEL}")
     print(f"🔍 Query Optimizer: {QUERY_OPTIMIZER_API[:12]}... → {QUERY_OPTIMIZER_MODEL}")
     print(f"📝 Response Formatter: {RESPONSE_FORMATTER_API[:12]}... → {RESPONSE_FORMATTER_MODEL}")
+    print(f"🔄 Follow-up Evaluator: {FOLLOW_UP_API[:12]}... → {FOLLOW_UP_MODEL}")
     print(f"📍 Embedding Model: {OPENAI_EMBEDDING_MODEL}")
     print(f"📍 Pinecone Index: {PINECONE_INDEX_NAME}")
     print(f"📍 Default K Value: {DEFAULT_K_VALUE}")

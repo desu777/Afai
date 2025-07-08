@@ -40,6 +40,10 @@ class ConversationState(TypedDict):
     chat_history: List[Dict[str, str]]
     context_cache: List[Dict[str, Any]]
     
+    # 🆕 SESSION AND EXTENDED CACHE FIELDS
+    session_id: Optional[str]  # Session identifier for cache management
+    extended_cache: Optional[Dict[str, Any]]  # Extended cache with metadata + responses + context
+    
     # 🆕 VISION ANALYSIS FIELDS
     image_url: Optional[str]  # URL do zdjęcia przesłanego przez użytkownika
     image_analysis: Optional[str]  # Opis zdjęcia wygenerowany przez LLM

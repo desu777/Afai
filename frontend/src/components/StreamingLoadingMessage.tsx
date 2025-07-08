@@ -53,7 +53,7 @@ const StreamingLoadingMessage: React.FC<StreamingLoadingMessageProps> = ({ curre
     { node: 'optimize_product_query', label: 'Optimizing search strategy' },
     { node: 'search_products_k20', label: 'Searching through products' },
     { node: 'format_final_response', label: 'Crafting detailed response' },
-    { node: 'escalate_to_human', label: 'Escalating to support team' },
+    
     { node: 'handle_follow_up', label: 'Processing follow-up' },
     { node: 'follow_up_router', label: 'Analyzing conversation context' }
   ];
@@ -69,7 +69,7 @@ const StreamingLoadingMessage: React.FC<StreamingLoadingMessageProps> = ({ curre
       'optimize_product_query': 55,
       'search_products_k20': 75,
       'format_final_response': 95,
-      'escalate_to_human': 90,
+
       'handle_follow_up': 95,
       'follow_up_router': 35
     };

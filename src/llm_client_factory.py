@@ -10,6 +10,7 @@ from config import (
     BUSINESS_REASONER_API, BUSINESS_REASONER_MODEL,
     QUERY_OPTIMIZER_API, QUERY_OPTIMIZER_MODEL,
     RESPONSE_FORMATTER_API, RESPONSE_FORMATTER_MODEL,
+    FOLLOW_UP_API, FOLLOW_UP_MODEL,
     TEST_ENV, debug_print
 )
 
@@ -22,7 +23,7 @@ class LLMClientFactory:
         Create LLM client and return (client, model_name) for specified node
         
         Args:
-            node_name: One of 'intent_detector', 'business_reasoner', 'query_optimizer', 'response_formatter'
+            node_name: One of 'intent_detector', 'business_reasoner', 'query_optimizer', 'response_formatter', 'follow_up'
         
         Returns:
             Tuple of (OpenAI client, model_name)
@@ -49,7 +50,8 @@ class LLMClientFactory:
             "intent_detector": (INTENT_DETECTOR_API, INTENT_DETECTOR_MODEL),
             "business_reasoner": (BUSINESS_REASONER_API, BUSINESS_REASONER_MODEL),
             "query_optimizer": (QUERY_OPTIMIZER_API, QUERY_OPTIMIZER_MODEL),
-            "response_formatter": (RESPONSE_FORMATTER_API, RESPONSE_FORMATTER_MODEL)
+            "response_formatter": (RESPONSE_FORMATTER_API, RESPONSE_FORMATTER_MODEL),
+            "follow_up": (FOLLOW_UP_API, FOLLOW_UP_MODEL)
         }
         
         if node_name not in config_map:
@@ -73,6 +75,10 @@ def create_query_optimizer_client() -> Tuple[OpenAI, str]:
 def create_response_formatter_client() -> Tuple[OpenAI, str]:
     """Create client for response formatter node"""
     return LLMClientFactory.create_client("response_formatter")
+
+def create_follow_up_client() -> Tuple[OpenAI, str]:
+    """Create client for follow-up evaluator node"""
+    return LLMClientFactory.create_client("follow_up")
 
 # 🔧 Legacy support functions (for gradual migration)
 def create_llm_client_for_node(node_name: str) -> OpenAI:

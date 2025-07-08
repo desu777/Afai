@@ -12,7 +12,7 @@ from business_reasoner import business_reasoner
 from query_optimizer import optimize_product_query
 from pinecone_client import search_products_k20
 # 🗑️ REMOVED: from results_filter import intelligent_results_filter - Business Reasoner does smart filtering
-from response_formatter import format_final_response, escalate_to_human, handle_follow_up
+from response_formatter import format_final_response
 import json
 from config import PRODUCTS_FILE_PATH, TEST_ENV, debug_print, ENHANCED_K_VALUE
 from llm_client_factory import LLMClientFactory
@@ -99,165 +99,100 @@ def route_intent(state: ConversationState) -> str:
         state["routing_decisions"][-1]["next_node"] = "business_reasoner"
         return "optimize_query"
     elif intent == Intent.FOLLOW_UP:
-        debug_print(f"➡️ [Router] Routing to: follow_up_router (follow-up question)")
-        state["routing_decisions"][-1]["next_node"] = "follow_up_router"
-        return "follow_up_router"
+        debug_print(f"➡️ [Router] Routing to: enhanced_follow_up_router (follow-up question)")
+        state["routing_decisions"][-1]["next_node"] = "enhanced_follow_up_router"
+        return "enhanced_follow_up_router"
     else:
-        debug_print(f"➡️ [Router] Routing to: escalate_support (unknown intent)")
-        state["routing_decisions"][-1]["next_node"] = "escalate_support"
-        return "escalate_support"
+        debug_print(f"➡️ [Router] Routing to: format_response (unknown intent)")
+        state["routing_decisions"][-1]["next_node"] = "format_response"
+        return "format_response"
 
 @timing_wrapper
-def follow_up_router(state: ConversationState) -> ConversationState:
-    """Just a pass-through node for routing decision"""
-    debug_print(f"🔄 [Follow-up Router] Checking if can handle follow-up with cache")
+def enhanced_follow_up_router(state: ConversationState) -> ConversationState:
+    """Enhanced follow-up router with session-based cache and Flash 2.0 evaluation"""
+    from session_manager import get_session_manager
+    from follow_up_evaluator import evaluate_follow_up_cache
+    
+    debug_print(f"🔄 [Enhanced Follow-up Router] Evaluating session cache for follow-up")
+    
+    session_id = state.get("session_id")
+    if not session_id:
+        debug_print(f"❌ [Enhanced Follow-up Router] No session ID - routing to business_reasoner")
+        # Set default evaluation for no session scenario
+        state["follow_up_evaluation"] = {
+            "sufficient": False,
+            "confidence": 0.0,
+            "reasoning": "No session ID available",
+            "business_prompt": f"User asked: {state['user_query']}\nPlease provide comprehensive information about this query."
+        }
+        return state
+    
+    # Get session cache
+    session_manager = get_session_manager()
+    extended_cache = session_manager.get_session_cache(session_id)
+    
+    if not extended_cache:
+        debug_print(f"❌ [Enhanced Follow-up Router] No cache for session {session_id} - routing to business_reasoner")
+        # Set default evaluation for no cache scenario
+        state["follow_up_evaluation"] = {
+            "sufficient": False,
+            "confidence": 0.0,
+            "reasoning": "No cache available for this session",
+            "business_prompt": f"User asked: {state['user_query']}\nPlease provide comprehensive information about this query."
+        }
+        return state
+    
+    # Use Flash 2.0 to evaluate cache sufficiency
+    evaluation = evaluate_follow_up_cache(state, extended_cache)
+    
+    if evaluation["sufficient"]:
+        # Cache is sufficient - prepare data for response formatter
+        state["cache_response_data"] = evaluation["response_data"]
+        debug_print(f"✅ [Enhanced Follow-up Router] Cache sufficient (confidence: {evaluation['confidence']}) - routing to format_response")
+    else:
+        # Cache insufficient - prepare smart prompt for business reasoner
+        state["smart_business_prompt"] = evaluation["business_prompt"]
+        debug_print(f"❌ [Enhanced Follow-up Router] Cache insufficient - routing to business_reasoner with smart prompt")
+    
+    # Store evaluation for analytics
+    state["follow_up_evaluation"] = evaluation
+    
     return state
 
-def route_follow_up(state: ConversationState) -> str:
-    """Enhanced follow-up router with better cache utilization"""
+def route_enhanced_follow_up(state: ConversationState) -> str:
+    """Enhanced follow-up router based on Flash 2.0 evaluation"""
     # Store routing decision for analytics
     if "routing_decisions" not in state:
         state["routing_decisions"] = []
     
-    # 🆕 Check both context_cache AND chat_history (for Messenger)
-    has_context_cache = bool(state.get("context_cache"))
-    has_chat_history = bool(state.get("chat_history"))
+    # Check if Flash 2.0 evaluation was successful
+    evaluation = state.get("follow_up_evaluation")
     
-    debug_print(f"🔍 [Follow-up Router] context_cache: {len(state.get('context_cache', []))}, chat_history: {len(state.get('chat_history', []))}")
-    
-    if not has_context_cache and not has_chat_history:
-        debug_print(f"❌ [Follow-up Router] No cache or history, routing to optimize_query")
+    if not evaluation:
+        debug_print(f"❌ [Enhanced Follow-up Router] No evaluation found - routing to business_reasoner")
         state["routing_decisions"].append({
-            "router": "route_follow_up",
-            "decision": "no_cache_no_history",
-            "next_node": "optimize_query"
+            "router": "route_enhanced_follow_up",
+            "decision": "no_evaluation",
+            "next_node": "business_reasoner"
         })
-        return "optimize_query"
+        return "business_reasoner"
     
-    # 🆕 Enhanced product reference detection from both cache and chat history
-    referenced_products = []
-    
-    # Get products from context_cache
-    for item in state.get("context_cache", []):
-        if item.get('product_name'):
-            referenced_products.append(item['product_name'].lower())
-    
-    # 🆕 Extract products mentioned in chat history (from assistant responses)
-    for msg in state.get("chat_history", []):
-        if msg.get("role") == "assistant":
-            content = msg.get("content", "").lower()
-            # Simple extraction of product names (Ca Plus, Component 1+2+3+, etc.)
-            if "ca plus" in content:
-                referenced_products.append("ca plus")
-            if "component" in content:
-                referenced_products.append("component")
-            if "calcium" in content:
-                referenced_products.append("calcium")
-    
-    query_lower = state["user_query"].lower()
-    
-    # Check for product references
-    products_referenced = any(product in query_lower for product in referenced_products)
-    
-    # 🆕 Enhanced contextual references (multi-language)
-    contextual_keywords = [
-        'to', 'ten', 'ta', 'te', 'it', 'this', 'that', 'those', 'them',
-        'one', 'which', 'który', 'która', 'które', 'first', 'second',
-        'what about', 'how to use', 'dosage', 'dawkowanie',
-        'more', 'details', 'different', 'other', 'polecisz', 'recommend'
-    ]
-    has_contextual_reference = any(keyword in query_lower for keyword in contextual_keywords)
-    
-    # Check if asking about something from previous response
-    previous_context_words = ['also', 'still', 'additionally', 'besides', 'też', 'także']
-    references_previous = any(word in query_lower for word in previous_context_words)
-    
-    debug_print(f"🔍 [Follow-up Router] products_referenced: {products_referenced}, contextual: {has_contextual_reference}, previous: {references_previous}")
-    
-    if products_referenced or has_contextual_reference or references_previous:
-        debug_print(f"✅ [Follow-up Router] Found reference to previous content, using follow-up handler")
+    if evaluation["sufficient"]:
+        debug_print(f"✅ [Enhanced Follow-up Router] Cache sufficient - routing to format_response")
         state["routing_decisions"].append({
-            "router": "route_follow_up",
-            "decision": "context_reference_found",
-            "next_node": "handle_follow_up"
+            "router": "route_enhanced_follow_up", 
+            "decision": f"cache_sufficient_confidence_{evaluation['confidence']}",
+            "next_node": "format_response"
         })
-        return "handle_follow_up"
-    
-    # 🆕 Enhanced LLM check using both cache and chat history
-    # Use intent detector for this simple classification task
-    client, model_name = LLMClientFactory.create_client("intent_detector")
-    chat_history_formatted = "\n".join([f"{msg['role']}: {msg['content']}" for msg in state.get("chat_history", [])])
-    
-    # Create a more focused prompt with both sources
-    cached_context_summary = f"Cached products: {', '.join([item.get('product_name', 'Unknown') for item in state.get('context_cache', [])])}"
-    referenced_products_summary = f"Referenced products from history: {', '.join(referenced_products)}"
-    
-    # Check if previous response mentioned a category
-    category_mentioned = state.get("requested_category") is not None
-    
-    debug_print(f"🤔 [Follow-up Router] LLM check for context sufficiency (cache + history)")
-    
-    prompt = f"""
-Is the user's latest message asking about something from the previous conversation?
-
---- CONVERSATION HISTORY ---
-{chat_history_formatted}
----
-LATEST USER MESSAGE: "{state['user_query']}"
----
-{cached_context_summary}
-{referenced_products_summary}
-Category was discussed: {category_mentioned}
----
-
-The user might be:
-1. Asking for recommendations ("który polecisz?" = "which do you recommend?")
-2. Asking to compare mentioned products  
-3. Asking "which one" from previously shown options
-4. Using references like "it", "this", "that", "ten", "ta"
-5. Asking about usage/dosage of discussed products
-6. Asking about a different aspect of the same topic
-
-Respond with only "yes" if the query is about previous conversation content, or "no" if it needs new search.
-"""
-    
-    try:
-        response = client.chat.completions.create(
-            model=model_name, 
-            temperature=0, 
-            messages=[{"role": "system", "content": prompt}]
-        )
-        decision = response.choices[0].message.content.strip().lower()
-        
-        debug_print(f"🤖 [Follow-up Router] LLM decision: '{decision}'")
-        
-        if "yes" in decision:
-            debug_print(f"✅ [Follow-up Router] Context is sufficient, routing to handle_follow_up")
-            state["routing_decisions"].append({
-                "router": "route_follow_up",
-                "decision": f"llm_context_sufficient: {decision}",
-                "next_node": "handle_follow_up"
-            })
-            return "handle_follow_up"
-        else:
-            debug_print(f"❌ [Follow-up Router] Context insufficient, routing to optimize_query")
-            state["routing_decisions"].append({
-                "router": "route_follow_up",
-                "decision": f"llm_context_insufficient: {decision}",
-                "next_node": "optimize_query"
-            })
-            return "optimize_query"
-            
-    except Exception as e:
-        if TEST_ENV:
-            print(f"❌ [DEBUG Follow-up Router] Context check error: {e}")
-        debug_print(f"❌ [Follow-up Router] Context check error: {e}")
+        return "format_response"
+    else:
+        debug_print(f"❌ [Enhanced Follow-up Router] Cache insufficient - routing to business_reasoner")
         state["routing_decisions"].append({
-            "router": "route_follow_up",
-            "decision": f"error: {str(e)}",
-            "next_node": "optimize_query"
+            "router": "route_enhanced_follow_up",
+            "decision": f"cache_insufficient: {evaluation['reasoning'][:50]}...",
+            "next_node": "business_reasoner"
         })
-        return "optimize_query"
+        return "business_reasoner"
 
 def create_workflow() -> StateGraph:
     """Create the enhanced LangGraph workflow with analytics"""
@@ -278,9 +213,8 @@ def create_workflow() -> StateGraph:
         ("search_pinecone", search_products_k20),
         # 🗑️ REMOVED: ("evaluate_confidence", evaluate_confidence) - CONFIDENCE SCORER DELETED
         ("format_response", format_final_response),
-        ("escalate_support", escalate_to_human),
-        ("handle_follow_up", handle_follow_up),
-        ("follow_up_router", follow_up_router)
+
+        ("enhanced_follow_up_router", enhanced_follow_up_router)
     ]
     
     for node_name, node_func in nodes:
@@ -295,18 +229,17 @@ def create_workflow() -> StateGraph:
         "load_products", route_intent,
         {
             "format_response": "format_response", 
-            "escalate_support": "escalate_support",
             "optimize_query": "business_reasoner",  # Product queries need business analysis
-            "follow_up_router": "follow_up_router"
+            "enhanced_follow_up_router": "enhanced_follow_up_router"
         }
     )
     # Business reasoner now only handles product queries
     workflow.add_edge("business_reasoner", "optimize_query")
     workflow.add_conditional_edges(
-        "follow_up_router", route_follow_up,
+        "enhanced_follow_up_router", route_enhanced_follow_up,
         {
-            "handle_follow_up": "handle_follow_up", 
-            "optimize_query": "optimize_query"
+            "format_response": "format_response",
+            "business_reasoner": "business_reasoner"
         }
     )
     workflow.add_edge("optimize_query", "search_pinecone")
@@ -315,8 +248,6 @@ def create_workflow() -> StateGraph:
     
     # All paths lead to END
     workflow.add_edge("format_response", END)
-    workflow.add_edge("escalate_support", END)
-    workflow.add_edge("handle_follow_up", END)
     
     debug_print("✅ [Workflow] Enhanced workflow with direct routing created and compiled")
         

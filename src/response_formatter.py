@@ -6,6 +6,7 @@ Unified client management with per-node model selection
 from typing import List, Dict, Any, Optional
 import json
 import re
+import time
 from openai import OpenAI
 from models import ConversationState, ProductInfo, Intent, Domain
 from config import OPENAI_TEMPERATURE, TEST_ENV, debug_print
@@ -590,6 +591,19 @@ Show enthusiasm for reef-keeping while addressing their needs.
                 state["context_cache"] = [r['metadata'] for r in state["search_results"][:cache_size]]
                 if TEST_ENV:
                     print(f"💾 [DEBUG ResponseFormatter] Cached metadata for {len(state['context_cache'])} results")
+                
+                # 🆕 Create extended cache for session-based follow-ups
+                state["extended_cache"] = self._create_extended_cache(state)
+                if TEST_ENV:
+                    print(f"💾 [DEBUG ResponseFormatter] Created extended cache with {len(state['extended_cache'])} sections")
+                
+                # 🆕 Save extended cache to SessionManager
+                if state.get("session_id"):
+                    from session_manager import get_session_manager
+                    session_manager = get_session_manager()
+                    session_manager.update_session_cache(state["session_id"], state["extended_cache"])
+                    if TEST_ENV:
+                        print(f"💾 [DEBUG ResponseFormatter] Saved extended cache to session: {state['session_id']}")
                     
         except Exception as e:
             if TEST_ENV:
@@ -598,6 +612,44 @@ Show enthusiasm for reef-keeping while addressing their needs.
         
         return state
     
+    def _create_extended_cache(self, state: ConversationState) -> Dict[str, Any]:
+        """Create extended cache with metadata, responses, and conversation context"""
+        extended_cache = {
+            "metadata": [],
+            "model_responses": [],
+            "conversation_context": {},
+            "timestamp": time.time()
+        }
+        
+        # Add metadata from search results
+        if state.get("search_results"):
+            cache_size = 10 if state.get("requested_category") else 5
+            extended_cache["metadata"] = [r['metadata'] for r in state["search_results"][:cache_size]]
+        
+        # Add model responses from chat history
+        if state.get("chat_history"):
+            extended_cache["model_responses"] = [
+                msg["content"] for msg in state["chat_history"][-6:] 
+                if msg.get("role") == "assistant"
+            ]
+        
+        # Add current response
+        if state.get("final_response"):
+            extended_cache["model_responses"].append(state["final_response"])
+        
+        # Add conversation context
+        context_fields = [
+            "intent", "detected_language", "requested_category", "domain_filter",
+            "identified_problem", "business_analysis", "competitor_info",
+            "scenario_info", "use_case_info", "business_recommendations"
+        ]
+        
+        for field in context_fields:
+            if state.get(field):
+                extended_cache["conversation_context"][field] = state[field]
+        
+        return extended_cache
+
     def _handle_error(self, error: Exception, state: ConversationState) -> str:
         """Enhanced error handling for formatting failures"""
         debug_print(f"❌ [ResponseFormatter] Error during formatting: {str(error)}")
