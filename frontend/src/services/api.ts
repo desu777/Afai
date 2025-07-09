@@ -91,6 +91,43 @@ class ApiService {
     imageUrl?: string,
     sessionId?: string
   ): Promise<string> {
+    // 🔄 Fallback for older browsers that don't support ReadableStream
+    if (!('ReadableStream' in window) || !window.ReadableStream) {
+      if (debug) {
+        console.warn('⚠️ [API Stream] ReadableStream not supported, falling back to regular API');
+      }
+      
+      // Create a mock update for compatibility
+      onUpdate({
+        node: 'processing',
+        status: 'processing',
+        message: 'Processing your request...',
+        elapsed_time: 0
+      });
+      
+      try {
+        const response = await this.sendMessage(message, chatHistory, debug, imageUrl, sessionId);
+        
+        // Create final update
+        onUpdate({
+          node: 'complete',
+          status: 'complete',
+          message: response.response || 'Response completed',
+          elapsed_time: 0
+        });
+        
+        return response.response || '';
+      } catch (error) {
+        onUpdate({
+          node: 'error',
+          status: 'error',
+          message: 'Error processing request',
+          elapsed_time: 0
+        });
+        throw error;
+      }
+    }
+
     const requestData: ChatRequest = {
       message,
       chat_history: chatHistory,

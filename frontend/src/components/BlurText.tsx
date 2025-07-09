@@ -4,12 +4,12 @@ import { useEffect, useRef, useState, useMemo } from 'react';
 const buildKeyframes = (from: any, steps: any[]) => {
   const keys = new Set([
     ...Object.keys(from),
-    ...steps.flatMap((s) => Object.keys(s)),
+    ...steps.flatMap((s: any) => Object.keys(s)),
   ]);
 
   const keyframes: any = {};
   keys.forEach((k) => {
-    keyframes[k] = [from[k], ...steps.map((s) => s[k])];
+    keyframes[k] = [from[k], ...steps.map((s: any) => s[k])];
   });
   return keyframes;
 };
