@@ -1,6 +1,7 @@
 import { User, Copy, Download } from 'lucide-react'
 import { Message as MessageType } from '../types'
 import MessageContent from './MessageContent'
+import TruncatedMessageContent from './TruncatedMessageContent'
 
 interface MessageProps {
   message: MessageType;
@@ -162,10 +163,17 @@ const Message: React.FC<MessageProps> = ({ message }) => {
               </div>
             )}
             
-            <MessageContent 
-              content={message.content} 
-              isUser={message.type === 'user'} 
-            />
+            {message.type === 'assistant' ? (
+              <TruncatedMessageContent 
+                content={message.content} 
+                isUser={false} 
+              />
+            ) : (
+              <MessageContent 
+                content={message.content} 
+                isUser={true} 
+              />
+            )}
           </div>
           
           <div className={`flex items-center ${
