@@ -68,8 +68,8 @@ class BusinessReasoner:
         """Handle ICP URL enhancement if detected"""
         user_query = state.get('user_query', '')
         
-        # Check for ICP URL pattern
-        icp_url_pattern = r'https?://(?:www\.)?(?:icpchem\.com|icp-test\.com|test\.icp-test\.com)[^\s]*'
+        # Check for ICP URL pattern (updated for aquaforestlab.com)
+        icp_url_pattern = r'https?://(?:www\.)?(?:aquaforestlab\.com|icpchem\.com|icp-test\.com|test\.icp-test\.com)[^\s]*'
         icp_match = re.search(icp_url_pattern, user_query, re.IGNORECASE)
         
         if icp_match:

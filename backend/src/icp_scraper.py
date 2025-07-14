@@ -1,121 +1,106 @@
 """
-ICP Scraper Module - Web scraping for Aquaforest Lab ICP test results
-Extracted from business_reasoner.py for better code organization
+ICP Scraper Module - Enhanced web scraping for Aquaforest Lab ICP test results
+Uses LangChain Hyperbrowser for advanced scraping + Gemini 2.0 Flash analysis
 """
 import re
-import requests
-from bs4 import BeautifulSoup
+import base64
 from typing import Dict, List
-from config import debug_print
+from config import debug_print, TEST_ENV, FOLLOW_UP_API, FOLLOW_UP_MODEL
 import json
-from openai import OpenAI
-from config import TEST_ENV
-from llm_client_factory import LLMClientFactory
+from langchain_openai import ChatOpenAI
+from langchain_hyperbrowser import HyperbrowserScrapeTool
+from langchain_community.document_loaders import PyMuPDFLoader
+import tempfile
+import os
 
 class ICPScraper:
-    """Web scraper for Aquaforest Lab ICP test results"""
+    """Enhanced web scraper for Aquaforest Lab ICP test results with LangChain"""
     
     def __init__(self):
-        # Use query optimizer for ICP text analysis (simple task)
-        self.client, self.model_name = LLMClientFactory.create_client("query_optimizer")
+        # Use FOLLOW_UP variables (Gemini 2.0 Flash) for ICP analysis
+        self.llm = ChatOpenAI(
+            api_key=FOLLOW_UP_API,
+            model=FOLLOW_UP_MODEL,
+            base_url="https://openrouter.ai/api/v1",
+            temperature=0.1
+        )
+        
+        # Initialize LangChain tools
+        self.scraper = HyperbrowserScrapeTool()
         
         if TEST_ENV:
-            debug_print(f"🔬 [ICPScraper] Initialized with model: {self.model_name}")
+            debug_print(f"🔬 [ICPScraper] Initialized with LangChain + model: {FOLLOW_UP_MODEL}")
     
     def extract_icp_data_from_url(self, url: str) -> Dict:
-        """🆕 Extract ICP test data from Aquaforest Lab URL"""
+        """🆕 Extract ICP test data from Aquaforest Lab URL using LangChain Hyperbrowser"""
         try:
-            debug_print(f"🌐 [ICPScraper] Fetching ICP data from: {url}")
-            response = requests.get(url, timeout=10)
-            response.raise_for_status()
+            debug_print(f"🌐 [ICPScraper] Fetching ICP data with Hyperbrowser from: {url}")
             
-            # 🔍 LOG: Response details
-            debug_print(f"📊 [ICPScraper] HTTP Status: {response.status_code}")
-            debug_print(f"📊 [ICPScraper] Content-Type: {response.headers.get('content-type', 'unknown')}")
-            debug_print(f"📊 [ICPScraper] Content Length: {len(response.content)} bytes")
+            # Use Hyperbrowser for advanced web scraping
+            scraped_content = self.scraper.run(url)
+            debug_print(f"📊 [ICPScraper] Scraped content length: {len(scraped_content)} chars")
             
-            soup = BeautifulSoup(response.content, 'html.parser')
+            # Use Gemini 2.0 Flash to analyze and extract structured data
+            extraction_prompt = f"""
+Analyze this ICP test results page and extract structured data.
+
+URL: {url}
+Content: {scraped_content}
+
+Extract the following information as JSON:
+{{
+    "metadata": {{
+        "test_number": "test ID number",
+        "aquarium_info": "aquarium details",
+        "test_date": "test date",
+        "aquarium_volume": "volume in liters if mentioned"
+    }},
+    "parameters": {{
+        "ElementName": {{
+            "element": "element name",
+            "recommended_range": "recommended range",
+            "user_result": "measured value",
+            "change": "change value",
+            "status": "too_high/too_low/optimal/unknown"
+        }}
+    }}
+}}
+
+Focus on extracting all chemical parameters with their values and status.
+Return ONLY valid JSON, no explanations.
+"""
             
-            # 🔍 LOG: HTML structure analysis
-            debug_print(f"📋 [ICPScraper] Page title: {soup.title.string if soup.title else 'No title'}")
+            response = self.llm.invoke(extraction_prompt)
+            structured_data = json.loads(response.content)
             
-            # Find all tables
-            tables = soup.find_all('table')
-            debug_print(f"📋 [ICPScraper] Found {len(tables)} table(s) on page")
+            # Enhance with our analysis
+            for param_name, param_data in structured_data.get("parameters", {}).items():
+                if param_data.get("status") == "unknown":
+                    # Use our analysis method as fallback
+                    status = self._analyze_icp_parameter_status(
+                        param_data.get("element", ""),
+                        param_data.get("recommended_range", ""),
+                        param_data.get("user_result", "")
+                    )
+                    param_data["status"] = status
+                
+                param_data["needs_correction"] = param_data["status"] in ["too_high", "too_low"]
             
-            # 🆕 EXTRACT ICP METADATA (test info)
-            metadata = self._extract_icp_metadata(soup)
-            
-            # Structure based on typical ICP test results
             icp_data = {
                 "url": url,
-                "parameters": {},
-                "metadata": metadata,  # 🆕 Add metadata
-                "raw_data": soup.get_text(),  # 🆕 Add raw text for recommendations extraction
+                "parameters": structured_data.get("parameters", {}),
+                "metadata": structured_data.get("metadata", {}),
+                "raw_data": scraped_content,
                 "status": "success",
                 "debug_info": {
-                    "tables_found": len(tables),
-                    "page_title": soup.title.string if soup.title else None
+                    "scraping_method": "hyperbrowser",
+                    "llm_analysis": "gemini-2.0-flash"
                 }
             }
             
-            # 🎯 EXTRACT ALL ICP DATA - Dynamic table parsing
-            results_table = soup.find('table', class_='table-results') or soup.find('table')
-            
-            if results_table:
-                debug_print(f"📋 [ICPScraper] Found results table")
-                
-                # Find all test result rows (skip header)
-                test_rows = results_table.find_all('tr')[1:]  # Skip header
-                debug_print(f"📋 [ICPScraper] Processing {len(test_rows)} parameter rows")
-                
-                for i, row in enumerate(test_rows):
-                    # Extract all cells dynamically
-                    all_cells = row.find_all('td')
-                    if len(all_cells) >= 3:  # Need at least: element, range, result
-                        
-                        # 📊 COLUMN MAPPING (English workflow)
-                        element = all_cells[0].get_text(strip=True)
-                        recommended_range = all_cells[1].get_text(strip=True) 
-                        user_result = all_cells[2].get_text(strip=True)
-                        change = all_cells[3].get_text(strip=True) if len(all_cells) > 3 else ""
-                        
-                        # Skip empty or header-like rows
-                        if not element or element.lower() in ['pierwiastek', 'element']:
-                            continue
-                        
-                        debug_print(f"📊 [ICPScraper] ELEMENT: '{element}' | RECOMMENDED: '{recommended_range}' | RESULT: '{user_result}' | CHANGE: '{change}'")
-                        
-                        # 🧠 SMART ANALYSIS: Check if result is within recommended range
-                        status = self._analyze_icp_parameter_status(element, recommended_range, user_result)
-                        
-                        icp_data["parameters"][element] = {
-                            "element": element,
-                            "recommended_range": recommended_range, 
-                            "user_result": user_result,
-                            "change": change,
-                            "status": status,
-                            "needs_correction": status in ["too_high", "too_low"]
-                        }
-                    else:
-                        # Log incomplete rows
-                        if all_cells:
-                            cell_contents = [cell.get_text(strip=True) for cell in all_cells]
-                            debug_print(f"📊 [ICPScraper] Row {i+1} (incomplete): {cell_contents}")
-            else:
-                debug_print(f"⚠️ [ICPScraper] No results table found")
-            
-            # 🔍 LOG: Final extraction summary
-            debug_print(f"✅ [ICPScraper] Extracted {len(icp_data['parameters'])} ICP parameters")
-            if icp_data["parameters"]:
-                param_names = list(icp_data["parameters"].keys())[:5]  # First 5 parameters
-                debug_print(f"📋 [ICPScraper] Sample parameters: {param_names}")
-            
+            debug_print(f"✅ [ICPScraper] Extracted {len(icp_data['parameters'])} ICP parameters with LangChain")
             return icp_data
             
-        except requests.RequestException as e:
-            debug_print(f"❌ [ICPScraper] HTTP error fetching ICP data: {e}")
-            return {"url": url, "parameters": {}, "status": "http_error", "error": str(e)}
         except Exception as e:
             debug_print(f"❌ [ICPScraper] Error extracting ICP data: {e}")
             return {"url": url, "parameters": {}, "status": "parse_error", "error": str(e)}
@@ -162,6 +147,140 @@ class ICPScraper:
         except Exception as e:
             debug_print(f"❌ [ICPScraper] Error analyzing {element}: {e}")
             return "unknown"
+    
+    def enhance_query_with_icp_data(self, user_query: str, icp_url: str) -> str:
+        """🆕 Enhanced query with ICP data analysis - MISSING METHOD FIXED"""
+        try:
+            debug_print(f"🔗 [ICPScraper] Enhancing query with ICP data from: {icp_url}")
+            
+            # Extract ICP data using new LangChain method
+            icp_data = self.extract_icp_data_from_url(icp_url)
+            
+            if icp_data["status"] != "success":
+                debug_print(f"❌ [ICPScraper] Failed to extract ICP data: {icp_data.get('error', 'Unknown error')}")
+                return user_query
+            
+            # Format data for LLM analysis
+            formatted_data = self.format_icp_data_for_llm(icp_data["parameters"], icp_data["metadata"])
+            
+            # Enhanced query with structured ICP analysis
+            enhanced_query = f"""{user_query}
+
+🔬 ICP TEST ANALYSIS:
+{formatted_data}
+
+🎯 AQUARIUM INFO:
+{icp_data["metadata"]}
+
+📊 PARAMETERS NEEDING CORRECTION:
+{self._format_corrections_needed(icp_data["parameters"])}"""
+            
+            debug_print(f"✅ [ICPScraper] Enhanced query with {len(icp_data['parameters'])} parameters")
+            return enhanced_query
+            
+        except Exception as e:
+            debug_print(f"❌ [ICPScraper] Error enhancing query: {e}")
+            return user_query
+    
+    def process_pdf_icp_data(self, pdf_content: bytes, filename: str = "icp_results.pdf") -> Dict:
+        """🆕 Process PDF ICP results using LangChain PyMuPDF"""
+        try:
+            debug_print(f"📄 [ICPScraper] Processing PDF: {filename}")
+            
+            # Save PDF to temporary file
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:
+                tmp_file.write(pdf_content)
+                tmp_file_path = tmp_file.name
+            
+            try:
+                # Use PyMuPDF loader to extract text
+                loader = PyMuPDFLoader(tmp_file_path)
+                docs = loader.load()
+                
+                # Combine all document pages
+                full_text = "\n".join([doc.page_content for doc in docs])
+                debug_print(f"📋 [ICPScraper] Extracted {len(full_text)} chars from PDF")
+                
+                # Use Gemini 2.0 Flash to analyze PDF content
+                pdf_analysis_prompt = f"""
+Analyze this PDF content containing ICP test results and extract structured data.
+
+PDF Content: {full_text}
+
+Extract the following information as JSON:
+{{
+    "metadata": {{
+        "test_number": "test ID number",
+        "aquarium_info": "aquarium details",
+        "test_date": "test date",
+        "aquarium_volume": "volume in liters if mentioned"
+    }},
+    "parameters": {{
+        "ElementName": {{
+            "element": "element name",
+            "recommended_range": "recommended range",
+            "user_result": "measured value",
+            "change": "change value",
+            "status": "too_high/too_low/optimal/unknown"
+        }}
+    }}
+}}
+
+Focus on extracting all chemical parameters with their values and status.
+Return ONLY valid JSON, no explanations.
+"""
+                
+                response = self.llm.invoke(pdf_analysis_prompt)
+                structured_data = json.loads(response.content)
+                
+                # Enhance with our analysis
+                for param_name, param_data in structured_data.get("parameters", {}).items():
+                    if param_data.get("status") == "unknown":
+                        status = self._analyze_icp_parameter_status(
+                            param_data.get("element", ""),
+                            param_data.get("recommended_range", ""),
+                            param_data.get("user_result", "")
+                        )
+                        param_data["status"] = status
+                    
+                    param_data["needs_correction"] = param_data["status"] in ["too_high", "too_low"]
+                
+                icp_data = {
+                    "source": f"PDF: {filename}",
+                    "parameters": structured_data.get("parameters", {}),
+                    "metadata": structured_data.get("metadata", {}),
+                    "raw_data": full_text,
+                    "status": "success",
+                    "debug_info": {
+                        "processing_method": "pymupdf",
+                        "llm_analysis": "gemini-2.0-flash"
+                    }
+                }
+                
+                debug_print(f"✅ [ICPScraper] Processed PDF with {len(icp_data['parameters'])} parameters")
+                return icp_data
+                
+            finally:
+                # Clean up temporary file
+                os.unlink(tmp_file_path)
+                
+        except Exception as e:
+            debug_print(f"❌ [ICPScraper] Error processing PDF: {e}")
+            return {"source": f"PDF: {filename}", "parameters": {}, "status": "parse_error", "error": str(e)}
+    
+    def _format_corrections_needed(self, parameters: Dict) -> str:
+        """Format parameters that need correction for enhanced query"""
+        corrections = []
+        for param_name, param_data in parameters.items():
+            if param_data.get("needs_correction"):
+                status = param_data["status"]
+                element = param_data["element"]
+                current = param_data["user_result"]
+                target = param_data["recommended_range"]
+                
+                corrections.append(f"• {element}: {current} ({status.upper()}) → Target: {target}")
+        
+        return "\n".join(corrections) if corrections else "All parameters within optimal range"
     
     def _extract_icp_metadata(self, soup) -> Dict:
         """🆕 Extract ICP test metadata (test number, aquarium info, date)"""
