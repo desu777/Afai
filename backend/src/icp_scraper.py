@@ -40,38 +40,81 @@ class ICPScraper:
             scraped_content = self.scraper.run(url)
             debug_print(f"📊 [ICPScraper] Scraped content length: {len(scraped_content)} chars")
             
+            # 🔍 DEBUG: Log scraped content for troubleshooting
+            if TEST_ENV:
+                debug_print(f"🌐 [ICPScraper] Raw scraped content preview: {scraped_content[:300]}...")
+                if len(scraped_content) > 300:
+                    debug_print(f"🌐 [ICPScraper] Raw scraped content end: ...{scraped_content[-200:]}")
+            
             # Use Gemini 2.0 Flash to analyze and extract structured data
             extraction_prompt = f"""
-Analyze this ICP test results page and extract structured data.
+You are an expert marine aquarium analyst. Extract ALL chemical parameters from this ICP test results page.
 
 URL: {url}
 Content: {scraped_content}
 
-Extract the following information as JSON:
+CRITICAL INSTRUCTIONS:
+1. Extract EVERY chemical parameter you find (Ca, Mg, KH, NO3, PO4, all trace elements)
+2. For each parameter, determine if it's too_high, too_low, or optimal based on reef aquarium standards
+3. Return ONLY valid JSON - no explanations, no markdown, no extra text
+4. If a parameter has no clear range, set status to "unknown"
+
+JSON format (extract ALL parameters found):
 {{
     "metadata": {{
-        "test_number": "test ID number",
-        "aquarium_info": "aquarium details",
+        "test_number": "ICP test ID",
+        "aquarium_info": "aquarium description", 
         "test_date": "test date",
-        "aquarium_volume": "volume in liters if mentioned"
+        "aquarium_volume": "volume if mentioned"
     }},
     "parameters": {{
-        "ElementName": {{
-            "element": "element name",
-            "recommended_range": "recommended range",
-            "user_result": "measured value",
-            "change": "change value",
+        "Calcium": {{
+            "element": "Calcium (Ca)",
+            "recommended_range": "380-460 mg/l",
+            "user_result": "actual measured value",
+            "change": "change from previous test",
+            "status": "too_high/too_low/optimal/unknown"
+        }},
+        "Magnesium": {{
+            "element": "Magnesium (Mg)", 
+            "recommended_range": "1250-1350 mg/l",
+            "user_result": "actual measured value",
+            "change": "change from previous test", 
             "status": "too_high/too_low/optimal/unknown"
         }}
     }}
 }}
 
-Focus on extracting all chemical parameters with their values and status.
-Return ONLY valid JSON, no explanations.
+Extract ALL parameters from the content. Return valid JSON only.
 """
             
             response = self.llm.invoke(extraction_prompt)
-            structured_data = json.loads(response.content)
+            
+            # 🔍 DEBUG: Log raw Gemini response for troubleshooting
+            if TEST_ENV:
+                debug_print(f"🤖 [ICPScraper] Raw Gemini response length: {len(response.content)} chars")
+                debug_print(f"🤖 [ICPScraper] Raw Gemini response preview: {response.content[:200]}...")
+                if len(response.content) > 200:
+                    debug_print(f"🤖 [ICPScraper] Raw Gemini response end: ...{response.content[-100:]}")
+            
+            # Try to parse JSON with fallback handling
+            try:
+                structured_data = json.loads(response.content)
+            except json.JSONDecodeError as e:
+                debug_print(f"❌ [ICPScraper] URL JSON parsing failed: {e}")
+                # Try to extract JSON from response if it contains extra text
+                import re
+                json_match = re.search(r'\{.*\}', response.content, re.DOTALL)
+                if json_match:
+                    try:
+                        structured_data = json.loads(json_match.group(0))
+                        debug_print(f"✅ [ICPScraper] Recovered JSON from URL response")
+                    except:
+                        debug_print(f"❌ [ICPScraper] Could not recover JSON from URL")
+                        return {"url": url, "parameters": {}, "status": "json_parse_error", "error": f"JSON parse error: {e}"}
+                else:
+                    debug_print(f"❌ [ICPScraper] No JSON found in URL response")
+                    return {"url": url, "parameters": {}, "status": "json_parse_error", "error": f"No JSON in response: {response.content[:200]}"}
             
             # Enhance with our analysis
             for param_name, param_data in structured_data.get("parameters", {}).items():
@@ -201,37 +244,80 @@ Return ONLY valid JSON, no explanations.
                 full_text = "\n".join([doc.page_content for doc in docs])
                 debug_print(f"📋 [ICPScraper] Extracted {len(full_text)} chars from PDF")
                 
+                # 🔍 DEBUG: Log extracted PDF content for troubleshooting
+                if TEST_ENV:
+                    debug_print(f"📄 [ICPScraper] Raw PDF content preview: {full_text[:300]}...")
+                    if len(full_text) > 300:
+                        debug_print(f"📄 [ICPScraper] Raw PDF content end: ...{full_text[-200:]}")
+                
                 # Use Gemini 2.0 Flash to analyze PDF content
                 pdf_analysis_prompt = f"""
-Analyze this PDF content containing ICP test results and extract structured data.
+You are an expert marine aquarium analyst. Extract ALL chemical parameters from this ICP test results PDF.
 
 PDF Content: {full_text}
 
-Extract the following information as JSON:
+CRITICAL INSTRUCTIONS:
+1. Extract EVERY chemical parameter you find (Ca, Mg, KH, NO3, PO4, all trace elements like I, Fe, Zn, etc.)
+2. For each parameter, determine if it's too_high, too_low, or optimal based on reef aquarium standards
+3. Return ONLY valid JSON - no explanations, no markdown, no extra text
+4. If a parameter has no clear range, set status to "unknown"
+
+JSON format (extract ALL parameters found):
 {{
     "metadata": {{
-        "test_number": "test ID number",
-        "aquarium_info": "aquarium details",
-        "test_date": "test date",
-        "aquarium_volume": "volume in liters if mentioned"
+        "test_number": "ICP test ID",
+        "aquarium_info": "aquarium description",
+        "test_date": "test date", 
+        "aquarium_volume": "volume if mentioned"
     }},
     "parameters": {{
-        "ElementName": {{
-            "element": "element name",
-            "recommended_range": "recommended range",
-            "user_result": "measured value",
-            "change": "change value",
+        "Calcium": {{
+            "element": "Calcium (Ca)",
+            "recommended_range": "380-460 mg/l",
+            "user_result": "actual measured value",
+            "change": "change from previous test",
+            "status": "too_high/too_low/optimal/unknown"
+        }},
+        "Iodine": {{
+            "element": "Iodine (I)",
+            "recommended_range": "0.055-0.07 mg/l", 
+            "user_result": "actual measured value",
+            "change": "change from previous test",
             "status": "too_high/too_low/optimal/unknown"
         }}
     }}
 }}
 
-Focus on extracting all chemical parameters with their values and status.
-Return ONLY valid JSON, no explanations.
+Extract ALL parameters from the PDF content. Return valid JSON only.
 """
                 
                 response = self.llm.invoke(pdf_analysis_prompt)
-                structured_data = json.loads(response.content)
+                
+                # 🔍 DEBUG: Log raw Gemini response for troubleshooting
+                if TEST_ENV:
+                    debug_print(f"🤖 [ICPScraper] PDF Raw Gemini response length: {len(response.content)} chars")
+                    debug_print(f"🤖 [ICPScraper] PDF Raw Gemini response preview: {response.content[:200]}...")
+                    if len(response.content) > 200:
+                        debug_print(f"🤖 [ICPScraper] PDF Raw Gemini response end: ...{response.content[-100:]}")
+                
+                # Try to parse JSON with fallback handling
+                try:
+                    structured_data = json.loads(response.content)
+                except json.JSONDecodeError as e:
+                    debug_print(f"❌ [ICPScraper] PDF JSON parsing failed: {e}")
+                    # Try to extract JSON from response if it contains extra text
+                    import re
+                    json_match = re.search(r'\{.*\}', response.content, re.DOTALL)
+                    if json_match:
+                        try:
+                            structured_data = json.loads(json_match.group(0))
+                            debug_print(f"✅ [ICPScraper] Recovered JSON from PDF response")
+                        except:
+                            debug_print(f"❌ [ICPScraper] Could not recover JSON from PDF")
+                            return {"source": f"PDF: {filename}", "parameters": {}, "status": "json_parse_error", "error": f"JSON parse error: {e}"}
+                    else:
+                        debug_print(f"❌ [ICPScraper] No JSON found in PDF response")
+                        return {"source": f"PDF: {filename}", "parameters": {}, "status": "json_parse_error", "error": f"No JSON in response: {response.content[:200]}"}
                 
                 # Enhance with our analysis
                 for param_name, param_data in structured_data.get("parameters", {}).items():
