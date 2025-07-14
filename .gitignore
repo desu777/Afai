@@ -64,6 +64,7 @@ CLAUDE.md
 # Sensitive development files
 backend/src/doors.md
 backend/.env
+backend/start.bat
 **/doors.md
 
 # Claude configuration file
