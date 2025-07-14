@@ -5,7 +5,7 @@ JSON mapping data loading extracted from business_reasoner.py
 import json
 from pathlib import Path
 from typing import List, Dict
-from config import debug_print, PRODUCTS_FILE_PATH, DISABLE_BUSINESS_MAPPINGS, ENABLE_COMPETITORS_ONLY
+from config import debug_print, PRODUCTS_FILE_PATH, PRODUCTS_TURBO_FILE_PATH, DISABLE_BUSINESS_MAPPINGS, ENABLE_COMPETITORS_ONLY
 
 class DataLoader:
     def __init__(self):
@@ -46,9 +46,8 @@ class DataLoader:
     def _load_products_knowledge(self) -> List[Dict]:
         """Load detailed product knowledge from products_turbo.json"""
         try:
-            # Use absolute path based on file location, similar to mapping files
-            products_turbo_path = Path(__file__).parent.parent.parent / "data" / "products_turbo.json"
-            with open(products_turbo_path, 'r', encoding='utf-8') as f:
+            # Use configured path from config.py
+            with open(PRODUCTS_TURBO_FILE_PATH, 'r', encoding='utf-8') as f:
                 data = json.load(f)
                 debug_print(f"✅ [BusinessReasoner] Loaded products_turbo.json")
                 return data
@@ -59,7 +58,7 @@ class DataLoader:
     def _load_mapping_data(self):
         """Load comprehensive mapping data from JSON files for LLM"""
         try:
-            mapping_dir = Path(__file__).parent.parent / "mapping"
+            mapping_dir = Path(__file__).parent.parent.absolute() / "mapping"
             
             # Load competitors mapping
             with open(mapping_dir / "competitors.json", 'r', encoding='utf-8') as f:
@@ -91,7 +90,7 @@ class DataLoader:
     def _load_competitors_only(self):
         """Load only competitors mapping, initialize others as empty"""
         try:
-            mapping_dir = Path(__file__).parent.parent / "mapping"
+            mapping_dir = Path(__file__).parent.parent.absolute() / "mapping"
             
             # Load only competitors mapping
             with open(mapping_dir / "competitors.json", 'r', encoding='utf-8') as f:

@@ -29,7 +29,7 @@ class IntentDetector:
     def _load_competitors(self) -> list:
         """Load competitor names from mapping for better intent detection"""
         try:
-            mapping_file = Path(__file__).parent / "mapping" / "competitors.json"
+            mapping_file = Path(__file__).parent.absolute() / "mapping" / "competitors.json"
             if mapping_file.exists():
                 with open(mapping_file, 'r', encoding='utf-8') as f:
                     competitors_data = json.load(f)

@@ -82,9 +82,6 @@ ENHANCED_K_VALUE=12
 CONFIDENCE_THRESHOLD=0.5
 SUPPORTED_LANGUAGES=pl,en,de,fr,es,it
 
-# Paths
-PRODUCTS_FILE_PATH=data/products.json
-
 # Server Configuration
 CORS_ORIGINS=https://afai.life,https://www.afai.life,http://afai.life,http://localhost:3000
 
