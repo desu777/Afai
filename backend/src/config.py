@@ -67,6 +67,10 @@ PRODUCTS_TURBO_FILE_PATH = os.getenv("PRODUCTS_TURBO_FILE_PATH") or str(Path(__f
 # Server Configuration
 CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:8080").split(",")
 
+# Authentication Configuration
+AQUAFOREST_AUTH_TOKEN = os.getenv("AQUAFOREST_AUTH_TOKEN")
+ENABLE_AUTH_TOKEN = os.getenv("ENABLE_AUTH_TOKEN", "true").lower() == "true"
+
 # 🚀 FACEBOOK MESSENGER CONFIGURATION
 MESSENGER_ON = os.getenv("MESSENGER_ON", "true").lower() == "true"
 MESSENGER_PAGE_ACCESS_TOKEN = os.getenv("MESSENGER_TOKEN")
@@ -103,6 +107,9 @@ if missing_api_keys:
 if MESSENGER_ON and not MESSENGER_PAGE_ACCESS_TOKEN:
     raise ValueError("MESSENGER_TOKEN is required when MESSENGER_ON=true")
 
+if ENABLE_AUTH_TOKEN and not AQUAFOREST_AUTH_TOKEN:
+    raise ValueError("AQUAFOREST_AUTH_TOKEN is required when ENABLE_AUTH_TOKEN=true")
+
 # Print configuration status on import (only in debug mode)
 if TEST_ENV:
     print("\n" + "="*60)
@@ -126,5 +133,6 @@ if TEST_ENV:
     print(f"📍 Competitors tracked: {len(COMPETITORS)}")
     print(f"📍 Messenger Integration: {'ENABLED' if MESSENGER_ON else 'DISABLED'}")
     print(f"📍 Facebook API Version: {FACEBOOK_API_VERSION}")
+    print(f"🔐 Auth Token: {'ENABLED' if ENABLE_AUTH_TOKEN else 'DISABLED'}")
     print(f"🗑️ Confidence Scorer: REMOVED for better performance")
     print("="*60 + "\n")

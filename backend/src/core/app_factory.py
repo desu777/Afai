@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from config import CORS_ORIGINS, TEST_ENV, debug_print
 from database import init_database, cleanup_old_messenger_history, DB_PATH
-from security_middleware import setup_security_middleware, security_headers_middleware
+from security_middleware import setup_security_middleware, security_headers_middleware, create_auth_token_middleware
 
 def create_app():
     """Create and configure FastAPI application"""
@@ -27,6 +27,9 @@ def create_app():
         allow_methods=["GET", "POST", "OPTIONS"],
         allow_headers=["*"],
     )
+
+    # Authentication middleware (first - before rate limiting)
+    app.middleware("http")(create_auth_token_middleware())
 
     # Setup security middleware and rate limiting
     setup_security_middleware(app)

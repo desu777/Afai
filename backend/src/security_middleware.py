@@ -12,7 +12,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from fastapi import FastAPI, Request, Response
-from config import debug_print, TEST_ENV
+from config import debug_print, TEST_ENV, AQUAFOREST_AUTH_TOKEN, ENABLE_AUTH_TOKEN
 
 # Rate limiting configuration from environment variables
 ENABLE_RATE_LIMITING = os.getenv("ENABLE_RATE_LIMITING", "true").lower() == "true"
@@ -415,3 +415,38 @@ def remove_ip_from_auto_blacklist(ip: str) -> bool:
 def cleanup_expired_violations():
     """Clean up expired violations and blacklists"""
     violation_tracker.cleanup_expired()
+
+def create_auth_token_middleware():
+    """Create authentication token middleware for Aquaforest API access"""
+    
+    async def auth_token_middleware(request: Request, call_next):
+        """Validate X-Aquaforest-Auth header before processing request"""
+        
+        # Skip auth if disabled
+        if not ENABLE_AUTH_TOKEN:
+            return await call_next(request)
+        
+        # Check for auth header
+        auth_header = request.headers.get("X-Aquaforest-Auth")
+        client_ip = get_client_ip(request)
+        endpoint = str(request.url.path)
+        
+        # Validate token
+        if not auth_header or auth_header != AQUAFOREST_AUTH_TOKEN:
+            log_security_event("AUTH_FAILED", client_ip, f"Invalid/missing auth token for {endpoint}")
+            
+            return Response(
+                content='{"error": "Unauthorized", "detail": "Invalid or missing authentication token"}',
+                status_code=401,
+                media_type="application/json",
+                headers={
+                    "X-Auth-Required": "X-Aquaforest-Auth",
+                    "X-Content-Type-Options": "nosniff"
+                }
+            )
+        
+        # Valid token - proceed with request
+        debug_print(f"✅ [Auth] Valid token for IP {client_ip} -> {endpoint}")
+        return await call_next(request)
+    
+    return auth_token_middleware

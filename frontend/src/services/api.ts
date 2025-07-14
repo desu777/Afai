@@ -23,6 +23,7 @@ class ApiService {
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
+        'X-Aquaforest-Auth': import.meta.env.VITE_AUTH_TOKEN || '',
         ...options.headers,
       },
       ...options,
@@ -147,6 +148,7 @@ class ApiService {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Aquaforest-Auth': import.meta.env.VITE_AUTH_TOKEN || '',
       },
       body: JSON.stringify(requestData),
     });
@@ -288,7 +290,11 @@ class ApiService {
     if (endDate) params.append('end_date', endDate);
     if (params.toString()) url += '?' + params.toString();
 
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: {
+        'X-Aquaforest-Auth': import.meta.env.VITE_AUTH_TOKEN || '',
+      },
+    });
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: Failed to export feedback CSV`);
     }
@@ -302,7 +308,11 @@ class ApiService {
     if (endDate) params.append('end_date', endDate);
     if (params.toString()) url += '?' + params.toString();
 
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: {
+        'X-Aquaforest-Auth': import.meta.env.VITE_AUTH_TOKEN || '',
+      },
+    });
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: Failed to export analytics CSV`);
     }
