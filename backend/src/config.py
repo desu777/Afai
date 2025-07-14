@@ -4,10 +4,10 @@ Handles all environment variables and system settings
 """
 import os
 from pathlib import Path
-from dotenv import load_dotenv
+from env_loader import load_environment
 
-# Load environment variables
-load_dotenv()
+# Load environment variables from external or local .env file
+load_environment()
 
 # --- DEBUG ---
 # Add test environment flag - can be dynamically changed
