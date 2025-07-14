@@ -7,7 +7,7 @@ import time
 import threading
 import queue
 from typing import Dict, Any
-from fastapi import HTTPException
+from fastapi import HTTPException, Request
 from fastapi.responses import StreamingResponse
 from config import debug_print, TEST_ENV
 from analytics import WorkflowAnalytics
@@ -19,7 +19,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
     
     @app.post("/chat/stream")
     @tier1_rate_limit()
-    async def chat_stream_endpoint(request: ChatRequest):
+    async def chat_stream_endpoint(chat_request: ChatRequest, request: Request):
         """
         Streaming chat endpoint that provides real-time workflow updates via Server-Sent Events
         """
@@ -28,7 +28,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
             from session_manager import get_session_manager
             session_manager = get_session_manager()
             
-            session_id = request.session_id
+            session_id = chat_request.session_id
             if not session_id:
                 # Generate new session for first-time users
                 session_id = session_manager.generate_session_id()
@@ -40,7 +40,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
             session_analytics.reset()
             
             if TEST_ENV:
-                debug_print(f"🆔 [StreamServer] Starting session {session_id}: {request.message[:30]}...", "🆔")
+                debug_print(f"🆔 [StreamServer] Starting session {session_id}: {chat_request.message[:30]}...", "🆔")
             
             # Real-time streaming with threading
             update_queue = queue.Queue()
@@ -55,11 +55,11 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
             def run_workflow():
                 """Run workflow in separate thread"""
                 try:
-                    debug_print(f"📨 [StreamServer] Session {session_id} - Received streaming chat request: {request.message[:50]}...", "🔍")
+                    debug_print(f"📨 [StreamServer] Session {session_id} - Received streaming chat request: {chat_request.message[:50]}...", "🔍")
                     
                     # Create conversation state with session analytics and session management
                     conversation_state = {
-                        "user_query": request.message,
+                        "user_query": chat_request.message,
                         "detected_language": "en",
                         "intent": "other",
                         "product_names": [],
@@ -70,11 +70,11 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
                         "final_response": "",
                         "escalate": False,
                         "domain_filter": None,
-                        "chat_history": request.chat_history,
+                        "chat_history": chat_request.chat_history,
                         "context_cache": [],
                         "session_id": session_id,  # Session ID for cache management
                         "extended_cache": None,    # Will be populated during workflow
-                        "image_url": request.image_url,  # Vision analysis
+                        "image_url": chat_request.image_url,  # Vision analysis
                         "image_analysis": None,  # Will be filled by intent detector
                         "node_timings": {},
                         "routing_decisions": [],
@@ -82,13 +82,13 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
                         "analytics_instance": session_analytics
                     }
                     
-                    debug_print(f"🔄 [StreamServer] Processing with streaming workflow (debug={request.debug})", "⚙️")
+                    debug_print(f"🔄 [StreamServer] Processing with streaming workflow (debug={chat_request.debug})", "⚙️")
                     
                     # Create dedicated assistant instance for this session
                     session_assistant = AquaforestAssistant(analytics_instance=session_analytics)
                     
                     # Process with analytics capture and streaming
-                    result_state = session_assistant.process_query_sync(conversation_state, debug=request.debug)
+                    result_state = session_assistant.process_query_sync(conversation_state, debug=chat_request.debug)
                     
                     # Save extended cache to session if available
                     if result_state.get("extended_cache"):
@@ -187,7 +187,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
 
     @app.post("/chat", response_model=ChatResponse)
     @tier1_rate_limit()
-    async def chat_endpoint(request: ChatRequest):
+    async def chat_endpoint(chat_request: ChatRequest, request: Request):
         """
         Main chat endpoint that processes user messages and returns AI responses
         """
@@ -196,13 +196,13 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
         start_time = time.time()
         
         try:
-            debug_print(f"📨 [Server] Received chat request: {request.message[:50]}...", "🔍")
+            debug_print(f"📨 [Server] Received chat request: {chat_request.message[:50]}...", "🔍")
             
             # Handle session management
             from session_manager import get_session_manager
             session_manager = get_session_manager()
             
-            session_id = request.session_id
+            session_id = chat_request.session_id
             if not session_id:
                 # Generate new session for first-time users
                 session_id = session_manager.generate_session_id()
@@ -212,7 +212,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
             
             # Create conversation state with global analytics and session
             conversation_state = {
-                "user_query": request.message,
+                "user_query": chat_request.message,
                 "detected_language": "en",
                 "intent": "other",
                 "product_names": [],
@@ -223,11 +223,11 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
                 "final_response": "",
                 "escalate": False,
                 "domain_filter": None,
-                "chat_history": request.chat_history,
+                "chat_history": chat_request.chat_history,
                 "context_cache": [],
                 "session_id": session_id,  # Session ID for cache management
                 "extended_cache": None,    # Will be populated during workflow
-                "image_url": request.image_url,  # Vision analysis
+                "image_url": chat_request.image_url,  # Vision analysis
                 "image_analysis": None,  # Will be filled by intent detector
                 "node_timings": {},
                 "routing_decisions": [],
@@ -235,13 +235,13 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
                 "analytics_instance": global_analytics
             }
             
-            debug_print(f"🔄 [Server] Processing with workflow (debug={request.debug})", "⚙️")
+            debug_print(f"🔄 [Server] Processing with workflow (debug={chat_request.debug})", "⚙️")
             
             # Create assistant instance with global analytics for non-streaming requests
             non_streaming_assistant = AquaforestAssistant(analytics_instance=global_analytics)
             
             # Process with analytics capture
-            result_state = non_streaming_assistant.process_query_sync(conversation_state, debug=request.debug)
+            result_state = non_streaming_assistant.process_query_sync(conversation_state, debug=chat_request.debug)
             
             # Capture analytics from final state
             global_analytics.capture_state_data(result_state)

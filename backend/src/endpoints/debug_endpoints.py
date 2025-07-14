@@ -133,18 +133,18 @@ def setup_debug_endpoints(app, tier3_rate_limit, global_rate_limit, vision_rate_
     # Vision Analysis Test Endpoint
     @app.post("/debug/test-vision")
     @vision_rate_limit()
-    async def test_vision_analysis(request: ChatRequest):
+    async def test_vision_analysis(chat_request: ChatRequest, request: Request):
         """Test endpoint for vision analysis functionality"""
         
-        if not request.image_url:
+        if not chat_request.image_url:
             raise HTTPException(status_code=400, detail="image_url is required for vision testing")
         
         try:
-            debug_print(f"📸 [VisionTest] Testing vision analysis with: {request.image_url[:100]}...", "🧪")
+            debug_print(f"📸 [VisionTest] Testing vision analysis with: {chat_request.image_url[:100]}...", "🧪")
             
             # Create test conversation state
             conversation_state = {
-                "user_query": request.message,
+                "user_query": chat_request.message,
                 "detected_language": "en",
                 "intent": "other",
                 "product_names": [],
@@ -155,9 +155,9 @@ def setup_debug_endpoints(app, tier3_rate_limit, global_rate_limit, vision_rate_
                 "final_response": "",
                 "escalate": False,
                 "domain_filter": None,
-                "chat_history": request.chat_history,
+                "chat_history": chat_request.chat_history,
                 "context_cache": [],
-                "image_url": request.image_url,
+                "image_url": chat_request.image_url,
                 "image_analysis": None,
                 "node_timings": {},
                 "routing_decisions": [],
@@ -174,12 +174,12 @@ def setup_debug_endpoints(app, tier3_rate_limit, global_rate_limit, vision_rate_
             
             return {
                 "success": True,
-                "original_query": request.message,
+                "original_query": chat_request.message,
                 "enhanced_query": result_state.get("user_query", ""),
                 "image_analysis": result_state.get("image_analysis", ""),
                 "detected_intent": result_state.get("intent", ""),
                 "detected_language": result_state.get("detected_language", ""),
-                "image_url": request.image_url
+                "image_url": chat_request.image_url
             }
             
         except Exception as e:
