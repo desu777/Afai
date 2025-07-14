@@ -5,7 +5,7 @@ Uses LangChain Hyperbrowser for advanced scraping + Gemini 2.0 Flash analysis
 import re
 import base64
 from typing import Dict, List
-from config import debug_print, TEST_ENV, FOLLOW_UP_API, FOLLOW_UP_MODEL
+from config import debug_print, TEST_ENV, FOLLOW_UP_API, FOLLOW_UP_MODEL, HYPERBROWSER_API_KEY
 import json
 from langchain_openai import ChatOpenAI
 from langchain_hyperbrowser import HyperbrowserScrapeTool
@@ -26,7 +26,7 @@ class ICPScraper:
         )
         
         # Initialize LangChain tools
-        self.scraper = HyperbrowserScrapeTool()
+        self.scraper = HyperbrowserScrapeTool(api_key=HYPERBROWSER_API_KEY)
         
         if TEST_ENV:
             debug_print(f"🔬 [ICPScraper] Initialized with LangChain + model: {FOLLOW_UP_MODEL}")

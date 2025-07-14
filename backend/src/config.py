@@ -54,6 +54,9 @@ OPENAI_EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-s
 OPENAI_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS", "16384"))
 OPENAI_TEMPERATURE = float(os.getenv("OPENAI_TEMPERATURE", "0.3"))  # Default to Qwen3 32B
 
+# Hyperbrowser Configuration
+HYPERBROWSER_API_KEY = os.getenv("HYPERBROWSER_API_KEY")
+
 # App Configuration
 DEFAULT_K_VALUE = int(os.getenv("DEFAULT_K_VALUE", "12"))
 ENHANCED_K_VALUE = int(os.getenv("ENHANCED_K_VALUE", "12"))
@@ -110,6 +113,9 @@ if MESSENGER_ON and not MESSENGER_PAGE_ACCESS_TOKEN:
 if ENABLE_AUTH_TOKEN and not AQUAFOREST_AUTH_TOKEN:
     raise ValueError("AQUAFOREST_AUTH_TOKEN is required when ENABLE_AUTH_TOKEN=true")
 
+if not HYPERBROWSER_API_KEY:
+    raise ValueError("HYPERBROWSER_API_KEY is required for ICP analysis functionality")
+
 # Print configuration status on import (only in debug mode)
 if TEST_ENV:
     print("\n" + "="*60)
@@ -134,5 +140,6 @@ if TEST_ENV:
     print(f"📍 Messenger Integration: {'ENABLED' if MESSENGER_ON else 'DISABLED'}")
     print(f"📍 Facebook API Version: {FACEBOOK_API_VERSION}")
     print(f"🔐 Auth Token: {'ENABLED' if ENABLE_AUTH_TOKEN else 'DISABLED'}")
+    print(f"🌐 Hyperbrowser API: {HYPERBROWSER_API_KEY[:12]}..." if HYPERBROWSER_API_KEY else "🌐 Hyperbrowser API: NOT SET")
     print(f"🗑️ Confidence Scorer: REMOVED for better performance")
     print("="*60 + "\n")

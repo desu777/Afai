@@ -2,11 +2,9 @@
 Business Reasoner Module - Refactored VERSION 6.0
 Main BusinessReasoner class coordinating specialized modules
 """
-import re
 from typing import Dict
 from models import ConversationState, Intent
 from config import TEST_ENV, debug_print
-from icp_scraper import ICPScraper
 from llm_client_factory import create_business_reasoner_client
 
 from .data_loader import DataLoader
@@ -24,7 +22,6 @@ class BusinessReasoner:
         if TEST_ENV:
             debug_print(f"🧠 [BusinessReasoner] Initialized with model: {self.model_name}")
         
-        self.icp_scraper = ICPScraper()
         
         # Initialize specialized components
         self.data_loader = DataLoader()
@@ -38,12 +35,6 @@ class BusinessReasoner:
         try:
             if TEST_ENV:
                 debug_print(f"\n🧠 [BusinessReasoner] Analyzing: {state.get('user_query', '')[:50]}...")
-            
-            # Handle ICP URLs - enhance query with scraped data
-            enhanced_query = self._handle_icp_enhancement(state)
-            if enhanced_query != state.get('user_query', ''):
-                state['user_query'] = enhanced_query
-                debug_print(f"🔗 [BusinessReasoner] Enhanced query with ICP data")
             
             # Full LLM analysis using comprehensive mapping data
             decision = self.llm_analyzer.analyze_with_full_llm(state)
@@ -64,23 +55,6 @@ class BusinessReasoner:
             debug_print(f"❌ [BusinessReasoner] Analysis error: {e}")
             return self.decision_applier.apply_fallback_analysis(state)
 
-    def _handle_icp_enhancement(self, state: ConversationState) -> str:
-        """Handle ICP URL enhancement if detected"""
-        user_query = state.get('user_query', '')
-        
-        # Check for ICP URL pattern (updated for aquaforestlab.com)
-        icp_url_pattern = r'https?://(?:www\.)?(?:aquaforestlab\.com|icpchem\.com|icp-test\.com|test\.icp-test\.com)[^\s]*'
-        icp_match = re.search(icp_url_pattern, user_query, re.IGNORECASE)
-        
-        if icp_match:
-            icp_url = icp_match.group(0)
-            debug_print(f"🔗 [BusinessReasoner] ICP URL detected: {icp_url}")
-            
-            # Use ICPScraper to get enhanced query
-            enhanced_query = self.icp_scraper.enhance_query_with_icp_data(user_query, icp_url)
-            return enhanced_query
-        
-        return user_query
 
     def _validate_product_exists(self, product_name: str) -> bool:
         """Validate if product exists in knowledge base"""
