@@ -58,3 +58,10 @@ frontend/.nyc_output/
 frontend/jspm_packages/
 
 # JSON files are allowed - configuration files need to be tracked 
+CLAUDE.md
+
+# Sensitive development files
+backend/src/doors.md
+backend/.env
+**/doors.md 
+

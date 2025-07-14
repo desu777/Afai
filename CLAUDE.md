@@ -126,27 +126,38 @@ The application is designed for VPS deployment with:
 - **Analytics tracking** for usage metrics and conversation analysis
 - **Session persistence** maintains conversation context across requests
 
+###INSTRUKCJE 
 
+##MAKSYMALNY ROZMIAR PLIKU: 500-550 linii – bezwzględny limit; jeżeli plik przekracza tę liczbę, podziel na mniejsze moduły.
 
-MAKSYMALNY ROZMIAR PLIKU: 500-550 linii – bezwzględny limit; jeżeli plik przekracza tę liczbę, podziel na mniejsze moduły.
+##PRACA NAD WERSJĄ PRODUKCYJNĄ: implementuj bezpośrednio w środowisku produkcyjnym, bez mocków i placeholderów.
 
-PRACA NAD WERSJĄ PRODUKCYJNĄ: implementuj bezpośrednio w środowisku produkcyjnym, bez mocków i placeholderów.
+##TYLKO ZWIĄZANE ZMIANY: wprowadzaj wyłącznie modyfikacje bezpośrednio związane z zadanym zadaniem.
 
-TYLKO ZWIĄZANE ZMIANY: wprowadzaj wyłącznie modyfikacje bezpośrednio związane z zadanym zadaniem.
+##NIE HARDCODUJ API ani zmiennych które można wsadzić do .env: zawsze używaj zmiennych środowiskowych, plików konfiguracyjnych lub stałych
 
-NIE HARDCODUJ API ani zmiennych które można wsadzić do .env: zawsze używaj zmiennych środowiskowych, plików konfiguracyjnych lub stałych
+##ZMIENNE ŚRODOWISKOWE: przyjmij, że plik .env zawsze istnieje, ale nie masz do niego bezpośredniego dostępu. plik doors.md stanowi brame między tobą a mną. Jeśli w tym pliku znajduje się pusta zmienna, to znaczy że to wrażliwe API które dodałem do pliku .env ale tutaj nie udostępniłem. Jeśli tworzysz kod i zawiera odczyt z .env dodawaj do pliku doors.md. Do git ignore zawsze dodawaj plik doors.md.
 
-ZMIENNE ŚRODOWISKOWE: przyjmij, że plik .env zawsze istnieje, ale nie masz do niego bezpośredniego dostępu. plik doors.md stanowi brame między tobą a mną. Jeśli w tym pliku znajduje się pusta zmienna, to znaczy że to wrażliwe API które dodałem do pliku .env ale tutaj nie udostępniłem. Jeśli tworzysz kod i zawiera odczyt z .env dodawaj do pliku doors.md. Do git ignore zawsze dodawaj plik doors.md.
+##LOGI DEVELOPERSKIE: używaj sprawdzenia process.env.TEST_ENV === 'true' dla wyświetlania logów debugowych dla projektów które nie mają zdefiniowanej tej zmiennej. Jeśli mają odczytaj z doors.md i zawsze stosuj tą zmienną do logów.
 
-LOGI DEVELOPERSKIE: używaj sprawdzenia process.env.TEST_ENV === 'true' dla wyświetlania logów debugowych dla projektów które nie mają zdefiniowanej tej zmiennej. Jeśli mają odczytaj z doors.md i zawsze stosuj tą zmienną do logów.
-
-RESEARCH PRZED DZIAŁANIEM – jeśli nie jesteś pewny implementacji, twoja wiedza nie wystarcza żebyś stwierdził czy rozwiązanie jest dobre. Skorzystaj z sieci, przeszukaj.
+##RESEARCH PRZED DZIAŁANIEM – jeśli nie jesteś pewny implementacji, twoja wiedza nie wystarcza żebyś stwierdził czy rozwiązanie jest dobre. Skorzystaj z sieci, przeszukaj.
 ZROZUMIENIE KONTEKSTU – zapoznaj się z działaniem całego kodu przed wprowadzaniem napraw.
-FOCUS NA ZADANIU – skup się wyłącznie na zadaniu, nie wprowadzaj nie związanych zmian.
+##FOCUS NA ZADANIU – skup się wyłącznie na zadaniu, nie wprowadzaj nie związanych zmian.
 Bez drastycznych zmian wzorców – przestrzegaj obecnych konwencji, chyba że zadanie wymaga inaczej.
-Zrozum pełen kontekst przed modyfikacją – analizuj całość przed zmianam
+##Zrozum pełen kontekst przed modyfikacją – analizuj całość przed zmianam
 Pracuj iteracyjnie – małe, czytelne commity z jednoznacznymi opisami co robi dany kod.
 
-Jesteś najlepszy na świecie programistą, piszesz kod jak eskpert który zjadł zęby.
+##Jesteś najlepszy na świecie programistą, piszesz kod jak eskpert który zjadł zęby.
 
-Po każdej zmianie która ma znaczenie robimy commit na git
+
+
+## Git Workflow Instructions
+
+##COMMIT AUTHORSHIP: Wszystkie commit-y i push-e na git wykonujesz jako użytkownik (nie jako Claude Code). NIE dodawaj do commit message informacji że to wygenerowane przez Claude Code lub Co-Authored-By: Claude. Commit-y mają wyglądać jak normalne commit-y użytkownika. W języku angielskim!
+
+##PUSH REMINDERS: Po każdej ważniejszej zmianie (nowe feature, bugfix, refactor) ZAWSZE przypominaj o push-u podając gotowy commit message. Format:
+```
+🚀 Ready to push:
+git commit -m "Your commit message here"
+git push origin master
+```
