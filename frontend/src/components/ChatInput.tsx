@@ -1,4 +1,4 @@
-import { Send, Camera, FileText } from 'lucide-react'
+import { Send, Plus, FileText } from 'lucide-react'
 import { useRef, useEffect } from 'react'
 import { useImageUpload } from '../hooks/useImageUpload'
 import ImagePreview from './ImagePreview'
@@ -64,6 +64,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
           isPDF={isPDF}
           fileName={selectedImage?.name}
           fileType={fileType}
+          fileSize={selectedImage?.size}
         />
         
         <div className="relative">
@@ -98,7 +99,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
             {selectedImage && isPDF ? (
               <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             ) : (
-              <Camera className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             )}
             <input
               type="file"
