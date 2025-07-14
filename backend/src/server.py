@@ -718,7 +718,7 @@ def save_analytics_to_db(analytics_instance=None):
 # 🆕 SESSION MANAGEMENT ENDPOINTS
 @app.get("/session/new")
 @tier2_rate_limit()
-async def create_new_session():
+async def create_new_session(request: Request):
     """Create a new session and return session ID"""
     from session_manager import get_session_manager
     
@@ -733,7 +733,7 @@ async def create_new_session():
 
 @app.get("/session/{session_id}/stats")
 @tier2_rate_limit()
-async def get_session_stats(session_id: str):
+async def get_session_stats(session_id: str, request: Request):
     """Get session statistics and cache info"""
     from session_manager import get_session_manager
     
@@ -754,7 +754,7 @@ async def get_session_stats(session_id: str):
 
 @app.delete("/session/{session_id}")
 @tier2_rate_limit()
-async def clear_session(session_id: str):
+async def clear_session(session_id: str, request: Request):
     """Clear specific session cache"""
     from session_manager import get_session_manager
     
@@ -768,7 +768,7 @@ async def clear_session(session_id: str):
 
 @app.get("/sessions/stats")
 @tier2_rate_limit()
-async def get_all_sessions_stats():
+async def get_all_sessions_stats(request: Request):
     """Get global session manager statistics"""
     from session_manager import get_session_manager
     
@@ -779,7 +779,7 @@ async def get_all_sessions_stats():
 
 @app.post("/feedback")
 @tier3_rate_limit()
-async def submit_feedback(feedback: FeedbackRequest):
+async def submit_feedback(feedback: FeedbackRequest, request: Request):
     """Submit user feedback"""
     try:
         with get_db() as conn:
@@ -808,7 +808,7 @@ async def submit_feedback(feedback: FeedbackRequest):
 # Analytics endpoints
 @app.post("/analytics/query")
 @tier2_rate_limit()
-async def get_analytics(query: AnalyticsQuery):
+async def get_analytics(query: AnalyticsQuery, request: Request):
     """Get analytics data with optional filtering"""
     try:
         with get_db() as conn:
@@ -870,7 +870,7 @@ async def get_analytics(query: AnalyticsQuery):
 
 @app.get("/analytics/summary")
 @tier2_rate_limit()
-async def get_analytics_summary():
+async def get_analytics_summary(request: Request):
     """Get analytics summary statistics"""
     try:
         with get_db() as conn:
@@ -941,7 +941,7 @@ async def get_analytics_summary():
 
 @app.get("/feedback/summary")
 @tier3_rate_limit()
-async def get_feedback_summary():
+async def get_feedback_summary(request: Request):
     """Get feedback summary statistics"""
     try:
         with get_db() as conn:
@@ -986,7 +986,7 @@ async def get_feedback_summary():
 # CSV Export endpoints
 @app.get("/analytics/export/csv")
 @csv_export_rate_limit()
-async def export_analytics_csv(start_date: Optional[str] = None, end_date: Optional[str] = None):
+async def export_analytics_csv(request: Request, start_date: Optional[str] = None, end_date: Optional[str] = None):
     """Export analytics data as CSV"""
     try:
         with get_db() as conn:
@@ -1066,7 +1066,7 @@ async def export_analytics_csv(start_date: Optional[str] = None, end_date: Optio
 
 @app.get("/feedback/export/csv")
 @csv_export_rate_limit()
-async def export_feedback_csv(start_date: Optional[str] = None, end_date: Optional[str] = None):
+async def export_feedback_csv(request: Request, start_date: Optional[str] = None, end_date: Optional[str] = None):
     """Export feedback data as CSV"""
     try:
         with get_db() as conn:
@@ -1131,7 +1131,7 @@ async def export_feedback_csv(start_date: Optional[str] = None, end_date: Option
 # Original endpoints remain unchanged
 @app.get("/")
 @tier3_rate_limit()
-async def root():
+async def root(request: Request):
     """Health check endpoint"""
     return {
         "message": "🐠 Aquaforest RAG API is running",
@@ -1142,7 +1142,7 @@ async def root():
 
 @app.get("/health")
 @tier3_rate_limit()
-async def health_check():
+async def health_check(request: Request):
     """Detailed health check"""
     return {
         "status": "healthy",
@@ -1153,7 +1153,7 @@ async def health_check():
 
 @app.get("/debug/toggle")
 @global_rate_limit()
-async def toggle_debug():
+async def toggle_debug(request: Request):
     """Toggle debug mode for testing purposes"""
     import os
     import config
@@ -1171,7 +1171,7 @@ async def toggle_debug():
 
 @app.get("/debug/messenger-history/{user_id}")
 @global_rate_limit()
-async def get_messenger_history_debug(user_id: str, limit: int = 10):
+async def get_messenger_history_debug(user_id: str, request: Request, limit: int = 10):
     """Debug endpoint to view messenger chat history"""
     try:
         with get_db() as conn:
@@ -1306,7 +1306,7 @@ async def test_vision_analysis(request: ChatRequest):
 # 🆕 VISION ANALYSIS EXAMPLES ENDPOINT
 @app.get("/debug/vision-examples")
 @global_rate_limit()
-async def get_vision_examples():
+async def get_vision_examples(request: Request):
     """Get example image URLs for testing vision analysis"""
     
     examples = [
@@ -1338,26 +1338,26 @@ async def get_vision_examples():
 # 🔒 SECURITY STATUS ENDPOINTS
 @app.get("/security/status")
 @global_rate_limit()
-async def get_security_status():
+async def get_security_status(request: Request):
     """Get current security and rate limiting configuration"""
     return get_rate_limit_status()
 
 @app.get("/security/violations/stats")
 @global_rate_limit()
-async def get_security_violations_stats():
+async def get_security_violations_stats(request: Request):
     """Get violation tracking statistics"""
     cleanup_expired_violations()  # Clean up before getting stats
     return get_violation_stats()
 
 @app.get("/security/violations/{ip}")
 @global_rate_limit()
-async def get_ip_violation_history(ip: str):
+async def get_ip_violation_history(ip: str, request: Request):
     """Get violation history for specific IP"""
     return get_ip_violations(ip)
 
 @app.delete("/security/blacklist/{ip}")
 @global_rate_limit()
-async def remove_ip_blacklist(ip: str):
+async def remove_ip_blacklist(ip: str, request: Request):
     """Manually remove IP from blacklist (both auto and manual)"""
     removed = remove_ip_from_auto_blacklist(ip)
     
@@ -1375,7 +1375,7 @@ async def remove_ip_blacklist(ip: str):
 
 @app.post("/security/cleanup")
 @global_rate_limit()
-async def manual_cleanup_violations():
+async def manual_cleanup_violations(request: Request):
     """Manually trigger cleanup of expired violations and blacklists"""
     cleanup_expired_violations()
     stats = get_violation_stats()
