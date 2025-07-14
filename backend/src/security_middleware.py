@@ -16,7 +16,7 @@ from config import debug_print, TEST_ENV
 
 # Rate limiting configuration from environment variables
 ENABLE_RATE_LIMITING = os.getenv("ENABLE_RATE_LIMITING", "true").lower() == "true"
-RATE_LIMIT_STORAGE = os.getenv("RATE_LIMIT_STORAGE", "memory")  # memory or redis
+RATE_LIMIT_STORAGE = os.getenv("RATE_LIMIT_STORAGE", "memory://")  # memory:// or redis://host:port
 
 # Tier 1 - Critical endpoints (increased limits as requested)
 TIER1_LIMIT = os.getenv("TIER1_RATE_LIMIT", "20/minute")  # /chat, /chat/stream

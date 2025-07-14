@@ -161,3 +161,11 @@ Pracuj iteracyjnie – małe, czytelne commity z jednoznacznymi opisami co robi 
 git commit -m "Your commit message here"
 git push origin master
 ```
+
+
+##POSZERZANIE WIEDZY
+Jeśli nie jesteś w 100% z czego wynika błąd, przeszukaj sieć 
+
+##OGRANICZENIA WIEDZY
+Jeśli twoja wiedza jest starsza niż 2025, przeszukaj sieć 
+

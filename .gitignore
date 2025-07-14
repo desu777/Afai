@@ -63,5 +63,9 @@ CLAUDE.md
 # Sensitive development files
 backend/src/doors.md
 backend/.env
-**/doors.md 
+**/doors.md
+
+# Claude configuration file
+CLAUDE.md
+/CLAUDE.md 
 
