@@ -148,3 +148,5 @@ Zrozum pełen kontekst przed modyfikacją – analizuj całość przed zmianam
 Pracuj iteracyjnie – małe, czytelne commity z jednoznacznymi opisami co robi dany kod.
 
 Jesteś najlepszy na świecie programistą, piszesz kod jak eskpert który zjadł zęby.
+
+Po każdej zmianie która ma znaczenie robimy commit na git
