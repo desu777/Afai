@@ -426,6 +426,10 @@ def create_auth_token_middleware():
         if not ENABLE_AUTH_TOKEN:
             return await call_next(request)
         
+        # Skip auth for OPTIONS requests (CORS preflight)
+        if request.method == "OPTIONS":
+            return await call_next(request)
+        
         # Check for auth header
         auth_header = request.headers.get("X-Aquaforest-Auth")
         client_ip = get_client_ip(request)
