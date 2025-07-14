@@ -31,7 +31,9 @@ from security_middleware import (
     setup_security_middleware, 
     tier1_rate_limit, tier2_rate_limit, tier3_rate_limit,
     vision_rate_limit, csv_export_rate_limit, global_rate_limit,
-    security_headers_middleware, get_rate_limit_status
+    security_headers_middleware, get_rate_limit_status,
+    get_violation_stats, get_ip_violations, remove_ip_from_auto_blacklist,
+    cleanup_expired_violations
 )
 
 # Database configuration
@@ -1333,12 +1335,56 @@ async def get_vision_examples():
         "instructions": "Use POST /debug/test-vision with image_url and message to test vision analysis"
     }
 
-# 🔒 SECURITY STATUS ENDPOINT
+# 🔒 SECURITY STATUS ENDPOINTS
 @app.get("/security/status")
 @global_rate_limit()
 async def get_security_status():
     """Get current security and rate limiting configuration"""
     return get_rate_limit_status()
+
+@app.get("/security/violations/stats")
+@global_rate_limit()
+async def get_security_violations_stats():
+    """Get violation tracking statistics"""
+    cleanup_expired_violations()  # Clean up before getting stats
+    return get_violation_stats()
+
+@app.get("/security/violations/{ip}")
+@global_rate_limit()
+async def get_ip_violation_history(ip: str):
+    """Get violation history for specific IP"""
+    return get_ip_violations(ip)
+
+@app.delete("/security/blacklist/{ip}")
+@global_rate_limit()
+async def remove_ip_blacklist(ip: str):
+    """Manually remove IP from blacklist (both auto and manual)"""
+    removed = remove_ip_from_auto_blacklist(ip)
+    
+    if removed:
+        return {
+            "success": True,
+            "message": f"IP {ip} removed from blacklist",
+            "ip": ip
+        }
+    else:
+        raise HTTPException(
+            status_code=404, 
+            detail=f"IP {ip} not found in blacklist"
+        )
+
+@app.post("/security/cleanup")
+@global_rate_limit()
+async def manual_cleanup_violations():
+    """Manually trigger cleanup of expired violations and blacklists"""
+    cleanup_expired_violations()
+    stats = get_violation_stats()
+    
+    return {
+        "success": True,
+        "message": "Cleanup completed",
+        "current_stats": stats
+    }
 
 def run_server():
     """Run the FastAPI server"""
