@@ -104,16 +104,24 @@ class DecisionApplier:
             all_products.extend(legacy_products)
         
         if all_products:
-            state["af_alternatives_to_search"] = all_products
-            debug_print(f"🧠 [BusinessReasoner] LLM selected {len(all_products)} products via intelligent categorization")
+            # Extract product names from dictionaries for af_alternatives_to_search (must be List[str])
+            product_names = []
+            for product in all_products:
+                if isinstance(product, dict):
+                    product_names.append(product.get("product_name", ""))
+                else:
+                    product_names.append(str(product))
+            
+            state["af_alternatives_to_search"] = product_names
+            debug_print(f"🧠 [BusinessReasoner] LLM selected {len(product_names)} products via intelligent categorization")
         
             # Store categorized structure for Response Formatter
             state["product_recommendations"] = product_recommendations
             debug_print(f"📊 [BusinessReasoner] Categorized into {len(product_recommendations)} categories: {list(product_recommendations.keys())}")
         
             # Set first product as main correction for backward compatibility
-            if all_products:
-                state["business_analysis"]["product_name_corrections"] = all_products[0]
+            if product_names:
+                state["business_analysis"]["product_name_corrections"] = product_names[0]
         else:
             debug_print(f"⚠️ [BusinessReasoner] No products found by LLM analysis")
 
