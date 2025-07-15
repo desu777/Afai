@@ -19,13 +19,13 @@ class CacheManager:
             "metadata": [],
             "model_responses": [],
             "conversation_context": {},
+            "user_query": state.get("user_query", ""),
             "timestamp": time.time()
         }
         
-        # Add metadata from search results
+        # Add ALL metadata from search results (removed cache_size limit)
         if state.get("search_results"):
-            cache_size = 10 if state.get("requested_category") else 5
-            extended_cache["metadata"] = [r['metadata'] for r in state["search_results"][:cache_size]]
+            extended_cache["metadata"] = [r['metadata'] for r in state["search_results"]]
         
         # Add model responses from chat history
         if state.get("chat_history"):

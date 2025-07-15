@@ -61,9 +61,8 @@ class ResponseFormatter:
             
             # Cache metadata for follow-ups (only for product queries)
             if state.get("search_results") and intent not in [Intent.GREETING, Intent.BUSINESS, Intent.SUPPORT, Intent.OTHER, Intent.CENSORED, Intent.COMPETITOR, Intent.PURCHASE_INQUIRY]:
-                # Cache more results if category request
-                cache_size = 10 if state.get("requested_category") else 5
-                state["context_cache"] = [r['metadata'] for r in state["search_results"][:cache_size]]
+                # Cache ALL results (removed cache_size limit)
+                state["context_cache"] = [r['metadata'] for r in state["search_results"]]
                 if TEST_ENV:
                     print(f"💾 [DEBUG ResponseFormatter] Cached metadata for {len(state['context_cache'])} results")
                 
