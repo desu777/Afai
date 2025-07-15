@@ -5,7 +5,7 @@ Uses LangChain Hyperbrowser for advanced scraping + Gemini 2.0 Flash analysis
 import re
 import base64
 from typing import Dict, List
-from config import debug_print, TEST_ENV, FOLLOW_UP_API, FOLLOW_UP_MODEL, HYPERBROWSER_API_KEY
+from config import debug_print, TEST_ENV, INTENT_DETECTOR_API, INTENT_DETECTOR_MODEL, HYPERBROWSER_API_KEY
 import json
 from langchain_openai import ChatOpenAI
 from langchain_hyperbrowser import HyperbrowserScrapeTool
@@ -17,10 +17,10 @@ class ICPScraper:
     """Enhanced web scraper for Aquaforest Lab ICP test results with LangChain"""
     
     def __init__(self):
-        # Use FOLLOW_UP variables (Gemini 2.0 Flash) for ICP analysis
+        # Use INTENT_DETECTOR variables (Gemini 2.5) for better ICP analysis
         self.llm = ChatOpenAI(
-            api_key=FOLLOW_UP_API,
-            model=FOLLOW_UP_MODEL,
+            api_key=INTENT_DETECTOR_API,
+            model=INTENT_DETECTOR_MODEL,
             base_url="https://openrouter.ai/api/v1",
             temperature=0.1
         )
@@ -29,7 +29,7 @@ class ICPScraper:
         self.scraper = HyperbrowserScrapeTool(api_key=HYPERBROWSER_API_KEY)
         
         if TEST_ENV:
-            debug_print(f"🔬 [ICPScraper] Initialized with LangChain + model: {FOLLOW_UP_MODEL}")
+            debug_print(f"🔬 [ICPScraper] Initialized with LangChain + model: {INTENT_DETECTOR_MODEL}")
     
     def extract_icp_data_from_url(self, url: str) -> Dict:
         """🆕 Extract ICP test data from Aquaforest Lab URL using LangChain Hyperbrowser"""
@@ -46,46 +46,56 @@ class ICPScraper:
                 if len(scraped_content) > 300:
                     debug_print(f"🌐 [ICPScraper] Raw scraped content end: ...{scraped_content[-200:]}")
             
-            # Use Gemini 2.0 Flash to analyze and extract structured data
+            # Use Gemini 2.5 as Water Diagnostician
             extraction_prompt = f"""
-You are an expert marine aquarium analyst. Extract ALL chemical parameters from this ICP test results page.
+Jesteś ekspertem diagnostą wody morskiej dla akwariów rafowych. Przeanalizuj wyniki ICP i stwórz profesjonalną diagnozę.
 
 URL: {url}
-Content: {scraped_content}
+Zawartość: {scraped_content}
 
-CRITICAL INSTRUCTIONS:
-1. Extract EVERY chemical parameter you find (Ca, Mg, KH, NO3, PO4, all trace elements)
-2. For each parameter, determine if it's too_high, too_low, or optimal based on reef aquarium standards
-3. Return ONLY valid JSON - no explanations, no markdown, no extra text
-4. If a parameter has no clear range, set status to "unknown"
+ZADANIA:
+1. Wyodrębnij WSZYSTKIE parametry chemiczne (Ca, Mg, KH, NO3, PO4, elementy śladowe)
+2. Określ status każdego parametru dla akwarium rafowego: optimal/too_high/too_low
+3. Stwórz listę działań wymaganych dla Business Reasoner
+4. Zwróć TYLKO poprawny JSON - bez wyjaśnień, bez markdown
 
-JSON format (extract ALL parameters found):
+FORMAT JSON (wyodrębnij WSZYSTKIE znalezione parametry):
 {{
     "metadata": {{
-        "test_number": "ICP test ID",
-        "aquarium_info": "aquarium description", 
-        "test_date": "test date",
-        "aquarium_volume": "volume if mentioned"
+        "test_number": "numer testu ICP",
+        "aquarium_info": "informacje o akwarium", 
+        "test_date": "data testu",
+        "aquarium_volume": "objętość jeśli podana"
     }},
     "parameters": {{
         "Calcium": {{
             "element": "Calcium (Ca)",
-            "recommended_range": "380-460 mg/l",
-            "user_result": "actual measured value",
-            "change": "change from previous test",
-            "status": "too_high/too_low/optimal/unknown"
+            "recommended_range": "420-460 mg/l",
+            "user_result": "zmierzona wartość",
+            "change": "zmiana od poprzedniego testu",
+            "status": "optimal/too_high/too_low",
+            "action_needed": "none/increase/decrease"
         }},
         "Magnesium": {{
             "element": "Magnesium (Mg)", 
-            "recommended_range": "1250-1350 mg/l",
-            "user_result": "actual measured value",
-            "change": "change from previous test", 
-            "status": "too_high/too_low/optimal/unknown"
+            "recommended_range": "1280-1340 mg/l",
+            "user_result": "zmierzona wartość",
+            "change": "zmiana od poprzedniego testu", 
+            "status": "optimal/too_high/too_low",
+            "action_needed": "none/increase/decrease"
         }}
+    }},
+    "diagnosis": {{
+        "optimal_count": "liczba parametrów OK",
+        "problems_count": "liczba parametrów do poprawy",
+        "priority_actions": [
+            "Obniżyć azotany (12→5 mg/l)",
+            "Podwyższyć wapń (350→430 mg/l)"
+        ]
     }}
 }}
 
-Extract ALL parameters from the content. Return valid JSON only.
+Wyodrębnij WSZYSTKIE parametry. Zwróć tylko JSON.
 """
             
             response = self.llm.invoke(extraction_prompt)
@@ -250,45 +260,55 @@ Extract ALL parameters from the content. Return valid JSON only.
                     if len(full_text) > 300:
                         debug_print(f"📄 [ICPScraper] Raw PDF content end: ...{full_text[-200:]}")
                 
-                # Use Gemini 2.0 Flash to analyze PDF content
+                # Use Gemini 2.5 as Water Diagnostician for PDF
                 pdf_analysis_prompt = f"""
-You are an expert marine aquarium analyst. Extract ALL chemical parameters from this ICP test results PDF.
+Jesteś ekspertem diagnostą wody morskiej dla akwariów rafowych. Przeanalizuj wyniki ICP z PDF i stwórz profesjonalną diagnozę.
 
-PDF Content: {full_text}
+Zawartość PDF: {full_text}
 
-CRITICAL INSTRUCTIONS:
-1. Extract EVERY chemical parameter you find (Ca, Mg, KH, NO3, PO4, all trace elements like I, Fe, Zn, etc.)
-2. For each parameter, determine if it's too_high, too_low, or optimal based on reef aquarium standards
-3. Return ONLY valid JSON - no explanations, no markdown, no extra text
-4. If a parameter has no clear range, set status to "unknown"
+ZADANIA:
+1. Wyodrębnij WSZYSTKIE parametry chemiczne (Ca, Mg, KH, NO3, PO4, wszystkie elementy śladowe jak I, Fe, Zn, itp.)
+2. Określ status każdego parametru dla akwarium rafowego: optimal/too_high/too_low
+3. Stwórz listę działań wymaganych dla Business Reasoner
+4. Zwróć TYLKO poprawny JSON - bez wyjaśnień, bez markdown
 
-JSON format (extract ALL parameters found):
+FORMAT JSON (wyodrębnij WSZYSTKIE znalezione parametry):
 {{
     "metadata": {{
-        "test_number": "ICP test ID",
-        "aquarium_info": "aquarium description",
-        "test_date": "test date", 
-        "aquarium_volume": "volume if mentioned"
+        "test_number": "numer testu ICP",
+        "aquarium_info": "informacje o akwarium",
+        "test_date": "data testu", 
+        "aquarium_volume": "objętość jeśli podana"
     }},
     "parameters": {{
         "Calcium": {{
             "element": "Calcium (Ca)",
-            "recommended_range": "380-460 mg/l",
-            "user_result": "actual measured value",
-            "change": "change from previous test",
-            "status": "too_high/too_low/optimal/unknown"
+            "recommended_range": "420-460 mg/l",
+            "user_result": "zmierzona wartość",
+            "change": "zmiana od poprzedniego testu",
+            "status": "optimal/too_high/too_low",
+            "action_needed": "none/increase/decrease"
         }},
         "Iodine": {{
             "element": "Iodine (I)",
             "recommended_range": "0.055-0.07 mg/l", 
-            "user_result": "actual measured value",
-            "change": "change from previous test",
-            "status": "too_high/too_low/optimal/unknown"
+            "user_result": "zmierzona wartość",
+            "change": "zmiana od poprzedniego testu",
+            "status": "optimal/too_high/too_low",
+            "action_needed": "none/increase/decrease"
         }}
+    }},
+    "diagnosis": {{
+        "optimal_count": "liczba parametrów OK",
+        "problems_count": "liczba parametrów do poprawy",
+        "priority_actions": [
+            "Obniżyć azotany (12→5 mg/l)",
+            "Podwyższyć wapń (350→430 mg/l)"
+        ]
     }}
 }}
 
-Extract ALL parameters from the PDF content. Return valid JSON only.
+Wyodrębnij WSZYSTKIE parametry z PDF. Zwróć tylko JSON.
 """
                 
                 response = self.llm.invoke(pdf_analysis_prompt)
@@ -446,51 +466,102 @@ Extract ALL parameters from the PDF content. Return valid JSON only.
             debug_print(f"❌ [ICPScraper] Error extracting metadata: {e}")
             return {}
 
-    def format_icp_data_for_llm(self, parameters: Dict, metadata: Dict = None) -> str:
-        """📋 Format ICP data for LLM analysis with aquarium info for precise dosing calculations"""
+    def format_icp_data_for_llm(self, parameters: Dict, metadata: Dict = None, diagnosis: Dict = None) -> str:
+        """📋 Format ICP data as water diagnostician report for BusinessReasoner"""
         lines = []
         
-        # 🎯 AQUARIUM INFO for dosing calculations
+        # 🎯 AQUARIUM INFO
         if metadata:
             aquarium_info = metadata.get("aquarium_info", "")
             test_date = metadata.get("test_date", "")
+            test_number = metadata.get("test_number", "")
             
             # Extract volume from aquarium_info (e.g., "Domowe 1150 LPS")
             volume_match = re.search(r'(\d+)', aquarium_info) if aquarium_info else None
             volume = volume_match.group(1) if volume_match else "unknown"
             
-            lines.append(f"AQUARIUM: {volume}L | DATE: {test_date}")
+            lines.append(f"🔬 DIAGNOZA ICP #{test_number}")
+            lines.append(f"📅 Data: {test_date} | 🏠 Akwarium: {volume}L")
             lines.append("")
         
-        lines.append("ELEMENT | RECOMMENDED | RESULT | CHANGE | STATUS")
-        lines.append("-" * 60)
+        # 📊 SUMMARY STATISTICS
+        if diagnosis:
+            optimal_count = diagnosis.get("optimal_count", 0)
+            problems_count = diagnosis.get("problems_count", 0)
+            lines.append(f"📊 PODSUMOWANIE: ✅ {optimal_count} OK | ⚠️ {problems_count} problemów")
+            lines.append("")
+        
+        # 🎯 CATEGORIZE PARAMETERS
+        optimal_params = []
+        too_high_params = []
+        too_low_params = []
         
         for param_name, data in parameters.items():
             element = data.get("element", param_name)
-            
-            # Format element name: "PO4Fosforany" → "PO4 Fosforany"
-            match = re.match(r'^([A-Za-z0-9]+)([A-Z][a-z]+.*)$', element)
-            if match:
-                symbol = match.group(1)
-                name = match.group(2)
-                element_formatted = f"{symbol} {name}"
-            else:
-                element_formatted = element
-            
-            recommended = data.get("recommended_range", "")
             user_result = data.get("user_result", "")
-            change = data.get("change", "")
+            recommended = data.get("recommended_range", "")
             status = data.get("status", "unknown")
+            action_needed = data.get("action_needed", "none")
             
-            status_icon = {
-                "too_high": "⬆️ HIGH",
-                "too_low": "⬇️ LOW", 
-                "optimal": "✅ OK",
-                "unknown": "❓"
-            }.get(status, status)
+            # Format element name: "PO4Fosforany" → "PO4"
+            element_short = re.match(r'^([A-Za-z0-9]+)', element).group(1) if element else param_name
             
-            line = f"{element_formatted} | {recommended} | {user_result} | {change} | {status_icon}"
-            lines.append(line)
+            param_info = f"{element_short} ({user_result} | cel: {recommended})"
+            
+            if status == "optimal":
+                optimal_params.append(param_info)
+            elif status == "too_high" and action_needed == "decrease":
+                too_high_params.append(param_info)
+            elif status == "too_low" and action_needed == "increase":
+                too_low_params.append(param_info)
+        
+        # ✅ OPTIMAL PARAMETERS
+        if optimal_params:
+            lines.append("✅ PARAMETRY OPTYMALNE:")
+            for param in optimal_params:
+                lines.append(f"   • {param}")
+            lines.append("")
+        
+        # ❌ PARAMETERS TO FIX
+        if too_high_params:
+            lines.append("❌ ZA WYSOKIE (wymagają obniżenia):")
+            for param in too_high_params:
+                lines.append(f"   • {param}")
+            lines.append("")
+        
+        if too_low_params:
+            lines.append("⚠️ ZA NISKIE (wymagają podwyższenia):")
+            for param in too_low_params:
+                lines.append(f"   • {param}")
+            lines.append("")
+        
+        # 🎯 PRODUCT SELECTION INSTRUCTIONS FOR BUSINESS REASONER
+        lines.append("🛒 PRODUKTY DO DOBRANIA:")
+        
+        if too_high_params:
+            for param in too_high_params:
+                element_name = param.split(" (")[0]
+                if "NO3" in element_name or "Azot" in element_name:
+                    lines.append(f"🔴 Obniżyć azotany: Dobierz wszystkie produkty na obniżenie azotanów!")
+                elif "PO4" in element_name or "Fosfor" in element_name:
+                    lines.append(f"🔴 Obniżyć fosforany: Dobierz wszystkie produkty na obniżenie fosforanów!")
+                else:
+                    lines.append(f"🔴 Obniżyć {element_name}: Dobierz produkty na obniżenie {element_name}!")
+        
+        if too_low_params:
+            for param in too_low_params:
+                element_name = param.split(" (")[0]
+                if "Ca" in element_name or "Wapń" in element_name:
+                    lines.append(f"🟡 Podwyższyć wapń: Dobierz wszystkie produkty na podwyższenie wapnia!")
+                elif "Mg" in element_name or "Magnez" in element_name:
+                    lines.append(f"🟡 Podwyższyć magnez: Dobierz wszystkie produkty na podwyższenie magnezu!")
+                elif "KH" in element_name or "Alkalinity" in element_name:
+                    lines.append(f"🟡 Podwyższyć KH: Dobierz wszystkie produkty na podwyższenie alkaliczności!")
+                else:
+                    lines.append(f"🟡 Podwyższyć {element_name}: Dobierz produkty na podwyższenie {element_name}!")
+        
+        if not too_high_params and not too_low_params:
+            lines.append("✅ Wszystkie parametry w normie - dobierz produkty do utrzymania stabilności!")
         
         return "\n".join(lines)
 

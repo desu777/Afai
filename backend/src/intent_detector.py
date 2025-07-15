@@ -293,10 +293,11 @@ Return ONLY a valid JSON object:
                 # Store raw ICP data
                 state["icp_data"] = icp_data
                 
-                # Format ICP data for LLM analysis
+                # Format ICP data for LLM analysis with diagnosis
                 formatted_icp_data = self.icp_scraper.format_icp_data_for_llm(
                     icp_data.get("parameters", {}), 
-                    icp_data.get("metadata", {})
+                    icp_data.get("metadata", {}),
+                    icp_data.get("diagnosis", {})
                 )
                 
                 state["icp_analysis"] = formatted_icp_data
