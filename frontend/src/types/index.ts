@@ -4,6 +4,9 @@ export interface Message {
   content: string;
   timestamp: Date;
   imageUrl?: string;
+  fileName?: string;
+  fileSize?: number;
+  fileType?: 'image' | 'pdf';
 }
 
 export interface ChatRequest {

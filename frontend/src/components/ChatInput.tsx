@@ -25,7 +25,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
   // 🆕 Używam hook do obsługi plików (images + PDFs)
-  const { imagePreview, handleImageSelect, removeImage, isPDF, isImage, fileType } = useImageUpload({
+  const { imagePreview, handleImageSelect, removeImage, isPDF, fileType } = useImageUpload({
     selectedImage,
     onImageSelect
   });

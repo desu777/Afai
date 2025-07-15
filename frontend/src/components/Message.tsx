@@ -2,6 +2,7 @@ import { User, Copy, Download } from 'lucide-react'
 import { Message as MessageType } from '../types'
 import MessageContent from './MessageContent'
 import TruncatedMessageContent from './TruncatedMessageContent'
+import MessageFileDisplay from './MessageFileDisplay'
 
 interface MessageProps {
   message: MessageType;
@@ -152,15 +153,14 @@ const Message: React.FC<MessageProps> = ({ message }) => {
               ? 'bg-gradient-to-r from-purple-600 to-violet-700 text-white border-purple-500/20'
               : 'bg-white/95 text-gray-800 border-purple-200/40'
           }`}>
-            {/* 🆕 Wyświetlanie zdjęcia jeśli jest dostępne */}
+            {/* 🆕 Wyświetlanie pliku jeśli jest dostępny */}
             {message.imageUrl && (
-              <div className="mb-3">
-                <img
-                  src={message.imageUrl}
-                  alt="User attached image"
-                  className="max-w-full max-h-64 rounded-lg shadow-sm border border-white/20"
-                />
-              </div>
+              <MessageFileDisplay 
+                imageUrl={message.imageUrl}
+                fileName={message.fileName}
+                fileType={message.fileType}
+                fileSize={message.fileSize}
+              />
             )}
             
             {message.type === 'assistant' ? (

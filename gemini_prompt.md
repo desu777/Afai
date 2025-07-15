@@ -1,145 +1,291 @@
-# Gemini 2.0 Flash and 2.5 Flash Preview: Complete Prompt Engineering Guide
+# Google Gemini 2.5 Flash Preview 0520: Kompleksowy przewodnik dla twórców agentów RAG
 
-Google's Gemini 2.0 Flash and 2.5 Flash Preview models represent a significant advancement in AI capabilities, offering superior cost-performance ratios and innovative features like controllable thinking budgets. **For AI assistant systems handling product recommendations, business reasoning, and intent detection, these models provide exceptional value with specific optimization strategies that can improve response quality by up to 300% while reducing costs by 25x compared to competitors.** The key breakthrough is the 2.5 Flash Preview's "thinking budget" feature, which allows granular control over reasoning depth and associated costs.
+Google Gemini 2.5 Flash Preview 0520 to przełomowy model AI, który łączy zaawansowane możliwości myślenia z multimodalnym przetwarzaniem, oferując **najlepszy stosunek ceny do wydajności na rynku**. Model został awansowany do wersji stabilnej jako `gemini-2.5-flash`, czyniąc go gotowym do produkcji rozwiązaniem dla aplikacji RAG. Jako pierwszy model Flash z wbudowanymi możliwościami myślenia i oknem kontekstu 1 miliona tokenów, stanowi idealne rozwiązanie dla złożonych zadań wymagających wieloetapowego rozumowania.
 
-Both models offer 1 million token context windows with significantly improved performance over previous generations. The 2.0 Flash provides 2x faster processing than Gemini 1.5 Pro, while 2.5 Flash Preview introduces the first fully hybrid reasoning model with controllable thinking capabilities. These advances enable more sophisticated AI assistant implementations with better cost management and performance optimization.
+## Specyfikacje techniczne modelu
 
-## Model specifications and unique characteristics
+### Podstawowe parametry wydajności
 
-**Gemini 2.0 Flash** (generally available since February 2025) offers exceptional speed and stability for production environments. The model supports 1,048,576 input tokens with 8,192 output tokens, providing native multimodal capabilities including text, images, video, and audio processing. Its architecture emphasizes agentic workflows and autonomous task execution, making it ideal for real-time applications requiring low latency.
+Model oferuje **okno kontekstu o pojemności 1 048 576 tokenów** (1 milion tokenów), co pozwala na przetwarzanie około 700 000 słów, 11 godzin audio lub 1 godziny wideo w pojedynczym zapytaniu. **Limit tokenów wyjściowych wynosi 65 536 tokenów** (64K), co zapewnia wystarczającą przestrzeń na szczegółowe odpowiedzi.
 
-**Gemini 2.5 Flash Preview** represents a revolutionary approach with its hybrid reasoning capabilities. The model features the same 1M token context window but extends output capacity to 65,536 tokens. The game-changing feature is the controllable thinking budget (0-24,576 tokens), allowing developers to balance reasoning depth with cost and latency requirements. This model ranks second only to Gemini 2.5 Pro on complex reasoning benchmarks.
+Wydajność przetwarzania jest imponująca - model osiąga **307.3 tokenów na sekundę** z czasem do pierwszego tokena wynoszącym **0.35 sekundy**. To 3-krotna poprawa w porównaniu do Gemini 1.5 Flash, czyniąc go idealnym do aplikacji czasu rzeczywistego.
 
-**Key architectural differences** include the 2.0 Flash's optimization for speed and tool integration, while 2.5 Flash Preview focuses on reasoning transparency and cost control. Both models use the same temperature range (0.0-2.0) but with different defaults: 1.0 for 2.0 Flash and 0.7 for 2.5 Flash Preview. The models share Google's enhanced safety measures and improved factual accuracy compared to previous generations.
+### Możliwości multimodalne
 
-## Optimal prompting strategies for business applications
+Model natywnie obsługuje **tekst, obrazy, wideo i audio** bez konieczności konwersji formatów. Może przetworzyć do **3 600 obrazów na zapytanie**, wideo o długości do 1 godziny i audio trwające około 9.5 godziny. Ta multimodalność pozwala na bezproblemowe przetwarzanie dokumentów PDF, prezentacji, diagramów i innych formatów wizualnych.
 
-**Effective prompt structure** for both models follows Google's recommended template: `[ROLE/PERSONA] + [CONTEXT] + [TASK] + [CONSTRAINTS] + [FORMAT]`. Successful prompts average 21 words, significantly longer than typical initial attempts of fewer than 9 words. The models respond exceptionally well to explicit role definitions and structured instructions.
+Funkcje myślenia to kluczowa innowacja - model może **automatycznie regulować głębokość rozumowania** w zależności od złożoności zadania. Budżet myślenia jest konfigurowalny od 0 do 24 576 tokenów, pozwalając na optymalizację między jakością a kosztem.
 
-**For product recommendation systems**, use this proven structure:
-```
-You are an expert product recommendation engine for e-commerce platforms.
+## Dostępność i API
 
-User Context:
-- Previous purchases: {purchase_history}
-- Current query: {user_query}
-- Preferences: {user_preferences}
+### Sposoby uzyskania dostępu
 
-Task: Recommend 3-5 products with relevance scores and reasoning.
+Model jest dostępny przez **Google AI Studio** (bezpłatnie z ograniczeniami lub płatnie) oraz **Vertex AI** dla zastosowań korporacyjnych. Użytkownicy mogą również korzystać z **Gemini App** z subskrypcją Google AI Pro ($20/miesiąc) lub Google AI Ultra.
 
-Format as JSON with structured output including product name, features, relevance score (1-10), and recommendation reasoning.
-```
+Aby rozpocząć, wystarczy:
+1. Zarejestrować się w Google AI Studio na ai.google.dev
+2. Wygenerować klucz API
+3. Zainstalować biblioteki klienckie
+4. Używać nazwy modelu: `gemini-2.5-flash-preview-05-20` lub `gemini-2.5-flash`
 
-**Business reasoning optimization** requires explicit step-by-step instructions and few-shot examples. Include verification steps like "Review your reasoning and check for errors" to improve accuracy. For intent detection, provide specific business intent categories (Product Information, Order Status, Customer Support, Purchase Intent, Recommendation Request) with confidence scoring.
+### Dokumentacja i SDK
 
-**Role definition best practices** include specifying expertise levels ("senior data scientist with 10+ years experience"), relevant domain knowledge ("specializing in e-commerce recommendation systems"), and behavioral expectations ("provide step-by-step reasoning and cite sources").
+Dostępne są **oficjalne SDK** w językach Python (`google-genai`), JavaScript (`@google/genai`), Go i Java. Nowe SDK oferuje uproszczone API z lepszą integracją możliwości myślenia.
 
-## JSON output mastery and structured data generation
-
-**Response format configuration** is crucial for reliable JSON outputs. The most effective approach uses the `response_mime_type: "application/json"` parameter, achieving nearly 100% valid JSON success rates compared to 0% without proper configuration due to markdown wrapper issues.
-
-**For Gemini 2.0 Flash**, use basic JSON mode with simplified schemas:
 ```python
-response = model.generate_content(
-    prompt,
-    generation_config={
-        "response_mime_type": "application/json",
-        "response_schema": simple_schema
-    }
-)
-```
+# Przykład użycia z nowym SDK
+from google import genai
 
-**For Gemini 2.5 Flash Preview**, leverage enhanced JSON Schema support with Pydantic integration:
-```python
-from pydantic import BaseModel
-
-class ProductRecommendation(BaseModel):
-    name: str
-    relevance_score: int
-    reasoning: str
-    
+client = genai.Client(api_key="YOUR_API_KEY")
 response = client.models.generate_content(
-    model="gemini-2.5-flash",
-    contents=prompt,
-    config={
-        "response_mime_type": "application/json",
-        "response_schema": list[ProductRecommendation]
-    }
+    model="gemini-2.5-flash-preview-05-20",
+    contents="Przeanalizuj ten dokument pod kątem głównych wniosków",
+    config=genai.types.GenerateContentConfig(
+        thinking_config=genai.types.ThinkingConfig(
+            thinking_budget=1024
+        )
+    )
 )
 ```
 
-**Common JSON issues** include markdown code block wrapping (solved with proper mime type), incomplete objects (increase max_output_tokens), and tool usage conflicts (separate API calls for tools and structured output). The 2.5 Flash Preview handles complex nested structures better than 2.0 Flash, which performs best with simplified schemas.
+## Koszty i limity
 
-## Temperature and parameter optimization guide
+### Struktura cenowa
 
-**Temperature recommendations** vary significantly by use case. For classification tasks and intent detection, use **0.2 temperature** to ensure deterministic outputs and consistent categorization. Code generation benefits from **0.2-0.4 temperature** for improved correctness. Creative tasks like content generation require **1.0-1.5 temperature** for diverse outputs, while reasoning tasks perform best with **0.7-1.0 temperature** for balanced analytical thinking.
+Model oferuje **konkurencyjne ceny** z następującą strukturą:
+- **Tokeny wejściowe**: $0.15 za 1M tokenów (tekst/obraz/wideo), $1.00 za 1M tokenów (audio)
+- **Tokeny wyjściowe**: $0.60 za 1M tokenów (bez myślenia), $3.50 za 1M tokenów (z myśleniem)
+- **Grounding z Google Search**: 1,500 zapytań dziennie za darmo, następnie $35 za 1,000 zapytań
 
-**Thinking budget optimization** (2.5 Flash Preview only) provides unprecedented control over reasoning depth:
-- **Budget 0**: Fastest response, no thinking, maintains 2.0 Flash speed
-- **Budget 1024-2048**: Moderate reasoning for analysis and summarization
-- **Budget 4096-8192**: Complex reasoning for mathematical and logical tasks
-- **Budget 16384-24576**: Maximum reasoning for highly complex problems
+### Limity szybkości
 
-**Additional parameters** include Top-P (nucleus sampling) with 0.1-0.5 for focused outputs and 0.8-0.95 for diversity. Top-K typically ranges 20-40 for most applications. Max output tokens reach 8,192 for 2.0 Flash and 65,536 for 2.5 Flash, with approximately 4 characters per token.
+**Warstwa bezpłatna**: 10 zapytań/minutę, 250 000 tokenów/minutę, 500 zapytań/dzień
 
-## Performance benchmarks and competitive analysis
+**Warstwy płatne**:
+- Warstwa 1: 1,000 zapytań/minutę, 1M tokenów/minutę, 10K zapytań/dzień
+- Warstwa 2: 2,000 zapytań/minutę, 3M tokenów/minutę, 100K zapytań/dzień
+- Warstwa 3: 10,000 zapytań/minutę, 8M tokenów/minutę, bez limitu dziennego
 
-**Speed performance** shows impressive improvements with 2.5 Flash achieving 267-307 tokens/second output speed and 0.35-0.40 second time-to-first-token. The 2.0 Flash processes approximately 200-250 tokens/second, representing 2x improvement over previous generations.
+Gemini 2.5 Flash jest **40 razy tańszy** od Claude Opus dla tokenów wejściowych, oferując najlepszy stosunek ceny do wydajności na rynku.
 
-**Accuracy benchmarks** reveal strong performance across domains:
-- **MMLU**: 2.5 Flash scores 80.9% vs 2.0 Flash's 71.7%
-- **HumanEval (coding)**: 2.5 Flash achieves 63.9% vs 2.0 Flash's 34.5%
-- **GPQA Diamond**: 2.5 Flash reaches 82.8% vs 2.0 Flash's 60.1%
-- **Long context (MRCR v2)**: 2.5 Flash shows 74.0% (128k) vs 2.0 Flash's 36.0%
+## Możliwości dla RAG
 
-**Cost-performance analysis** demonstrates exceptional value with 2.5 Flash at $0.26 per million tokens (blended pricing) compared to competitors at $5-15 per million tokens. This represents up to 20x cost savings while maintaining competitive performance levels.
+### Wydajność z długimi dokumentami
 
-**Competitive positioning** shows 2.5 Flash ranking behind Claude 3.7 Sonnet and GPT-4o in pure reasoning tasks but leading significantly in cost-effectiveness. For code generation, Claude 3.7 Sonnet leads (93.7% HumanEval) followed by GPT-4o (90.2%), with Gemini models trailing but offering superior value propositions.
+Model **radykalnie przewyższa** tradycyjne podejścia RAG w określonych scenariuszach. Badania pokazują, że dla zadań wymagających zrozumienia całego dokumentu (jak kategoryzacja), pełne przetwarzanie kontekstu osiąga **99.8% dokładności** w porównaniu do 66.4% dla tradycyjnego RAG.
 
-## Context handling and token management strategies
+**Analiza długiego kontekstu vs. RAG**:
+- Koszt pełnego dokumentu: ~$0.20 za firmę vs. $0.0077 dla RAG
+- Zużycie tokenów: 400,000 vs. 62,000 dla RAG
+- Wydajność: Przewaga długiego kontekstu w zadaniach wymagających szerokiego zrozumienia
 
-**Context window capabilities** of 1 million tokens (approximately 800,000 words or 2,000 pages) enable sophisticated document analysis and extended conversations. Both models maintain performance across the full context window, with 2.5 Flash showing superior long-context understanding based on benchmark results.
+### Możliwości wyszukiwania i retrieval
 
-**Optimization strategies** include front-loading important information, implementing clear section breaks for long documents, and using structured prompts for multi-turn conversations. For product recommendation systems, maintain user context throughout sessions while summarizing historical interactions to optimize token usage.
+Model oferuje **natywne funkcje retrieval** poprzez:
+- **Wywoływanie funkcji** z integracją zewnętrznych źródeł danych
+- **Grounding z Google Search** dla informacji w czasie rzeczywistym
+- **Obsługę URL** dla bezpośredniego przetwarzania treści internetowych
+- **Wykonywanie kodu** dla dynamicznego przetwarzania informacji
 
-**Memory and conversation management** benefits from context-aware prompt design. Implement conversation memory through structured context management, leverage the full context window for complex document analysis, and use few-shot learning examples within the context. Monitor token usage to balance context richness with cost efficiency.
+**Strategia hybrydowego retrieval**:
+```python
+def hybrid_retrieval(query, documents, model):
+    # Semantic chunking z wykorzystaniem Gemini
+    semantic_chunks = model.generate_content(
+        f"Przeanalizuj ten dokument i podziel na spójne semantycznie sekcje: {documents}"
+    )
+    
+    # Kombinacja wyszukiwania wektorowego i tekstowego
+    vector_results = vector_db.similarity_search(query, k=5)
+    text_results = full_text_search(query, documents)
+    
+    return merge_and_rank_results(vector_results, text_results)
+```
 
-## Known limitations and practical workarounds
+### Integracja z bazami wektorowymi
 
-**Technical limitations** include potential performance degradation with very long contexts despite the 1M token capacity. Rate limits vary by usage tier with approximately 50-100 daily requests for Pro users. The 2.5 Flash Preview's thinking mode cannot be disabled for the Pro version, unlike the Flash variant.
+Model doskonale integruje się z **popularnymi bazami wektorowymi**:
 
-**Response quality concerns** involve occasional hallucinations, though Gemini models produce fewer than GPT-4 and Claude 3.5. Mathematical reasoning requires careful verification, and factual accuracy shouldn't be relied upon for critical information without external validation.
+**ChromaDB**:
+```python
+class GeminiEmbeddingFunction(EmbeddingFunction):
+    def __call__(self, input: Documents) -> Embeddings:
+        response = genai.embed_content(
+            model="models/text-embedding-004",
+            content=input,
+            task_type="retrieval_document"
+        )
+        return response["embedding"]
+```
 
-**Workarounds for common issues**:
-- **Rate limits**: Optimize token usage, implement batch processing, use response caching
-- **Accuracy**: Use verification prompts, generate multiple samples, implement chain-of-thought reasoning
-- **Context limits**: Employ chunking strategies, pre-summarization, hierarchical processing
-- **Safety filters**: Rephrase prompts, use alternative approaches, implement fallback mechanisms
+**Pinecone** oferuje zarządzane usługi z automatycznym skalowaniem, **Weaviate** doskonale sprawdza się w zapytaniach hybrydowych, a **Qdrant** zapewnia najwyższą wydajność RPS.
 
-**JSON-specific issues** include thinking mode incompatibility with 2.0 Flash JSON output, tool usage conflicts with structured output, and schema validation errors. Solutions involve using separate API calls for tools and structured output, simplifying schemas for 2.0 Flash, and implementing proper error handling.
+## Najlepsze praktyki promptowania
 
-## Advanced prompt engineering techniques
+### Optymalna struktura promptów
 
-**Structured prompt templates** work exceptionally well with both models. Use XML-like tags for complex outputs, implement sequential prompting for multi-step tasks, and leverage few-shot examples (3-5 examples optimal). The models respond better to guidance language rather than direct commands.
+Skuteczne prompty dla RAG powinny używać **struktury XML** z jasno zdefiniowanymi sekcjami:
 
-**For business applications**, implement decision trees for complex business logic, use structured output formats for business data, and define specific business roles and expertise levels. Intent detection benefits from explicit category definitions and confidence scoring requirements.
+```xml
+<system_instructions>
+Jesteś asystentem RAG specjalizującym się w [domenie]. Analizuj dokumenty i udzielaj odpowiedzi opartych na dowodach.
+</system_instructions>
 
-**Advanced formatting techniques** include using prefixes ("Input:", "Output:", "Context:") for clear delineation, implementing verification steps within prompts, and breaking complex tasks into sequential components. The models excel with explicit reasoning requests like "Think through this step-by-step."
+<context>
+Następujące dokumenty zostały pobrane jako najbardziej istotne źródła:
+[Pobrane dokumenty]
+</context>
 
-## Implementation recommendations for AI assistants
+<instructions>
+1. Przeanalizuj dokładnie dostarczone dokumenty
+2. Wyodrębnij istotne informacje odpowiadające na pytanie
+3. Jeśli informacje są niepełne, jasno określ ograniczenia
+4. Podaj cytaty do konkretnych sekcji dokumentów
+</instructions>
 
-**Production deployment strategy** should start with Gemini 2.5 Flash for balanced performance and cost, scaling to 2.5 Pro for complex reasoning tasks. Use 2.0 Flash for speed-critical applications where thinking capabilities aren't essential.
+<question>
+[Pytanie użytkownika]
+</question>
+```
 
-**Cost optimization tactics** include disabling thinking for simple tasks, using appropriate thinking budgets for complex reasoning, implementing batch processing for similar requests, and monitoring usage patterns for optimization opportunities.
+### Techniki few-shot learning
 
-**Quality control measures** involve implementing confidence scoring, requesting source attribution, using consistency checks across multiple responses, and including bias awareness in prompts. For product recommendation systems, implement multi-step validation and cross-reference with inventory systems.
+**3-5 przykładów** działa najlepiej dla większości zadań RAG. Przykłady powinny pokazywać:
+- Konsystentne formatowanie XML
+- Jak radzić sobie z niepewnością
+- Wzorce cytowania
+- Odpowiednią długość i głębokość odpowiedzi
 
-**Security and compliance** require data sanitization before processing, output filtering for inappropriate content, privacy protection by avoiding sensitive data in prompts, and maintaining audit trails for compliance requirements.
+### Optymalizacja parametrów
 
-## Conclusion
+**Dla zadań faktycznych**:
+- Temperature: 0.2-0.3 (niska dla spójności)
+- Thinking budget: 1024 tokeny (umiarkowane myślenie dla dokładności)
 
-The Gemini 2.0 Flash and 2.5 Flash Preview models offer transformative capabilities for AI assistant systems, particularly in product recommendation, business reasoning, and intent detection applications. The key to success lies in understanding each model's unique strengths: 2.0 Flash excels in speed and cost-effectiveness for production environments, while 2.5 Flash Preview provides superior reasoning capabilities with unprecedented control over thinking depth and associated costs.
+**Dla zadań analitycznych**:
+- Temperature: 0.7 (wyższa dla kreatywności)
+- Thinking budget: 2048 tokenów (więcej myślenia dla złożonych analiz)
 
-The most significant breakthrough is the thinking budget feature, which allows developers to optimize for specific use cases by controlling reasoning depth. Combined with proper JSON output configuration, temperature optimization, and structured prompting techniques, these models can achieve response quality improvements of up to 300% while reducing costs by 25x compared to competitors.
+## Porównania z konkurencją
 
-For organizations implementing AI assistant systems, the strategic recommendation is to begin with Gemini 2.5 Flash for most applications, leveraging its thinking budget controls for cost optimization while maintaining high-quality outputs. The models' exceptional cost-performance ratio, combined with Google's ecosystem integration, makes them particularly attractive for large-scale deployments requiring sophisticated reasoning capabilities at sustainable costs.
+### Wydajność względem innych modeli
+
+**Gemini 2.5 Flash vs. Claude 3.7 Sonnet**:
+- Wydajność kodowania: 63.8% vs. 62.3% na SWE-bench
+- Okno kontekstu: 1M tokenów vs. 200K (przewaga 5x)
+- Cena: znacznie bardziej opłacalny ($0.15/$0.60 vs. $3.00/$15.00)
+
+**Gemini 2.5 Flash vs. GPT-4o**:
+- Wynik MMLU: 80.9% vs. ~87-88% (GPT-4o prowadzi)
+- Szybkość: 307.3 vs. 116 tokenów/sek (znaczna przewaga Gemini)
+- Koszt: znacznie tańszy od GPT-4o
+
+### Mocne i słabe strony
+
+**Mocne strony**:
+- Najlepszy stosunek ceny do wydajności na rynku
+- Hybrydowy model rozumowania z konfigurowalnymi możliwościami
+- Wyjątkowa szybkość (307.3 tokenów/sek)
+- Duże okno kontekstu (1M tokenów)
+- Natywne możliwości multimodalne
+
+**Słabe strony**:
+- Bardziej restrykcyjne limity szybkości
+- Problemy z pobieraniem kontekstu z najwcześniejszych części bardzo długich kontekstów
+- Okazjonalne halucynacje mimo poprawy
+- Ograniczenia w głębokości rozumowania (budżet do 24,576 tokenów)
+
+## Implementacja RAG
+
+### Architektura enterprise RAG
+
+```python
+class EnterpriseRAGSystem:
+    def __init__(self):
+        self.model = genai.GenerativeModel('gemini-2.5-flash-preview-05-20')
+        self.vector_db = setup_vector_database()
+        self.knowledge_graph = setup_knowledge_graph()
+    
+    def process_query(self, query, thinking_budget=512):
+        # Hybrydowy retrieval
+        vector_results = self.vector_db.similarity_search(query, k=5)
+        graph_results = self.knowledge_graph.query_entities(query)
+        
+        # Połączenie i ranking wyników
+        combined_context = self.merge_contexts(vector_results, graph_results)
+        
+        # Generowanie odpowiedzi z kontrolowanym myśleniem
+        response = self.model.generate_content(
+            self.create_prompt(query, combined_context),
+            config=genai.types.GenerateContentConfig(
+                thinking_config=genai.types.ThinkingConfig(
+                    thinking_budget=thinking_budget
+                )
+            )
+        )
+        
+        return response.text
+```
+
+### Strategie podziału na chunki
+
+**Semantic chunking** z wykorzystaniem Gemini:
+```python
+def semantic_chunking_with_gemini(document, chunk_size=2048):
+    prompt = f"""
+    Przeanalizuj ten dokument i podziel go na spójne semantycznie części.
+    Każda część powinna mieć około {chunk_size} znaków.
+    Zachowaj spójność tematyczną i kontekst.
+    """
+    
+    response = model.generate_content(prompt + document)
+    return parse_semantic_chunks(response.text)
+```
+
+### Metryki ewaluacji
+
+**Metryki retrieval**:
+- Precision@k: Istotne dokumenty w top-k wynikach
+- Mean Reciprocal Rank (MRR): Pozycja pierwszego istotnego dokumentu
+- NDCG: Jakość rankingu z wagami pozycji
+
+**Metryki jakości generowania**:
+- Poprawność odpowiedzi: Faktyczna dokładność
+- Istotność odpowiedzi: Zgodność z zapytaniem użytkownika
+- Wierność: Oparcie na pobranym kontekście
+
+## Aktualne informacje i status
+
+### Status modelu
+
+Model ma **status General Availability (Stable)** - wersja preview 05-20 została awansowana do stabilnej wersji jako `gemini-2.5-flash`. Nie ma zmian w wydajności lub możliwościach, a model jest gotowy do produkcji z pełnymi gwarancjami wsparcia.
+
+### Planowane zmiany
+
+**Potwierdzone rozwoju**:
+- Gemini 2.5 Flash-Lite: szybsza, bardziej oszczędna wersja
+- Rozszerzenie okna kontekstu do 2M tokenów
+- Deep Think Mode: ulepszone możliwości rozumowania
+- Natywne wyjście audio: mowa w 24+ językach
+
+### Wsparcie społeczności
+
+**Dostępne zasoby**:
+- Google AI Studio: środowisko webowe
+- Vertex AI: platforma enterprise
+- Kompleksowa dokumentacja API
+- Aktywne fora społeczności Google AI Developer
+- Przykłady GitHub i przewodniki integracji
+
+## Podsumowanie i rekomendacje
+
+Google Gemini 2.5 Flash Preview 0520 reprezentuje znaczący postęp w dostępnych możliwościach AI. Model **demokratyzuje dostęp** do zaawansowanych funkcji AI, zachowując konkurencyjną wydajność w kluczowych metrykach. Dla programistów i organizacji poszukujących niezawodnego, opłacalnego rozwiązania AI z mocnymi możliwościami w różnorodnych zadaniach, Gemini 2.5 Flash stanowi **przekonujący wybór** w obecnym krajobrazie LLM.
+
+**Kiedy wybrać Gemini 2.5 Flash**:
+- Aplikacje produkcyjne wymagające stabilności i opłacalności
+- Zadania wysokiej objętości z naciskiem na szybkość
+- Aplikacje multimodalne z treściami wizualnymi
+- Projekty świadome budżetu potrzebujące najlepszego stosunku ceny do wydajności
+- Zadania długiego kontekstu wykorzystujące okno 1M tokenów
+
+Model szczególnie dobrze nadaje się do **złożonych zadań RAG** wymagających wieloetapowego rozumowania, ale właściwe inżynieria promptów pozostaje niezbędna dla optymalnych wyników. Skupienie się na przejrzystości, strukturze i dostarczaniu modelowi jasnych wzorców do naśladowania zapewni spójne, wysokiej jakości wyniki.

@@ -14,7 +14,6 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({
   onRemove, 
   isPDF = false, 
   fileName = '',
-  fileType,
   fileSize 
 }) => {
   // Helper function to format file size
@@ -57,7 +56,7 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({
           // Image Preview with confirmation
           <div className="relative">
             <img
-              src={imagePreview}
+              src={imagePreview || ''}
               alt="Selected image"
               className="max-w-xs max-h-40 rounded-xl shadow-lg border border-purple-200/60"
             />
