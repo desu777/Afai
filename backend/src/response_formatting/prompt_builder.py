@@ -23,6 +23,12 @@ class PromptBuilder:
         if TEST_ENV:
             print(f"\n📝 [DEBUG ResponseFormatter] Formatting response for intent='{intent}', language='{lang}'")
         
+        # Handle ICP analysis with specialized prompt
+        if intent == Intent.ANALYZE_ICP:
+            if TEST_ENV:
+                print(f"🔬 [DEBUG ResponseFormatter] Using specialized ICP analysis prompt")
+            return self.create_icp_analysis_prompt(state)
+        
         # Handle special intents first
         if intent in [Intent.GREETING, Intent.BUSINESS, 
                      Intent.PURCHASE_INQUIRY, Intent.COMPETITOR, Intent.CENSORED, Intent.SUPPORT, Intent.OTHER]:
@@ -200,6 +206,75 @@ User said: "{user_query}"
 
 Respond helpfully and professionally in {lang} language.
 """
+
+    def create_icp_analysis_prompt(self, state: ConversationState) -> str:
+        """Create specialized prompt for ICP analysis using external template"""
+        lang = state.get("detected_language", "en")
+        user_query = state.get("user_query", "")
+        
+        if TEST_ENV:
+            print(f"🔬 [DEBUG PromptBuilder] Creating ICP analysis prompt")
+        
+        # Format conversation history
+        chat_history_formatted = ""
+        if state.get("chat_history"):
+            chat_history_formatted = "\n".join([
+                f"{msg['role'].upper()}: {msg['content']}" 
+                for msg in state.get("chat_history", [])[-6:]
+            ])
+        
+        # Get ICP analysis data
+        icp_analysis = state.get("icp_analysis", "No ICP data available")
+        
+        # Check for dosage query and extract volume
+        is_dosage_query = self.dosage_calculator.detect_dosage_query(user_query)
+        aquarium_volume = None
+        if is_dosage_query:
+            aquarium_volume = calculation_helper.extract_volume_from_query(user_query)
+        
+        # Build context sections
+        business_context = self._build_business_context(state)
+        competitor_context = self._build_competitor_context(state)
+        
+        # Process search results for ICP-specific formatting
+        formatted_all_results, dosage_context = self._process_search_results(
+            state, is_dosage_query, aquarium_volume
+        )
+        
+        # Calculate confidence for ICP analysis
+        confidence = state.get("confidence", 0.8)
+        
+        # Load ICP analysis template
+        prompt = load_prompt_template(
+            "icp_analysis",
+            language=lang,
+            chat_history_formatted=chat_history_formatted,
+            user_query=user_query,
+            icp_analysis=icp_analysis,
+            confidence=confidence,
+            aquarium_volume=aquarium_volume if aquarium_volume else "Not specified",
+            dosage_context=dosage_context,
+            business_context=business_context,
+            competitor_context=competitor_context,
+            formatted_all_results=formatted_all_results
+        )
+        
+        # Fallback if template loading fails
+        if not prompt:
+            if TEST_ENV:
+                print("⚠️ [PromptBuilder] Using fallback for ICP analysis")
+            prompt = f"""
+You are AF AI, specialized in ICP water test analysis.
+Analyze these ICP results: {icp_analysis}
+User query: "{user_query}"
+Provide expert recommendations for water parameter corrections.
+Respond in {lang} language.
+"""
+        
+        if TEST_ENV:
+            print(f"✅ [DEBUG PromptBuilder] ICP analysis prompt created ({len(prompt)} characters)")
+        
+        return prompt
 
     def _build_category_context(self, state: ConversationState) -> str:
         """Build category context section"""
