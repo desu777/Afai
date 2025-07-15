@@ -325,6 +325,8 @@ Return ONLY a valid JSON object:
         except Exception as e:
             if TEST_ENV:
                 debug_print(f"❌ [IntentDetector] ICP analysis error: {e}")
+                import traceback
+                debug_print(f"🔍 [IntentDetector] Error traceback: {traceback.format_exc()}")
             
             # Fallback - still process as text-only
             return state

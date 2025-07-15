@@ -12,6 +12,8 @@ from langchain_hyperbrowser import HyperbrowserScrapeTool
 from langchain_community.document_loaders import PyMuPDFLoader
 import tempfile
 import os
+import requests
+from bs4 import BeautifulSoup
 
 class ICPScraper:
     """Enhanced web scraper for Aquaforest Lab ICP test results with LangChain"""
@@ -31,20 +33,156 @@ class ICPScraper:
         if TEST_ENV:
             debug_print(f"🔬 [ICPScraper] Initialized with LangChain + model: {INTENT_DETECTOR_MODEL}")
     
-    def extract_icp_data_from_url(self, url: str) -> Dict:
-        """🆕 Extract ICP test data from Aquaforest Lab URL using LangChain Hyperbrowser"""
+    def _parse_json_response(self, response_content: str, source_type: str) -> dict:
+        """Enhanced JSON parsing with markdown wrapper support"""
         try:
-            debug_print(f"🌐 [ICPScraper] Fetching ICP data with Hyperbrowser from: {url}")
+            # Try direct JSON parsing first
+            return json.loads(response_content)
+        except json.JSONDecodeError as e:
+            debug_print(f"❌ [ICPScraper] {source_type} JSON parsing failed: {e}")
+            
+            # Try to extract JSON from markdown wrapper
+            markdown_match = re.search(r'```json\s*(\{.*?\})\s*```', response_content, re.DOTALL)
+            if markdown_match:
+                try:
+                    result = json.loads(markdown_match.group(1))
+                    debug_print(f"✅ [ICPScraper] Recovered JSON from {source_type} markdown wrapper")
+                    return result
+                except json.JSONDecodeError:
+                    pass
+            
+            # Try to extract JSON from response if it contains extra text
+            json_match = re.search(r'\{.*\}', response_content, re.DOTALL)
+            if json_match:
+                try:
+                    result = json.loads(json_match.group(0))
+                    debug_print(f"✅ [ICPScraper] Recovered JSON from {source_type} response")
+                    return result
+                except json.JSONDecodeError:
+                    pass
+            
+            # All parsing methods failed
+            debug_print(f"❌ [ICPScraper] No valid JSON found in {source_type} response")
+            return None
+
+    def _requests_scraping(self, url: str) -> str:
+        """Enhanced requests + BeautifulSoup scraping method (primary method)"""
+        try:
+            debug_print(f"🌐 [ICPScraper] Using requests + BeautifulSoup for: {url}")
+            
+            # Enhanced headers to avoid blocking
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+                'Accept-Language': 'pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Connection': 'keep-alive',
+                'Upgrade-Insecure-Requests': '1',
+                'Sec-Fetch-Dest': 'document',
+                'Sec-Fetch-Mode': 'navigate',
+                'Sec-Fetch-Site': 'none',
+                'Sec-Fetch-User': '?1',
+            }
+            
+            # Make request with timeout and retry logic
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    response = requests.get(url, headers=headers, timeout=20)
+                    response.raise_for_status()
+                    break
+                except requests.RequestException as e:
+                    if attempt == max_retries - 1:
+                        raise
+                    debug_print(f"⚠️ [ICPScraper] Request attempt {attempt + 1} failed: {e}, retrying...")
+                    import time
+                    time.sleep(2)
+            
+            # Parse HTML content - use response.content for better encoding handling
+            soup = BeautifulSoup(response.content, 'html.parser')
+            
+            # Remove script and style elements
+            for script in soup(["script", "style"]):
+                script.decompose()
+            
+            # Extract text content with better formatting
+            text_content = soup.get_text(separator='\n', strip=True)
+            
+            # Clean up extra whitespace
+            import re
+            text_content = re.sub(r'\n\s*\n', '\n\n', text_content)
+            text_content = re.sub(r'[ \t]+', ' ', text_content)
+            
+            debug_print(f"📄 [ICPScraper] Requests scraped {len(text_content)} characters")
+            
+            return text_content
+            
+        except requests.RequestException as e:
+            debug_print(f"❌ [ICPScraper] Requests scraping failed: {e}")
+            return ""
+        except Exception as e:
+            debug_print(f"❌ [ICPScraper] Requests scraping error: {e}")
+            return ""
+
+    def _hyperbrowser_scraping(self, url: str) -> str:
+        """Hyperbrowser scraping method (fallback for dynamic content)"""
+        try:
+            debug_print(f"🔄 [ICPScraper] Using Hyperbrowser fallback for: {url}")
             
             # Use Hyperbrowser for advanced web scraping
-            scraped_content = self.scraper.run(url)
-            debug_print(f"📊 [ICPScraper] Scraped content length: {len(scraped_content)} chars")
+            hyperbrowser_result = self.scraper.run({
+                "url": url,
+                "scrape_options": {"formats": ["markdown", "html"]}
+            })
+            
+            # Extract content from Hyperbrowser result dict
+            scraped_content = ""
+            if hyperbrowser_result.get('error'):
+                debug_print(f"❌ [ICPScraper] Hyperbrowser returned error: {hyperbrowser_result['error']}")
+            elif hyperbrowser_result.get('data'):
+                data = hyperbrowser_result['data']
+                # Try markdown first, then html
+                scraped_content = getattr(data, 'markdown', '') or getattr(data, 'html', '')
+                debug_print(f"📊 [ICPScraper] Hyperbrowser scraped content length: {len(scraped_content)} chars")
+            else:
+                debug_print(f"❌ [ICPScraper] Hyperbrowser returned unexpected format: {hyperbrowser_result}")
+            
+            return scraped_content
+            
+        except Exception as e:
+            debug_print(f"❌ [ICPScraper] Hyperbrowser scraping error: {e}")
+            return ""
+
+    def extract_icp_data_from_url(self, url: str) -> Dict:
+        """🆕 Extract ICP test data from Aquaforest Lab URL using hybrid scraping approach
+        
+        Primary: requests + BeautifulSoup (faster for static content)
+        Fallback: Hyperbrowser (for dynamic content or when requests fails)
+        """
+        try:
+            debug_print(f"🌐 [ICPScraper] Fetching ICP data with hybrid approach from: {url}")
+            
+            # PRIMARY: Try requests + BeautifulSoup first (better for static content)
+            scraped_content = self._requests_scraping(url)
+            
+            # Check if scraped content is sufficient
+            if len(scraped_content.strip()) < 50:
+                debug_print(f"⚠️ [ICPScraper] Requests returned insufficient content ({len(scraped_content)} chars), trying Hyperbrowser fallback")
+                scraped_content = self._hyperbrowser_scraping(url)
+                
+                if len(scraped_content.strip()) < 50:
+                    debug_print(f"❌ [ICPScraper] Both requests and Hyperbrowser failed")
+                    return {"url": url, "parameters": {}, "status": "scraping_error", "error": "All scraping methods failed"}
+                else:
+                    debug_print(f"✅ [ICPScraper] Hyperbrowser fallback successful: {len(scraped_content)} chars")
+            else:
+                debug_print(f"✅ [ICPScraper] Requests primary method successful: {len(scraped_content)} chars")
             
             # 🔍 DEBUG: Log scraped content for troubleshooting
             if TEST_ENV:
-                debug_print(f"🌐 [ICPScraper] Raw scraped content preview: {scraped_content[:300]}...")
+                debug_print(f"🌐 [ICPScraper] Final scraped content preview: {scraped_content[:300]}...")
                 if len(scraped_content) > 300:
-                    debug_print(f"🌐 [ICPScraper] Raw scraped content end: ...{scraped_content[-200:]}")
+                    debug_print(f"🌐 [ICPScraper] Final scraped content end: ...{scraped_content[-200:]}")
             
             # Use Gemini 2.5 as Water Diagnostician
             extraction_prompt = f"""
@@ -107,24 +245,10 @@ Wyodrębnij WSZYSTKIE parametry. Zwróć tylko JSON.
                 if len(response.content) > 200:
                     debug_print(f"🤖 [ICPScraper] Raw Gemini response end: ...{response.content[-100:]}")
             
-            # Try to parse JSON with fallback handling
-            try:
-                structured_data = json.loads(response.content)
-            except json.JSONDecodeError as e:
-                debug_print(f"❌ [ICPScraper] URL JSON parsing failed: {e}")
-                # Try to extract JSON from response if it contains extra text
-                import re
-                json_match = re.search(r'\{.*\}', response.content, re.DOTALL)
-                if json_match:
-                    try:
-                        structured_data = json.loads(json_match.group(0))
-                        debug_print(f"✅ [ICPScraper] Recovered JSON from URL response")
-                    except:
-                        debug_print(f"❌ [ICPScraper] Could not recover JSON from URL")
-                        return {"url": url, "parameters": {}, "status": "json_parse_error", "error": f"JSON parse error: {e}"}
-                else:
-                    debug_print(f"❌ [ICPScraper] No JSON found in URL response")
-                    return {"url": url, "parameters": {}, "status": "json_parse_error", "error": f"No JSON in response: {response.content[:200]}"}
+            # Try to parse JSON with enhanced handling
+            structured_data = self._parse_json_response(response.content, "URL")
+            if structured_data is None:
+                return {"url": url, "parameters": {}, "status": "json_parse_error", "error": f"Could not parse JSON from response: {response.content[:200]}"}
             
             # Enhance with our analysis
             for param_name, param_data in structured_data.get("parameters", {}).items():
@@ -320,24 +444,10 @@ Wyodrębnij WSZYSTKIE parametry z PDF. Zwróć tylko JSON.
                     if len(response.content) > 200:
                         debug_print(f"🤖 [ICPScraper] PDF Raw Gemini response end: ...{response.content[-100:]}")
                 
-                # Try to parse JSON with fallback handling
-                try:
-                    structured_data = json.loads(response.content)
-                except json.JSONDecodeError as e:
-                    debug_print(f"❌ [ICPScraper] PDF JSON parsing failed: {e}")
-                    # Try to extract JSON from response if it contains extra text
-                    import re
-                    json_match = re.search(r'\{.*\}', response.content, re.DOTALL)
-                    if json_match:
-                        try:
-                            structured_data = json.loads(json_match.group(0))
-                            debug_print(f"✅ [ICPScraper] Recovered JSON from PDF response")
-                        except:
-                            debug_print(f"❌ [ICPScraper] Could not recover JSON from PDF")
-                            return {"source": f"PDF: {filename}", "parameters": {}, "status": "json_parse_error", "error": f"JSON parse error: {e}"}
-                    else:
-                        debug_print(f"❌ [ICPScraper] No JSON found in PDF response")
-                        return {"source": f"PDF: {filename}", "parameters": {}, "status": "json_parse_error", "error": f"No JSON in response: {response.content[:200]}"}
+                # Try to parse JSON with enhanced handling
+                structured_data = self._parse_json_response(response.content, "PDF")
+                if structured_data is None:
+                    return {"source": f"PDF: {filename}", "parameters": {}, "status": "json_parse_error", "error": f"Could not parse JSON from response: {response.content[:200]}"}
                 
                 # Enhance with our analysis
                 for param_name, param_data in structured_data.get("parameters", {}).items():
@@ -504,7 +614,11 @@ Wyodrębnij WSZYSTKIE parametry z PDF. Zwróć tylko JSON.
             action_needed = data.get("action_needed", "none")
             
             # Format element name: "PO4Fosforany" → "PO4"
-            element_short = re.match(r'^([A-Za-z0-9]+)', element).group(1) if element else param_name
+            if element:
+                match = re.match(r'^([A-Za-z0-9]+)', element)
+                element_short = match.group(1) if match else element
+            else:
+                element_short = param_name
             
             param_info = f"{element_short} ({user_result} | cel: {recommended})"
             
