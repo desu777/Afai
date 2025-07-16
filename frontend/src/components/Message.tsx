@@ -14,12 +14,19 @@ const Message: React.FC<MessageProps> = ({ message }) => {
     try {
       // Clean markdown formatting and convert links to full URLs
       let cleanContent = message.content
+        // Remove collapsible section markers and extract content
+        .replace(/\[SHOW_MORE_START\](.*?)\[SHOW_MORE_END\]/gs, '$1')
+        // Clean markdown headers (remove # symbols and add spacing)
+        .replace(/^####\s+(.+)$/gm, '\n$1\n')
+        .replace(/^###\s+(.+)$/gm, '\n$1\n')
+        .replace(/^##\s+(.+)$/gm, '\n$1\n')
+        .replace(/^#\s+(.+)$/gm, '\n$1\n')
         // Convert markdown links to full URLs
         .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1 ($2)')
+        // Convert markdown asterisk lists to bullet points
+        .replace(/^\*\s+(.+)$/gm, '• $1')
         // Remove bold formatting
         .replace(/\*\*(.*?)\*\*/g, '$1')
-        // Remove bullet points (keep just the text)
-        .replace(/^• (.+)$/gm, '$1')
         // Remove horizontal rules
         .replace(/^---$/gm, '')
         // Clean up extra whitespace/empty lines
