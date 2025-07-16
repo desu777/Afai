@@ -51,11 +51,20 @@ const Message: React.FC<MessageProps> = ({ message }) => {
 
       // Convert markdown to HTML for better PDF formatting
       let htmlContent = message.content
+        // Remove collapsible section markers and extract content
+        .replace(/\[SHOW_MORE_START\](.*?)\[SHOW_MORE_END\]/gs, '$1')
+        // Convert markdown headers to HTML
+        .replace(/^####\s+(.+)$/gm, '<h4>$1</h4>')
+        .replace(/^###\s+(.+)$/gm, '<h3>$1</h3>')
+        .replace(/^##\s+(.+)$/gm, '<h2>$1</h2>')
+        .replace(/^#\s+(.+)$/gm, '<h1>$1</h1>')
         // Convert markdown links to full URLs
         .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1 ($2)')
+        // Convert markdown asterisk lists to bullet points
+        .replace(/^\*\s+(.+)$/gm, '• $1')
         // Convert bold text
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        // Convert bullet points
+        // Convert bullet points to HTML list items
         .replace(/^• (.+)$/gm, '<li>$1</li>')
         // Convert horizontal rules
         .replace(/^---$/gm, '<hr>')
