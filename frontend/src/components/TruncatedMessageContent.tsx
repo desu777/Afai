@@ -106,18 +106,18 @@ const TruncatedMessageContent: React.FC<TruncatedMessageContentProps> = ({
             <div className="space-y-2">
               <button
                 onClick={() => toggleSection(section.id)}
-                className="flex items-center gap-2 text-xs font-medium text-purple-600 hover:text-purple-800 transition-colors duration-200 bg-purple-50 hover:bg-purple-100 px-3 py-2 rounded-lg border border-purple-200/40 hover:border-purple-300/60"
+                className="group flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-violet-700 hover:from-purple-700 hover:to-violet-800 transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95 px-4 py-2.5 rounded-full shadow-md hover:shadow-lg border border-purple-500/20"
               >
-                <span>{expandedSections.has(section.id) ? 'Show less' : 'Show more'}</span>
+                <span>{expandedSections.has(section.id) ? 'Show Less' : 'Read More'}</span>
                 {expandedSections.has(section.id) ? (
-                  <ChevronUp className="w-3 h-3" />
+                  <ChevronUp className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" />
                 ) : (
-                  <ChevronDown className="w-3 h-3" />
+                  <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:scale-110" />
                 )}
               </button>
               
               {expandedSections.has(section.id) && (
-                <div className="pl-4 border-l-2 border-purple-200">
+                <div className="animate-fadeIn pl-6 border-l-4 border-purple-400 bg-gradient-to-r from-purple-50/40 to-violet-50/40 rounded-r-lg py-4 pr-4 shadow-sm transition-all duration-300 ease-in-out">
                   <MessageContent content={section.content} isUser={false} />
                 </div>
               )}
