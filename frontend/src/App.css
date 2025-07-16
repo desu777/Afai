@@ -1,6 +1,73 @@
 @tailwind base;
 @tailwind components;
-@tailwind utilities; 
+@tailwind utilities;
+
+/* Typography improvements */
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Enhanced heading styles */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  
+  /* Code and monospace */
+  code, pre {
+    font-family: 'JetBrains Mono', 'Monaco', 'Consolas', monospace;
+    font-feature-settings: 'liga' 1, 'calt' 1;
+  }
+  
+  /* Improved text selection */
+  ::selection {
+    background-color: rgba(124, 58, 237, 0.2);
+    color: inherit;
+  }
+  
+  ::-moz-selection {
+    background-color: rgba(124, 58, 237, 0.2);
+    color: inherit;
+  }
+  
+  /* Improved focus states */
+  :focus-visible {
+    outline: 2px solid rgba(124, 58, 237, 0.6);
+    outline-offset: 2px;
+  }
+}
+
+/* Component-specific typography */
+@layer components {
+  .text-display {
+    font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  
+  .text-body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+  
+  .text-mono {
+    font-family: 'JetBrains Mono', 'Monaco', 'Consolas', monospace;
+    font-feature-settings: 'liga' 1, 'calt' 1;
+  }
+} 
 
 /* Mobile-first responsive fixes */
 * {
@@ -325,6 +392,28 @@ textarea {
   }
 }
 
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes shrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s ease-in-out infinite;
 } 

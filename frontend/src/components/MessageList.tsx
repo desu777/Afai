@@ -3,6 +3,7 @@ import { Message as MessageType, WorkflowUpdate } from '../types'
 import Message from './Message'
 import LoadingMessage from './LoadingMessage'
 import StreamingLoadingMessage from './StreamingLoadingMessage'
+import SkeletonLoadingMessage from './SkeletonLoadingMessage'
 import WelcomeScreen from './WelcomeScreen'
 
 interface MessageListProps {
@@ -51,7 +52,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, currentW
             )}
             {currentWorkflowUpdate 
               ? <StreamingLoadingMessage currentUpdate={currentWorkflowUpdate} />
-              : <LoadingMessage />}
+              : <SkeletonLoadingMessage />}
           </>
         )}
       </div>

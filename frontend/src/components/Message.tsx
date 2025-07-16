@@ -153,7 +153,7 @@ const Message: React.FC<MessageProps> = ({ message }) => {
     <div className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'} mb-4 sm:mb-6`}>
       <div className={`flex items-start ${message.type === 'user' ? 'space-x-3 sm:space-x-4 flex-row-reverse space-x-reverse' : 'space-x-2 sm:space-x-4'} max-w-[90%] sm:max-w-3xl`}>
         {/* Avatar - ukryty na mobile */}
-        <div className="hidden sm:flex w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 items-center justify-center flex-shrink-0 shadow-md">
+        <div className="hidden sm:flex w-10 h-10 rounded-2xl bg-gradient-to-br from-brand-600 via-brand-700 to-brand-800 items-center justify-center flex-shrink-0 shadow-brand">
           {message.type === 'user' ? (
             <User className="w-5 h-5 text-white" />
           ) : (
@@ -164,10 +164,10 @@ const Message: React.FC<MessageProps> = ({ message }) => {
         </div>
         
         <div className="flex flex-col space-y-2 min-w-0 flex-1">
-          <div className={`rounded-2xl sm:rounded-3xl px-4 sm:px-6 py-3 sm:py-4 shadow-sm backdrop-blur-md border break-words ${
+          <div className={`rounded-2xl sm:rounded-3xl px-4 sm:px-6 py-3 sm:py-4 shadow-sm backdrop-blur-md border break-words transition-all duration-300 hover:shadow-lg ${
             message.type === 'user'
-              ? 'bg-gradient-to-r from-purple-600 to-violet-700 text-white border-purple-500/20'
-              : 'bg-white/95 text-gray-800 border-purple-200/40'
+              ? 'bg-gradient-to-r from-brand-600 to-brand-700 text-white border-brand-500/20 hover:shadow-brand'
+              : 'bg-white/95 text-gray-800 border-brand-200/40 hover:border-brand-300/60'
           }`}>
             {/* 🆕 Wyświetlanie pliku jeśli jest dostępny */}
             {message.imageUrl && (
@@ -195,8 +195,8 @@ const Message: React.FC<MessageProps> = ({ message }) => {
           <div className={`flex items-center ${
             message.type === 'user' ? 'justify-end' : 'justify-between'
           } px-2`}>
-            <p className={`text-xs ${
-              message.type === 'user' ? 'text-purple-300' : 'text-gray-500'
+            <p className={`text-xs transition-colors duration-300 ${
+              message.type === 'user' ? 'text-brand-300' : 'text-gray-500'
             }`}>
               {message.timestamp.toLocaleTimeString('en-US', { 
                 hour: '2-digit', 
@@ -209,14 +209,14 @@ const Message: React.FC<MessageProps> = ({ message }) => {
               <div className="flex items-center space-x-2">
                 <button
                   onClick={handleCopy}
-                  className="p-1.5 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200"
+                  className="p-1.5 text-gray-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-all duration-300 transform hover:scale-110 active:scale-95 hover:shadow-brand"
                   title="Copy response"
                 >
                   <Copy className="w-4 h-4" />
                 </button>
                 <button
                   onClick={handleDownloadPDF}
-                  className="p-1.5 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors duration-200"
+                  className="p-1.5 text-gray-400 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-all duration-300 transform hover:scale-110 active:scale-95 hover:shadow-brand"
                   title="Download as PDF"
                 >
                   <Download className="w-4 h-4" />

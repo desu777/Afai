@@ -103,11 +103,11 @@ const ExamplesPanel: React.FC<ExamplesPanelProps> = ({ onExampleSelect }) => {
                   {category.questions.map((question, questionIndex) => (
                     <div 
                       key={questionIndex}
-                      className="group flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer"
+                      className="group flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-brand-50 transition-all duration-300 cursor-pointer transform hover:scale-[1.02] hover:shadow-brand"
                       onClick={() => onExampleSelect(question)}
                     >
                       <div className="flex-1 mr-4">
-                        <p className="text-gray-700 group-hover:text-purple-700 transition-colors">
+                        <p className="text-gray-700 group-hover:text-brand-700 transition-colors duration-300">
                           {question}
                         </p>
                       </div>
@@ -118,13 +118,13 @@ const ExamplesPanel: React.FC<ExamplesPanelProps> = ({ onExampleSelect }) => {
                             e.stopPropagation();
                             handleCopyExample(question);
                           }}
-                          className="p-2 text-gray-400 hover:text-purple-600 transition-colors"
+                          className="p-2 text-gray-400 hover:text-brand-600 transition-all duration-300 transform hover:scale-110 active:scale-95 rounded-lg hover:bg-brand-100"
                           title="Copy question"
                         >
                           <Copy className="w-4 h-4" />
                         </button>
                         
-                        <ArrowRight className="w-4 h-4 text-purple-500" />
+                        <ArrowRight className="w-4 h-4 text-brand-500" />
                       </div>
                     </div>
                   ))}

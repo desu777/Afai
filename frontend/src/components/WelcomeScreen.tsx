@@ -63,10 +63,10 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
       
       {/* Welcome Message */}
       <div className="text-center max-w-md mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
+        <h1 className="text-display text-3xl md:text-4xl font-bold text-gray-800 mb-3 tracking-tight">
           Welcome to AF AI
         </h1>
-        <p className="text-lg md:text-xl text-gray-600 font-medium">
+        <p className="text-body text-lg md:text-xl text-gray-600 font-medium leading-relaxed">
           I'm here to make your reef even better.
         </p>
       </div>
@@ -89,8 +89,8 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
             value={inputValue}
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}
-            placeholder="Type your message to AF AI in any language..."
-            className="w-full resize-none rounded-2xl sm:rounded-3xl bg-white/95 backdrop-blur-md border border-purple-200/60 focus:border-purple-500 focus:ring-2 sm:focus:ring-4 focus:ring-purple-100/50 outline-none px-4 sm:px-6 py-3 sm:py-4 pr-12 sm:pr-16 text-gray-800 placeholder-gray-500 shadow-md transition-all duration-200 font-medium text-sm sm:text-base overflow-hidden"
+            placeholder="Ask me anything about your reef tank in any language..."
+            className="w-full resize-none rounded-2xl sm:rounded-3xl bg-white/95 backdrop-blur-md border border-purple-200/60 focus:border-brand-600 focus:ring-2 sm:focus:ring-4 focus:ring-brand-100/50 outline-none px-4 sm:px-6 py-3 sm:py-4 pr-12 sm:pr-16 text-gray-800 placeholder-gray-500 shadow-md hover:shadow-lg transition-all duration-300 font-medium text-sm sm:text-base overflow-hidden"
             rows={1}
             style={{ 
               minHeight: '80px',
@@ -105,7 +105,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           <button
             onClick={onSend}
             disabled={!inputValue.trim() || isLoading}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 hover:from-purple-700 hover:via-purple-800 hover:to-violet-900 disabled:from-gray-400 disabled:via-gray-500 disabled:to-gray-600 disabled:cursor-not-allowed rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-105 active:scale-95"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-brand-600 via-brand-700 to-brand-800 hover:from-brand-700 hover:via-brand-800 hover:to-brand-900 disabled:from-gray-400 disabled:via-gray-500 disabled:to-gray-600 disabled:cursor-not-allowed rounded-xl sm:rounded-2xl flex items-center justify-center shadow-brand hover:shadow-brand-lg transition-all duration-300 hover:scale-105 active:scale-95"
           >
             <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -113,7 +113,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           </button>
           
           {/* 🆕 Przycisk wyboru zdjęcia */}
-          <label className="absolute right-12 sm:right-14 top-1/2 transform -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 hover:from-purple-700 hover:via-purple-800 hover:to-violet-900 disabled:from-gray-400 disabled:via-gray-500 disabled:to-gray-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-105 active:scale-95 cursor-pointer">
+          <label className="absolute right-12 sm:right-14 top-1/2 transform -translate-y-1/2 w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-brand-600 via-brand-700 to-brand-800 hover:from-brand-700 hover:via-brand-800 hover:to-brand-900 disabled:from-gray-400 disabled:via-gray-500 disabled:to-gray-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-brand hover:shadow-brand-lg transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer">
             <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             <input
               type="file"
@@ -126,9 +126,9 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
         </div>
         
         {/* Footer note */}
-        <div className="text-center mt-4">
-          <p className="text-xs text-gray-500 font-medium">
-            AF AI can make mistakes. Check important data.
+        <div className="text-center mt-6">
+          <p className="text-body text-xs text-gray-500 font-medium bg-gray-50/80 rounded-xl px-4 py-2 inline-block border border-gray-200/50">
+            AF AI can make mistakes. Always verify important reef parameters.
           </p>
         </div>
       </div>

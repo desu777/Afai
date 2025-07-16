@@ -73,16 +73,16 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const getButtonClass = (_view: 'chat' | 'feedback' | 'analytics' | 'examples' | 'updates', isActive: boolean) => {
     if (isCollapsed) {
-      const baseClassCollapsed = "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 hover:bg-purple-50 text-sm font-medium group mx-auto";
-      const activeClassCollapsed = "bg-purple-100 text-purple-700 border border-purple-200/50";
-      const inactiveClassCollapsed = "text-gray-700 hover:text-purple-700 hover:bg-purple-50";
+      const baseClassCollapsed = "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300 hover:bg-brand-50 hover:shadow-brand text-sm font-medium group mx-auto transform hover:scale-105 active:scale-95";
+      const activeClassCollapsed = "bg-brand-100 text-brand-700 border border-brand-200/50 shadow-brand";
+      const inactiveClassCollapsed = "text-gray-700 hover:text-brand-700 hover:bg-brand-50";
       
       return `${baseClassCollapsed} ${isActive ? activeClassCollapsed : inactiveClassCollapsed}`;
     }
     
-    const baseClass = "flex items-center space-x-3 w-full px-4 py-3 rounded-xl transition-all duration-200 hover:bg-purple-50 text-sm font-medium group";
-    const activeClass = "bg-purple-100 text-purple-700 border border-purple-200/50";
-    const inactiveClass = "text-gray-700 hover:text-purple-700 hover:bg-purple-50";
+    const baseClass = "flex items-center space-x-3 w-full px-4 py-3 rounded-xl transition-all duration-300 hover:bg-brand-50 hover:shadow-brand text-sm font-medium group transform hover:scale-[1.02] active:scale-[0.98]";
+    const activeClass = "bg-brand-100 text-brand-700 border border-brand-200/50 shadow-brand";
+    const inactiveClass = "text-gray-700 hover:text-brand-700 hover:bg-brand-50";
     
     return `${baseClass} ${isActive ? activeClass : inactiveClass}`;
   };
@@ -119,7 +119,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div className="flex items-center justify-between p-4 md:p-6 border-b border-purple-200/30">
             {!isCollapsed && (
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
+                <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-brand-600 via-brand-700 to-brand-800 rounded-xl flex items-center justify-center shadow-brand overflow-hidden">
                   <img 
                     src="/horse.png" 
                     alt="Konik morski" 
@@ -148,8 +148,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                           </path>
                         </pattern>
                       </defs>
-                      <text textAnchor="middle" x="70" y="21" fontSize="18" fontWeight="bold" fill="#1f2937" fillOpacity="0.15">AF AI Assistant</text>
-                      <text textAnchor="middle" x="70" y="21" fontSize="18" fontWeight="bold" fill="url(#sidebar-wave)" fillOpacity="1">AF AI Assistant</text>
+                      <text textAnchor="middle" x="70" y="21" fontSize="18" fontWeight="bold" fill="#1f2937" fillOpacity="0.15" fontFamily="Poppins">AF AI Assistant</text>
+                      <text textAnchor="middle" x="70" y="21" fontSize="18" fontWeight="bold" fill="url(#sidebar-wave)" fillOpacity="1" fontFamily="Poppins">AF AI Assistant</text>
                     </svg>
                   </div>
                 </div>
@@ -194,8 +194,8 @@ const Sidebar: React.FC<SidebarProps> = ({
               onClick={openFeedbackModal}
               className={
                 isCollapsed 
-                  ? "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 hover:bg-purple-50 text-sm font-medium text-gray-700 hover:text-purple-700 mx-auto"
-                  : "flex items-center space-x-3 w-full px-4 py-3 rounded-xl transition-all duration-200 hover:bg-purple-50 text-sm font-medium text-gray-700 hover:text-purple-700"
+                  ? "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300 hover:bg-brand-50 hover:shadow-brand text-sm font-medium text-gray-700 hover:text-brand-700 mx-auto transform hover:scale-105 active:scale-95"
+                  : "flex items-center space-x-3 w-full px-4 py-3 rounded-xl transition-all duration-300 hover:bg-brand-50 hover:shadow-brand text-sm font-medium text-gray-700 hover:text-brand-700 transform hover:scale-[1.02] active:scale-[0.98]"
               }
               title={isCollapsed ? 'Feedback' : ''}
             >
