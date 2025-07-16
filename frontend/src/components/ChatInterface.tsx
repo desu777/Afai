@@ -9,8 +9,6 @@ import AdminFeedbackPanel from './AdminFeedbackPanel'
 import AdminAnalyticsPanel from './AdminAnalyticsPanel'
 import ExamplesPanel from './ExamplesPanel'
 import UpdatesPanel from './UpdatesPanel'
-import ToastContainer from './ToastContainer'
-import { useToast } from '../hooks/useToast'
 
 const ChatInterface: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -25,9 +23,6 @@ const ChatInterface: React.FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  
-  // Toast system
-  const { toasts, showSuccess, showError, showWarning, showInfo, dismissToast } = useToast();
 
   // 🆕 Session ID localStorage management
   useEffect(() => {
@@ -178,23 +173,9 @@ const ChatInterface: React.FC = () => {
       };
 
       setMessages(prev => [...prev, aiResponse]);
-      
-      // Show success toast for successful response
-      showSuccess({
-        title: 'Response received',
-        message: 'AF AI has analyzed your question and provided a response.',
-        duration: 3000
-      });
 
     } catch (error) {
       console.error('❌ [Chat] Error sending message:', error);
-      
-      // Show error toast
-      showError({
-        title: 'Connection Error',
-        message: 'Failed to send message. Please check your connection and try again.',
-        duration: 6000
-      });
       
       // Add error message
       const errorMessage: Message = {
@@ -218,13 +199,6 @@ const ChatInterface: React.FC = () => {
     setActiveView('chat');
     setSelectedImage(null);  // 🆕 Resetuj wybrany obrazek
     updateSessionId(null);   // 🆕 Clear session ID for new chat
-    
-    // Show info toast for new chat
-    showInfo({
-      title: 'New chat started',
-      message: 'Ready to help with your reef aquarium questions!',
-      duration: 3000
-    });
   };
 
   const handleAuthenticate = (level: 'test' | 'admin') => {
@@ -331,9 +305,6 @@ const ChatInterface: React.FC = () => {
           <UpdatesPanel />
         )}
       </div>
-      
-      {/* Toast Container */}
-      <ToastContainer toasts={toasts} onClose={dismissToast} />
     </div>
   );
 };
