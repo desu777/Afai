@@ -57,6 +57,46 @@ ICP_MODEL = os.getenv("ICP_MODEL") or INTENT_DETECTOR_MODEL
 # Fallback API Keys
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # Keep for backwards compatibility
 
+# 🚀 GEMINI API CONFIGURATION (2025)
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+# LLM Provider Selection - per-node configuration
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "openrouter")  # Default to OpenRouter
+INTENT_DETECTOR_PROVIDER = os.getenv("INTENT_DETECTOR_PROVIDER", LLM_PROVIDER)
+BUSINESS_REASONER_PROVIDER = os.getenv("BUSINESS_REASONER_PROVIDER", LLM_PROVIDER)
+QUERY_OPTIMIZER_PROVIDER = os.getenv("QUERY_OPTIMIZER_PROVIDER", LLM_PROVIDER)
+RESPONSE_FORMATTER_PROVIDER = os.getenv("RESPONSE_FORMATTER_PROVIDER", LLM_PROVIDER)
+FOLLOW_UP_PROVIDER = os.getenv("FOLLOW_UP_PROVIDER", LLM_PROVIDER)
+IMAGE_PROVIDER = os.getenv("IMAGE_PROVIDER", LLM_PROVIDER)
+ICP_PROVIDER = os.getenv("ICP_PROVIDER", LLM_PROVIDER)
+
+# Gemini model configuration (optimal defaults per-node)
+GEMINI_DEFAULT_MODEL = os.getenv("GEMINI_DEFAULT_MODEL", "gemini-2.5-flash")
+
+# Per-node model selection (optimized for task requirements)
+INTENT_DETECTOR_GEMINI_MODEL = os.getenv("INTENT_DETECTOR_GEMINI_MODEL", "gemini-2.5-flash")  # Speed priority
+BUSINESS_REASONER_GEMINI_MODEL = os.getenv("BUSINESS_REASONER_GEMINI_MODEL", "gemini-2.5-pro")  # Reasoning priority
+QUERY_OPTIMIZER_GEMINI_MODEL = os.getenv("QUERY_OPTIMIZER_GEMINI_MODEL", "gemini-2.5-flash")  # Speed priority
+RESPONSE_FORMATTER_GEMINI_MODEL = os.getenv("RESPONSE_FORMATTER_GEMINI_MODEL", "gemini-2.5-flash")  # Speed priority
+FOLLOW_UP_GEMINI_MODEL = os.getenv("FOLLOW_UP_GEMINI_MODEL", "gemini-2.5-pro")  # Reasoning priority
+IMAGE_GEMINI_MODEL = os.getenv("IMAGE_GEMINI_MODEL", "gemini-2.5-flash")  # Vision optimized
+ICP_GEMINI_MODEL = os.getenv("ICP_GEMINI_MODEL", "gemini-2.5-pro")  # Analysis priority
+
+# 🧠 THINKING CONFIGURATION (per-node thinking budget)
+# Only for provider=gemini - OpenRouter doesn't support thinking
+# Leave empty = use Gemini's default thinking
+GEMINI_DEFAULT_THINKING_BUDGET = os.getenv("GEMINI_DEFAULT_THINKING_BUDGET")
+
+# Per-node thinking budget (only applies when provider=gemini)
+# Only set if you want to override Gemini's default thinking
+INTENT_DETECTOR_THINKING_BUDGET = os.getenv("INTENT_DETECTOR_THINKING_BUDGET")
+BUSINESS_REASONER_THINKING_BUDGET = os.getenv("BUSINESS_REASONER_THINKING_BUDGET")
+QUERY_OPTIMIZER_THINKING_BUDGET = os.getenv("QUERY_OPTIMIZER_THINKING_BUDGET")
+RESPONSE_FORMATTER_THINKING_BUDGET = os.getenv("RESPONSE_FORMATTER_THINKING_BUDGET")
+FOLLOW_UP_THINKING_BUDGET = os.getenv("FOLLOW_UP_THINKING_BUDGET")
+IMAGE_THINKING_BUDGET = os.getenv("IMAGE_THINKING_BUDGET")
+ICP_THINKING_BUDGET = os.getenv("ICP_THINKING_BUDGET")
+
 # Common settings
 OPENAI_EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
 OPENAI_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS", "16384"))
@@ -106,21 +146,29 @@ COMPETITORS = [
 if not PINECONE_API_KEY:
     raise ValueError("PINECONE_API_KEY is required")
 
-# Validate per-node API keys
+# Validate per-node API keys (only for OpenRouter nodes)
 missing_api_keys = []
-if not INTENT_DETECTOR_API:
+if INTENT_DETECTOR_PROVIDER == "openrouter" and not INTENT_DETECTOR_API:
     missing_api_keys.append("INTENT_DETECTOR_API")
-if not BUSINESS_REASONER_API:
+if BUSINESS_REASONER_PROVIDER == "openrouter" and not BUSINESS_REASONER_API:
     missing_api_keys.append("BUSINESS_REASONER_API")
-if not QUERY_OPTIMIZER_API:
+if QUERY_OPTIMIZER_PROVIDER == "openrouter" and not QUERY_OPTIMIZER_API:
     missing_api_keys.append("QUERY_OPTIMIZER_API")
-if not RESPONSE_FORMATTER_API:
+if RESPONSE_FORMATTER_PROVIDER == "openrouter" and not RESPONSE_FORMATTER_API:
     missing_api_keys.append("RESPONSE_FORMATTER_API")
-if not FOLLOW_UP_API:
+if FOLLOW_UP_PROVIDER == "openrouter" and not FOLLOW_UP_API:
     missing_api_keys.append("FOLLOW_UP_API")
 
 if missing_api_keys:
-    raise ValueError(f"Missing per-node API keys: {', '.join(missing_api_keys)}")
+    raise ValueError(f"Missing per-node API keys for OpenRouter: {', '.join(missing_api_keys)}")
+
+# Validate Gemini API key if any node uses Gemini
+gemini_nodes = [
+    INTENT_DETECTOR_PROVIDER, BUSINESS_REASONER_PROVIDER, QUERY_OPTIMIZER_PROVIDER,
+    RESPONSE_FORMATTER_PROVIDER, FOLLOW_UP_PROVIDER, IMAGE_PROVIDER, ICP_PROVIDER
+]
+if "gemini" in gemini_nodes and not GEMINI_API_KEY:
+    raise ValueError("GEMINI_API_KEY is required when any node uses Gemini provider")
 
 if MESSENGER_ON and not MESSENGER_PAGE_ACCESS_TOKEN:
     raise ValueError("MESSENGER_TOKEN is required when MESSENGER_ON=true")
@@ -139,14 +187,28 @@ if TEST_ENV:
     print(f"📍 Debug Mode: ENABLED")
     print(f"📍 Business Mappings: {'DISABLED' if DISABLE_BUSINESS_MAPPINGS else 'ENABLED'}")
     print(f"📍 Competitors Only: {'ENABLED' if ENABLE_COMPETITORS_ONLY else 'DISABLED'}")
-    print(f"🚀 OpenRouter Per-Node Configuration (2025)")
-    print(f"🎯 Intent Detector: {INTENT_DETECTOR_API[:12]}... → {INTENT_DETECTOR_MODEL}")
-    print(f"🧠 Business Reasoner: {BUSINESS_REASONER_API[:12]}... → {BUSINESS_REASONER_MODEL}")
-    print(f"🔍 Query Optimizer: {QUERY_OPTIMIZER_API[:12]}... → {QUERY_OPTIMIZER_MODEL}")
-    print(f"📝 Response Formatter: {RESPONSE_FORMATTER_API[:12]}... → {RESPONSE_FORMATTER_MODEL}")
-    print(f"🔄 Follow-up Evaluator: {FOLLOW_UP_API[:12]}... → {FOLLOW_UP_MODEL}")
-    print(f"📸 Image Analysis: {IMAGE_API[:12]}... → {IMAGE_MODEL}")
-    print(f"📄 ICP Analysis: {ICP_API[:12]}... → {ICP_MODEL}")
+    print(f"🚀 Dual API Configuration (OpenRouter + Gemini 2.5)")
+    
+    # Helper function to format node info with thinking (only for Gemini provider)
+    def format_node_info(provider, openrouter_model, gemini_model, thinking_budget):
+        model = openrouter_model if provider == 'openrouter' else gemini_model
+        if provider == 'gemini' and thinking_budget is not None and thinking_budget.strip() != "":
+            return f"{provider} → {model} (thinking: {thinking_budget})"
+        else:
+            return f"{provider} → {model}"
+    
+    print(f"🎯 Intent Detector: {format_node_info(INTENT_DETECTOR_PROVIDER, INTENT_DETECTOR_MODEL, INTENT_DETECTOR_GEMINI_MODEL, INTENT_DETECTOR_THINKING_BUDGET)}")
+    print(f"🧠 Business Reasoner: {format_node_info(BUSINESS_REASONER_PROVIDER, BUSINESS_REASONER_MODEL, BUSINESS_REASONER_GEMINI_MODEL, BUSINESS_REASONER_THINKING_BUDGET)}")
+    print(f"🔍 Query Optimizer: {format_node_info(QUERY_OPTIMIZER_PROVIDER, QUERY_OPTIMIZER_MODEL, QUERY_OPTIMIZER_GEMINI_MODEL, QUERY_OPTIMIZER_THINKING_BUDGET)}")
+    print(f"📝 Response Formatter: {format_node_info(RESPONSE_FORMATTER_PROVIDER, RESPONSE_FORMATTER_MODEL, RESPONSE_FORMATTER_GEMINI_MODEL, RESPONSE_FORMATTER_THINKING_BUDGET)}")
+    print(f"🔄 Follow-up Evaluator: {format_node_info(FOLLOW_UP_PROVIDER, FOLLOW_UP_MODEL, FOLLOW_UP_GEMINI_MODEL, FOLLOW_UP_THINKING_BUDGET)}")
+    print(f"📸 Image Analysis: {format_node_info(IMAGE_PROVIDER, IMAGE_MODEL, IMAGE_GEMINI_MODEL, IMAGE_THINKING_BUDGET)}")
+    print(f"📄 ICP Analysis: {format_node_info(ICP_PROVIDER, ICP_MODEL, ICP_GEMINI_MODEL, ICP_THINKING_BUDGET)}")
+    print(f"🔑 Gemini API: {'CONFIGURED' if GEMINI_API_KEY else 'NOT SET'}")
+    if GEMINI_DEFAULT_THINKING_BUDGET is not None and GEMINI_DEFAULT_THINKING_BUDGET.strip() != "":
+        print(f"🧠 Default Thinking Budget: {GEMINI_DEFAULT_THINKING_BUDGET}")
+    else:
+        print(f"🧠 Default Thinking Budget: Gemini default")
     print(f"📍 Embedding Model: {OPENAI_EMBEDDING_MODEL}")
     print(f"📍 Pinecone Index: {PINECONE_INDEX_NAME}")
     print(f"📍 Default K Value: {DEFAULT_K_VALUE}")
