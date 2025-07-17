@@ -12,15 +12,20 @@ from openai import OpenAI
 from models import ConversationState, Intent, IntentDetectionResult
 from config import OPENAI_TEMPERATURE, TEST_ENV, debug_print
 from prompts import load_prompt_template
-from llm_client_factory import create_intent_detector_client
+from llm_client_factory import create_intent_detector_client, create_image_analysis_client
 from icp_scraper import ICPScraper
 
 class IntentDetector:
     def __init__(self):
+        # Intent detection client
         self.client, self.model_name = create_intent_detector_client()
+        
+        # Image analysis client (separate configuration)
+        self.image_client, self.image_model_name = create_image_analysis_client()
         
         if TEST_ENV:
             debug_print(f"🎯 [IntentDetector] Initialized with model: {self.model_name}")
+            debug_print(f"📸 [IntentDetector] Image analysis model: {self.image_model_name}")
         
         # 🆕 Load competitors mapping for better detection
         self.competitors_list = self._load_competitors()
@@ -195,15 +200,15 @@ Return ONLY a valid JSON object:
             return state
             
         if TEST_ENV:
-            print(f"📸 [DEBUG IntentDetector] Analyzing image: {state['image_url'][:100]}...")
+            print(f"📸 [DEBUG IntentDetector] Analyzing image with {self.image_model_name}: {state['image_url'][:100]}...")
         
         try:
             # Create vision messages
             messages = self._create_vision_messages(state)
             
-            # Call OpenRouter/Gemini with vision
-            response = self.client.chat.completions.create(
-                model=self.model_name,
+            # Call OpenRouter/Gemini with vision using dedicated image analysis client
+            response = self.image_client.chat.completions.create(
+                model=self.image_model_name,
                 temperature=OPENAI_TEMPERATURE,
                 messages=messages,
                 response_format={"type": "json_object"}

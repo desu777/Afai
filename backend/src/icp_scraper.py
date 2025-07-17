@@ -5,7 +5,7 @@ Uses LangChain Hyperbrowser for advanced scraping + Gemini 2.0 Flash analysis
 import re
 import base64
 from typing import Dict, List
-from config import debug_print, TEST_ENV, INTENT_DETECTOR_API, INTENT_DETECTOR_MODEL, HYPERBROWSER_API_KEY
+from config import debug_print, TEST_ENV, ICP_API, ICP_MODEL, HYPERBROWSER_API_KEY
 import json
 from langchain_openai import ChatOpenAI
 from langchain_hyperbrowser import HyperbrowserScrapeTool
@@ -19,10 +19,10 @@ class ICPScraper:
     """Enhanced web scraper for Aquaforest Lab ICP test results with LangChain"""
     
     def __init__(self):
-        # Use INTENT_DETECTOR variables (Gemini 2.5) for better ICP analysis
+        # Use dedicated ICP variables for better ICP analysis
         self.llm = ChatOpenAI(
-            api_key=INTENT_DETECTOR_API,
-            model=INTENT_DETECTOR_MODEL,
+            api_key=ICP_API,
+            model=ICP_MODEL,
             base_url="https://openrouter.ai/api/v1",
             temperature=0.1
         )
@@ -31,7 +31,7 @@ class ICPScraper:
         self.scraper = HyperbrowserScrapeTool(api_key=HYPERBROWSER_API_KEY)
         
         if TEST_ENV:
-            debug_print(f"🔬 [ICPScraper] Initialized with LangChain + model: {INTENT_DETECTOR_MODEL}")
+            debug_print(f"🔬 [ICPScraper] Initialized with LangChain + model: {ICP_MODEL}")
     
     def _parse_json_response(self, response_content: str, source_type: str) -> dict:
         """Enhanced JSON parsing with markdown wrapper support"""
@@ -271,7 +271,7 @@ Wyodrębnij WSZYSTKIE parametry. Zwróć tylko JSON.
                 "status": "success",
                 "debug_info": {
                     "scraping_method": "hyperbrowser",
-                    "llm_analysis": "gemini-2.0-flash"
+                    "llm_analysis": ICP_MODEL
                 }
             }
             
@@ -469,7 +469,7 @@ Wyodrębnij WSZYSTKIE parametry z PDF. Zwróć tylko JSON.
                     "status": "success",
                     "debug_info": {
                         "processing_method": "pymupdf",
-                        "llm_analysis": "gemini-2.0-flash"
+                        "llm_analysis": ICP_MODEL
                     }
                 }
                 

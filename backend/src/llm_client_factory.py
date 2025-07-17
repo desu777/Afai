@@ -11,6 +11,7 @@ from config import (
     QUERY_OPTIMIZER_API, QUERY_OPTIMIZER_MODEL,
     RESPONSE_FORMATTER_API, RESPONSE_FORMATTER_MODEL,
     FOLLOW_UP_API, FOLLOW_UP_MODEL,
+    IMAGE_API, IMAGE_MODEL,
     TEST_ENV, debug_print
 )
 
@@ -23,7 +24,7 @@ class LLMClientFactory:
         Create LLM client and return (client, model_name) for specified node
         
         Args:
-            node_name: One of 'intent_detector', 'business_reasoner', 'query_optimizer', 'response_formatter', 'follow_up'
+            node_name: One of 'intent_detector', 'business_reasoner', 'query_optimizer', 'response_formatter', 'follow_up', 'image_analysis'
         
         Returns:
             Tuple of (OpenAI client, model_name)
@@ -51,7 +52,8 @@ class LLMClientFactory:
             "business_reasoner": (BUSINESS_REASONER_API, BUSINESS_REASONER_MODEL),
             "query_optimizer": (QUERY_OPTIMIZER_API, QUERY_OPTIMIZER_MODEL),
             "response_formatter": (RESPONSE_FORMATTER_API, RESPONSE_FORMATTER_MODEL),
-            "follow_up": (FOLLOW_UP_API, FOLLOW_UP_MODEL)
+            "follow_up": (FOLLOW_UP_API, FOLLOW_UP_MODEL),
+            "image_analysis": (IMAGE_API, IMAGE_MODEL)
         }
         
         if node_name not in config_map:
@@ -79,6 +81,10 @@ def create_response_formatter_client() -> Tuple[OpenAI, str]:
 def create_follow_up_client() -> Tuple[OpenAI, str]:
     """Create client for follow-up evaluator node"""
     return LLMClientFactory.create_client("follow_up")
+
+def create_image_analysis_client() -> Tuple[OpenAI, str]:
+    """Create client for image analysis node"""
+    return LLMClientFactory.create_client("image_analysis")
 
 # 🔧 Legacy support functions (for gradual migration)
 def create_llm_client_for_node(node_name: str) -> OpenAI:

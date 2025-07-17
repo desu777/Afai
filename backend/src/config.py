@@ -46,6 +46,14 @@ QUERY_OPTIMIZER_MODEL = os.getenv("QUERY_OPTIMIZER_MODEL")
 RESPONSE_FORMATTER_MODEL = os.getenv("RESPONSE_FORMATTER_MODEL")
 FOLLOW_UP_MODEL = os.getenv("FOLLOW_UP_MODEL")
 
+# 📸 IMAGE ANALYSIS CONFIGURATION
+IMAGE_API = os.getenv("IMAGE_API") or INTENT_DETECTOR_API
+IMAGE_MODEL = os.getenv("IMAGE_MODEL") or INTENT_DETECTOR_MODEL
+
+# 📄 ICP ANALYSIS CONFIGURATION
+ICP_API = os.getenv("ICP_API") or INTENT_DETECTOR_API
+ICP_MODEL = os.getenv("ICP_MODEL") or INTENT_DETECTOR_MODEL
+
 # Fallback API Keys
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # Keep for backwards compatibility
 
@@ -130,6 +138,8 @@ if TEST_ENV:
     print(f"🔍 Query Optimizer: {QUERY_OPTIMIZER_API[:12]}... → {QUERY_OPTIMIZER_MODEL}")
     print(f"📝 Response Formatter: {RESPONSE_FORMATTER_API[:12]}... → {RESPONSE_FORMATTER_MODEL}")
     print(f"🔄 Follow-up Evaluator: {FOLLOW_UP_API[:12]}... → {FOLLOW_UP_MODEL}")
+    print(f"📸 Image Analysis: {IMAGE_API[:12]}... → {IMAGE_MODEL}")
+    print(f"📄 ICP Analysis: {ICP_API[:12]}... → {ICP_MODEL}")
     print(f"📍 Embedding Model: {OPENAI_EMBEDDING_MODEL}")
     print(f"📍 Pinecone Index: {PINECONE_INDEX_NAME}")
     print(f"📍 Default K Value: {DEFAULT_K_VALUE}")
