@@ -69,6 +69,13 @@ HYPERBROWSER_API_KEY = os.getenv("HYPERBROWSER_API_KEY")
 DEFAULT_K_VALUE = int(os.getenv("DEFAULT_K_VALUE", "12"))
 ENHANCED_K_VALUE = int(os.getenv("ENHANCED_K_VALUE", "12"))
 
+# 🚀 PINECONE PARALLEL SEARCH CONFIGURATION
+MAX_CONCURRENT_QUERIES = int(os.getenv("MAX_CONCURRENT_QUERIES", "4"))
+MAX_CONCURRENT_EMBEDDINGS = int(os.getenv("MAX_CONCURRENT_EMBEDDINGS", "4"))
+PINECONE_POOL_THREADS = int(os.getenv("PINECONE_POOL_THREADS", "50"))
+PINECONE_CONNECTION_POOL_MAX = int(os.getenv("PINECONE_CONNECTION_POOL_MAX", "50"))
+ENABLE_PARALLEL_SEARCH = os.getenv("ENABLE_PARALLEL_SEARCH", "true").lower() == "true"
+
 SUPPORTED_LANGUAGES = os.getenv("SUPPORTED_LANGUAGES", "pl,en,de,fr,es,it").split(",")
 
 # Paths - Use absolute path based on file location
@@ -143,7 +150,12 @@ if TEST_ENV:
     print(f"📍 Embedding Model: {OPENAI_EMBEDDING_MODEL}")
     print(f"📍 Pinecone Index: {PINECONE_INDEX_NAME}")
     print(f"📍 Default K Value: {DEFAULT_K_VALUE}")
-    print(f"📍 Enhanced K Value: {ENHANCED_K_VALUE}")  
+    print(f"📍 Enhanced K Value: {ENHANCED_K_VALUE}")
+    print(f"🚀 Parallel Search: {'ENABLED' if ENABLE_PARALLEL_SEARCH else 'DISABLED'}")
+    print(f"🔄 Max Concurrent Queries: {MAX_CONCURRENT_QUERIES}")
+    print(f"🔄 Max Concurrent Embeddings: {MAX_CONCURRENT_EMBEDDINGS}")
+    print(f"🔄 Pinecone Pool Threads: {PINECONE_POOL_THREADS}")
+    print(f"🔄 Pinecone Connection Pool Max: {PINECONE_CONNECTION_POOL_MAX}")
     print(f"📍 Supported Languages: {', '.join(SUPPORTED_LANGUAGES)}")
     print(f"📍 CORS Origins: {', '.join(CORS_ORIGINS)}")
     print(f"📍 Competitors tracked: {len(COMPETITORS)}")
