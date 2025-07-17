@@ -3,6 +3,8 @@
 Client factory using the latest google.genai SDK with thinking support
 """
 import json
+import base64
+import requests
 from typing import Dict, Any, List, Optional, Union
 from google import genai
 from google.genai import types
@@ -90,12 +92,16 @@ class GeminiClient:
             GeminiResponse: OpenAI-compatible response object
         """
         try:
-            # Convert OpenAI messages to Gemini format
+            # Convert OpenAI messages to Gemini format (string for text-only, list for multimodal)
             prompt = self._convert_messages_to_prompt(messages)
             
-            # Add JSON formatting instruction if needed
+            # Add JSON formatting instruction if needed (only for text-only prompts)
             if response_format and response_format.get("type") == "json_object":
-                prompt += "\n\nIMPORTANT: Respond with valid JSON only, no additional text."
+                if isinstance(prompt, str):
+                    prompt += "\n\nIMPORTANT: Respond with valid JSON only, no additional text."
+                elif isinstance(prompt, list):
+                    # For multimodal, add JSON instruction as text part
+                    prompt.append("\n\nIMPORTANT: Respond with valid JSON only, no additional text.")
             
             # Configure thinking (only if thinking_budget is explicitly set)
             thinking_config = None
@@ -110,6 +116,13 @@ class GeminiClient:
                 top_k=40,
                 thinking_config=thinking_config
             )
+            
+            # Log multimodal vs text-only mode
+            if TEST_ENV:
+                if isinstance(prompt, list):
+                    debug_print(f"🖼️ [GeminiClient] Using multimodal mode with {len([p for p in prompt if hasattr(p, 'mime_type')])} images")
+                else:
+                    debug_print(f"📝 [GeminiClient] Using text-only mode")
             
             # Generate response using new API
             response = self.client.models.generate_content(
@@ -133,24 +146,152 @@ class GeminiClient:
             # Convert Gemini errors to OpenAI-compatible format
             raise self._convert_gemini_error(e)
     
-    def _convert_messages_to_prompt(self, messages: List[Dict[str, str]]) -> str:
-        """Convert OpenAI messages format to Gemini prompt format"""
-        prompt_parts = []
+    def _convert_messages_to_prompt(self, messages: List[Dict[str, Any]]) -> Union[str, List[Any]]:
+        """
+        Convert OpenAI messages format to Gemini content format
+        Returns either a string (text-only) or a list (multimodal with images)
+        """
+        # Check if any message contains image content
+        has_images = any(
+            isinstance(msg.get("content"), list) and 
+            any(part.get("type") == "image_url" for part in msg.get("content", []))
+            for msg in messages
+        )
         
-        for message in messages:
-            role = message.get("role", "user")
-            content = message.get("content", "")
+        if not has_images:
+            # Text-only conversation - return as string
+            prompt_parts = []
+            for message in messages:
+                role = message.get("role", "user")
+                content = message.get("content", "")
+                
+                if role == "system":
+                    prompt_parts.append(f"System: {content}")
+                elif role == "user":
+                    prompt_parts.append(f"User: {content}")
+                elif role == "assistant":
+                    prompt_parts.append(f"Assistant: {content}")
+                else:
+                    prompt_parts.append(f"{role}: {content}")
             
-            if role == "system":
-                prompt_parts.append(f"System: {content}")
-            elif role == "user":
-                prompt_parts.append(f"User: {content}")
-            elif role == "assistant":
-                prompt_parts.append(f"Assistant: {content}")
-            else:
-                prompt_parts.append(f"{role}: {content}")
+            return "\n\n".join(prompt_parts)
+        else:
+            # Multimodal conversation - return as list for Gemini
+            content_list = []
+            
+            for message in messages:
+                role = message.get("role", "user")
+                content = message.get("content", "")
+                
+                # Add role prefix as text
+                if role == "system":
+                    content_list.append("System: ")
+                elif role == "user":
+                    content_list.append("User: ")
+                elif role == "assistant":
+                    content_list.append("Assistant: ")
+                else:
+                    content_list.append(f"{role}: ")
+                
+                # Handle content (string or list for multimodal)
+                if isinstance(content, str):
+                    content_list.append(content)
+                elif isinstance(content, list):
+                    # Process multimodal content
+                    for part in content:
+                        if part.get("type") == "text":
+                            content_list.append(part.get("text", ""))
+                        elif part.get("type") == "image_url":
+                            # Convert image_url to Gemini format
+                            image_part = self._convert_image_to_gemini_part(part)
+                            if image_part:
+                                content_list.append(image_part)
+                
+                content_list.append("\n\n")  # Separator between messages
+            
+            return content_list
+    
+    def _convert_image_to_gemini_part(self, image_part: Dict[str, Any]) -> Optional[Any]:
+        """
+        Convert OpenAI image_url format to Gemini Part format
         
-        return "\n\n".join(prompt_parts)
+        Args:
+            image_part: OpenAI format like {"type": "image_url", "image_url": {"url": "..."}}
+            
+        Returns:
+            Gemini Part object for the image or None if conversion fails
+        """
+        try:
+            image_url_data = image_part.get("image_url", {})
+            url = image_url_data.get("url", "")
+            
+            if not url:
+                return None
+            
+            # Handle base64 data URLs
+            if url.startswith("data:image/"):
+                # Extract base64 data and MIME type
+                # Format: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ..."
+                try:
+                    header, base64_data = url.split(",", 1)
+                    mime_type = header.split(";")[0].replace("data:", "")
+                    
+                    # Decode base64 to bytes
+                    image_bytes = base64.b64decode(base64_data)
+                    
+                    # Create Gemini Part from bytes
+                    return types.Part.from_bytes(
+                        data=image_bytes,
+                        mime_type=mime_type
+                    )
+                except Exception as e:
+                    if TEST_ENV:
+                        debug_print(f"❌ [GeminiClient] Failed to process base64 image: {e}")
+                    return None
+            
+            # Handle HTTP/HTTPS URLs
+            elif url.startswith(("http://", "https://")):
+                try:
+                    # Download image data
+                    response = requests.get(url, timeout=10)
+                    response.raise_for_status()
+                    
+                    # Detect MIME type from Content-Type header or URL extension
+                    content_type = response.headers.get("content-type", "")
+                    if content_type.startswith("image/"):
+                        mime_type = content_type
+                    else:
+                        # Fallback: guess from URL extension
+                        if url.lower().endswith(('.jpg', '.jpeg')):
+                            mime_type = "image/jpeg"
+                        elif url.lower().endswith('.png'):
+                            mime_type = "image/png"
+                        elif url.lower().endswith('.gif'):
+                            mime_type = "image/gif"
+                        elif url.lower().endswith('.webp'):
+                            mime_type = "image/webp"
+                        else:
+                            mime_type = "image/jpeg"  # Default fallback
+                    
+                    # Create Gemini Part from downloaded bytes
+                    return types.Part.from_bytes(
+                        data=response.content,
+                        mime_type=mime_type
+                    )
+                except Exception as e:
+                    if TEST_ENV:
+                        debug_print(f"❌ [GeminiClient] Failed to download image from URL {url}: {e}")
+                    return None
+            
+            else:
+                if TEST_ENV:
+                    debug_print(f"❌ [GeminiClient] Unsupported image URL format: {url[:100]}...")
+                return None
+                
+        except Exception as e:
+            if TEST_ENV:
+                debug_print(f"❌ [GeminiClient] Error converting image to Gemini part: {e}")
+            return None
     
     def _convert_gemini_error(self, error: Exception) -> Exception:
         """Convert Gemini API errors to OpenAI-compatible format"""
