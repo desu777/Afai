@@ -15,12 +15,18 @@ from config import (
     IMAGE_API, IMAGE_MODEL,
     # Gemini configuration
     GEMINI_API_KEY,
+    GEMINI_API_KEY_BUSINESS, GEMINI_API_KEY_RESPONSE, GEMINI_API_KEY_INTENT,
+    GEMINI_API_KEY_QUERY, GEMINI_API_KEY_FOLLOWUP, GEMINI_API_KEY_IMAGE, GEMINI_API_KEY_ICP,
     INTENT_DETECTOR_PROVIDER, BUSINESS_REASONER_PROVIDER,
     QUERY_OPTIMIZER_PROVIDER, RESPONSE_FORMATTER_PROVIDER,
     FOLLOW_UP_PROVIDER, IMAGE_PROVIDER, ICP_PROVIDER,
     TEST_ENV, debug_print
 )
 from gemini_client_factory import GeminiClientFactory, GeminiClient
+from gemini_rate_limit_manager import (
+    rate_limit_manager, can_use_gemini, record_gemini_success, 
+    record_gemini_error, get_gemini_api_key
+)
 
 class LLMClientFactory:
     """Factory for creating LLM clients with per-node configuration"""
@@ -29,6 +35,7 @@ class LLMClientFactory:
     def create_client(node_name: str) -> Tuple[Union[OpenAI, GeminiClient], str]:
         """
         Create LLM client and return (client, model_name) for specified node
+        Smart fallback: Gemini (if available) → OpenRouter (fallback)
         
         Args:
             node_name: One of 'intent_detector', 'business_reasoner', 'query_optimizer', 'response_formatter', 'follow_up', 'image_analysis'
@@ -36,32 +43,57 @@ class LLMClientFactory:
         Returns:
             Tuple of (LLM client, model_name) - client can be OpenAI or GeminiClient
         """
+        # Initialize rate limit manager with per-node API keys
+        LLMClientFactory._initialize_rate_limit_manager()
+        
         # Get provider for this node
         provider = LLMClientFactory._get_node_provider(node_name)
         
         if provider == "gemini":
-            # Create Gemini client
-            client, model_name = GeminiClientFactory.create_client(node_name)
-            debug_print(f"🚀 [LLMClientFactory] Created Gemini client for {node_name}: {model_name}")
-            
-            if TEST_ENV:
-                print(f"🎯 [LLMClientFactory] {node_name} → gemini → {model_name}")
-            
-            return client, model_name
-        else:
-            # Create OpenRouter client (default)
-            api_key, model_name = LLMClientFactory._get_node_config(node_name)
-            
-            client = OpenAI(
-                api_key=api_key,
-                base_url="https://openrouter.ai/api/v1"
-            )
-            debug_print(f"🚀 [LLMClientFactory] Created OpenRouter client for {node_name}: {model_name}")
-            
-            if TEST_ENV:
-                print(f"🎯 [LLMClientFactory] {node_name} → openrouter → {model_name}")
-            
-            return client, model_name
+            # Check if Gemini can be used (rate limits, errors, etc.)
+            if can_use_gemini(node_name):
+                try:
+                    # Create Gemini client
+                    client, model_name = GeminiClientFactory.create_client(node_name)
+                    
+                    # Record successful Gemini usage
+                    record_gemini_success(node_name)
+                    
+                    debug_print(f"🚀 [LLMClientFactory] Created Gemini client for {node_name}: {model_name}")
+                    
+                    if TEST_ENV:
+                        print(f"🎯 [LLMClientFactory] {node_name} → gemini → {model_name}")
+                    
+                    return client, model_name
+                    
+                except Exception as e:
+                    # Record error and fallback to OpenRouter
+                    record_gemini_error(node_name)
+                    debug_print(f"❌ [LLMClientFactory] Gemini error for {node_name}: {e}")
+                    debug_print(f"🔄 [LLMClientFactory] Falling back to OpenRouter for {node_name}")
+                    
+                    if TEST_ENV:
+                        print(f"⚠️ [LLMClientFactory] Gemini failed for {node_name}, using OpenRouter fallback")
+            else:
+                debug_print(f"⚠️ [LLMClientFactory] Gemini rate limit exceeded for {node_name}, using OpenRouter")
+                
+                if TEST_ENV:
+                    print(f"⚠️ [LLMClientFactory] Rate limit exceeded for {node_name}, using OpenRouter")
+        
+        # Create OpenRouter client (default or fallback)
+        api_key, model_name = LLMClientFactory._get_node_config(node_name)
+        
+        client = OpenAI(
+            api_key=api_key,
+            base_url="https://openrouter.ai/api/v1"
+        )
+        
+        debug_print(f"🚀 [LLMClientFactory] Created OpenRouter client for {node_name}: {model_name}")
+        
+        if TEST_ENV:
+            print(f"🎯 [LLMClientFactory] {node_name} → openrouter → {model_name}")
+        
+        return client, model_name
     
     @staticmethod
     def _get_node_provider(node_name: str) -> str:
@@ -80,6 +112,27 @@ class LLMClientFactory:
             raise ValueError(f"Unknown node name: {node_name}")
         
         return provider_map[node_name]
+    
+    @staticmethod
+    def _initialize_rate_limit_manager():
+        """Initialize rate limit manager with per-node API keys"""
+        # Mapping of node names to their respective API keys
+        api_key_map = {
+            "intent_detector": GEMINI_API_KEY_INTENT,
+            "business_reasoner": GEMINI_API_KEY_BUSINESS,
+            "query_optimizer": GEMINI_API_KEY_QUERY,
+            "response_formatter": GEMINI_API_KEY_RESPONSE,
+            "follow_up": GEMINI_API_KEY_FOLLOWUP,
+            "image_analysis": GEMINI_API_KEY_IMAGE,
+            "icp_analysis": GEMINI_API_KEY_ICP
+        }
+        
+        # Register API keys with rate limit manager
+        for node_name, api_key in api_key_map.items():
+            if api_key:  # Only register if API key exists
+                rate_limit_manager.register_api_key(node_name, api_key)
+                if TEST_ENV:
+                    debug_print(f"🔑 [LLMClientFactory] Registered API key for {node_name}: {api_key[:12]}...")
     
     @staticmethod
     def _get_node_config(node_name: str) -> Tuple[str, str]:

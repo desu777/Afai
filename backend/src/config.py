@@ -60,6 +60,16 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # Keep for backwards compatibility
 # 🚀 GEMINI API CONFIGURATION (2025)
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
+# 🔥 DUAL GEMINI API KEYS FOR RATE LIMIT OPTIMIZATION
+# Use separate API keys for different nodes to maximize free tier usage
+GEMINI_API_KEY_BUSINESS = os.getenv("GEMINI_API_KEY_BUSINESS") or GEMINI_API_KEY
+GEMINI_API_KEY_RESPONSE = os.getenv("GEMINI_API_KEY_RESPONSE") or GEMINI_API_KEY
+GEMINI_API_KEY_INTENT = os.getenv("GEMINI_API_KEY_INTENT") or GEMINI_API_KEY
+GEMINI_API_KEY_QUERY = os.getenv("GEMINI_API_KEY_QUERY") or GEMINI_API_KEY
+GEMINI_API_KEY_FOLLOWUP = os.getenv("GEMINI_API_KEY_FOLLOWUP") or GEMINI_API_KEY
+GEMINI_API_KEY_IMAGE = os.getenv("GEMINI_API_KEY_IMAGE") or GEMINI_API_KEY
+GEMINI_API_KEY_ICP = os.getenv("GEMINI_API_KEY_ICP") or GEMINI_API_KEY
+
 # LLM Provider Selection - per-node configuration
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "openrouter")  # Default to OpenRouter
 INTENT_DETECTOR_PROVIDER = os.getenv("INTENT_DETECTOR_PROVIDER", LLM_PROVIDER)
@@ -162,13 +172,40 @@ if FOLLOW_UP_PROVIDER == "openrouter" and not FOLLOW_UP_API:
 if missing_api_keys:
     raise ValueError(f"Missing per-node API keys for OpenRouter: {', '.join(missing_api_keys)}")
 
-# Validate Gemini API key if any node uses Gemini
-gemini_nodes = [
-    INTENT_DETECTOR_PROVIDER, BUSINESS_REASONER_PROVIDER, QUERY_OPTIMIZER_PROVIDER,
-    RESPONSE_FORMATTER_PROVIDER, FOLLOW_UP_PROVIDER, IMAGE_PROVIDER, ICP_PROVIDER
-]
-if "gemini" in gemini_nodes and not GEMINI_API_KEY:
-    raise ValueError("GEMINI_API_KEY is required when any node uses Gemini provider")
+# Validate Gemini API keys per-node (smart validation)
+# Check each node individually - per-node key OR global key required
+def get_node_gemini_api_key(node_name: str) -> str:
+    """Get API key for node (per-node or fallback to global)"""
+    node_key_map = {
+        "intent_detector": GEMINI_API_KEY_INTENT,
+        "business_reasoner": GEMINI_API_KEY_BUSINESS,
+        "query_optimizer": GEMINI_API_KEY_QUERY,
+        "response_formatter": GEMINI_API_KEY_RESPONSE,
+        "follow_up": GEMINI_API_KEY_FOLLOWUP,
+        "image_analysis": GEMINI_API_KEY_IMAGE,
+        "icp_analysis": GEMINI_API_KEY_ICP
+    }
+    return node_key_map.get(node_name) or GEMINI_API_KEY
+
+missing_gemini_keys = []
+node_provider_map = {
+    "intent_detector": INTENT_DETECTOR_PROVIDER,
+    "business_reasoner": BUSINESS_REASONER_PROVIDER,
+    "query_optimizer": QUERY_OPTIMIZER_PROVIDER,
+    "response_formatter": RESPONSE_FORMATTER_PROVIDER,
+    "follow_up": FOLLOW_UP_PROVIDER,
+    "image_analysis": IMAGE_PROVIDER,
+    "icp_analysis": ICP_PROVIDER
+}
+
+for node_name, provider in node_provider_map.items():
+    if provider == "gemini":
+        api_key = get_node_gemini_api_key(node_name)
+        if not api_key:
+            missing_gemini_keys.append(f"{node_name} (set GEMINI_API_KEY_{node_name.upper()} or GEMINI_API_KEY)")
+
+if missing_gemini_keys:
+    raise ValueError(f"Missing Gemini API keys for nodes: {', '.join(missing_gemini_keys)}")
 
 if MESSENGER_ON and not MESSENGER_PAGE_ACCESS_TOKEN:
     raise ValueError("MESSENGER_TOKEN is required when MESSENGER_ON=true")

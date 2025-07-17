@@ -10,6 +10,10 @@ from google import genai
 from google.genai import types
 from config import (
     GEMINI_API_KEY,
+    # Per-node API keys
+    GEMINI_API_KEY_BUSINESS, GEMINI_API_KEY_RESPONSE, GEMINI_API_KEY_INTENT,
+    GEMINI_API_KEY_QUERY, GEMINI_API_KEY_FOLLOWUP, GEMINI_API_KEY_IMAGE, GEMINI_API_KEY_ICP,
+    # Models
     GEMINI_DEFAULT_MODEL,
     INTENT_DETECTOR_GEMINI_MODEL,
     BUSINESS_REASONER_GEMINI_MODEL,
@@ -326,26 +330,51 @@ class GeminiClientFactory:
         Returns:
             Tuple of (GeminiClient, model_name)
         """
-        if not GEMINI_API_KEY:
-            raise ValueError("GEMINI_API_KEY is required for Gemini client creation")
+        # Get per-node API key (with fallback to global)
+        api_key = GeminiClientFactory._get_node_api_key(node_name)
+        if not api_key:
+            raise ValueError(f"No Gemini API key found for node {node_name}. Set GEMINI_API_KEY_{node_name.upper()} or GEMINI_API_KEY")
         
         # Get model name and thinking budget for this node
         model_name = GeminiClientFactory._get_node_model(node_name)
         thinking_budget = GeminiClientFactory._get_node_thinking_budget(node_name)
         
-        # Create Gemini client
-        client = GeminiClient(GEMINI_API_KEY, model_name, thinking_budget)
+        # Create Gemini client with per-node API key
+        client = GeminiClient(api_key, model_name, thinking_budget)
+        
+        # Debug logging with API key info
+        api_key_type = "per-node" if api_key != GEMINI_API_KEY else "global"
+        api_key_preview = f"{api_key[:12]}..." if api_key else "NOT SET"
         
         if thinking_budget is not None and thinking_budget.strip() != "":
-            debug_print(f"🚀 [GeminiClientFactory] Created Gemini client for {node_name}: {model_name} (thinking: {thinking_budget})")
+            debug_print(f"🚀 [GeminiClientFactory] Created Gemini client for {node_name}: {model_name} (thinking: {thinking_budget}, key: {api_key_type})")
             if TEST_ENV:
-                print(f"🎯 [GeminiClientFactory] {node_name} → gemini → {model_name} (thinking: {thinking_budget})")
+                print(f"🎯 [GeminiClientFactory] {node_name} → gemini → {model_name} (thinking: {thinking_budget}, key: {api_key_preview})")
         else:
-            debug_print(f"🚀 [GeminiClientFactory] Created Gemini client for {node_name}: {model_name} (thinking: default)")
+            debug_print(f"🚀 [GeminiClientFactory] Created Gemini client for {node_name}: {model_name} (thinking: default, key: {api_key_type})")
             if TEST_ENV:
-                print(f"🎯 [GeminiClientFactory] {node_name} → gemini → {model_name} (thinking: default)")
+                print(f"🎯 [GeminiClientFactory] {node_name} → gemini → {model_name} (thinking: default, key: {api_key_preview})")
         
         return client, model_name
+    
+    @staticmethod
+    def _get_node_api_key(node_name: str) -> str:
+        """Get API key for specified node (per-node key or fallback to global)"""
+        api_key_map = {
+            "intent_detector": GEMINI_API_KEY_INTENT,
+            "business_reasoner": GEMINI_API_KEY_BUSINESS,
+            "query_optimizer": GEMINI_API_KEY_QUERY,
+            "response_formatter": GEMINI_API_KEY_RESPONSE,
+            "follow_up": GEMINI_API_KEY_FOLLOWUP,
+            "image_analysis": GEMINI_API_KEY_IMAGE,
+            "icp_analysis": GEMINI_API_KEY_ICP
+        }
+        
+        if node_name not in api_key_map:
+            raise ValueError(f"Unknown node name: {node_name}")
+        
+        # Return per-node API key if available, otherwise fallback to global
+        return api_key_map[node_name] or GEMINI_API_KEY
     
     @staticmethod
     def _get_node_model(node_name: str) -> str:
