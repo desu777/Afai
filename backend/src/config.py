@@ -19,11 +19,13 @@ DISABLE_BUSINESS_MAPPINGS = os.getenv("DISABLE_BUSINESS_MAPPINGS", "false").lowe
 # 🆕 FLAG TO ENABLE ONLY COMPETITORS MAPPING
 ENABLE_COMPETITORS_ONLY = os.getenv("ENABLE_COMPETITORS_ONLY", "false").lower() == "true"
 
-# Debug print function
+# Import enhanced logger
+from utils.logger import logger
+
+# Enhanced debug print function
 def debug_print(message: str, emoji: str = "🔍"):
-    """Print debug message if TEST_ENV is True"""
-    if TEST_ENV:
-        print(f"{emoji} {message}")
+    """Enhanced debug print using centralized logger"""
+    logger.debug(message.replace(emoji, "").strip())
 # --- END DEBUG ---
 
 # Pinecone Configuration
@@ -214,13 +216,11 @@ if ENABLE_AUTH_TOKEN and not AQUAFOREST_AUTH_TOKEN:
 
 # Print configuration status on import (only in debug mode)
 if TEST_ENV:
-    print("\n" + "="*60)
-    print("🔧 CONFIGURATION LOADED")
-    print("="*60)
-    print(f"📍 Debug Mode: ENABLED")
-    print(f"📍 Business Mappings: {'DISABLED' if DISABLE_BUSINESS_MAPPINGS else 'ENABLED'}")
-    print(f"📍 Competitors Only: {'ENABLED' if ENABLE_COMPETITORS_ONLY else 'DISABLED'}")
-    print(f"🚀 Dual API Configuration (OpenRouter + Gemini 2.5)")
+    logger.header("🔧 CONFIGURATION LOADED")
+    logger.configuration("Debug Mode: ENABLED")
+    logger.configuration(f"Business Mappings: {'DISABLED' if DISABLE_BUSINESS_MAPPINGS else 'ENABLED'}")
+    logger.configuration(f"Competitors Only: {'ENABLED' if ENABLE_COMPETITORS_ONLY else 'DISABLED'}")
+    logger.configuration("Dual API Configuration (OpenRouter + Gemini 2.5)", "SUB")
     
     # Helper function to format node info with thinking (only for Gemini provider)
     def format_node_info(provider, openrouter_model, gemini_model, thinking_budget):
@@ -230,32 +230,34 @@ if TEST_ENV:
         else:
             return f"{provider} → {model}"
     
-    print(f"🎯 Intent Detector: {format_node_info(INTENT_DETECTOR_PROVIDER, INTENT_DETECTOR_MODEL, INTENT_DETECTOR_GEMINI_MODEL, INTENT_DETECTOR_THINKING_BUDGET)}")
-    print(f"🧠 Business Reasoner: {format_node_info(BUSINESS_REASONER_PROVIDER, BUSINESS_REASONER_MODEL, BUSINESS_REASONER_GEMINI_MODEL, BUSINESS_REASONER_THINKING_BUDGET)}")
-    print(f"🔍 Query Optimizer: {format_node_info(QUERY_OPTIMIZER_PROVIDER, QUERY_OPTIMIZER_MODEL, QUERY_OPTIMIZER_GEMINI_MODEL, QUERY_OPTIMIZER_THINKING_BUDGET)}")
-    print(f"📝 Response Formatter: {format_node_info(RESPONSE_FORMATTER_PROVIDER, RESPONSE_FORMATTER_MODEL, RESPONSE_FORMATTER_GEMINI_MODEL, RESPONSE_FORMATTER_THINKING_BUDGET)}")
-    print(f"🔄 Follow-up Evaluator: {format_node_info(FOLLOW_UP_PROVIDER, FOLLOW_UP_MODEL, FOLLOW_UP_GEMINI_MODEL, FOLLOW_UP_THINKING_BUDGET)}")
-    print(f"📸 Image Analysis: {format_node_info(IMAGE_PROVIDER, IMAGE_MODEL, IMAGE_GEMINI_MODEL, IMAGE_THINKING_BUDGET)}")
-    print(f"📄 ICP Analysis: {format_node_info(ICP_PROVIDER, ICP_MODEL, ICP_GEMINI_MODEL, ICP_THINKING_BUDGET)}")
-    print(f"🔑 Gemini API: {'CONFIGURED' if GEMINI_API_KEY else 'NOT SET'}")
+    logger.configuration(f"Intent Detector: {format_node_info(INTENT_DETECTOR_PROVIDER, INTENT_DETECTOR_MODEL, INTENT_DETECTOR_GEMINI_MODEL, INTENT_DETECTOR_THINKING_BUDGET)}", "SUB")
+    logger.configuration(f"Business Reasoner: {format_node_info(BUSINESS_REASONER_PROVIDER, BUSINESS_REASONER_MODEL, BUSINESS_REASONER_GEMINI_MODEL, BUSINESS_REASONER_THINKING_BUDGET)}", "SUB")
+    logger.configuration(f"Query Optimizer: {format_node_info(QUERY_OPTIMIZER_PROVIDER, QUERY_OPTIMIZER_MODEL, QUERY_OPTIMIZER_GEMINI_MODEL, QUERY_OPTIMIZER_THINKING_BUDGET)}", "SUB")
+    logger.configuration(f"Response Formatter: {format_node_info(RESPONSE_FORMATTER_PROVIDER, RESPONSE_FORMATTER_MODEL, RESPONSE_FORMATTER_GEMINI_MODEL, RESPONSE_FORMATTER_THINKING_BUDGET)}", "SUB")
+    logger.configuration(f"Follow-up Evaluator: {format_node_info(FOLLOW_UP_PROVIDER, FOLLOW_UP_MODEL, FOLLOW_UP_GEMINI_MODEL, FOLLOW_UP_THINKING_BUDGET)}", "SUB")
+    logger.configuration(f"Image Analysis: {format_node_info(IMAGE_PROVIDER, IMAGE_MODEL, IMAGE_GEMINI_MODEL, IMAGE_THINKING_BUDGET)}", "SUB")
+    logger.configuration(f"ICP Analysis: {format_node_info(ICP_PROVIDER, ICP_MODEL, ICP_GEMINI_MODEL, ICP_THINKING_BUDGET)}", "SUB")
+    logger.configuration(f"Gemini API: {'CONFIGURED' if GEMINI_API_KEY else 'NOT SET'}", "SUB")
+    
     if GEMINI_DEFAULT_THINKING_BUDGET is not None and GEMINI_DEFAULT_THINKING_BUDGET.strip() != "":
-        print(f"🧠 Default Thinking Budget: {GEMINI_DEFAULT_THINKING_BUDGET}")
+        logger.configuration(f"Default Thinking Budget: {GEMINI_DEFAULT_THINKING_BUDGET}", "SUB")
     else:
-        print(f"🧠 Default Thinking Budget: Gemini default")
-    print(f"📍 Embedding Model: {OPENAI_EMBEDDING_MODEL}")
-    print(f"📍 Pinecone Index: {PINECONE_INDEX_NAME}")
-    print(f"📍 Default K Value: {DEFAULT_K_VALUE}")
-    print(f"📍 Enhanced K Value: {ENHANCED_K_VALUE}")
-    print(f"🚀 Parallel Search: {'ENABLED' if ENABLE_PARALLEL_SEARCH else 'DISABLED'}")
-    print(f"🔄 Max Concurrent Queries: {MAX_CONCURRENT_QUERIES}")
-    print(f"🔄 Max Concurrent Embeddings: {MAX_CONCURRENT_EMBEDDINGS}")
-    print(f"🔄 Pinecone Pool Threads: {PINECONE_POOL_THREADS}")
-    print(f"🔄 Pinecone Connection Pool Max: {PINECONE_CONNECTION_POOL_MAX}")
-    print(f"📍 Supported Languages: {', '.join(SUPPORTED_LANGUAGES)}")
-    print(f"📍 CORS Origins: {', '.join(CORS_ORIGINS)}")
-    print(f"📍 Competitors tracked: {len(COMPETITORS)}")
-    print(f"📍 Messenger Integration: {'ENABLED' if MESSENGER_ON else 'DISABLED'}")
-    print(f"📍 Facebook API Version: {FACEBOOK_API_VERSION}")
-    print(f"🔐 Auth Token: {'ENABLED' if ENABLE_AUTH_TOKEN else 'DISABLED'}")
-    print(f"🗑️ Confidence Scorer: REMOVED for better performance")
-    print("="*60 + "\n")
+        logger.configuration("Default Thinking Budget: Gemini default", "SUB")
+    
+    logger.configuration(f"Embedding Model: {OPENAI_EMBEDDING_MODEL}", "SUB")
+    logger.configuration(f"Pinecone Index: {PINECONE_INDEX_NAME}", "SUB")
+    logger.configuration(f"Default K Value: {DEFAULT_K_VALUE}", "SUB")
+    logger.configuration(f"Enhanced K Value: {ENHANCED_K_VALUE}", "SUB")
+    logger.configuration(f"Parallel Search: {'ENABLED' if ENABLE_PARALLEL_SEARCH else 'DISABLED'}", "SUB")
+    logger.configuration(f"Max Concurrent Queries: {MAX_CONCURRENT_QUERIES}", "SUB")
+    logger.configuration(f"Max Concurrent Embeddings: {MAX_CONCURRENT_EMBEDDINGS}", "SUB")
+    logger.configuration(f"Pinecone Pool Threads: {PINECONE_POOL_THREADS}", "SUB")
+    logger.configuration(f"Pinecone Connection Pool Max: {PINECONE_CONNECTION_POOL_MAX}", "SUB")
+    logger.configuration(f"Supported Languages: {', '.join(SUPPORTED_LANGUAGES)}", "SUB")
+    logger.configuration(f"CORS Origins: {', '.join(CORS_ORIGINS)}", "SUB")
+    logger.configuration(f"Competitors tracked: {len(COMPETITORS)}", "SUB")
+    logger.configuration(f"Messenger Integration: {'ENABLED' if MESSENGER_ON else 'DISABLED'}", "SUB")
+    logger.configuration(f"Facebook API Version: {FACEBOOK_API_VERSION}", "SUB")
+    logger.configuration(f"Auth Token: {'ENABLED' if ENABLE_AUTH_TOKEN else 'DISABLED'}", "SUB")
+    logger.configuration("Confidence Scorer: REMOVED for better performance", "SUB")
+    logger.separator()

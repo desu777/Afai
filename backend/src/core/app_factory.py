@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from config import CORS_ORIGINS, TEST_ENV, debug_print
 from database import init_database, cleanup_old_messenger_history, DB_PATH
 from security_middleware import setup_security_middleware, security_headers_middleware, create_auth_token_middleware
+from utils.logger import logger
 
 def create_app():
     """Create and configure FastAPI application"""
@@ -44,6 +45,7 @@ def create_app():
 
 def run_server():
     """Run the FastAPI server"""
+    # Always show server startup (not dependent on TEST_ENV)
     print("\n" + "="*60)
     print("🐠 Starting Aquaforest RAG API Server with Analytics")
     print("="*60)

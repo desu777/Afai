@@ -9,6 +9,7 @@ from typing import Dict, Any, Optional
 from workflow import app
 from models import ConversationState
 import config
+from utils.logger import logger
 
 class AquaforestAssistant:
     def __init__(self, analytics_instance=None):
@@ -38,24 +39,20 @@ class AquaforestAssistant:
             
         try:
             if debug:
-                print("\n" + "="*60)
-                print("🚀 [WORKFLOW START]")
-                print("="*60)
+                logger.workflow_start()
                 final_node_output = None
                 for chunk in self.workflow.stream(state):
                     node_name = list(chunk.keys())[0]
                     if node_name != "__end__":
-                        print(f"\n📍 Executing node: '{node_name}'")
-                        print("-"*40)
+                        logger.workflow(f"Executing node: '{node_name}'", "SUB")
+                        logger.separator("", 40, "-")
                         final_node_output = chunk[node_name]
                 result = final_node_output
                 if not result:
-                     print("\n❌ [ERROR] Workflow did not produce any output.")
+                     logger.error("Workflow did not produce any output")
                      state["final_response"] = "I apologize, but an error occurred during the workflow."
                      return state
-                print("\n" + "="*60)
-                print("🏁 [WORKFLOW END]")
-                print("="*60 + "\n")
+                logger.workflow_end()
             else:
                 result = self.workflow.invoke(state)
             
@@ -70,13 +67,13 @@ class AquaforestAssistant:
             
             # Display timing info
             if debug:
-                print(f"⏱️ [PERFORMANCE] Total execution time: {execution_time:.3f} seconds")
-                print("-"*60)
+                logger.performance("Total execution time", execution_time)
+                logger.separator("", 60, "-")
             
             return result
         except Exception as e:
             if debug:  # Only show errors in debug mode
-                print(f"\n❌ [DEBUG Main] Error processing query: {e}")
+                logger.error(f"Error processing query: {e}")
                 import traceback
                 traceback.print_exc()
             state["final_response"] = "I apologize, but I encountered an error. Please try again or contact support@aquaforest.eu"
@@ -85,8 +82,8 @@ class AquaforestAssistant:
             end_time = time.time()
             execution_time = end_time - start_time
             if debug:
-                print(f"⏱️ [PERFORMANCE] Execution time (with error): {execution_time:.3f} seconds")
-                print("-"*60)
+                logger.performance("Execution time (with error)", execution_time)
+                logger.separator("", 60, "-")
                 
             return state
         finally:
@@ -98,6 +95,7 @@ def main():
     """Main entry point for testing"""
     assistant = AquaforestAssistant()
     
+    # Always show interactive mode header (not dependent on TEST_ENV)
     print("\n" + "="*60)
     print("🐠 Aquaforest AI Assistant - Interactive Mode")
     print("="*60)
@@ -211,14 +209,15 @@ def main():
 
             # 🔧 DEBUG: Session ID tracking zgodnie z rules (TEST_ENV)
             if config.TEST_ENV or debug_mode:
-                print(f"🔍 [DEBUG Main] Processing query with session_id: {conversation_state.get('session_id', 'NONE')}")
+                session_id = conversation_state.get('session_id', 'NONE')
+                logger.debug(f"Processing query with session_id: {session_id}")
                 from session_manager import get_session_manager
                 session_manager = get_session_manager()
-                existing_cache = session_manager.get_session_cache(conversation_state.get('session_id'))
+                existing_cache = session_manager.get_session_cache(session_id)
                 if existing_cache:
-                    print(f"✅ [DEBUG Main] Found existing cache with {len(existing_cache.get('metadata', []))} items")
+                    logger.debug(f"Found existing cache with {len(existing_cache.get('metadata', []))} items", "SUB")
                 else:
-                    print(f"⚠️ [DEBUG Main] No existing cache found for session")
+                    logger.debug("No existing cache found for session", "SUB")
 
             print("\n🤖 Assistant: ", end="", flush=True)
             
@@ -240,7 +239,7 @@ def main():
             continue
         except Exception as e:
             if debug_mode:  # Only show errors in debug mode
-                print(f"\n❌ [DEBUG Main] Unexpected error: {e}")
+                logger.error(f"Unexpected error: {e}")
                 import traceback
                 traceback.print_exc()
                 print("\nTrying to continue...")

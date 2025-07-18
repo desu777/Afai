@@ -7,6 +7,7 @@ import time
 from typing import Dict, Any, Optional, Callable
 from models import ConversationState
 from config import TEST_ENV, debug_print
+from utils.logger import logger
 
 class WorkflowAnalytics:
     def __init__(self):
@@ -47,9 +48,8 @@ class WorkflowAnalytics:
             message = self._get_node_message(node_name)
         
         # 🔍 DEBUG: Check streaming callback
-        if TEST_ENV:
-            debug_print(f"🔍 [DEBUG capture_node_start] node_name='{node_name}', message='{message}'", "🔍")
-            debug_print(f"🔍 [DEBUG capture_node_start] self.streaming_callback={self.streaming_callback}", "🔍")
+        logger.debug(f"node_name='{node_name}', message='{message}'", "DETAIL")
+        logger.debug(f"streaming_callback={self.streaming_callback}", "DETAIL")
         
         if self.streaming_callback:
             update_data = {
@@ -58,12 +58,10 @@ class WorkflowAnalytics:
                 "message": message,
                 "elapsed_time": elapsed_time
             }
-            if TEST_ENV:
-                debug_print(f"🚀 [DEBUG capture_node_start] Calling streaming_callback with: {update_data}", "🚀")
+            logger.debug(f"Calling streaming_callback with: {update_data}", "DETAIL")
             self.streaming_callback(update_data)
         else:
-            if TEST_ENV:
-                debug_print(f"⚠️ [DEBUG capture_node_start] streaming_callback is None!", "⚠️")
+            logger.debug("streaming_callback is None!", "DETAIL")
     
     def capture_node_complete(self, node_name: str, message: str = ""):
         """Capture when a node completes execution"""

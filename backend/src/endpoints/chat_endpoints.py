@@ -13,6 +13,7 @@ from config import debug_print, TEST_ENV
 from analytics import WorkflowAnalytics
 from database import save_analytics_to_db
 from main import AquaforestAssistant
+from utils.logger import logger
 
 def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
     """Setup chat endpoints on FastAPI app"""
@@ -32,30 +33,28 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
             if not session_id:
                 # Generate new session for first-time users
                 session_id = session_manager.generate_session_id()
-                debug_print(f"🆕 [StreamServer] Generated new session: {session_id}")
+                logger.streaming(f"Generated new session: {session_id}", session_id, "SUB")
             else:
-                debug_print(f"🔄 [StreamServer] Using existing session: {session_id}")
+                logger.streaming(f"Using existing session: {session_id}", session_id, "SUB")
             
             session_analytics = WorkflowAnalytics()
             session_analytics.reset()
             
-            if TEST_ENV:
-                debug_print(f"🆔 [StreamServer] Starting session {session_id}: {chat_request.message[:30]}...", "🆔")
+            logger.streaming(f"Starting session: {chat_request.message[:30]}...", session_id, "SUB")
             
             # Real-time streaming with threading
             update_queue = queue.Queue()
             workflow_finished = threading.Event()
             
             def streaming_callback(update):
-                if TEST_ENV:
-                    debug_print(f"📡 [StreamServer] Adding update to queue: {update}", "🔊")
+                logger.streaming(f"Adding update to queue: {update}", session_id, "DETAIL")
                 # Add to queue for immediate streaming
                 update_queue.put(update)
             
             def run_workflow():
                 """Run workflow in separate thread"""
                 try:
-                    debug_print(f"📨 [StreamServer] Session {session_id} - Received streaming chat request: {chat_request.message[:50]}...", "🔍")
+                    logger.streaming(f"Received streaming chat request: {chat_request.message[:50]}...", session_id, "SUB")
                     
                     # Create conversation state with session analytics and session management
                     conversation_state = {
@@ -82,7 +81,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
                         "analytics_instance": session_analytics
                     }
                     
-                    debug_print(f"🔄 [StreamServer] Processing with streaming workflow (debug={chat_request.debug})", "⚙️")
+                    logger.streaming(f"Processing with streaming workflow (debug={chat_request.debug})", session_id, "SUB")
                     
                     # Create dedicated assistant instance for this session
                     session_assistant = AquaforestAssistant(analytics_instance=session_analytics)
@@ -93,7 +92,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
                     # Save extended cache to session if available
                     if result_state.get("extended_cache"):
                         session_manager.update_session_cache(session_id, result_state["extended_cache"])
-                        debug_print(f"💾 [StreamServer] Updated session cache for {session_id}")
+                        logger.streaming(f"Updated session cache for {session_id}", session_id, "SUB")
                     
                     # Send final completion update
                     session_analytics.capture_workflow_complete(result_state.get("final_response", ""))
@@ -104,11 +103,11 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
                     # Save analytics to database
                     save_analytics_to_db(session_analytics)
                     
-                    debug_print(f"✅ [StreamServer] Session {session_id} - Streaming response completed", "⏱️")
+                    logger.streaming(f"Streaming response completed", session_id, "SUB")
                     
                 except Exception as e:
                     error_msg = f"An error occurred while processing your request: {str(e)}"
-                    debug_print(f"❌ [StreamServer] Error: {error_msg}", "🚨")
+                    logger.error(f"Error: {error_msg}", "SUB")
                     
                     # Send error update
                     error_response = "I apologize, but I encountered an error. Please try again or contact support@aquaforest.eu"
@@ -138,13 +137,12 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
                     update = update_queue.get(timeout=1.0)
                     sent_count += 1
                     
-                    if TEST_ENV:
-                        debug_print(f"📤 [StreamServer] Streaming update #{sent_count}: {update['node']}", "📤")
+                    logger.streaming(f"Streaming update #{sent_count}: {update['node']}", session_id, "DETAIL")
                     
                     # Handle very long messages
                     json_data = json.dumps(update)
-                    if len(json_data) > 8192 and TEST_ENV:
-                        debug_print(f"⚠️ [StreamServer] Large final message ({len(json_data)} bytes)", "⚠️")
+                    if len(json_data) > 8192:
+                        logger.streaming(f"Large final message ({len(json_data)} bytes)", session_id, "DETAIL")
                     
                     yield f"data: {json_data}\n\n"
                     
@@ -156,13 +154,12 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
                             while True:
                                 update = update_queue.get_nowait()
                                 sent_count += 1
-                                if TEST_ENV:
-                                    debug_print(f"📤 [StreamServer] Final update #{sent_count}: {update['node']}", "📤")
+                                logger.streaming(f"Final update #{sent_count}: {update['node']}", session_id, "DETAIL")
                                 
                                 # Handle very long messages
                                 json_data = json.dumps(update)
-                                if len(json_data) > 8192 and TEST_ENV:
-                                    debug_print(f"⚠️ [StreamServer] Large final message ({len(json_data)} bytes)", "⚠️")
+                                if len(json_data) > 8192:
+                                    logger.streaming(f"Large final message ({len(json_data)} bytes)", session_id, "DETAIL")
                                 
                                 yield f"data: {json_data}\n\n"
                         except queue.Empty:
@@ -172,8 +169,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
             # Wait for workflow thread to complete
             workflow_thread.join()
             
-            if TEST_ENV:
-                debug_print(f"🏁 [StreamServer] Streaming completed. Total updates sent: {sent_count}", "🏁")
+            logger.streaming(f"Streaming completed. Total updates sent: {sent_count}", session_id, "SUB")
         
         return StreamingResponse(
             generate_stream(),
