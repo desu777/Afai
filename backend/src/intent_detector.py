@@ -81,13 +81,6 @@ IMPORTANT: This conversation has existing history. Consider if the user's questi
 If the user's question builds upon or continues the conversation context, it's likely a FOLLOW-UP.
 """
 
-        # 🆕 ICP URL Detection
-        icp_url_hint = ""
-        if re.search(r'aquaforestlab\.com/(?:pl|en)/results/\w+', state['user_query']):
-            icp_url_hint = """
-IMPORTANT: User provided an ICP test results URL from aquaforestlab.com
-This is very likely intent: "analyze_icp" - user wants analysis of their water parameters!
-"""
 
         # 🆕 IMAGE ANALYSIS HINT
         image_hint = ""
@@ -98,11 +91,11 @@ Image description: {state['image_analysis']}
 This is very likely intent: "product_query" - user wants help with aquarium problems shown in image!
 """
 
-        # 🆕 ICP CONTENT HINT - NEW! For PDFs and enhanced queries with ICP data
+        # 🆕 ICP CONTENT HINT - For PDFs with ICP data
         icp_content_hint = ""
         if state.get("icp_data") or state.get("icp_analysis"):
             icp_content_hint = """
-DETECTED: User attached ICP results (PDF/URL) requesting water analysis!
+DETECTED: User attached ICP results (PDF) requesting water analysis!
 This is DEFINITELY intent: "analyze_icp" - user wants analysis of their water parameters!
 """
 
@@ -112,9 +105,8 @@ This is DEFINITELY intent: "analyze_icp" - user wants analysis of their water pa
             chat_history_formatted=chat_history_formatted,
             user_query=state['user_query'],
             conversation_context_hint=conversation_context_hint,
-            icp_url_hint=icp_url_hint,  # 🆕 Pass ICP URL hint to template
             image_hint=image_hint,  # 🆕 Pass image hint to template
-            icp_content_hint=icp_content_hint,  # 🆕 NEW! Pass ICP content hint to template
+            icp_content_hint=icp_content_hint,  # 🆕 Pass ICP content hint to template
             competitors=self.competitors_list  # 🆕 Pass competitors list to template
         )
         
@@ -252,57 +244,28 @@ Return ONLY a valid JSON object:
         return state
 
     def _analyze_icp_content(self, state: ConversationState) -> ConversationState:
-        """Analyze ICP content from URL (in user_query or image_url) or PDF"""
+        """Analyze ICP content from PDF uploads only"""
         
-        # Check for ICP URL in user_query first
-        user_query = state.get("user_query", "")
-        icp_url_in_query = re.search(r'https?://(?:www\.)?aquaforestlab\.com/(?:pl|en)/results/\w+', user_query)
-        
-        # Check for content in image_url (PDF or URL)
+        # Check for PDF content in image_url
         image_url = state.get("image_url", "")
-        is_icp_url_in_image = re.search(r'aquaforestlab\.com/(?:pl|en)/results/\w+', image_url) if image_url else None
         is_pdf = image_url.startswith("data:application/pdf;base64,") if image_url else False
         
-        # Determine what type of content we have
-        if icp_url_in_query:
-            content_type = "url_in_query"
-            icp_url = icp_url_in_query.group(0)
-        elif is_icp_url_in_image:
-            content_type = "url_in_image"
-            icp_url = image_url
-        elif is_pdf:
-            content_type = "pdf"
-            icp_url = None
-        else:
-            return state  # No ICP content found
+        if not is_pdf:
+            return state  # No PDF content found
             
         if TEST_ENV:
-            debug_print(f"🔬 [IntentDetector] Analyzing ICP content: {content_type.upper()}")
-            if icp_url:
-                debug_print(f"🔗 [IntentDetector] ICP URL found: {icp_url}")
+            debug_print(f"🔬 [IntentDetector] Analyzing PDF ICP content")
         
         try:
-            icp_data = None
+            # Process PDF data
+            if TEST_ENV:
+                debug_print(f"📄 [IntentDetector] Processing PDF ICP data")
             
-            if content_type in ["url_in_query", "url_in_image"]:
-                # Process ICP URL
-                if TEST_ENV:
-                    debug_print(f"🌐 [IntentDetector] Processing ICP URL: {icp_url}")
-                
-                state["icp_url"] = icp_url
-                icp_data = self.icp_scraper.extract_icp_data_from_url(icp_url)
-                
-            elif content_type == "pdf":
-                # Process PDF data
-                if TEST_ENV:
-                    debug_print(f"📄 [IntentDetector] Processing PDF ICP data")
-                
-                # Extract PDF content from base64
-                pdf_base64 = image_url.split(",")[1]
-                pdf_content = base64.b64decode(pdf_base64)
-                
-                state["icp_url"] = "PDF upload"
-                icp_data = self.icp_scraper.process_pdf_icp_data(pdf_content, "icp_results.pdf")
+            # Extract PDF content from base64
+            pdf_base64 = image_url.split(",")[1]
+            pdf_content = base64.b64decode(pdf_base64)
+            
+            icp_data = self.icp_scraper.process_pdf_icp_data(pdf_content, "icp_results.pdf")
             
             if icp_data and icp_data.get("status") == "success":
                 # Store raw ICP data
@@ -357,21 +320,15 @@ Return ONLY a valid JSON object:
         
         # 🆕 CONTENT ANALYSIS FIRST - check for ICP URLs/PDFs and images BEFORE text analysis
         
-        # Check for ICP URL in user_query first
-        user_query = state.get("user_query", "")
-        has_icp_url_in_query = re.search(r'https?://(?:www\.)?aquaforestlab\.com/(?:pl|en)/results/\w+', user_query)
-        
         # Check image_url if provided
         image_url = state.get("image_url", "")
-        has_icp_url_in_image = re.search(r'aquaforestlab\.com/(?:pl|en)/results/\w+', image_url) if image_url else None
         has_pdf = image_url.startswith("data:application/pdf;base64,") if image_url else False
         has_image = image_url.startswith("data:image/") if image_url else False
         
         # Determine what content to analyze
-        if has_icp_url_in_query or has_icp_url_in_image or has_pdf:
+        if has_pdf:
             if TEST_ENV:
-                content_desc = "URL in query" if has_icp_url_in_query else ("URL in image" if has_icp_url_in_image else "PDF")
-                print(f"🔬 [DEBUG IntentDetector] Adding ICP analysis ({content_desc})...")
+                print(f"🔬 [DEBUG IntentDetector] Adding ICP analysis (PDF)...")
             # Analyze ICP content and enhance user query FIRST
             state = self._analyze_icp_content(state)
         elif has_image:

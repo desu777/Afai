@@ -49,7 +49,6 @@ class ConversationState(TypedDict):
     image_analysis: Optional[str]  # Opis zdjęcia wygenerowany przez LLM
     
     # 🆕 ICP ANALYSIS FIELDS
-    icp_url: Optional[str]  # URL do ICP lub nazwa pliku PDF
     icp_analysis: Optional[str]  # Analiza ICP przetworzona przez LLM
     icp_data: Optional[Dict[str, Any]]  # Surowe dane ICP dla potencjalnego przyszłego użytku
     

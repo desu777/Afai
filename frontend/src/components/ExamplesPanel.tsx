@@ -64,7 +64,7 @@ const ExamplesPanel: React.FC<ExamplesPanelProps> = ({ onExampleSelect }) => {
     {
       category: "Advanced Questions",
       questions: [
-        "Analyze my ICP results: [paste your ICP results here]",
+        "Analyze my ICP results: [upload your ICP PDF file]",
         "How to dose Components Strong with Balling Method?",
         "What's the optimal dosing schedule for AF Energy and Vitality?",
         "How to transition from two-part to Balling Method?"
@@ -153,7 +153,7 @@ const ExamplesPanel: React.FC<ExamplesPanelProps> = ({ onExampleSelect }) => {
               </li>
               <li className="flex items-start">
                 <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
-                <span>For ICP analysis, paste your complete results or provide a link</span>
+                <span>For ICP analysis, upload your PDF file with complete results</span>
               </li>
             </ul>
           </div>

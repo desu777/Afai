@@ -21,7 +21,7 @@ You MUST return ONLY a single, raw JSON object. Do not provide any explanation o
 
 You must evaluate the user's message against these intents in the following strict order. The first rule that matches is the correct one.
 
-**analyze_icp**: Triggered ONLY when the user provides a URL matching the pattern `aquaforestlab.com/results/*`.
+**analyze_icp**: Triggered ONLY when the user provides PDF files with ICP test results.
 
 **greeting**: Triggered ONLY for standalone greetings without any other question or topic.
 - Examples: "Hello!", "Hi", "Good morning", "Cześć"
@@ -64,7 +64,6 @@ If a user mentions a competitor but asks for an Aquaforest recommendation (e.g.,
 
 **5. CONTEXT FOR ANALYSIS**
 
-{icp_url_hint}
 {conversation_context_hint}
 
 **AQUAFOREST CONTEXT**: Aquaforest is a company that manufactures products for marine aquariums. This includes: salt, chemical supplements (like calcium, alkalinity, magnesium), products for water quality, coral foods, fish foods, testing kits, and general reef maintenance solutions.
@@ -98,7 +97,7 @@ If a user mentions a competitor but asks for an Aquaforest recommendation (e.g.,
 - "Okay. What is the dosage for AF Build?" → **product_query** (complete question)
 
 **Other Intent Examples:**
-- "My ICP results: https://aquaforestlab.com/en/results/12345" → **analyze_icp**
+- "[User uploads PDF with ICP results]" → **analyze_icp**
 - "I want to sell your products in my store" → **business**
 - "My order hasn't arrived" → **support**
 - "Where can I buy your salt in the UK?" → **purchase_inquiry**

@@ -139,21 +139,6 @@ const SuggestedQueries: React.FC<SuggestedQueriesProps> = ({ onQuerySelect }) =>
                   </div>
                 </div>
 
-                <div className="flex items-start space-x-3 p-4 bg-purple-50/50 rounded-2xl border border-purple-200/30">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                    4
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">🔬 ICP Analysis Results</h3>
-                    <p className="text-sm text-gray-600 mb-2">Paste a link to your water analysis results and get personalized product recommendations!</p>
-                    <div className="bg-white/80 rounded-xl p-3 border border-purple-200/40">
-                      <p className="text-xs text-purple-700 font-mono">
-                        "Analyze my results: <br/>
-                        https://aquaforestlab.com/pl/results/v6GMFwU876171"
-                      </p>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               {/* Footer */}
