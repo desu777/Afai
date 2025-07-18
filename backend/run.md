@@ -1,0 +1,1 @@
+ENV_FILE_PATH="/mnt/c/Users/kubas/Desktop/env/aquaforest/.env" python src/server.py
