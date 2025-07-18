@@ -223,7 +223,45 @@ server {
 
     # SSL Configuration (będzie dodane przez certbot)
     
-    # Backend API - proxy do FastAPI
+    # ========================================
+    # 🚀 STREAMING ENDPOINT - NO BUFFERING
+    # ========================================
+    location /chat/stream {
+        proxy_pass http://localhost:2103;
+        proxy_http_version 1.1;
+        
+        # Wyłącz wszystkie buforowanie dla streaming
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_request_buffering off;
+        
+        # Zwiększ timeout dla długich połączeń
+        proxy_read_timeout 300s;
+        proxy_connect_timeout 75s;
+        proxy_send_timeout 300s;
+        
+        # Headers dla SSE
+        proxy_set_header Connection '';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Port $server_port;
+        
+        # Wyłącz chunked transfer encoding dla SSE
+        chunked_transfer_encoding off;
+        
+        # Flush output immediately
+        proxy_no_cache 1;
+        proxy_cache_bypass 1;
+        add_header Cache-Control no-cache;
+        add_header X-Accel-Buffering no;
+    }
+    
+    # ========================================
+    # 🔄 POZOSTAŁE ENDPOINTS - STANDARDOWE
+    # ========================================
     location / {
         proxy_pass http://localhost:2103;
         proxy_http_version 1.1;
@@ -579,3 +617,89 @@ Ten deployment guide jest kompletny i gotowy do użycia na produkcyjnym VPS! Wyk
 - **External ENV**: /var/aquaforest_env/.env
 
 ### Gotowe do użycia! 🎯
+
+## 🔧 Streaming Workflow Steps - Troubleshooting
+
+### Problem: Streaming nie działa w czasie rzeczywistym
+Jeśli workflow steps nie są wyświetlane na bieżąco, ale wszystkie aktualizacje przychodzą naraz na końcu:
+
+**Przyczyna**: Nginx domyślnie buforuje odpowiedzi, co uniemożliwia Server-Sent Events (SSE) streaming w czasie rzeczywistym.
+
+**Rozwiązanie**: Specjalna konfiguracja dla `/chat/stream` endpoint (już zawarta w powyższej konfiguracji nginx):
+
+```nginx
+location /chat/stream {
+    proxy_pass http://localhost:2103;
+    proxy_http_version 1.1;
+    
+    # Wyłącz wszystkie buforowanie dla streaming
+    proxy_buffering off;
+    proxy_cache off;
+    proxy_request_buffering off;
+    
+    # Zwiększ timeout dla długich połączeń
+    proxy_read_timeout 300s;
+    proxy_connect_timeout 75s;
+    proxy_send_timeout 300s;
+    
+    # Headers dla SSE
+    proxy_set_header Connection '';
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Port $server_port;
+    
+    # Wyłącz chunked transfer encoding dla SSE
+    chunked_transfer_encoding off;
+    
+    # Flush output immediately
+    proxy_no_cache 1;
+    proxy_cache_bypass 1;
+    add_header Cache-Control no-cache;
+    add_header X-Accel-Buffering no;
+}
+```
+
+### Test streaming po deployment:
+
+```bash
+# Test czy streaming działa
+curl -N -H "Accept: text/event-stream" \
+     -H "Content-Type: application/json" \
+     -d '{"message":"test","chat_history":[],"debug":true}' \
+     https://aiagent.aquaforest.eu/chat/stream
+
+# Sprawdzenie logów streaming
+journalctl -u aquaforest-backend | grep -i stream
+```
+
+### Oczekiwane rezultaty:
+- ✅ Workflow steps wyświetlają się na bieżąco
+- ✅ Progress bar aktualizuje się płynnie  
+- ✅ Brak opóźnień w SSE stream
+- ✅ Końcowa odpowiedź płynnie się wyświetla
+
+### Jeśli streaming nadal nie działa:
+
+1. **Sprawdź logi nginx**:
+   ```bash
+   tail -f /var/log/nginx/error.log
+   ```
+
+2. **Sprawdź czy konfiguracja się załadowała**:
+   ```bash
+   nginx -t
+   systemctl reload nginx
+   ```
+
+3. **Test bezpośrednio na porcie 2103**:
+   ```bash
+   curl -N -H "Accept: text/event-stream" \
+        -H "Content-Type: application/json" \
+        -d '{"message":"test","chat_history":[],"debug":true}' \
+        http://localhost:2103/chat/stream
+   ```
+
+Jeśli test bezpośrednio na porcie 2103 działa, ale przez nginx nie - problem jest w konfiguracji nginx.
