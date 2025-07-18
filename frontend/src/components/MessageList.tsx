@@ -1,7 +1,6 @@
 import React from 'react'
 import { Message as MessageType, WorkflowUpdate } from '../types'
 import Message from './Message'
-import LoadingMessage from './LoadingMessage'
 import StreamingLoadingMessage from './StreamingLoadingMessage'
 import SkeletonLoadingMessage from './SkeletonLoadingMessage'
 import WelcomeScreen from './WelcomeScreen'

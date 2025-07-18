@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import SkeletonLoader from './SkeletonLoader'
 
 const SkeletonLoadingMessage: React.FC = () => {
   const [currentPhase, setCurrentPhase] = useState(0)
