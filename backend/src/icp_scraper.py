@@ -14,6 +14,8 @@ import tempfile
 import os
 import requests
 from bs4 import BeautifulSoup
+from enhanced_icp_preprocessor import EnhancedICPPreprocessor
+from prompts import load_prompt_template
 
 class ICPScraper:
     """Enhanced web scraper for Aquaforest Lab ICP test results with LangChain"""
@@ -154,128 +156,77 @@ class ICPScraper:
             return ""
 
     def extract_icp_data_from_url(self, url: str) -> Dict:
-        """🆕 Extract ICP test data from Aquaforest Lab URL using hybrid scraping approach
+        """🆕 Extract ICP test data from Aquaforest Lab URL using Enhanced Preprocessor
         
-        Primary: requests + BeautifulSoup (faster for static content)
-        Fallback: Hyperbrowser (for dynamic content or when requests fails)
+        Uses structured HTML parsing for accurate parameter extraction
         """
         try:
-            debug_print(f"🌐 [ICPScraper] Fetching ICP data with hybrid approach from: {url}")
+            debug_print(f"🌐 [ICPScraper] Fetching ICP data with Enhanced Preprocessor from: {url}")
             
-            # PRIMARY: Try requests + BeautifulSoup first (better for static content)
-            scraped_content = self._requests_scraping(url)
+            # Use Enhanced Preprocessor for structured data extraction
+            enhanced_preprocessor = EnhancedICPPreprocessor()
+            preprocessor_result = enhanced_preprocessor.scrape_and_process_icp_url(url)
             
-            # Check if scraped content is sufficient
-            if len(scraped_content.strip()) < 50:
-                debug_print(f"⚠️ [ICPScraper] Requests returned insufficient content ({len(scraped_content)} chars), trying Hyperbrowser fallback")
-                scraped_content = self._hyperbrowser_scraping(url)
-                
-                if len(scraped_content.strip()) < 50:
-                    debug_print(f"❌ [ICPScraper] Both requests and Hyperbrowser failed")
-                    return {"url": url, "parameters": {}, "status": "scraping_error", "error": "All scraping methods failed"}
-                else:
-                    debug_print(f"✅ [ICPScraper] Hyperbrowser fallback successful: {len(scraped_content)} chars")
-            else:
-                debug_print(f"✅ [ICPScraper] Requests primary method successful: {len(scraped_content)} chars")
+            if preprocessor_result["status"] != "success":
+                debug_print(f"❌ [ICPScraper] Enhanced Preprocessor failed: {preprocessor_result.get('error', 'Unknown error')}")
+                return {"url": url, "parameters": {}, "status": "scraping_error", "error": preprocessor_result.get('error', 'Enhanced preprocessor failed')}
             
-            # 🔍 DEBUG: Log scraped content for troubleshooting
+            # Get structured data from preprocessor
+            structured_data = preprocessor_result["structured_output"]
+            metadata = preprocessor_result["metadata"]
+            parameters_list = preprocessor_result["parameters"]
+            
+            debug_print(f"✅ [ICPScraper] Enhanced Preprocessor extracted {len(parameters_list)} parameters")
+            
+            # Load ICP data extraction prompt
+            prompt_template = load_prompt_template("icp_data_extraction")
+            if not prompt_template:
+                debug_print(f"❌ [ICPScraper] Could not load icp_data_extraction prompt template")
+                return {"url": url, "parameters": {}, "status": "template_error", "error": "Could not load prompt template"}
+            
+            # Format prompt with structured data
+            extraction_prompt = prompt_template.format(
+                structured_icp_data=structured_data
+            )
+            
+            # 🔍 DEBUG: Log prompt for troubleshooting
             if TEST_ENV:
-                debug_print(f"🌐 [ICPScraper] Final scraped content preview: {scraped_content[:300]}...")
-                if len(scraped_content) > 300:
-                    debug_print(f"🌐 [ICPScraper] Final scraped content end: ...{scraped_content[-200:]}")
+                debug_print(f"🤖 [ICPScraper] Using ICP data extraction prompt ({len(extraction_prompt)} chars)")
+                debug_print(f"🔍 [ICPScraper] Structured data preview: {structured_data[:300]}...")
             
-            # Use Gemini 2.5 as Water Diagnostician
-            extraction_prompt = f"""
-Jesteś ekspertem diagnostą wody morskiej dla akwariów rafowych. Przeanalizuj wyniki ICP i stwórz profesjonalną diagnozę.
-
-URL: {url}
-Zawartość: {scraped_content}
-
-ZADANIA:
-1. Wyodrębnij WSZYSTKIE parametry chemiczne (Ca, Mg, KH, NO3, PO4, elementy śladowe)
-2. Określ status każdego parametru dla akwarium rafowego: optimal/too_high/too_low
-3. Stwórz listę działań wymaganych dla Business Reasoner
-4. Zwróć TYLKO poprawny JSON - bez wyjaśnień, bez markdown
-
-FORMAT JSON (wyodrębnij WSZYSTKIE znalezione parametry):
-{{
-    "metadata": {{
-        "test_number": "numer testu ICP",
-        "aquarium_info": "informacje o akwarium", 
-        "test_date": "data testu",
-        "aquarium_volume": "objętość jeśli podana"
-    }},
-    "parameters": {{
-        "Calcium": {{
-            "element": "Calcium (Ca)",
-            "recommended_range": "420-460 mg/l",
-            "user_result": "zmierzona wartość",
-            "change": "zmiana od poprzedniego testu",
-            "status": "optimal/too_high/too_low",
-            "action_needed": "none/increase/decrease"
-        }},
-        "Magnesium": {{
-            "element": "Magnesium (Mg)", 
-            "recommended_range": "1280-1340 mg/l",
-            "user_result": "zmierzona wartość",
-            "change": "zmiana od poprzedniego testu", 
-            "status": "optimal/too_high/too_low",
-            "action_needed": "none/increase/decrease"
-        }}
-    }},
-    "diagnosis": {{
-        "optimal_count": "liczba parametrów OK",
-        "problems_count": "liczba parametrów do poprawy",
-        "priority_actions": [
-            "Obniżyć azotany (12→5 mg/l)",
-            "Podwyższyć wapń (350→430 mg/l)"
-        ]
-    }}
-}}
-
-Wyodrębnij WSZYSTKIE parametry. Zwróć tylko JSON.
-"""
-            
+            # Use LLM to analyze structured data
             response = self.llm.invoke(extraction_prompt)
             
-            # 🔍 DEBUG: Log raw Gemini response for troubleshooting
+            # 🔍 DEBUG: Log raw LLM response
             if TEST_ENV:
-                debug_print(f"🤖 [ICPScraper] Raw Gemini response length: {len(response.content)} chars")
-                debug_print(f"🤖 [ICPScraper] Raw Gemini response preview: {response.content[:200]}...")
-                if len(response.content) > 200:
-                    debug_print(f"🤖 [ICPScraper] Raw Gemini response end: ...{response.content[-100:]}")
+                debug_print(f"🤖 [ICPScraper] Raw LLM response length: {len(response.content)} chars")
+                debug_print(f"🤖 [ICPScraper] Raw LLM response preview: {response.content[:200]}...")
             
-            # Try to parse JSON with enhanced handling
-            structured_data = self._parse_json_response(response.content, "URL")
-            if structured_data is None:
-                return {"url": url, "parameters": {}, "status": "json_parse_error", "error": f"Could not parse JSON from response: {response.content[:200]}"}
+            # Parse JSON response
+            llm_structured_data = self._parse_json_response(response.content, "Enhanced")
+            if llm_structured_data is None:
+                debug_print(f"❌ [ICPScraper] Could not parse LLM JSON response")
+                return {"url": url, "parameters": {}, "status": "json_parse_error", "error": f"Could not parse JSON from LLM response: {response.content[:200]}"}
             
-            # Enhance with our analysis
-            for param_name, param_data in structured_data.get("parameters", {}).items():
-                if param_data.get("status") == "unknown":
-                    # Use our analysis method as fallback
-                    status = self._analyze_icp_parameter_status(
-                        param_data.get("element", ""),
-                        param_data.get("recommended_range", ""),
-                        param_data.get("user_result", "")
-                    )
-                    param_data["status"] = status
-                
+            # Enhance parameters with needs_correction flag
+            for param_name, param_data in llm_structured_data.get("parameters", {}).items():
                 param_data["needs_correction"] = param_data["status"] in ["too_high", "too_low"]
             
+            # Build final response in expected format
             icp_data = {
                 "url": url,
-                "parameters": structured_data.get("parameters", {}),
-                "metadata": structured_data.get("metadata", {}),
-                "raw_data": scraped_content,
+                "parameters": llm_structured_data.get("parameters", {}),
+                "metadata": llm_structured_data.get("metadata", {}),
+                "raw_data": structured_data,
                 "status": "success",
                 "debug_info": {
-                    "scraping_method": "hyperbrowser",
-                    "llm_analysis": ICP_MODEL
+                    "scraping_method": "enhanced_preprocessor",
+                    "llm_analysis": ICP_MODEL,
+                    "parameters_extracted": len(parameters_list)
                 }
             }
             
-            debug_print(f"✅ [ICPScraper] Extracted {len(icp_data['parameters'])} ICP parameters with LangChain")
+            debug_print(f"✅ [ICPScraper] Successfully analyzed {len(icp_data['parameters'])} ICP parameters")
             return icp_data
             
         except Exception as e:

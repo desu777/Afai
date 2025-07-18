@@ -1,0 +1,1760 @@
+=== ICP TEST ANALYSIS ===
+
+TEST INFORMATION:
+  test_number: 6261549
+  aquarium_info: Domowe 1150 LPS
+  test_date: 2025-06-17
+
+PARAMETER RESULTS:
+
+ELEMENT: S
+  Range: 2025 - 06 ppt
+  Result: 36 ppt
+  Difference: + 0.5 ppt
+
+ELEMENT: K
+  Range: 2025 - 06 ppt
+  Result: 36 ppt
+  Difference: + 0.5 ppt
+
+ELEMENT: K
+  Range: 2025 - 06 ppt
+  Result: 36 ppt
+  Difference: + 0.5 ppt
+
+ELEMENT: Mo
+  Range: 2025 - 06 ppt
+  Result: 36 ppt
+  Difference: + 0.5 ppt
+
+ELEMENT: K
+  Range: 33 - 38 ppt
+  Result: 36 ppt
+  Difference: + 0.5 ppt
+
+ELEMENT: Ca
+  Range: 33 - 38 ppt
+  Result: 36 ppt
+  Difference: + 0.5 ppt
+
+ELEMENT: I
+  Range: 33 - 38 ppt
+  Result: 36 ppt
+  Difference: + 0.5 ppt
+
+ELEMENT: Ca
+  Range: 33 - 38 ppt
+  Result: 36 ppt
+  Difference: + 0.5 ppt
+
+ELEMENT: Zasolenie
+  Range: 33 - 38 ppt
+  Result: 36 ppt
+  Difference: + 0.5 ppt
+
+ELEMENT: Zasolenie
+  Range: 33 - 38 ppt
+  Result: 36 ppt
+  Difference: + 0.5 ppt
+
+ELEMENT: P
+  Range: 6.5 - 8.5 ppt
+  Result: 36 ppt
+  Difference: + 0.5 ppt
+
+ELEMENT: P
+  Range: 6.5 - 8.5 ppt
+  Result: 36 ppt
+  Difference: + 0.5 ppt
+
+ELEMENT: P
+  Range: 6.5 - 8.5 ppt
+  Result: 0.5 ppt
+  Difference: + 0.5 ppt
+
+ELEMENT: Ca
+  Range: 6.5 - 8.5 ppt
+  Result: 35.5 ppt
+  Difference: + 0.5 ppt
+
+ELEMENT: I
+  Range: 6.5 - 8.5 ppt
+  Result: 35.5 ppt
+  Difference: + 0.5 ppt
+
+ELEMENT: P
+  Range: 6.5 - 8.5 ppt
+  Result: 35.5 ppt
+  Difference: + 0.5 ppt
+
+ELEMENT: K
+  Range: 6.5 - 8.5 ppt
+  Result: 36 ppt
+  Difference: + 0.5 ppt
+
+ELEMENT: P
+  Range: 6.5 - 8.5 ppt
+  Result: 36 ppt
+  Difference: + 0.5 ppt
+
+ELEMENT: Zasolenie
+  Range: 6.5 - 8.5 dKH
+  Result: 8.0 dKH
+  Difference: + 0.5 dKH
+
+ELEMENT: Zasolenie
+  Range: 6.5 - 8.5 dKH
+  Result: 8.0 dKH
+  Difference: + 0.5 dKH
+
+ELEMENT: KH
+  Range: 6.5 - 8.5 dKH
+  Result: 8.0 dKH
+  Difference: + 0.5 dKH
+
+ELEMENT: KH
+  Range: 6.5 - 8.5 dKH
+  Result: 8.0 dKH
+  Difference: + 0.5 dKH
+
+ELEMENT: KH
+  Range: 0 - 0.0300 dKH
+  Result: 8.0 dKH
+  Difference: + 0.5 dKH
+
+ELEMENT: KH
+  Range: 0 - 0.0300 dKH
+  Result: 8.0 dKH
+  Difference: + 0.5 dKH
+
+ELEMENT: KH
+  Range: 0 - 0.0300 dKH
+  Result: 0.5 dKH
+  Difference: + 0.5 dKH
+  Recommendation: Uwaga! Poziom PO4 za wysoki, w celu obniżenia podmień wodę i użyj Phosphate Minus oraz NitraPhos Minus. Możesz również zastosować Pro Bio S oraz -NP Pro zgodnie z instrukcją. Fosforany w wodzie akwariowej pojawiają się jako efekt uboczny karmienia ryb. Są znakomitą pożywką do rozwoju niepożądanych glonów. Podczas intensywnego karmienia należy pamiętać nie tylko o zastosowaniu środków obniżających fosforany lub o regularnych podmianach wody.
+
+ELEMENT: Al
+  Range: 0 - 0.0100 mg/l
+  Result: 0.0021 mg/l
+  Difference: + 0.0021 mg/l
+
+ELEMENT: I
+  Range: 0 - 0.0100 mg/l
+  Result: 0.0021 mg/l
+  Difference: + 0.0021 mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0030 mg/l
+  Result: 0.0021 mg/l
+  Difference: + 0.0021 mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0030 mg/l
+  Result: 0.0021 mg/l
+  Difference: + 0.0021 mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0030 mg/l
+  Result: 0.0021 mg/l
+  Difference: + 0.0021 mg/l
+
+ELEMENT: Ca
+  Range: 0 - 0.0030 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: I
+  Range: 0 - 0.0030 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0030 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0030 mg/l
+  Result: 0.0021 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0030 mg/l
+  Result: 0.0021 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: I
+  Range: 0 - 0.0030 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0030 mg/l
+  Result: 0 mg/l
+  Difference: - 0.115 mg/l
+
+ELEMENT: S
+  Range: 0 - 0.0030 mg/l
+  Result: 0 mg/l
+  Difference: - 0.115 mg/l
+
+ELEMENT: S
+  Range: 0 - 0.0030 mg/l
+  Result: 0 mg/l
+  Difference: - 0.115 mg/l
+
+ELEMENT: Mg
+  Range: 4.05 - 5.00 mg/l
+  Result: 0 mg/l
+  Difference: - 0.115 mg/l
+
+ELEMENT: Mg
+  Range: 4.05 - 5.00 mg/l
+  Result: 0 mg/l
+  Difference: - 0.115 mg/l
+
+ELEMENT: Ca
+  Range: 4.05 - 5.00 mg/l
+  Result: 0 mg/l
+  Difference: - 0.115 mg/l
+
+ELEMENT: I
+  Range: 4.05 - 5.00 mg/l
+  Result: 0 mg/l
+  Difference: - 0.115 mg/l
+
+ELEMENT: Mg
+  Range: 4.05 - 5.00 mg/l
+  Result: 0 mg/l
+  Difference: - 0.115 mg/l
+
+ELEMENT: K
+  Range: 4.05 - 5.00 mg/l
+  Result: 0 mg/l
+  Difference: - 0.115 mg/l
+
+ELEMENT: Mg
+  Range: 4.05 - 5.00 mg/l
+  Result: 0 mg/l
+  Difference: - 0.115 mg/l
+
+ELEMENT: S
+  Range: 4.05 - 5.00 mg/l
+  Result: 4.41 mg/l
+  Difference: - 0.115 mg/l
+
+ELEMENT: K
+  Range: 4.05 - 5.00 mg/l
+  Result: 4.41 mg/l
+  Difference: - 0.115 mg/l
+
+ELEMENT: B
+  Range: 4.05 - 5.00 mg/l
+  Result: 4.41 mg/l
+  Difference: - 0.115 mg/l
+
+ELEMENT: B
+  Range: 4.05 - 5.00 mg/l
+  Result: 4.41 mg/l
+  Difference: - 0.115 mg/l
+
+ELEMENT: Mg
+  Range: 0.0010 - 0.0400 mg/l
+  Result: 4.41 mg/l
+  Difference: - 0.115 mg/l
+
+ELEMENT: Mg
+  Range: 0.0010 - 0.0400 mg/l
+  Result: 4.41 mg/l
+  Difference: - 0.115 mg/l
+
+ELEMENT: Mg
+  Range: 0.0010 - 0.0400 mg/l
+  Result: 0.115 mg/l
+  Difference: - 0.115 mg/l
+
+ELEMENT: Ca
+  Range: 0.0010 - 0.0400 mg/l
+  Result: 4.525 mg/l
+  Difference: - 0.0107 mg/l
+
+ELEMENT: I
+  Range: 0.0010 - 0.0400 mg/l
+  Result: 4.525 mg/l
+  Difference: - 0.0107 mg/l
+
+ELEMENT: Mg
+  Range: 0.0010 - 0.0400 mg/l
+  Result: 4.525 mg/l
+  Difference: - 0.0107 mg/l
+
+ELEMENT: K
+  Range: 0.0010 - 0.0400 mg/l
+  Result: 4.41 mg/l
+  Difference: - 0.0107 mg/l
+
+ELEMENT: Mg
+  Range: 0.0010 - 0.0400 mg/l
+  Result: 4.41 mg/l
+  Difference: - 0.0107 mg/l
+
+ELEMENT: B
+  Range: 0.0010 - 0.0400 mg/l
+  Result: 0.0098 mg/l
+  Difference: - 0.0107 mg/l
+
+ELEMENT: K
+  Range: 0.0010 - 0.0400 mg/l
+  Result: 0.0098 mg/l
+  Difference: - 0.0107 mg/l
+
+ELEMENT: B
+  Range: 0.0010 - 0.0400 mg/l
+  Result: 0.0098 mg/l
+  Difference: - 0.0107 mg/l
+
+ELEMENT: B
+  Range: 0.0010 - 0.0400 mg/l
+  Result: 0.0098 mg/l
+  Difference: - 0.0107 mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0050 mg/l
+  Result: 0.0098 mg/l
+  Difference: - 0.0107 mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0050 mg/l
+  Result: 0.0098 mg/l
+  Difference: - 0.0107 mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0050 mg/l
+  Result: 0.0107 mg/l
+  Difference: - 0.0107 mg/l
+
+ELEMENT: Ca
+  Range: 0 - 0.0050 mg/l
+  Result: 0.0205 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: I
+  Range: 0 - 0.0050 mg/l
+  Result: 0.0205 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0050 mg/l
+  Result: 0.0205 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0050 mg/l
+  Result: 0.0098 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0050 mg/l
+  Result: 0.0098 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: B
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Ca
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: B
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: B
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0002 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0002 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Ca
+  Range: 0 - 0.0002 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: I
+  Range: 0 - 0.0002 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0002 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0002 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0002 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: B
+  Range: 0 - 0.0002 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0002 mg/l
+  Result: 0 mg/l
+  Difference: - 0.00035 mg/l
+
+ELEMENT: Cd
+  Range: 0 - 0.0002 mg/l
+  Result: 0 mg/l
+  Difference: - 0.00035 mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0002 mg/l
+  Result: 0 mg/l
+  Difference: - 0.00035 mg/l
+
+ELEMENT: Mg
+  Range: 0.0001 - 0.0006 mg/l
+  Result: 0 mg/l
+  Difference: - 0.00035 mg/l
+
+ELEMENT: Mg
+  Range: 0.0001 - 0.0006 mg/l
+  Result: 0 mg/l
+  Difference: - 0.00035 mg/l
+
+ELEMENT: Ca
+  Range: 0.0001 - 0.0006 mg/l
+  Result: 0 mg/l
+  Difference: - 0.00035 mg/l
+  Recommendation: Uwaga! Poziom kobaltu za niski. Pamiętaj, że maksymalna bezpieczna dawka dzienna wynosi 1 ml na 100 litrów wody. Jeżeli wymagana jest większa dawka, rozbij ją na kilka dni. Popraw wynik stosując:
+
+ELEMENT: B
+  Range: 0.0001 - 0.0004 mg/l
+  Result: 0 mg/l
+  Difference: - 0.00025 mg/l
+  Recommendation: Uwaga! Poziom chromu za niski. Pamiętaj, że maksymalna bezpieczna dawka dzienna wynosi 1 ml na 100 litrów wody. Jeżeli wymagana jest większa dawka, rozbij ją na kilka dni. Popraw wynik stosując:
+
+ELEMENT: I
+  Range: 0 - 0.0012 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0012 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Cr
+  Range: 0 - 0.0012 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0012 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0028 mg/l
+
+ELEMENT: Cu
+  Range: 0 - 0.0012 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0028 mg/l
+
+ELEMENT: I
+  Range: 0 - 0.0012 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0028 mg/l
+
+ELEMENT: Mg
+  Range: 0.0020 - 0.0060 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0028 mg/l
+
+ELEMENT: Mg
+  Range: 0.0020 - 0.0060 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0028 mg/l
+
+ELEMENT: Ca
+  Range: 0.0020 - 0.0060 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0028 mg/l
+  Recommendation: Uwaga! Poziom żelaza za niski. Pamiętaj, że maksymalna bezpieczna dawka dzienna wynosi 1 ml na 100 litrów wody. Jeżeli wymagana jest większa dawka, rozbij ją na kilka dni. Popraw wynik stosując:
+
+ELEMENT: Fe
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Fe
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0014 mg/l
+
+ELEMENT: Hg
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0014 mg/l
+
+ELEMENT: Hg
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0014 mg/l
+
+ELEMENT: Mg
+  Range: 0.0550 - 0.0700 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0014 mg/l
+
+ELEMENT: Mg
+  Range: 0.0550 - 0.0700 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0014 mg/l
+
+ELEMENT: Ca
+  Range: 0.0550 - 0.0700 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0014 mg/l
+
+ELEMENT: I
+  Range: 0.0550 - 0.0700 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0014 mg/l
+
+ELEMENT: Mg
+  Range: 0.0550 - 0.0700 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0014 mg/l
+
+ELEMENT: K
+  Range: 0.0550 - 0.0700 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0014 mg/l
+
+ELEMENT: Mg
+  Range: 0.0550 - 0.0700 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0014 mg/l
+
+ELEMENT: Hg
+  Range: 0.0550 - 0.0700 mg/l
+  Result: 0.0611 mg/l
+  Difference: - 0.0014 mg/l
+
+ELEMENT: K
+  Range: 0.0550 - 0.0700 mg/l
+  Result: 0.0611 mg/l
+  Difference: - 0.0014 mg/l
+
+ELEMENT: I
+  Range: 0.0550 - 0.0700 mg/l
+  Result: 0.0611 mg/l
+  Difference: - 0.0014 mg/l
+
+ELEMENT: I
+  Range: 0.0550 - 0.0700 mg/l
+  Result: 0.0611 mg/l
+  Difference: - 0.0014 mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0050 mg/l
+  Result: 0.0611 mg/l
+  Difference: - 0.0014 mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0050 mg/l
+  Result: 0.0611 mg/l
+  Difference: - 0.0014 mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0050 mg/l
+  Result: 0.0014 mg/l
+  Difference: - 0.0014 mg/l
+
+ELEMENT: Ca
+  Range: 0 - 0.0050 mg/l
+  Result: 0.0625 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: I
+  Range: 0 - 0.0050 mg/l
+  Result: 0.0625 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0050 mg/l
+  Result: 0.0625 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0050 mg/l
+  Result: 0.0611 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0050 mg/l
+  Result: 0.0611 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: I
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: - 0.006 mg/l
+
+ELEMENT: La
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: - 0.006 mg/l
+
+ELEMENT: La
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: - 0.006 mg/l
+
+ELEMENT: Mg
+  Range: 0.1500 - 0.2000 mg/l
+  Result: 0 mg/l
+  Difference: - 0.006 mg/l
+
+ELEMENT: Mg
+  Range: 0.1500 - 0.2000 mg/l
+  Result: 0 mg/l
+  Difference: - 0.006 mg/l
+
+ELEMENT: Ca
+  Range: 0.1500 - 0.2000 mg/l
+  Result: 0 mg/l
+  Difference: - 0.006 mg/l
+
+ELEMENT: I
+  Range: 0.1500 - 0.2000 mg/l
+  Result: 0 mg/l
+  Difference: - 0.006 mg/l
+
+ELEMENT: Mg
+  Range: 0.1500 - 0.2000 mg/l
+  Result: 0 mg/l
+  Difference: - 0.006 mg/l
+
+ELEMENT: K
+  Range: 0.1500 - 0.2000 mg/l
+  Result: 0 mg/l
+  Difference: - 0.006 mg/l
+
+ELEMENT: Mg
+  Range: 0.1500 - 0.2000 mg/l
+  Result: 0 mg/l
+  Difference: - 0.006 mg/l
+
+ELEMENT: La
+  Range: 0.1500 - 0.2000 mg/l
+  Result: 0.1690 mg/l
+  Difference: - 0.006 mg/l
+
+ELEMENT: K
+  Range: 0.1500 - 0.2000 mg/l
+  Result: 0.1690 mg/l
+  Difference: - 0.006 mg/l
+
+ELEMENT: I
+  Range: 0.1500 - 0.2000 mg/l
+  Result: 0.1690 mg/l
+  Difference: - 0.006 mg/l
+
+ELEMENT: I
+  Range: 0.1500 - 0.2000 mg/l
+  Result: 0.1690 mg/l
+  Difference: - 0.006 mg/l
+
+ELEMENT: Mg
+  Range: 0.0001 - 0.0022 mg/l
+  Result: 0.1690 mg/l
+  Difference: - 0.006 mg/l
+
+ELEMENT: Mg
+  Range: 0.0001 - 0.0022 mg/l
+  Result: 0.1690 mg/l
+  Difference: - 0.006 mg/l
+
+ELEMENT: Mg
+  Range: 0.0001 - 0.0022 mg/l
+  Result: 0.006 mg/l
+  Difference: - 0.006 mg/l
+  Recommendation: Uwaga! Poziom manganu za niski. Pamiętaj, że maksymalna bezpieczna dawka dzienna wynosi 1 ml na 100 litrów wody. Jeżeli wymagana jest większa dawka, rozbij ją na kilka dni. Popraw wynik stosując:
+
+ELEMENT: Mn
+  Range: 0.0045 - 0.0120 mg/l
+  Result: 0.0056 mg/l
+  Difference: - 0.00265 mg/l
+
+ELEMENT: K
+  Range: 0.0045 - 0.0120 mg/l
+  Result: 0.0056 mg/l
+  Difference: - 0.00265 mg/l
+
+ELEMENT: Mn
+  Range: 0.0045 - 0.0120 mg/l
+  Result: 0.0056 mg/l
+  Difference: - 0.00265 mg/l
+
+ELEMENT: K
+  Range: 0.0045 - 0.0120 mg/l
+  Result: 0.0056 mg/l
+  Difference: - 0.00265 mg/l
+
+ELEMENT: Mo
+  Range: 0.0045 - 0.0120 mg/l
+  Result: 0.0056 mg/l
+  Difference: - 0.00265 mg/l
+
+ELEMENT: B
+  Range: 0.0045 - 0.0120 mg/l
+  Result: 0.0056 mg/l
+  Difference: - 0.00265 mg/l
+
+ELEMENT: Mg
+  Range: 0.0010 - 0.0100 mg/l
+  Result: 0.0056 mg/l
+  Difference: - 0.00265 mg/l
+
+ELEMENT: Mg
+  Range: 0.0010 - 0.0100 mg/l
+  Result: 0.0056 mg/l
+  Difference: - 0.00265 mg/l
+
+ELEMENT: Mg
+  Range: 0.0010 - 0.0100 mg/l
+  Result: 0.00265 mg/l
+  Difference: - 0.00265 mg/l
+
+ELEMENT: Ca
+  Range: 0.0010 - 0.0100 mg/l
+  Result: 0.00825 mg/l
+  Difference: - 0.0034 mg/l
+
+ELEMENT: I
+  Range: 0.0010 - 0.0100 mg/l
+  Result: 0.00825 mg/l
+  Difference: - 0.0034 mg/l
+
+ELEMENT: Mg
+  Range: 0.0010 - 0.0100 mg/l
+  Result: 0.00825 mg/l
+  Difference: - 0.0034 mg/l
+
+ELEMENT: K
+  Range: 0.0010 - 0.0100 mg/l
+  Result: 0.0056 mg/l
+  Difference: - 0.0034 mg/l
+
+ELEMENT: Mg
+  Range: 0.0010 - 0.0100 mg/l
+  Result: 0.0056 mg/l
+  Difference: - 0.0034 mg/l
+
+ELEMENT: B
+  Range: 0.0010 - 0.0100 mg/l
+  Result: 0.0021 mg/l
+  Difference: - 0.0034 mg/l
+
+ELEMENT: K
+  Range: 0.0010 - 0.0100 mg/l
+  Result: 0.0021 mg/l
+  Difference: - 0.0034 mg/l
+
+ELEMENT: I
+  Range: 0.0010 - 0.0100 mg/l
+  Result: 0.0021 mg/l
+  Difference: - 0.0034 mg/l
+
+ELEMENT: K
+  Range: 0.0010 - 0.0100 mg/l
+  Result: 0.0021 mg/l
+  Difference: - 0.0034 mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0005 mg/l
+  Result: 0.0021 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0005 mg/l
+  Result: 0.0021 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0005 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0005 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: B
+  Range: 0 - 0.0005 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Pb
+  Range: 0 - 0.0005 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0005 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0005 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Ca
+  Range: 0 - 0.0005 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: I
+  Range: 0 - 0.0005 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0005 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0005 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0005 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Pb
+  Range: 0 - 0.0005 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0005 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: B
+  Range: 0 - 0.0005 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mo
+  Range: 0 - 0.0005 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Ca
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: I
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mo
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: S
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0015 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0015 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Ca
+  Range: 0 - 0.0015 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: I
+  Range: 0 - 0.0015 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0015 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0015 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0015 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0015 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0015 mg/l
+  Result: 0 mg/l
+  Difference: - 1.3 mg/l
+
+ELEMENT: S
+  Range: 0 - 0.0015 mg/l
+  Result: 0 mg/l
+  Difference: - 1.3 mg/l
+
+ELEMENT: S
+  Range: 0 - 0.0015 mg/l
+  Result: 0 mg/l
+  Difference: - 1.3 mg/l
+
+ELEMENT: Mg
+  Range: 0.0200 - 2.9000 mg/l
+  Result: 0 mg/l
+  Difference: - 1.3 mg/l
+
+ELEMENT: Mg
+  Range: 0.0200 - 2.9000 mg/l
+  Result: 0 mg/l
+  Difference: - 1.3 mg/l
+
+ELEMENT: Ca
+  Range: 0.0200 - 2.9000 mg/l
+  Result: 0 mg/l
+  Difference: - 1.3 mg/l
+
+ELEMENT: I
+  Range: 0.0200 - 2.9000 mg/l
+  Result: 0 mg/l
+  Difference: - 1.3 mg/l
+
+ELEMENT: Mg
+  Range: 0.0200 - 2.9000 mg/l
+  Result: 0 mg/l
+  Difference: - 1.3 mg/l
+
+ELEMENT: K
+  Range: 0.0200 - 2.9000 mg/l
+  Result: 0 mg/l
+  Difference: - 1.3 mg/l
+
+ELEMENT: Mg
+  Range: 0.0200 - 2.9000 mg/l
+  Result: 0 mg/l
+  Difference: - 1.3 mg/l
+
+ELEMENT: S
+  Range: 0.0200 - 2.9000 mg/l
+  Result: 0.1600 mg/l
+  Difference: - 1.3 mg/l
+
+ELEMENT: K
+  Range: 0.0200 - 2.9000 mg/l
+  Result: 0.1600 mg/l
+  Difference: - 1.3 mg/l
+
+ELEMENT: I
+  Range: 0.0200 - 2.9000 mg/l
+  Result: 0.1600 mg/l
+  Difference: - 1.3 mg/l
+
+ELEMENT: K
+  Range: 0.0200 - 2.9000 mg/l
+  Result: 0.1600 mg/l
+  Difference: - 1.3 mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0010 mg/l
+  Result: 0.1600 mg/l
+  Difference: - 1.3 mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0010 mg/l
+  Result: 0.1600 mg/l
+  Difference: - 1.3 mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0010 mg/l
+  Result: 1.3 mg/l
+  Difference: - 1.3 mg/l
+
+ELEMENT: Ca
+  Range: 0 - 0.0010 mg/l
+  Result: 1.46 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: I
+  Range: 0 - 0.0010 mg/l
+  Result: 1.46 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0010 mg/l
+  Result: 1.46 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0010 mg/l
+  Result: 0.1600 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0010 mg/l
+  Result: 0.1600 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0010 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0010 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: S
+  Range: 0 - 0.0010 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Na
+  Range: 0 - 0.0010 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0100 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0100 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Ca
+  Range: 0 - 0.0100 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: I
+  Range: 0 - 0.0100 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0100 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0100 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0100 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Na
+  Range: 0 - 0.0100 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0100 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0013 mg/l
+
+ELEMENT: I
+  Range: 0 - 0.0100 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0013 mg/l
+
+ELEMENT: Ti
+  Range: 0 - 0.0100 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0013 mg/l
+
+ELEMENT: Mg
+  Range: 0.0001 - 0.0025 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0013 mg/l
+
+ELEMENT: Mg
+  Range: 0.0001 - 0.0025 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0013 mg/l
+
+ELEMENT: Ca
+  Range: 0.0001 - 0.0025 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0013 mg/l
+  Recommendation: Uwaga! Poziom wanadu za niski. Pamiętaj, że maksymalna bezpieczna dawka dzienna wynosi 1 ml na 100 litrów wody. Jeżeli wymagana jest większa dawka, rozbij ją na kilka dni. Popraw wynik stosując:
+
+ELEMENT: Na
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Na
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0029 mg/l
+
+ELEMENT: W
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0029 mg/l
+
+ELEMENT: W
+  Range: 0 - 0.0050 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0029 mg/l
+
+ELEMENT: Mg
+  Range: 0.0010 - 0.0070 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0029 mg/l
+
+ELEMENT: Mg
+  Range: 0.0010 - 0.0070 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0029 mg/l
+
+ELEMENT: Ca
+  Range: 0.0010 - 0.0070 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0029 mg/l
+
+ELEMENT: I
+  Range: 0.0010 - 0.0070 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0029 mg/l
+
+ELEMENT: Mg
+  Range: 0.0010 - 0.0070 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0029 mg/l
+
+ELEMENT: K
+  Range: 0.0010 - 0.0070 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0029 mg/l
+
+ELEMENT: Mg
+  Range: 0.0010 - 0.0070 mg/l
+  Result: 0 mg/l
+  Difference: - 0.0029 mg/l
+
+ELEMENT: W
+  Range: 0.0010 - 0.0070 mg/l
+  Result: 0.0011 mg/l
+  Difference: - 0.0029 mg/l
+
+ELEMENT: K
+  Range: 0.0010 - 0.0070 mg/l
+  Result: 0.0011 mg/l
+  Difference: - 0.0029 mg/l
+
+ELEMENT: Zn
+  Range: 0.0010 - 0.0070 mg/l
+  Result: 0.0011 mg/l
+  Difference: - 0.0029 mg/l
+
+ELEMENT: K
+  Range: 0.0010 - 0.0070 mg/l
+  Result: 0.0011 mg/l
+  Difference: - 0.0029 mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0100 mg/l
+  Result: 0.0011 mg/l
+  Difference: - 0.0029 mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0100 mg/l
+  Result: 0.0011 mg/l
+  Difference: - 0.0029 mg/l
+
+ELEMENT: Mg
+  Range: 0 - 0.0100 mg/l
+  Result: 0.0029 mg/l
+  Difference: - 0.0029 mg/l
+  Recommendation: Uwaga! Poziom fosforu za wysoki, w celu obniżenia podmień wodę oraz użyj Phosphate Minus lub NitraPhos Minus. Możesz również zastosować Pro Bio S oraz -NP Pro zgodnie z instrukcją. Fosforany w wodzie akwariowej pojawiają się jako efekt uboczny karmienia ryb. Są znakomitą pożywką do rozwoju niepożądanych glonów. Podczas intensywnego karmienia należy pamiętać nie tylko o zastosowaniu środków obniżających fosforany, ale także o regularnych podmianach wody.
+
+ELEMENT: Na
+  Range: 9720 - 11880 mg/l
+  Result: 10754 mg/l
+  Difference: - 46 mg/l
+
+ELEMENT: Na
+  Range: 9720 - 11880 mg/l
+  Result: 10754 mg/l
+  Difference: - 46 mg/l
+
+ELEMENT: Mg
+  Range: 9720 - 11880 mg/l
+  Result: 10754 mg/l
+  Difference: - 46 mg/l
+
+ELEMENT: Mg
+  Range: 9720 - 11880 mg/l
+  Result: 10754 mg/l
+  Difference: - 46 mg/l
+
+ELEMENT: Mg
+  Range: 9720 - 11880 mg/l
+  Result: 46 mg/l
+  Difference: - 46 mg/l
+
+ELEMENT: Ca
+  Range: 9720 - 11880 mg/l
+  Result: 10800 mg/l
+  Difference: - 11880 mg/l
+
+ELEMENT: I
+  Range: 9720 - 11880 mg/l
+  Result: 10800 mg/l
+  Difference: - 11880 mg/l
+
+ELEMENT: Mg
+  Range: 9720 - 11880 mg/l
+  Result: 10800 mg/l
+  Difference: - 11880 mg/l
+
+ELEMENT: K
+  Range: 9720 - 11880 mg/l
+  Result: 10754 mg/l
+  Difference: - 11880 mg/l
+
+ELEMENT: Mg
+  Range: 9720 - 11880 mg/l
+  Result: 10754 mg/l
+  Difference: - 11880 mg/l
+
+ELEMENT: Na
+  Range: 9720 - 11880 mg/l
+  Result: 11880 mg/l
+  Difference: - 11880 mg/l
+
+ELEMENT: Mg
+  Range: 9720 - 11880 mg/l
+  Result: 11880 mg/l
+  Difference: - 11880 mg/l
+
+ELEMENT: Ca
+  Range: 380 - 460 mg/l
+  Result: 455 mg/l
+  Difference: + 35 mg/l
+
+ELEMENT: Ca
+  Range: 380 - 460 mg/l
+  Result: 455 mg/l
+  Difference: + 35 mg/l
+
+ELEMENT: Mg
+  Range: 1180 - 1460 mg/l
+  Result: 455 mg/l
+  Difference: + 35 mg/l
+
+ELEMENT: Mg
+  Range: 1180 - 1460 mg/l
+  Result: 455 mg/l
+  Difference: + 35 mg/l
+
+ELEMENT: Mg
+  Range: 1180 - 1460 mg/l
+  Result: 35 mg/l
+  Difference: + 35 mg/l
+
+ELEMENT: Ca
+  Range: 1180 - 1460 mg/l
+  Result: 420 mg/l
+  Difference: + 42 mg/l
+
+ELEMENT: I
+  Range: 1180 - 1460 mg/l
+  Result: 420 mg/l
+  Difference: + 42 mg/l
+
+ELEMENT: Mg
+  Range: 1180 - 1460 mg/l
+  Result: 420 mg/l
+  Difference: + 42 mg/l
+
+ELEMENT: K
+  Range: 1180 - 1460 mg/l
+  Result: 455 mg/l
+  Difference: + 42 mg/l
+
+ELEMENT: Mg
+  Range: 1180 - 1460 mg/l
+  Result: 455 mg/l
+  Difference: + 42 mg/l
+
+ELEMENT: Ca
+  Range: 1180 - 1460 mg/l
+  Result: 420 mg/l
+  Difference: + 42 mg/l
+
+ELEMENT: Ca
+  Range: 1180 - 1460 mg/l
+  Result: 420 mg/l
+  Difference: + 42 mg/l
+
+ELEMENT: Mg
+  Range: 1180 - 1460 mg/l
+  Result: 1362 mg/l
+  Difference: + 42 mg/l
+
+ELEMENT: Mg
+  Range: 1180 - 1460 mg/l
+  Result: 1362 mg/l
+  Difference: + 42 mg/l
+
+ELEMENT: Mg
+  Range: 360 - 420 mg/l
+  Result: 1362 mg/l
+  Difference: + 42 mg/l
+
+ELEMENT: Mg
+  Range: 360 - 420 mg/l
+  Result: 1362 mg/l
+  Difference: + 42 mg/l
+
+ELEMENT: Mg
+  Range: 360 - 420 mg/l
+  Result: 42 mg/l
+  Difference: + 42 mg/l
+
+ELEMENT: Ca
+  Range: 360 - 420 mg/l
+  Result: 1320 mg/l
+  Difference: + 5 mg/l
+
+ELEMENT: I
+  Range: 360 - 420 mg/l
+  Result: 1320 mg/l
+  Difference: + 5 mg/l
+
+ELEMENT: Mg
+  Range: 360 - 420 mg/l
+  Result: 1320 mg/l
+  Difference: + 5 mg/l
+
+ELEMENT: K
+  Range: 360 - 420 mg/l
+  Result: 1362 mg/l
+  Difference: + 5 mg/l
+
+ELEMENT: Mg
+  Range: 360 - 420 mg/l
+  Result: 1362 mg/l
+  Difference: + 5 mg/l
+
+ELEMENT: Mg
+  Range: 360 - 420 mg/l
+  Result: 395 mg/l
+  Difference: + 5 mg/l
+
+ELEMENT: Ca
+  Range: 360 - 420 mg/l
+  Result: 395 mg/l
+  Difference: + 5 mg/l
+
+ELEMENT: K
+  Range: 360 - 420 mg/l
+  Result: 395 mg/l
+  Difference: + 5 mg/l
+
+ELEMENT: K
+  Range: 360 - 420 mg/l
+  Result: 395 mg/l
+  Difference: + 5 mg/l
+
+ELEMENT: Mg
+  Range: 55.0 - 74.0 mg/l
+  Result: 395 mg/l
+  Difference: + 5 mg/l
+
+ELEMENT: Mg
+  Range: 55.0 - 74.0 mg/l
+  Result: 395 mg/l
+  Difference: + 5 mg/l
+
+ELEMENT: Mg
+  Range: 55.0 - 74.0 mg/l
+  Result: 5 mg/l
+  Difference: + 5 mg/l
+
+ELEMENT: Ca
+  Range: 55.0 - 74.0 mg/l
+  Result: 390 mg/l
+  Difference: + 6.8 mg/l
+
+ELEMENT: I
+  Range: 55.0 - 74.0 mg/l
+  Result: 390 mg/l
+  Difference: + 6.8 mg/l
+
+ELEMENT: Mg
+  Range: 55.0 - 74.0 mg/l
+  Result: 390 mg/l
+  Difference: + 6.8 mg/l
+
+ELEMENT: K
+  Range: 55.0 - 74.0 mg/l
+  Result: 395 mg/l
+  Difference: + 6.8 mg/l
+
+ELEMENT: Mg
+  Range: 55.0 - 74.0 mg/l
+  Result: 395 mg/l
+  Difference: + 6.8 mg/l
+
+ELEMENT: K
+  Range: 55.0 - 74.0 mg/l
+  Result: 71.3 mg/l
+  Difference: + 6.8 mg/l
+
+ELEMENT: K
+  Range: 55.0 - 74.0 mg/l
+  Result: 71.3 mg/l
+  Difference: + 6.8 mg/l
+
+ELEMENT: B
+  Range: 55.0 - 74.0 mg/l
+  Result: 71.3 mg/l
+  Difference: + 6.8 mg/l
+
+ELEMENT: B
+  Range: 55.0 - 74.0 mg/l
+  Result: 71.3 mg/l
+  Difference: + 6.8 mg/l
+
+ELEMENT: Mg
+  Range: 6.00 - 10.00 mg/l
+  Result: 71.3 mg/l
+  Difference: + 6.8 mg/l
+
+ELEMENT: Mg
+  Range: 6.00 - 10.00 mg/l
+  Result: 71.3 mg/l
+  Difference: + 6.8 mg/l
+
+ELEMENT: Mg
+  Range: 6.00 - 10.00 mg/l
+  Result: 6.8 mg/l
+  Difference: + 6.8 mg/l
+
+ELEMENT: Ca
+  Range: 6.00 - 10.00 mg/l
+  Result: 64.5 mg/l
+  Difference: - 1.12 mg/l
+
+ELEMENT: I
+  Range: 6.00 - 10.00 mg/l
+  Result: 64.5 mg/l
+  Difference: - 1.12 mg/l
+
+ELEMENT: Mg
+  Range: 6.00 - 10.00 mg/l
+  Result: 64.5 mg/l
+  Difference: - 1.12 mg/l
+
+ELEMENT: K
+  Range: 6.00 - 10.00 mg/l
+  Result: 71.3 mg/l
+  Difference: - 1.12 mg/l
+
+ELEMENT: Mg
+  Range: 6.00 - 10.00 mg/l
+  Result: 71.3 mg/l
+  Difference: - 1.12 mg/l
+
+ELEMENT: B
+  Range: 6.00 - 10.00 mg/l
+  Result: 6.88 mg/l
+  Difference: - 1.12 mg/l
+
+ELEMENT: K
+  Range: 6.00 - 10.00 mg/l
+  Result: 6.88 mg/l
+  Difference: - 1.12 mg/l
+
+ELEMENT: Sr
+  Range: 6.00 - 10.00 mg/l
+  Result: 6.88 mg/l
+  Difference: - 1.12 mg/l
+
+ELEMENT: Sr
+  Range: 6.00 - 10.00 mg/l
+  Result: 6.88 mg/l
+  Difference: - 1.12 mg/l
+
+ELEMENT: Mg
+  Range: 740 - 990 mg/l
+  Result: 6.88 mg/l
+  Difference: - 1.12 mg/l
+
+ELEMENT: Mg
+  Range: 740 - 990 mg/l
+  Result: 6.88 mg/l
+  Difference: - 1.12 mg/l
+
+ELEMENT: Mg
+  Range: 740 - 990 mg/l
+  Result: 1.12 mg/l
+  Difference: - 1.12 mg/l
+
+ELEMENT: Ca
+  Range: 740 - 990 mg/l
+  Result: 8 mg/l
+  Difference: - 73 mg/l
+
+ELEMENT: I
+  Range: 740 - 990 mg/l
+  Result: 8 mg/l
+  Difference: - 73 mg/l
+
+ELEMENT: Mg
+  Range: 740 - 990 mg/l
+  Result: 8 mg/l
+  Difference: - 73 mg/l
+
+ELEMENT: K
+  Range: 740 - 990 mg/l
+  Result: 6.88 mg/l
+  Difference: - 73 mg/l
+
+ELEMENT: Mg
+  Range: 740 - 990 mg/l
+  Result: 6.88 mg/l
+  Difference: - 73 mg/l
+
+ELEMENT: Sr
+  Range: 740 - 990 mg/l
+  Result: 792 mg/l
+  Difference: - 73 mg/l
+
+ELEMENT: Mg
+  Range: 740 - 990 mg/l
+  Result: 792 mg/l
+  Difference: - 73 mg/l
+
+ELEMENT: S
+  Range: 740 - 990 mg/l
+  Result: 792 mg/l
+  Difference: - 73 mg/l
+
+ELEMENT: K
+  Range: 740 - 990 mg/l
+  Result: 792 mg/l
+  Difference: - 73 mg/l
+
+ELEMENT: Mg
+  Range: 1.00 - 5.00 mg/l
+  Result: 792 mg/l
+  Difference: - 73 mg/l
+
+ELEMENT: Mg
+  Range: 1.00 - 5.00 mg/l
+  Result: 792 mg/l
+  Difference: - 73 mg/l
+
+ELEMENT: Mg
+  Range: 1.00 - 5.00 mg/l
+  Result: 73 mg/l
+  Difference: - 73 mg/l
+
+ELEMENT: Ca
+  Range: 1.00 - 5.00 mg/l
+  Result: 865 mg/l
+  Difference: + 4.67 mg/l
+
+ELEMENT: I
+  Range: 1.00 - 5.00 mg/l
+  Result: 865 mg/l
+  Difference: + 4.67 mg/l
+
+ELEMENT: Mg
+  Range: 1.00 - 5.00 mg/l
+  Result: 865 mg/l
+  Difference: + 4.67 mg/l
+
+ELEMENT: K
+  Range: 1.00 - 5.00 mg/l
+  Result: 792 mg/l
+  Difference: + 4.67 mg/l
+
+ELEMENT: Mg
+  Range: 1.00 - 5.00 mg/l
+  Result: 792 mg/l
+  Difference: + 4.67 mg/l
+
+ELEMENT: K
+  Range: 1.00 - 5.00 mg/l
+  Result: 7.67 mg/l
+  Difference: + 4.67 mg/l
+
+ELEMENT: K
+  Range: 1.00 - 5.00 mg/l
+  Result: 7.67 mg/l
+  Difference: + 4.67 mg/l
+
+ELEMENT: NO3
+  Range: 1.00 - 5.00 mg/l
+  Result: 7.67 mg/l
+  Difference: + 4.67 mg/l
+
+ELEMENT: NO3
+  Range: 1.00 - 5.00 mg/l
+  Result: 7.67 mg/l
+  Difference: + 4.67 mg/l
+
+ELEMENT: Mg
+  Range: 32 - 800 mg/l
+  Result: 7.67 mg/l
+  Difference: + 4.67 mg/l
+
+ELEMENT: Mg
+  Range: 32 - 800 mg/l
+  Result: 7.67 mg/l
+  Difference: + 4.67 mg/l
+
+ELEMENT: Mg
+  Range: 32 - 800 mg/l
+  Result: 4.67 mg/l
+  Difference: + 4.67 mg/l
+
+ELEMENT: Ca
+  Range: 32 - 800 mg/l
+  Result: 3 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: I
+  Range: 32 - 800 mg/l
+  Result: 3 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 32 - 800 mg/l
+  Result: 3 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: K
+  Range: 32 - 800 mg/l
+  Result: 7.67 mg/l
+  Difference: N/A mg/l
+
+ELEMENT: Mg
+  Range: 32 - 800 mg/l
+  Result: 7.67 mg/l
+  Difference: N/A mg/l
