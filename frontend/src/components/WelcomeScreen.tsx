@@ -127,7 +127,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
         
         {/* Footer note */}
         <div className="text-center mt-6">
-          <p className="text-body text-xs text-gray-500 font-medium bg-gray-50/80 rounded-xl px-4 py-2 inline-block border border-gray-200/50">
+          <p className="text-body text-xs text-gray-600 font-medium bg-gray-50/80 rounded-xl px-4 py-2 inline-block border border-gray-200/50 shadow-sm">
             AF AI can make mistakes. Always verify important reef parameters.
           </p>
         </div>

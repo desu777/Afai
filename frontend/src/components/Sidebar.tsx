@@ -253,17 +253,17 @@ const Sidebar: React.FC<SidebarProps> = ({
               {/* Version Badge */}
               <div className="flex justify-center">
                 <div className="inline-block bg-purple-100/80 backdrop-blur-md rounded-full px-3 py-1 shadow-sm border border-purple-200/50">
-                  <span className="text-xs font-semibold text-purple-700">Current version: 1.4</span>
+                  <span className="text-xs font-semibold text-purple-700">Current version: 2.0</span>
                 </div>
               </div>
 
               {/* Disclaimer */}
               <div className="space-y-3 text-center">
-                <p className="text-xs text-gray-500 font-medium leading-relaxed">
-                  AF AI can make mistakes. Verify important information in product documentation.
+                <p className="text-xs text-gray-600 font-medium leading-relaxed bg-gray-50/60 rounded-lg px-3 py-2 border border-gray-200/40">
+                  AF AI can make mistakes. Always verify important information in product documentation.
                 </p>
                 
-                <p className="text-xs text-gray-500 font-medium">
+                <p className="text-xs text-gray-600 font-medium bg-blue-50/60 rounded-lg px-3 py-2 border border-blue-200/40">
                   Average response time: 15-40 seconds
                 </p>
               </div>

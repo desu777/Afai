@@ -67,21 +67,32 @@ const ChatInput: React.FC<ChatInputProps> = ({
           fileSize={selectedImage?.size}
         />
         
-        <div className="relative">
+        <div className="relative" style={{ minWidth: '0', flexShrink: '1', width: '100%' }}>
           <textarea
             ref={textareaRef}
             value={inputValue}
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}
             placeholder="Continue the conversation..."
-            className="w-full resize-none rounded-2xl sm:rounded-3xl bg-white/95 backdrop-blur-md border border-purple-200/60 focus:border-brand-600 focus:ring-2 sm:focus:ring-4 focus:ring-brand-100/50 outline-none px-4 sm:px-6 py-3 sm:py-4 pr-12 sm:pr-16 text-gray-800 placeholder-gray-500 shadow-md hover:shadow-lg transition-all duration-300 font-medium text-sm sm:text-base overflow-hidden"
+            className="w-full resize-none rounded-2xl sm:rounded-3xl bg-white/95 backdrop-blur-md border border-purple-200/60 focus:border-brand-600 focus:ring-2 sm:focus:ring-4 focus:ring-brand-100/50 outline-none px-4 sm:px-6 py-3 sm:py-4 pr-12 sm:pr-16 text-gray-800 placeholder-gray-500 shadow-md hover:shadow-lg transition-all duration-300 font-medium text-sm sm:text-base"
             rows={1}
             style={{ 
               minHeight: '80px',
               maxHeight: '200px',
               lineHeight: '1.5',
               fontSize: 'max(16px, 1rem)',
-              height: 'auto'
+              height: 'auto',
+              wordBreak: 'break-all',
+              wordWrap: 'break-word',
+              msWordBreak: 'break-all',
+              overflowWrap: 'break-word',
+              whiteSpace: 'pre-wrap',
+              boxSizing: 'border-box',
+              minWidth: '0',
+              flexShrink: '1',
+              resize: 'none',
+              touchAction: 'manipulation',
+              WebkitOverflowScrolling: 'touch'
             }}
             disabled={isLoading}
           />
@@ -114,7 +125,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         {/* Footer note - only show when no messages */}
         {!hasMessages && (
           <div className="text-center mt-6 space-y-2">
-            <p className="text-body text-xs text-gray-500 font-medium bg-gray-50/80 rounded-xl px-4 py-2 inline-block border border-gray-200/50">
+            <p className="text-body text-xs text-gray-600 font-medium bg-gray-50/80 rounded-xl px-4 py-2 inline-block border border-gray-200/50 shadow-sm">
               AF AI can make mistakes. Always verify important reef parameters.
             </p>
           </div>
