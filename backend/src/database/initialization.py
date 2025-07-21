@@ -57,12 +57,37 @@ def init_database():
             )
         """)
         
-        # Create index for faster queries
+        # Create gemini_api_usage table for daily tracking
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS gemini_api_usage (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                node_name TEXT NOT NULL,
+                api_key_hash TEXT NOT NULL,
+                request_date DATE NOT NULL,
+                success_count INTEGER DEFAULT 0,
+                error_count INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        
+        # Create indexes for faster queries
         cursor.execute("""
             CREATE INDEX IF NOT EXISTS idx_messenger_history_user_time 
             ON messenger_history(user_id, created_at DESC)
         """)
         
+        cursor.execute("""
+            CREATE INDEX IF NOT EXISTS idx_gemini_usage_node_date 
+            ON gemini_api_usage(node_name, api_key_hash, request_date)
+        """)
+        
+        cursor.execute("""
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_gemini_usage_unique
+            ON gemini_api_usage(node_name, api_key_hash, request_date)
+        """)
+        
         conn.commit()
         debug_print("✅ Database initialized successfully")
         debug_print("🗄️ 📅 [Messenger] Chat history database initialized")
+        debug_print("🔑 📊 [Gemini] API usage tracking database initialized")

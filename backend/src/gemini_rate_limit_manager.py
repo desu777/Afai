@@ -1,13 +1,15 @@
 """
-🔥 Gemini Rate Limit Manager - Smart Fallback System
+🔥 Gemini Rate Limit Manager - Smart Fallback System with Database Persistence
 Manages multiple Gemini API keys with rate limiting and automatic OpenRouter fallback
+Daily usage tracking persisted in database for accurate 500/day limits
 """
 import time
 import threading
 from typing import Dict, Optional, Tuple
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from config import TEST_ENV, debug_print
+from config import TEST_ENV, debug_print, hash_api_key
+from database.analytics_operations import record_gemini_usage, get_daily_gemini_usage
 
 @dataclass
 class APIKeyStatus:
@@ -35,19 +37,31 @@ class APIKeyStatus:
         """Check if API key is available for use"""
         now = time.time()
         
-        # Reset counters if needed
+        # Reset minute counter if needed
         self._reset_counters(now)
         
-        # Check rate limits
+        # Check minute rate limit (in-memory)
         if self.minute_count >= self.minute_limit:
             if TEST_ENV:
                 debug_print(f"❌ [RateLimit] {self.node_name} minute limit exceeded: {self.minute_count}/{self.minute_limit}")
             return False
+        
+        # Check daily rate limit (from database)
+        try:
+            api_key_hash = hash_api_key(self.key)
+            daily_usage = get_daily_gemini_usage(self.node_name, api_key_hash)
             
-        if self.daily_count >= self.daily_limit:
-            if TEST_ENV:
-                debug_print(f"❌ [RateLimit] {self.node_name} daily limit exceeded: {self.daily_count}/{self.daily_limit}")
-            return False
+            if daily_usage >= self.daily_limit:
+                if TEST_ENV:
+                    debug_print(f"❌ [RateLimit] {self.node_name} daily limit exceeded: {daily_usage}/{self.daily_limit}")
+                return False
+        except Exception as e:
+            debug_print(f"❌ [RateLimit] Error checking daily usage for {self.node_name}: {e}")
+            # Fallback to in-memory counter if database fails
+            if self.daily_count >= self.daily_limit:
+                if TEST_ENV:
+                    debug_print(f"❌ [RateLimit] {self.node_name} daily limit exceeded (fallback): {self.daily_count}/{self.daily_limit}")
+                return False
         
         # Check error cooldown (5 minutes after consecutive errors)
         if self.consecutive_errors >= 3:
@@ -67,17 +81,32 @@ class APIKeyStatus:
         now = time.time()
         self._reset_counters(now)
         
+        # Update in-memory counters
         self.minute_count += 1
-        self.daily_count += 1
+        self.daily_count += 1  # Keep for fallback
         self.consecutive_errors = 0  # Reset error counter on success
         
+        # Record in database for persistent daily tracking
+        try:
+            api_key_hash = hash_api_key(self.key)
+            record_gemini_usage(self.node_name, api_key_hash, success=True)
+        except Exception as e:
+            debug_print(f"❌ [RateLimit] Error recording usage to database for {self.node_name}: {e}")
+        
         if TEST_ENV:
-            debug_print(f"✅ [RateLimit] {self.node_name} request recorded: {self.minute_count}/10 min, {self.daily_count}/500 day")
+            debug_print(f"✅ [RateLimit] {self.node_name} request recorded: {self.minute_count}/10 min, DB persistent daily tracking")
     
     def record_error(self):
         """Record an API error"""
         self.consecutive_errors += 1
         self.last_error_time = time.time()
+        
+        # Record error in database
+        try:
+            api_key_hash = hash_api_key(self.key)
+            record_gemini_usage(self.node_name, api_key_hash, success=False)
+        except Exception as e:
+            debug_print(f"❌ [RateLimit] Error recording error to database for {self.node_name}: {e}")
         
         if TEST_ENV:
             debug_print(f"❌ [RateLimit] {self.node_name} error recorded: {self.consecutive_errors} consecutive")
@@ -99,14 +128,22 @@ class APIKeyStatus:
         now = time.time()
         self._reset_counters(now)
         
+        # Get real daily usage from database
+        try:
+            api_key_hash = hash_api_key(self.key)
+            daily_usage = get_daily_gemini_usage(self.node_name, api_key_hash)
+        except Exception as e:
+            debug_print(f"❌ [RateLimit] Error getting daily usage for status: {e}")
+            daily_usage = self.daily_count  # Fallback to in-memory
+        
         return {
             "node_name": self.node_name,
             "minute_usage": f"{self.minute_count}/{self.minute_limit}",
-            "daily_usage": f"{self.daily_count}/{self.daily_limit}",
+            "daily_usage": f"{daily_usage}/{self.daily_limit}",
             "consecutive_errors": self.consecutive_errors,
             "available": self.is_available(),
             "next_minute_reset": int(60 - (now - self.last_minute_reset)),
-            "next_daily_reset": int(86400 - (now - self.last_daily_reset))
+            "daily_usage_source": "database"
         }
 
 

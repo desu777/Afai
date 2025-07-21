@@ -3,6 +3,7 @@ Configuration module for Aquaforest RAG System
 Handles all environment variables and system settings
 """
 import os
+import hashlib
 from pathlib import Path
 from env_loader import load_environment
 
@@ -261,3 +262,10 @@ if TEST_ENV:
     logger.configuration(f"Auth Token: {'ENABLED' if ENABLE_AUTH_TOKEN else 'DISABLED'}", "SUB")
     logger.configuration("Confidence Scorer: REMOVED for better performance", "SUB")
     logger.separator()
+
+
+def hash_api_key(api_key: str) -> str:
+    """Hash API key for safe database storage"""
+    if not api_key:
+        return ""
+    return hashlib.sha256(api_key.encode('utf-8')).hexdigest()[:16]  # First 16 chars for uniqueness

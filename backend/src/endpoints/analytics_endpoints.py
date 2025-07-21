@@ -3,8 +3,11 @@ Analytics Endpoints Module
 Analytics-related endpoints extracted from server.py
 """
 import json
+from datetime import datetime
 from fastapi import HTTPException, Request
 from database import get_db
+from database.analytics_operations import get_gemini_usage_stats
+from gemini_rate_limit_manager import get_rate_limit_status, get_rate_limit_summary
 from config import debug_print
 
 def setup_analytics_endpoints(app, tier2_rate_limit, AnalyticsQuery):
@@ -141,4 +144,30 @@ def setup_analytics_endpoints(app, tier2_rate_limit, AnalyticsQuery):
                 }
         except Exception as e:
             debug_print(f"❌ [Analytics] Error in get_analytics_summary: {e}")
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @app.get("/analytics/gemini-usage")
+    @tier2_rate_limit()
+    async def get_gemini_usage_analytics(request: Request, start_date: str = None, end_date: str = None):
+        """Get Gemini API usage analytics and current rate limit status"""
+        try:
+            # Get usage statistics from database
+            usage_stats = get_gemini_usage_stats(start_date, end_date)
+            
+            # Get current rate limit status (real-time)
+            rate_limit_status = get_rate_limit_status()
+            rate_limit_summary = get_rate_limit_summary()
+            
+            return {
+                "success": True,
+                "current_status": {
+                    "rate_limits": rate_limit_status,
+                    "summary": rate_limit_summary
+                },
+                "historical_usage": usage_stats,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            debug_print(f"❌ [Analytics] Error in get_gemini_usage_analytics: {e}")
             raise HTTPException(status_code=500, detail=str(e))
