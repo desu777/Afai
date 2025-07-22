@@ -1,3 +1,5 @@
-- zliczanie użyć api key z gemini w sql
+
 - mówiący tryb 
 - naprawa chat input na telefonie 
+- poprawić prompt o zdanie seweryna 
+
