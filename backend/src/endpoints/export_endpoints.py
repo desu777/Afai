@@ -54,10 +54,9 @@ def setup_export_endpoints(app, csv_export_rate_limit):
                     """Clean text for CSV export"""
                     if not text:
                         return ""
-                    # Remove newlines and extra whitespace
-                    cleaned = str(text).replace('\n', ' ').replace('\r', ' ')
-                    # Limit length to prevent huge CSV cells
-                    return cleaned[:500] + "..." if len(cleaned) > 500 else cleaned
+                    # Remove newlines and extra whitespace for CSV compatibility
+                    cleaned = str(text).replace('\n', ' ').replace('\r', ' ').replace('\t', ' ').strip()
+                    return cleaned
                 
                 # Write data
                 for row in cursor.fetchall():
