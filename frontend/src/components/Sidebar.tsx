@@ -277,15 +277,17 @@ const Sidebar: React.FC<SidebarProps> = ({
               {!isCollapsed && <span>Examples</span>}
             </button>
 
-            {/* Updates Button - available for all users */}
-            <button 
-              onClick={() => handleViewChange('updates')}
-              className={getButtonClass('updates', activeView === 'updates')}
-              title={isCollapsed ? 'Updates' : ''}
-            >
-              <History className="w-5 h-5 flex-shrink-0" />
-              {!isCollapsed && <span>Updates</span>}
-            </button>
+            {/* Updates Button - admin only */}
+            {accessLevel === 'admin' && (
+              <button 
+                onClick={() => handleViewChange('updates')}
+                className={getButtonClass('updates', activeView === 'updates')}
+                title={isCollapsed ? 'Updates' : ''}
+              >
+                <History className="w-5 h-5 flex-shrink-0" />
+                {!isCollapsed && <span>Updates</span>}
+              </button>
+            )}
 
             {/* Relog Button - available for all users */}
             <button 

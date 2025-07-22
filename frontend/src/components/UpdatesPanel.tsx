@@ -18,27 +18,28 @@ const updates: Update[] = [
     version: "2.1",
     date: "2025-07-22",
     type: "minor",
-    title: "Professional Support System & Enhanced User Management",
-    description: "Major system enhancement with professional support access levels, advanced template system for different user roles, complete logout functionality, and visual user status indicators. This update introduces role-based response formatting and comprehensive session management.",
+    title: "Response Format Selection & Streamlined Access System",
+    description: "Major system enhancement with intelligent response format selection for admin users, streamlined access levels, dynamic template switching, and improved CSV export functionality. This update introduces flexible response styles and enhanced data export capabilities.",
     changes: [
       {
         category: "new",
         items: [
-          "Support Access Level - New professional user tier with ghostwriter-style responses for copy-paste to forums",
-          "Professional Template System - Dynamic response formatting based on user access level with 'Best regards, Aquaforest Team' endings",
-          "Complete Logout Functionality - Full session and data clearing with confirmation modal and instant state reset",
-          "User Status Badge - Visual role indicators (Admin/Support/Tester) with color-coded badges in sidebar footer",
-          "Advanced Session Management - Enhanced authentication flow with multi-tier access control"
+          "Response Format Selector - Admin users can choose between 'Visionary Expert' (casual AI assistant) and 'Ghostwriter' (professional support team) response styles",
+          "ChatGPT-Style Dropdown - Elegant format selector with glass-morphism design, icons, and localStorage persistence",
+          "Dynamic Template System - Smart backend integration that automatically selects appropriate response formatting templates",
+          "Streamlined Access Levels - Simplified from 3 to 2 access levels (Visionary Expert and Admin) for cleaner user management",
+          "Full CSV Data Export - Removed 500-character truncation limit from analytics CSV exports for complete model responses"
         ]
       },
       {
         category: "improved",
         items: [
-          "Response Formatting Intelligence - Automatic template selection based on user role and access level",
-          "Professional Response Quality - Support users receive company-representative style responses suitable for public forums",
-          "Sidebar Footer Design - Integrated user status with version badge styling and role-specific color coding",
-          "Authentication System - Extended to support three access levels (test/admin/support) with proper type safety",
-          "Session Security - Complete localStorage cleanup and state management for secure logout functionality"
+          "Response Intelligence - Automatic backend access_level mapping based on admin format selection for seamless template switching",
+          "Professional Response Quality - Ghostwriter mode delivers company-representative style responses perfect for forum copy-paste",
+          "Enhanced User Management - Visionary Expert badge replaces Tester designation with more descriptive and intuitive naming",
+          "TypeScript Integration - Complete type safety with updated interfaces for streamlined access level system",
+          "UI Consistency - Format selector perfectly integrated with existing purple/violet theme and glass-morphism design language",
+          "Admin-Only Features - Updates tab and advanced controls now properly restricted to admin access level only"
         ]
       }
     ]
