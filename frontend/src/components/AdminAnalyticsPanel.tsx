@@ -4,7 +4,7 @@ import { apiService } from '../services/api'
 import { AnalyticsSummaryResponse, AnalyticsItem } from '../types'
 
 interface AdminAnalyticsPanelProps {
-  accessLevel: 'test' | 'admin';
+  accessLevel: 'visionary_expert' | 'admin';
 }
 
 const AdminAnalyticsPanel: React.FC<AdminAnalyticsPanelProps> = ({ accessLevel }) => {

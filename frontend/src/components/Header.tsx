@@ -3,7 +3,7 @@ import { MoreVertical, MessageSquarePlus, BarChart3, Send, FileText } from 'luci
 import FeedbackModal from './FeedbackModal'
 
 interface HeaderProps {
-  accessLevel: 'test' | 'admin';
+  accessLevel: 'visionary_expert' | 'admin';
   onViewChange?: (view: 'chat' | 'feedback' | 'analytics') => void;
   activeView?: 'chat' | 'feedback' | 'analytics';
 }

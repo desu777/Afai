@@ -4,7 +4,7 @@ import { apiService } from '../services/api'
 import { FeedbackSummaryResponse, FeedbackItem } from '../types'
 
 interface AdminFeedbackPanelProps {
-  accessLevel: 'test' | 'admin';
+  accessLevel: 'visionary_expert' | 'admin';
 }
 
 const AdminFeedbackPanel: React.FC<AdminFeedbackPanelProps> = ({ accessLevel }) => {

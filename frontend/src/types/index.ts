@@ -30,7 +30,7 @@ export interface FeedbackRequest {
   message_id?: number;
   rating?: number; // 1-5 stars
   comment: string;
-  user_type: 'test' | 'admin' | 'support';
+  user_type: 'visionary_expert' | 'admin';
 }
 
 export interface FeedbackResponse {
@@ -120,4 +120,13 @@ export interface WorkflowUpdate {
   status: 'processing' | 'complete' | 'error';
   message: string;
   elapsed_time: number;
+}
+
+// Response format types
+export type ResponseFormat = 'visionary_expert' | 'ghostwriter';
+
+export interface ResponseFormatOption {
+  id: ResponseFormat;
+  label: string;
+  description: string;
 } 

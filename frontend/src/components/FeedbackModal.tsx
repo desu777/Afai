@@ -6,7 +6,7 @@ import { FeedbackRequest } from '../types'
 interface FeedbackModalProps {
   isOpen: boolean;
   onClose: () => void;
-  accessLevel: 'test' | 'admin' | 'support';
+  accessLevel: 'visionary_expert' | 'admin';
 }
 
 const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, accessLevel }) => {

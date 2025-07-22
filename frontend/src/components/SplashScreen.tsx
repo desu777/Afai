@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 
 interface SplashScreenProps {
-  onAuthenticate: (accessLevel: 'test' | 'admin' | 'support') => void;
+  onAuthenticate: (accessLevel: 'visionary_expert' | 'admin') => void;
 }
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
@@ -43,7 +43,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
     checkSavedAccess();
   }, [onAuthenticate]);
 
-  const saveAccessCode = (code: string, level: 'test' | 'admin' | 'support') => {
+  const saveAccessCode = (code: string, level: 'visionary_expert' | 'admin') => {
     try {
       const accessData = {
         code,
@@ -65,17 +65,13 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
     setTimeout(() => {
       const testAccess = import.meta.env.VITE_TEST_ACCESS;
       const adminAccess = import.meta.env.VITE_ADMIN_ACCESS;
-      const supportAccess = import.meta.env.VITE_SUPPORT_ACCESS;
 
       if (password === testAccess) {
-        saveAccessCode(password, 'test');
-        onAuthenticate('test');
+        saveAccessCode(password, 'visionary_expert');
+        onAuthenticate('visionary_expert');
       } else if (password === adminAccess) {
         saveAccessCode(password, 'admin');
         onAuthenticate('admin');
-      } else if (password === supportAccess) {
-        saveAccessCode(password, 'support');
-        onAuthenticate('support');
       } else {
         setError('Invalid access code. Please try again.');
       }

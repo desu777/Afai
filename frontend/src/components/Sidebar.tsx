@@ -12,14 +12,13 @@ import {
   History,
   LogOut,
   Shield,
-  Headphones,
   User
 } from 'lucide-react'
 import FeedbackModal from './FeedbackModal'
 import RelogConfirmModal from './RelogConfirmModal'
 
 interface SidebarProps {
-  accessLevel: 'test' | 'admin' | 'support';
+  accessLevel: 'visionary_expert' | 'admin';
   onViewChange?: (view: 'chat' | 'feedback' | 'analytics' | 'examples' | 'updates') => void;
   activeView?: 'chat' | 'feedback' | 'analytics' | 'examples' | 'updates';
   isCollapsed?: boolean;
@@ -102,17 +101,10 @@ const Sidebar: React.FC<SidebarProps> = ({
           bgClass: 'bg-purple-100 text-purple-700 border-purple-200',
           iconBgClass: 'bg-purple-600'
         };
-      case 'support':
-        return {
-          label: 'Support',
-          icon: Headphones,
-          bgClass: 'bg-blue-100 text-blue-700 border-blue-200',
-          iconBgClass: 'bg-blue-600'
-        };
-      case 'test':
+      case 'visionary_expert':
       default:
         return {
-          label: 'Tester',
+          label: 'Visionary Expert',
           icon: User,
           bgClass: 'bg-green-100 text-green-700 border-green-200',
           iconBgClass: 'bg-green-600'
@@ -324,10 +316,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     case 'admin':
                       badgeClasses = 'bg-purple-100/80 text-purple-700 border-purple-200/50';
                       break;
-                    case 'support':
-                      badgeClasses = 'bg-blue-100/80 text-blue-700 border-blue-200/50';
-                      break;
-                    case 'test':
+                    case 'visionary_expert':
                     default:
                       badgeClasses = 'bg-green-100/80 text-green-700 border-green-200/50';
                       break;

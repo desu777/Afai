@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Message, WorkflowUpdate } from '../types'
+import { Message, WorkflowUpdate, ResponseFormat } from '../types'
 import { apiService } from '../services/api'
 import Sidebar from './Sidebar'
 import MessageList from './MessageList'
@@ -9,12 +9,13 @@ import AdminFeedbackPanel from './AdminFeedbackPanel'
 import AdminAnalyticsPanel from './AdminAnalyticsPanel'
 import ExamplesPanel from './ExamplesPanel'
 import UpdatesPanel from './UpdatesPanel'
+import ResponseFormatSelector from './ResponseFormatSelector'
 
 const ChatInterface: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
-  const [accessLevel, setAccessLevel] = useState<'test' | 'admin' | 'support'>('test');
+  const [accessLevel, setAccessLevel] = useState<'visionary_expert' | 'admin'>('visionary_expert');
   const [activeView, setActiveView] = useState<'chat' | 'feedback' | 'analytics' | 'examples' | 'updates'>('chat');
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -23,6 +24,7 @@ const ChatInterface: React.FC = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [responseFormat, setResponseFormat] = useState<ResponseFormat>('visionary_expert');
 
   // 🆕 Session ID localStorage management
   useEffect(() => {
@@ -36,6 +38,22 @@ const ChatInterface: React.FC = () => {
       }
     }
   }, []);
+
+  // Response format localStorage management
+  useEffect(() => {
+    const storedFormat = localStorage.getItem('af_response_format');
+    if (storedFormat && (storedFormat === 'visionary_expert' || storedFormat === 'ghostwriter')) {
+      setResponseFormat(storedFormat as ResponseFormat);
+    }
+  }, []);
+
+  const updateResponseFormat = (format: ResponseFormat) => {
+    setResponseFormat(format);
+    localStorage.setItem('af_response_format', format);
+    if (import.meta.env.VITE_TEST_ENV === 'true') {
+      console.log('🎨 [Format] Updated response format:', format);
+    }
+  };
 
   // 🆕 Function to update session ID
   const updateSessionId = (newSessionId: string | null) => {
@@ -129,11 +147,23 @@ const ChatInterface: React.FC = () => {
       // Debug mode based on environment variable
       const debugMode = import.meta.env.VITE_TEST_ENV === 'true';
 
+      // Map response format to backend access level
+      let backendAccessLevel: string;
+      if (accessLevel === 'admin') {
+        // For admin users, map format selection to backend access level
+        backendAccessLevel = responseFormat === 'ghostwriter' ? 'support' : 'admin';
+      } else {
+        // For visionary_expert users, always use visionary_expert
+        backendAccessLevel = 'visionary_expert';
+      }
+
       if (debugMode) {
         console.log('🔍 [Chat] Sending streaming message:', currentInput);
         console.log('🔍 [Chat] Chat history:', chatHistory);
         console.log('🔍 [Chat] Image URL:', imageUrl ? 'Present' : 'None');
         console.log('🆔 [Chat] Session ID:', currentSessionId);
+        console.log('🎨 [Chat] Response format:', responseFormat);
+        console.log('🔑 [Chat] Backend access level:', backendAccessLevel);
       }
 
       // 🚀 Use streaming API with workflow updates
@@ -153,7 +183,7 @@ const ChatInterface: React.FC = () => {
         },
         imageUrl,  // 🆕 Przekazanie image_url
         currentSessionId,  // 🆕 Przekazanie session_id
-        accessLevel  // 🆕 Przekazanie access_level
+        backendAccessLevel  // 🆕 Przekazanie mapped access_level
       );
 
       if (debugMode) {
@@ -202,7 +232,7 @@ const ChatInterface: React.FC = () => {
     updateSessionId(null);   // 🆕 Clear session ID for new chat
   };
 
-  const handleAuthenticate = (level: 'test' | 'admin' | 'support') => {
+  const handleAuthenticate = (level: 'visionary_expert' | 'admin') => {
     setIsTransitioning(true);
     
     // Start fade out splash
@@ -226,7 +256,7 @@ const ChatInterface: React.FC = () => {
     // Reset all authentication and chat state
     setIsAuthenticated(false);
     setShowSplash(true);
-    setAccessLevel('test');
+    setAccessLevel('visionary_expert');
     setActiveView('chat');
     setMessages([]);
     setInputValue('');
@@ -290,6 +320,16 @@ const ChatInterface: React.FC = () => {
         {/* Conditional Rendering based on activeView */}
         {activeView === 'chat' && (
           <>
+            {/* Response Format Selector for Admin Users */}
+            {accessLevel === 'admin' && (
+              <div className="flex justify-start px-4 sm:px-6 pt-4 pb-2">
+                <ResponseFormatSelector
+                  selectedFormat={responseFormat}
+                  onFormatChange={updateResponseFormat}
+                />
+              </div>
+            )}
+            
             <MessageList 
               messages={messages} 
               isLoading={isLoading} 
