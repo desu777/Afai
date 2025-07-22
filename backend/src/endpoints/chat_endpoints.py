@@ -75,6 +75,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
                         "extended_cache": None,    # Will be populated during workflow
                         "image_url": chat_request.image_url,  # Vision analysis
                         "image_analysis": None,  # Will be filled by intent detector
+                        "access_level": chat_request.access_level,  # User access level for template selection
                         "node_timings": {},
                         "routing_decisions": [],
                         "total_execution_time": 0.0,
@@ -225,6 +226,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
                 "extended_cache": None,    # Will be populated during workflow
                 "image_url": chat_request.image_url,  # Vision analysis
                 "image_analysis": None,  # Will be filled by intent detector
+                "access_level": chat_request.access_level,  # User access level for template selection
                 "node_timings": {},
                 "routing_decisions": [],
                 "total_execution_time": 0.0,

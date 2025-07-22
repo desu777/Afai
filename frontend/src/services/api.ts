@@ -67,14 +67,16 @@ class ApiService {
     chatHistory: Array<{role: string; content: string}> = [],
     debug: boolean = false,
     imageUrl?: string,
-    sessionId?: string
+    sessionId?: string,
+    accessLevel?: string
   ): Promise<ChatResponse> {
     const requestData: ChatRequest = {
       message,
       chat_history: chatHistory,
       debug,
       image_url: imageUrl,
-      session_id: sessionId
+      session_id: sessionId,
+      access_level: accessLevel
     };
 
     return this.request<ChatResponse>('/chat', {
@@ -90,7 +92,8 @@ class ApiService {
     debug: boolean = false,
     onUpdate: (update: WorkflowUpdate) => void,
     imageUrl?: string,
-    sessionId?: string
+    sessionId?: string,
+    accessLevel?: string
   ): Promise<string> {
     // 🔄 Fallback for older browsers that don't support ReadableStream
     if (!('ReadableStream' in window) || !window.ReadableStream) {
@@ -107,7 +110,7 @@ class ApiService {
       });
       
       try {
-        const response = await this.sendMessage(message, chatHistory, debug, imageUrl, sessionId);
+        const response = await this.sendMessage(message, chatHistory, debug, imageUrl, sessionId, accessLevel);
         
         // Create final update
         onUpdate({
@@ -134,7 +137,8 @@ class ApiService {
       chat_history: chatHistory,
       debug,
       image_url: imageUrl,
-      session_id: sessionId
+      session_id: sessionId,
+      access_level: accessLevel
     };
 
     const url = `${API_BASE_URL}/chat/stream`;

@@ -9,16 +9,22 @@ import {
   ChevronLeft,
   ChevronRight,
   HelpCircle,
-  History
+  History,
+  LogOut,
+  Shield,
+  Headphones,
+  User
 } from 'lucide-react'
 import FeedbackModal from './FeedbackModal'
+import RelogConfirmModal from './RelogConfirmModal'
 
 interface SidebarProps {
-  accessLevel: 'test' | 'admin';
+  accessLevel: 'test' | 'admin' | 'support';
   onViewChange?: (view: 'chat' | 'feedback' | 'analytics' | 'examples' | 'updates') => void;
   activeView?: 'chat' | 'feedback' | 'analytics' | 'examples' | 'updates';
   isCollapsed?: boolean;
   onToggleCollapse?: (collapsed: boolean) => void;
+  onRelog?: () => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ 
@@ -26,10 +32,12 @@ const Sidebar: React.FC<SidebarProps> = ({
   onViewChange, 
   activeView = 'chat',
   isCollapsed = false,
-  onToggleCollapse
+  onToggleCollapse,
+  onRelog
 }) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [isRelogModalOpen, setIsRelogModalOpen] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
 
   const openFeedbackModal = () => {
@@ -39,6 +47,20 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const closeFeedbackModal = () => {
     setIsFeedbackModalOpen(false);
+  };
+
+  const openRelogModal = () => {
+    setIsRelogModalOpen(true);
+    setIsMobileOpen(false);
+  };
+
+  const closeRelogModal = () => {
+    setIsRelogModalOpen(false);
+  };
+
+  const handleRelogConfirm = () => {
+    setIsRelogModalOpen(false);
+    onRelog?.();
   };
 
   const handleViewChange = (view: 'chat' | 'feedback' | 'analytics' | 'examples' | 'updates') => {
@@ -70,6 +92,33 @@ const Sidebar: React.FC<SidebarProps> = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isMobileOpen]);
+
+  const getUserBadgeInfo = () => {
+    switch (accessLevel) {
+      case 'admin':
+        return {
+          label: 'Admin',
+          icon: Shield,
+          bgClass: 'bg-purple-100 text-purple-700 border-purple-200',
+          iconBgClass: 'bg-purple-600'
+        };
+      case 'support':
+        return {
+          label: 'Support',
+          icon: Headphones,
+          bgClass: 'bg-blue-100 text-blue-700 border-blue-200',
+          iconBgClass: 'bg-blue-600'
+        };
+      case 'test':
+      default:
+        return {
+          label: 'Tester',
+          icon: User,
+          bgClass: 'bg-green-100 text-green-700 border-green-200',
+          iconBgClass: 'bg-green-600'
+        };
+    }
+  };
 
   const getButtonClass = (_view: 'chat' | 'feedback' | 'analytics' | 'examples' | 'updates', isActive: boolean) => {
     if (isCollapsed) {
@@ -245,15 +294,58 @@ const Sidebar: React.FC<SidebarProps> = ({
               <History className="w-5 h-5 flex-shrink-0" />
               {!isCollapsed && <span>Updates</span>}
             </button>
+
+            {/* Relog Button - available for all users */}
+            <button 
+              onClick={openRelogModal}
+              className={
+                isCollapsed 
+                  ? "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300 hover:bg-red-50 hover:shadow-md text-sm font-medium text-gray-700 hover:text-red-700 mx-auto transform hover:scale-105 active:scale-95"
+                  : "flex items-center space-x-3 w-full px-4 py-3 rounded-xl transition-all duration-300 hover:bg-red-50 hover:shadow-md text-sm font-medium text-gray-700 hover:text-red-700 transform hover:scale-[1.02] active:scale-[0.98]"
+              }
+              title={isCollapsed ? 'Logout' : ''}
+            >
+              <LogOut className="w-5 h-5 flex-shrink-0" />
+              {!isCollapsed && <span>Logout</span>}
+            </button>
           </div>
 
           {/* Footer Info Section */}
           {!isCollapsed && (
             <div className="border-t border-purple-200/30 px-4 py-6 space-y-4">
+              {/* User Status Badge */}
+              <div className="flex justify-center">
+                {(() => {
+                  const userInfo = getUserBadgeInfo();
+                  const IconComponent = userInfo.icon;
+                  
+                  let badgeClasses = '';
+                  switch (accessLevel) {
+                    case 'admin':
+                      badgeClasses = 'bg-purple-100/80 text-purple-700 border-purple-200/50';
+                      break;
+                    case 'support':
+                      badgeClasses = 'bg-blue-100/80 text-blue-700 border-blue-200/50';
+                      break;
+                    case 'test':
+                    default:
+                      badgeClasses = 'bg-green-100/80 text-green-700 border-green-200/50';
+                      break;
+                  }
+                  
+                  return (
+                    <div className={`inline-flex items-center space-x-2 ${badgeClasses} backdrop-blur-md rounded-full px-3 py-1 shadow-sm border`}>
+                      <IconComponent className="w-3 h-3" />
+                      <span className="text-xs font-semibold">Logged as: {userInfo.label}</span>
+                    </div>
+                  );
+                })()}
+              </div>
+
               {/* Version Badge */}
               <div className="flex justify-center">
                 <div className="inline-block bg-purple-100/80 backdrop-blur-md rounded-full px-3 py-1 shadow-sm border border-purple-200/50">
-                  <span className="text-xs font-semibold text-purple-700">Current version: 2.0</span>
+                  <span className="text-xs font-semibold text-purple-700">Current version: 2.1</span>
                 </div>
               </div>
 
@@ -277,6 +369,13 @@ const Sidebar: React.FC<SidebarProps> = ({
         isOpen={isFeedbackModalOpen}
         onClose={closeFeedbackModal}
         accessLevel={accessLevel}
+      />
+
+      {/* Relog Confirmation Modal */}
+      <RelogConfirmModal 
+        isOpen={isRelogModalOpen}
+        onClose={closeRelogModal}
+        onConfirm={handleRelogConfirm}
       />
     </>
   );

@@ -74,6 +74,7 @@ class PromptBuilder:
         # Try to load prompt from template
         prompt = load_prompt_template(
             "response_formatting",
+            access_level=state.get("access_level"),
             language=lang,
             chat_history_formatted=chat_history_formatted,
             user_query=state.get('user_query', ''),
@@ -118,6 +119,7 @@ Respond in {lang} language.
         if intent == Intent.SUPPORT:
             prompt = load_prompt_template(
                 "intent_support",
+                access_level=state.get("access_level"),
                 user_query=user_query,
                 language=lang
             )
@@ -128,6 +130,7 @@ Respond in {lang} language.
         if intent == Intent.BUSINESS:
             prompt = load_prompt_template(
                 "intent_business",
+                access_level=state.get("access_level"),
                 user_query=user_query,
                 language=lang
             )
@@ -148,6 +151,7 @@ Respond in {lang} language.
             
             prompt = load_prompt_template(
                 "intent_purchase",
+                access_level=state.get("access_level"),
                 user_query=user_query,
                 language=lang,
                 purchase_product=purchase_product,
@@ -160,6 +164,7 @@ Respond in {lang} language.
         if intent == Intent.GREETING:
             prompt = load_prompt_template(
                 "intent_greeting",
+                access_level=state.get("access_level"),
                 user_query=user_query,
                 language=lang
             )
@@ -170,6 +175,7 @@ Respond in {lang} language.
         if intent == Intent.COMPETITOR:
             prompt = load_prompt_template(
                 "intent_competitor",
+                access_level=state.get("access_level"),
                 user_query=user_query,
                 language=lang
             )
@@ -180,6 +186,7 @@ Respond in {lang} language.
         if intent == Intent.CENSORED:
             prompt = load_prompt_template(
                 "intent_censored",
+                access_level=state.get("access_level"),
                 user_query=user_query,
                 language=lang
             )
@@ -190,6 +197,7 @@ Respond in {lang} language.
         if intent == Intent.OTHER:
             prompt = load_prompt_template(
                 "intent_others",
+                access_level=state.get("access_level"),
                 user_query=user_query,
                 language=lang
             )
@@ -247,6 +255,7 @@ Respond helpfully and professionally in {lang} language.
         # Load ICP analysis template
         prompt = load_prompt_template(
             "icp_analysis",
+            access_level=state.get("access_level"),
             language=lang,
             chat_history_formatted=chat_history_formatted,
             user_query=user_query,

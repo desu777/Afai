@@ -15,6 +15,35 @@ interface Update {
 
 const updates: Update[] = [
   {
+    version: "2.1",
+    date: "2025-07-22",
+    type: "minor",
+    title: "Professional Support System & Enhanced User Management",
+    description: "Major system enhancement with professional support access levels, advanced template system for different user roles, complete logout functionality, and visual user status indicators. This update introduces role-based response formatting and comprehensive session management.",
+    changes: [
+      {
+        category: "new",
+        items: [
+          "Support Access Level - New professional user tier with ghostwriter-style responses for copy-paste to forums",
+          "Professional Template System - Dynamic response formatting based on user access level with 'Best regards, Aquaforest Team' endings",
+          "Complete Logout Functionality - Full session and data clearing with confirmation modal and instant state reset",
+          "User Status Badge - Visual role indicators (Admin/Support/Tester) with color-coded badges in sidebar footer",
+          "Advanced Session Management - Enhanced authentication flow with multi-tier access control"
+        ]
+      },
+      {
+        category: "improved",
+        items: [
+          "Response Formatting Intelligence - Automatic template selection based on user role and access level",
+          "Professional Response Quality - Support users receive company-representative style responses suitable for public forums",
+          "Sidebar Footer Design - Integrated user status with version badge styling and role-specific color coding",
+          "Authentication System - Extended to support three access levels (test/admin/support) with proper type safety",
+          "Session Security - Complete localStorage cleanup and state management for secure logout functionality"
+        ]
+      }
+    ]
+  },
+  {
     version: "2.0",
     date: "2025-07-18",
     type: "major",

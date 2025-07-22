@@ -15,6 +15,7 @@ export interface ChatRequest {
   debug: boolean;
   image_url?: string;
   session_id?: string;
+  access_level?: string;
 }
 
 export interface ChatResponse {
@@ -29,7 +30,7 @@ export interface FeedbackRequest {
   message_id?: number;
   rating?: number; // 1-5 stars
   comment: string;
-  user_type: 'test' | 'admin';
+  user_type: 'test' | 'admin' | 'support';
 }
 
 export interface FeedbackResponse {

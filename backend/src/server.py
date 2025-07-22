@@ -40,6 +40,7 @@ class ChatRequest(BaseModel):
     debug: bool = False
     image_url: Optional[str] = None  # URL do zdjęcia dla analizy vision
     session_id: Optional[str] = None  # Session ID for cache management
+    access_level: Optional[str] = None  # Access level: "test", "admin", "support"
 
 class ChatResponse(BaseModel):
     response: str

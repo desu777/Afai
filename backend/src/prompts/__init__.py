@@ -6,12 +6,13 @@ from typing import Dict, Any
 
 __all__ = ['load_prompt_template']
 
-def load_prompt_template(template_name: str, **kwargs) -> str:
+def load_prompt_template(template_name: str, access_level: str = None, **kwargs) -> str:
     """
-    Load and format prompt template from file
+    Load and format prompt template from file with access level support
     
     Args:
         template_name: Name of template file (without .txt extension)
+        access_level: User access level ("support", "admin", "test", etc.)
         **kwargs: Variables to substitute in template
         
     Returns:
@@ -19,7 +20,17 @@ def load_prompt_template(template_name: str, **kwargs) -> str:
     """
     try:
         prompts_dir = os.path.dirname(__file__)
-        template_path = os.path.join(prompts_dir, f"{template_name}.txt")
+        
+        # Determine template file based on access level
+        actual_template_name = template_name
+        if access_level == "support":
+            # Try professional variant first
+            professional_template = f"{template_name}_professional"
+            professional_path = os.path.join(prompts_dir, f"{professional_template}.txt")
+            if os.path.exists(professional_path):
+                actual_template_name = professional_template
+        
+        template_path = os.path.join(prompts_dir, f"{actual_template_name}.txt")
         
         with open(template_path, 'r', encoding='utf-8') as f:
             template = f.read()
@@ -33,5 +44,5 @@ def load_prompt_template(template_name: str, **kwargs) -> str:
         
     except Exception as e:
         # Fallback - return empty string so calling code can handle
-        print(f"❌ Error loading prompt template '{template_name}': {e}")
+        print(f"❌ Error loading prompt template '{actual_template_name if 'actual_template_name' in locals() else template_name}': {e}")
         return "" 

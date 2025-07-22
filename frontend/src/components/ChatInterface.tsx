@@ -14,7 +14,7 @@ const ChatInterface: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
-  const [accessLevel, setAccessLevel] = useState<'test' | 'admin'>('test');
+  const [accessLevel, setAccessLevel] = useState<'test' | 'admin' | 'support'>('test');
   const [activeView, setActiveView] = useState<'chat' | 'feedback' | 'analytics' | 'examples' | 'updates'>('chat');
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -152,7 +152,8 @@ const ChatInterface: React.FC = () => {
           }
         },
         imageUrl,  // 🆕 Przekazanie image_url
-        currentSessionId  // 🆕 Przekazanie session_id
+        currentSessionId,  // 🆕 Przekazanie session_id
+        accessLevel  // 🆕 Przekazanie access_level
       );
 
       if (debugMode) {
@@ -201,7 +202,7 @@ const ChatInterface: React.FC = () => {
     updateSessionId(null);   // 🆕 Clear session ID for new chat
   };
 
-  const handleAuthenticate = (level: 'test' | 'admin') => {
+  const handleAuthenticate = (level: 'test' | 'admin' | 'support') => {
     setIsTransitioning(true);
     
     // Start fade out splash
@@ -215,6 +216,29 @@ const ChatInterface: React.FC = () => {
         setIsTransitioning(false);
       }, 150);
     }, 300);
+  };
+
+  const handleRelog = () => {
+    // Clear all localStorage data
+    localStorage.removeItem('af_access_code');
+    localStorage.removeItem('af_session_id');
+    
+    // Reset all authentication and chat state
+    setIsAuthenticated(false);
+    setShowSplash(true);
+    setAccessLevel('test');
+    setActiveView('chat');
+    setMessages([]);
+    setInputValue('');
+    setIsLoading(false);
+    setCurrentWorkflowUpdate(undefined);
+    setSelectedImage(null);
+    setSessionId(null);
+    setIsTransitioning(false);
+    
+    if (import.meta.env.VITE_TEST_ENV === 'true') {
+      console.log('🔄 [Relog] All data cleared and state reset');
+    }
   };
 
   const handleViewChange = (view: 'chat' | 'feedback' | 'analytics' | 'examples' | 'updates') => {
@@ -256,6 +280,7 @@ const ChatInterface: React.FC = () => {
         activeView={activeView}
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={setIsSidebarCollapsed}
+        onRelog={handleRelog}
       />
       
       {/* Main Content Area */}
