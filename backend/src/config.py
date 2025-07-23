@@ -126,6 +126,8 @@ OPENAI_EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-s
 OPENAI_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS", "16384"))
 OPENAI_TEMPERATURE = float(os.getenv("OPENAI_TEMPERATURE", "0.3"))  # Default to Qwen3 32B
 
+# ICP Analysis Configuration
+ICP_TEMPERATURE = float(os.getenv("ICP_TEMPERATURE", "0.1"))  # Low temperature for consistent JSON output
 
 # App Configuration
 DEFAULT_K_VALUE = int(os.getenv("DEFAULT_K_VALUE", "12"))

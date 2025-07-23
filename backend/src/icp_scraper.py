@@ -1,67 +1,156 @@
 """
 ICP Scraper Module - PDF analysis for ICP test results
-Uses Gemini 2.0 Flash analysis for PDF processing
+Uses configured provider (Vertex AI) with OpenRouter fallback
 """
 import re
 import base64
-from typing import Dict, List
-from config import debug_print, TEST_ENV, ICP_API, ICP_MODEL
+from typing import Dict, List, Optional
+from config import debug_print, TEST_ENV, ICP_API, ICP_MODEL, ICP_TEMPERATURE
 import json
 from langchain_openai import ChatOpenAI
 from langchain_community.document_loaders import PyMuPDFLoader
 import tempfile
 import os
-from prompts import load_prompt_template
+
+# Import factory for primary provider
+from llm_client_factory import create_icp_analysis_client
 
 class ICPScraper:
     """ICP PDF processor for Aquaforest Lab ICP test results"""
     
     def __init__(self):
-        # Use dedicated ICP variables for better ICP analysis
-        self.llm = ChatOpenAI(
+        # Primary: Use configured provider (Vertex AI)
+        try:
+            self.primary_client, self.primary_model = create_icp_analysis_client()
+            self.use_primary = True
+            if TEST_ENV:
+                debug_print(f"🔬 [ICPScraper] Primary client initialized: {self.primary_model}")
+        except Exception as e:
+            debug_print(f"⚠️ [ICPScraper] Primary client failed: {e}")
+            self.use_primary = False
+        
+        # Fallback: OpenRouter
+        self.fallback_llm = ChatOpenAI(
             api_key=ICP_API,
             model=ICP_MODEL,
-            base_url="https://openrouter.ai/api/v1"
-            # temperature removed - let OpenRouter/model use defaults for better JSON generation
+            base_url="https://openrouter.ai/api/v1",
+            temperature=ICP_TEMPERATURE
         )
         
         if TEST_ENV:
-            debug_print(f"🔬 [ICPScraper] Initialized with model: {ICP_MODEL}")
+            debug_print(f"🔬 [ICPScraper] Fallback OpenRouter ready: {ICP_MODEL}")
+    
+    def _invoke_llm(self, prompt: str) -> str:
+        """Invoke LLM with primary provider and OpenRouter fallback"""
+        # Try primary provider first
+        if self.use_primary:
+            try:
+                if TEST_ENV:
+                    debug_print(f"🚀 [ICPScraper] Using primary provider: {self.primary_model}")
+                
+                response = self.primary_client.chat.completions.create(
+                    model=self.primary_model,
+                    temperature=ICP_TEMPERATURE,
+                    messages=[{"role": "user", "content": prompt}]
+                )
+                return response.choices[0].message.content.strip()
+                
+            except Exception as e:
+                debug_print(f"❌ [ICPScraper] Primary provider failed: {e}")
+                debug_print(f"🔄 [ICPScraper] Falling back to OpenRouter...")
+        
+        # Fallback to OpenRouter
+        if TEST_ENV:
+            debug_print(f"🚀 [ICPScraper] Using OpenRouter fallback: {ICP_MODEL}")
+        
+        response = self.fallback_llm.invoke(prompt)
+        return response.content.strip()
+
+
+
+    
+    def robust_json_parse(self, text: str) -> dict:
+        """Robust JSON parsing method copied from business_reasoner.llm_analyzer"""
+        try:
+            # Direct parse
+            return json.loads(text)
+        except Exception:
+            # Strip code fences ```json ... ``` or ``` ... ```
+            if "```" in text:
+                # Keep everything between the first pair of fences that contains '{'
+                blocks = text.split("```")
+                for block in blocks:
+                    if "{" in block and "}" in block:
+                        candidate = block[block.find("{"): block.rfind("}")+1]
+                        try:
+                            return json.loads(candidate)
+                        except Exception:
+                            continue
+            # Fallback: extract substring between first '{' and last '}'
+            if "{" in text and "}" in text:
+                candidate = text[text.find("{") : text.rfind("}")+1]
+                try:
+                    return json.loads(candidate)
+                except Exception:
+                    pass
+            # Give up
+            raise ValueError("Unable to parse JSON from LLM output")
     
     def _parse_json_response(self, response_content: str, source_type: str) -> dict:
-        """Enhanced JSON parsing with markdown wrapper support"""
+        """Enhanced JSON parsing using robust_json_parse from business_reasoner"""
         try:
-            # Try direct JSON parsing first
-            return json.loads(response_content)
-        except json.JSONDecodeError as e:
+            result = self.robust_json_parse(response_content)
+            debug_print(f"✅ [ICPScraper] Successfully parsed {source_type} JSON")
+            return result
+        except Exception as e:
             debug_print(f"❌ [ICPScraper] {source_type} JSON parsing failed: {e}")
-            
-            # Try to extract JSON from markdown wrapper
-            markdown_match = re.search(r'```json\s*(\{.*?\})\s*```', response_content, re.DOTALL)
-            if markdown_match:
-                try:
-                    result = json.loads(markdown_match.group(1))
-                    debug_print(f"✅ [ICPScraper] Recovered JSON from {source_type} markdown wrapper")
-                    return result
-                except json.JSONDecodeError:
-                    pass
-            
-            # Try to extract JSON from response if it contains extra text
-            json_match = re.search(r'\{.*\}', response_content, re.DOTALL)
-            if json_match:
-                try:
-                    result = json.loads(json_match.group(0))
-                    debug_print(f"✅ [ICPScraper] Recovered JSON from {source_type} response")
-                    return result
-                except json.JSONDecodeError:
-                    pass
-            
-            # All parsing methods failed
-            debug_print(f"❌ [ICPScraper] No valid JSON found in {source_type} response")
+            debug_print(f"🔍 [ICPScraper] Raw response preview: {response_content[:200]}...")
             return None
 
 
 
+    
+    def _detect_aquarium_type(self, parameters: Dict) -> str:
+        """🧠 Detect aquarium type based on parameter values"""
+        try:
+            # Look for key saltwater indicators
+            ca_value = None
+            mg_value = None
+            
+            for param_name, param_data in parameters.items():
+                element = param_data.get("element", "").lower()
+                user_result = param_data.get("user_result", "")
+                
+                # Extract numeric value
+                def extract_number(text):
+                    match = re.search(r'(\d+\.?\d*)', text.replace(',', '.'))
+                    return float(match.group(1)) if match else None
+                
+                # Check for Calcium
+                if "calcium" in element or "ca" in element:
+                    ca_value = extract_number(user_result)
+                
+                # Check for Magnesium  
+                if "magnesium" in element or "mg" in element:
+                    mg_value = extract_number(user_result)
+            
+            # Saltwater detection logic
+            if ca_value and mg_value:
+                if ca_value > 300 and mg_value > 1000:
+                    return "saltwater"
+                else:
+                    return "freshwater"
+            elif ca_value and ca_value > 300:
+                return "saltwater"  # High calcium usually indicates saltwater
+            elif mg_value and mg_value > 1000:
+                return "saltwater"  # High magnesium usually indicates saltwater
+            
+            # Default fallback
+            return "unknown"
+            
+        except Exception as e:
+            debug_print(f"❌ [ICPScraper] Error detecting aquarium type: {e}")
+            return "unknown"
     
     def _analyze_icp_parameter_status(self, element: str, recommended_range: str, user_result: str) -> str:
         """🧠 Analyze if ICP parameter result is within recommended range"""
@@ -132,70 +221,71 @@ class ICPScraper:
                     if len(full_text) > 300:
                         debug_print(f"📄 [ICPScraper] Raw PDF content end: ...{full_text[-200:]}")
                 
-                # Use Gemini 2.5 as Water Diagnostician for PDF
+                # Use AI as Water Chemistry Diagnostician for PDF
                 pdf_analysis_prompt = f"""
-Jesteś ekspertem diagnostą wody morskiej dla akwariów rafowych. Przeanalizuj wyniki ICP z PDF i stwórz profesjonalną diagnozę.
+You are an expert marine water chemistry diagnostician for reef aquariums. Analyze the ICP test results from the PDF and create a professional diagnosis.
 
-Zawartość PDF: {full_text}
+PDF Content: {full_text}
 
-ZADANIA:
-1. Wyodrębnij WSZYSTKIE parametry chemiczne (Ca, Mg, KH, NO3, PO4, wszystkie elementy śladowe jak I, Fe, Zn, itp.)
-2. Określ status każdego parametru dla akwarium rafowego: optimal/too_high/too_low
-3. Stwórz listę działań wymaganych dla Business Reasoner
-4. Zwróć TYLKO poprawny JSON - bez wyjaśnień, bez markdown
+TASKS:
+1. Extract ALL chemical parameters (Ca, Mg, KH, NO3, PO4, all trace elements like I, Fe, Zn, etc.)
+2. Determine status of each parameter for reef aquarium: optimal/too_high/too_low
+3. Create action list required for Business Reasoner
+4. Return ONLY valid JSON - no explanations, no markdown
 
-FORMAT JSON (wyodrębnij WSZYSTKIE znalezione parametry):
+JSON FORMAT (extract ALL found parameters):
 {{
     "metadata": {{
-        "test_number": "numer testu ICP",
-        "aquarium_info": "informacje o akwarium",
-        "test_date": "data testu", 
-        "aquarium_volume": "objętość jeśli podana"
+        "test_number": "ICP test number",
+        "aquarium_info": "aquarium information",
+        "test_date": "test date", 
+        "aquarium_volume": "volume if provided",
+        "aquarium_type": "saltwater/freshwater (detect based on parameters - if Ca>300mg/l and Mg>1000mg/l then saltwater, else freshwater)"
     }},
     "parameters": {{
         "Calcium": {{
             "element": "Calcium (Ca)",
             "recommended_range": "420-460 mg/l",
-            "user_result": "zmierzona wartość",
-            "change": "zmiana od poprzedniego testu",
+            "user_result": "measured value",
+            "change": "change from previous test",
             "status": "optimal/too_high/too_low",
             "action_needed": "none/increase/decrease"
         }},
         "Iodine": {{
             "element": "Iodine (I)",
             "recommended_range": "0.055-0.07 mg/l", 
-            "user_result": "zmierzona wartość",
-            "change": "zmiana od poprzedniego testu",
+            "user_result": "measured value",
+            "change": "change from previous test",
             "status": "optimal/too_high/too_low",
             "action_needed": "none/increase/decrease"
         }}
     }},
     "diagnosis": {{
-        "optimal_count": "liczba parametrów OK",
-        "problems_count": "liczba parametrów do poprawy",
+        "optimal_count": "number of OK parameters",
+        "problems_count": "number of parameters to fix",
         "priority_actions": [
-            "Obniżyć azotany (12→5 mg/l)",
-            "Podwyższyć wapń (350→430 mg/l)"
+            "Reduce nitrates (12→5 mg/l)",
+            "Increase calcium (350→430 mg/l)"
         ]
     }}
 }}
 
-Wyodrębnij WSZYSTKIE parametry z PDF. Zwróć tylko JSON.
+Extract ALL parameters from PDF. Return only JSON.
 """
                 
-                response = self.llm.invoke(pdf_analysis_prompt)
+                response = self._invoke_llm(pdf_analysis_prompt)
                 
                 # 🔍 DEBUG: Log raw Gemini response for troubleshooting
                 if TEST_ENV:
-                    debug_print(f"🤖 [ICPScraper] PDF Raw Gemini response length: {len(response.content)} chars")
-                    debug_print(f"🤖 [ICPScraper] PDF Raw Gemini response preview: {response.content[:200]}...")
-                    if len(response.content) > 200:
-                        debug_print(f"🤖 [ICPScraper] PDF Raw Gemini response end: ...{response.content[-100:]}")
+                    debug_print(f"🤖 [ICPScraper] PDF Raw Gemini response length: {len(response)} chars")
+                    debug_print(f"🤖 [ICPScraper] PDF Raw Gemini response preview: {response[:200]}...")
+                    if len(response) > 200:
+                        debug_print(f"🤖 [ICPScraper] PDF Raw Gemini response end: ...{response[-100:]}")
                 
                 # Try to parse JSON with enhanced handling
-                structured_data = self._parse_json_response(response.content, "PDF")
+                structured_data = self._parse_json_response(response, "PDF")
                 if structured_data is None:
-                    return {"source": f"PDF: {filename}", "parameters": {}, "status": "json_parse_error", "error": f"Could not parse JSON from response: {response.content[:200]}"}
+                    return {"source": f"PDF: {filename}", "parameters": {}, "status": "json_parse_error", "error": f"Could not parse JSON from response: {response[:200]}"}
                 
                 # Enhance with our analysis
                 for param_name, param_data in structured_data.get("parameters", {}).items():
@@ -209,6 +299,12 @@ Wyodrębnij WSZYSTKIE parametry z PDF. Zwróć tylko JSON.
                     
                     param_data["needs_correction"] = param_data["status"] in ["too_high", "too_low"]
                 
+                # Fallback aquarium type detection if AI didn't set it properly
+                metadata = structured_data.get("metadata", {})
+                if not metadata.get("aquarium_type") or metadata.get("aquarium_type") == "unknown":
+                    metadata["aquarium_type"] = self._detect_aquarium_type(structured_data.get("parameters", {}))
+                    debug_print(f"🔍 [ICPScraper] Auto-detected aquarium type: {metadata['aquarium_type']}")
+                
                 icp_data = {
                     "source": f"PDF: {filename}",
                     "parameters": structured_data.get("parameters", {}),
@@ -217,7 +313,8 @@ Wyodrębnij WSZYSTKIE parametry z PDF. Zwróć tylko JSON.
                     "status": "success",
                     "debug_info": {
                         "processing_method": "pymupdf",
-                        "llm_analysis": ICP_MODEL
+                        "llm_analysis": self.primary_model if self.use_primary else ICP_MODEL,
+                        "provider": "primary" if self.use_primary else "fallback"
                     }
                 }
                 

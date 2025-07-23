@@ -13,6 +13,7 @@ from config import (
     RESPONSE_FORMATTER_API, RESPONSE_FORMATTER_MODEL,
     FOLLOW_UP_API, FOLLOW_UP_MODEL,
     IMAGE_API, IMAGE_MODEL,
+    ICP_API, ICP_MODEL,
     # Provider configuration
     INTENT_DETECTOR_PROVIDER, BUSINESS_REASONER_PROVIDER,
     QUERY_OPTIMIZER_PROVIDER, RESPONSE_FORMATTER_PROVIDER,
@@ -101,7 +102,8 @@ class LLMClientFactory:
             "query_optimizer": (QUERY_OPTIMIZER_API, QUERY_OPTIMIZER_MODEL),
             "response_formatter": (RESPONSE_FORMATTER_API, RESPONSE_FORMATTER_MODEL),
             "follow_up": (FOLLOW_UP_API, FOLLOW_UP_MODEL),
-            "image_analysis": (IMAGE_API, IMAGE_MODEL)
+            "image_analysis": (IMAGE_API, IMAGE_MODEL),
+            "icp_analysis": (ICP_API, ICP_MODEL)
         }
         
         if node_name not in config_map:
