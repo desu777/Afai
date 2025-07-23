@@ -1,5 +1,5 @@
 """
-🚀 Vertex AI Gemini Client Factory - Google Cloud Vertex AI Integration (2025)
+Vertex AI Gemini Client Factory - Google Cloud Vertex AI Integration (2025)
 Client factory using Google Gen AI SDK with Vertex AI backend and thinking support
 """
 import json
@@ -98,7 +98,7 @@ class VertexAIGeminiClient:
                 auth_method = "API_KEY+VERTEX"
             except Exception as e:
                 if TEST_ENV:
-                    debug_print(f"⚠️ [VertexAI] API key method failed: {e}")
+                    debug_print(f"[!] API key method failed: {e}")
                 # Fallback to ADC
                 self.client = genai.Client(vertexai=True)
                 auth_method = "ADC_FALLBACK"
@@ -114,19 +114,21 @@ class VertexAIGeminiClient:
         
         if TEST_ENV:
             if thinking_budget is not None and thinking_budget.strip() != "":
-                debug_print(f"🤖 [VertexAI] Initialized with model: {model_name} (thinking: {thinking_budget}, auth: {auth_method})")
+                debug_print(f"[AI] Initialized with model: {model_name} (thinking: {thinking_budget}, auth: {auth_method})")
             else:
-                debug_print(f"🤖 [VertexAI] Initialized with model: {model_name} (thinking: default, auth: {auth_method})")
+                debug_print(f"[AI] Initialized with model: {model_name} (thinking: default, auth: {auth_method})")
     
     def create(self, messages: List[Dict[str, str]], 
+               temperature: Optional[float] = None,
                response_format: Optional[Dict[str, str]] = None, **kwargs) -> GeminiResponse:
         """
         Create a chat completion using Gemini API with OpenAI-compatible interface
         
         Args:
             messages: List of message dictionaries with 'role' and 'content'
+            temperature: Temperature parameter for response generation (0.0-2.0)
             response_format: Optional response format (e.g., {"type": "json_object"})
-            **kwargs: Additional parameters (ignored for compatibility)
+            **kwargs: Additional parameters (for compatibility)
         
         Returns:
             GeminiResponse: OpenAI-compatible response object
@@ -148,28 +150,33 @@ class VertexAIGeminiClient:
             if self.thinking_budget is not None and self.thinking_budget.strip() != "":
                 thinking_config = types.ThinkingConfig(thinking_budget=int(self.thinking_budget))
             
-            # Configure generation parameters (using Gemini defaults ONLY)
-            # See: backend/src/temperature_topp_topk_gemini.md for detailed explanation
+            # Use provided temperature or Gemini default
+            temp = temperature if temperature is not None else 1.0
+            
+            # Configure generation parameters with temperature support
+            # Temperature is now configurable per-node from config.py for consistency with OpenRouter
+            # See: backend/src/temperature_topp_topk_gemini.md for detailed explanation  
             generation_config = types.GenerateContentConfig(
+                temperature=temp,
                 thinking_config=thinking_config
-                # temperature, top_p, top_k NOT specified - let Gemini use all optimized defaults
+                # top_p, top_k NOT specified - let Gemini use optimized defaults
             )
             
             # Log generation parameters in debug mode
             if TEST_ENV:
-                params_used = ["temp=default"]
+                params_used = [f"temp={temp}"]
                 if thinking_config:
                     params_used.append(f"thinking={self.thinking_budget}")
                 params_used.append("top_p=default")
                 params_used.append("top_k=default")
-                debug_print(f"🎛️ [VertexAI] Generation params: {', '.join(params_used)}")
+                debug_print(f"[CFG] Generation params: {', '.join(params_used)}")
             
             # Log multimodal vs text-only mode
             if TEST_ENV:
                 if isinstance(prompt, list):
-                    debug_print(f"🖼️ [VertexAI] Using multimodal mode with {len([p for p in prompt if hasattr(p, 'mime_type')])} images")
+                    debug_print(f"[IMG] Using multimodal mode with {len([p for p in prompt if hasattr(p, 'mime_type')])} images")
                 else:
-                    debug_print(f"📝 [VertexAI] Using text-only mode")
+                    debug_print(f"[TXT] Using text-only mode")
             
             # Generate response using new API
             response = self.client.models.generate_content(
@@ -183,13 +190,13 @@ class VertexAIGeminiClient:
                 raise GeminiAPIError("Empty response from Vertex AI Gemini API")
             
             if TEST_ENV:
-                debug_print(f"✅ [VertexAI] Generated response: {len(response.text)} characters")
+                debug_print(f"[OK] Generated response: {len(response.text)} characters")
             
             return GeminiResponse(response)
             
         except Exception as e:
             if TEST_ENV:
-                debug_print(f"❌ [VertexAI] Error: {e}")
+                debug_print(f"[X] Error: {e}")
             # Convert Vertex AI errors to OpenAI-compatible format
             raise self._convert_vertex_ai_error(e)
     
@@ -293,7 +300,7 @@ class VertexAIGeminiClient:
                     )
                 except Exception as e:
                     if TEST_ENV:
-                        debug_print(f"❌ [VertexAI] Failed to process base64 image: {e}")
+                        debug_print(f"[X] Failed to process base64 image: {e}")
                     return None
             
             # Handle HTTP/HTTPS URLs
@@ -327,17 +334,17 @@ class VertexAIGeminiClient:
                     )
                 except Exception as e:
                     if TEST_ENV:
-                        debug_print(f"❌ [VertexAI] Failed to download image from URL {url}: {e}")
+                        debug_print(f"[X] Failed to download image from URL {url}: {e}")
                     return None
             
             else:
                 if TEST_ENV:
-                    debug_print(f"❌ [VertexAI] Unsupported image URL format: {url[:100]}...")
+                    debug_print(f"[X] Unsupported image URL format: {url[:100]}...")
                 return None
                 
         except Exception as e:
             if TEST_ENV:
-                debug_print(f"❌ [VertexAI] Error converting image to Vertex AI part: {e}")
+                debug_print(f"[X] Error converting image to Vertex AI part: {e}")
             return None
     
     def _convert_vertex_ai_error(self, error: Exception) -> Exception:
@@ -386,13 +393,13 @@ class VertexAIClientFactory:
         auth_method = "API KEY" if GOOGLE_CLOUD_API_KEY else "SERVICE ACCOUNT"
         
         if thinking_budget is not None and thinking_budget.strip() != "":
-            debug_print(f"🚀 [VertexAIFactory] Created Vertex AI client for {node_name}: {model_name} (thinking: {thinking_budget}, auth: {auth_method})")
+            debug_print(f"[VERTEX] Created client for {node_name}: {model_name} (thinking: {thinking_budget}, auth: {auth_method})")
             if TEST_ENV:
-                print(f"🎯 [VertexAIFactory] {node_name} → vertex-ai → {model_name} (thinking: {thinking_budget}, auth: {auth_method})")
+                print(f"[>] {node_name} → vertex-ai → {model_name} (thinking: {thinking_budget}, auth: {auth_method})")
         else:
-            debug_print(f"🚀 [VertexAIFactory] Created Vertex AI client for {node_name}: {model_name} (thinking: default, auth: {auth_method})")
+            debug_print(f"[VERTEX] Created client for {node_name}: {model_name} (thinking: default, auth: {auth_method})")
             if TEST_ENV:
-                print(f"🎯 [VertexAIFactory] {node_name} → vertex-ai → {model_name} (thinking: default, auth: {auth_method})")
+                print(f"[>] {node_name} → vertex-ai → {model_name} (thinking: default, auth: {auth_method})")
         
         return client, model_name
     
@@ -432,7 +439,7 @@ class VertexAIClientFactory:
         
         return thinking_map[node_name]
 
-# 🎯 Convenience functions for each node
+# Convenience functions for each node
 def create_intent_detector_gemini_client() -> tuple[VertexAIGeminiClient, str]:
     """Create Vertex AI Gemini client for intent detector node"""
     return VertexAIClientFactory.create_client("intent_detector")
