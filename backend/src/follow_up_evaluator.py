@@ -1,19 +1,51 @@
 """
 Follow-up Evaluator for Aquaforest RAG System
-Uses Gemini Flash 2.0 to evaluate cache sufficiency and create smart business prompts
+Uses configured provider (Vertex AI) with OpenRouter fallback
 """
 import json
 from typing import Dict, Any, Optional, List
 from models import ConversationState
 from llm_client_factory import create_follow_up_client
-from config import debug_print, TEST_ENV
+from config import debug_print, TEST_ENV, FOLLOW_UP_TEMPERATURE, LLM_PROVIDER
 
 class FollowUpEvaluator:
-    """Evaluates cache sufficiency for follow-up questions using Gemini Flash 2.0"""
+    """Evaluates cache sufficiency for follow-up questions with primary provider + fallback"""
     
     def __init__(self):
-        self.client, self.model_name = create_follow_up_client()
-        debug_print(f"🔄 [FollowUpEvaluator] Initialized with model: {self.model_name}")
+        # Primary provider + fallback system
+        self.client, self.model_name = self._create_client_with_fallback()
+        debug_print(f"[EVAL] FollowUpEvaluator ready: {self.model_name}")
+    
+    def _create_client_with_fallback(self):
+        """Create client with primary provider + OpenRouter fallback"""
+        try:
+            if LLM_PROVIDER == "gemini":
+                # Try Gemini as primary
+                from gemini_client_factory import VertexAIClientFactory
+                client, model_name = VertexAIClientFactory.create_client("follow_up")
+                if TEST_ENV:
+                    debug_print(f"[>] Primary gemini: {model_name}")
+                return client, model_name
+            else:
+                # Try OpenRouter as primary
+                client, model_name = create_follow_up_client()
+                if TEST_ENV:
+                    debug_print(f"[>] Primary openrouter: {model_name}")
+                return client, model_name
+        except Exception as e:
+            if TEST_ENV:
+                debug_print(f"[!] Primary failed: {str(e)[:50]}")
+            
+        # Fallback to OpenRouter always
+        try:
+            client, model_name = create_follow_up_client()
+            if TEST_ENV:
+                debug_print(f"[RTY] Fallback openrouter: {model_name}")
+            return client, model_name
+        except Exception as e:
+            if TEST_ENV:
+                debug_print(f"[X] Fallback failed: {str(e)[:50]}")
+            raise e
     
     def evaluate_cache_sufficiency(self, state: ConversationState, extended_cache: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -29,7 +61,7 @@ class FollowUpEvaluator:
             }
         """
         if TEST_ENV:
-            print(f"\n🔄 [FollowUpEvaluator] Evaluating cache sufficiency for: '{state['user_query']}'")
+            print(f"[EVAL] Evaluating cache for: '{state['user_query']}'")
         
         try:
             # Create evaluation prompt
@@ -37,14 +69,14 @@ class FollowUpEvaluator:
             
             response = self.client.chat.completions.create(
                 model=self.model_name,
-                temperature=0,
+                temperature=FOLLOW_UP_TEMPERATURE,
                 messages=[{"role": "system", "content": prompt}]
             )
             
             evaluation_text = response.choices[0].message.content.strip()
             
             if TEST_ENV:
-                print(f"🤖 [FollowUpEvaluator] Raw response: {evaluation_text}")
+                print(f"[AI] Raw response: {evaluation_text}")
             
             # Parse evaluation response
             evaluation = self._parse_evaluation_response(evaluation_text)
@@ -52,16 +84,16 @@ class FollowUpEvaluator:
             if evaluation["sufficient"]:
                 # Cache is sufficient - prepare response data
                 evaluation["response_data"] = self._prepare_response_data(state, extended_cache)
-                debug_print(f"✅ [FollowUpEvaluator] Cache sufficient - confidence: {evaluation['confidence']}")
+                debug_print(f"[OK] Cache sufficient - confidence: {evaluation['confidence']}")
             else:
                 # Cache insufficient - create smart business prompt
                 evaluation["business_prompt"] = self._create_smart_business_prompt(state, extended_cache, evaluation["reasoning"])
-                debug_print(f"❌ [FollowUpEvaluator] Cache insufficient - creating business prompt")
+                debug_print(f"[X] Cache insufficient - creating business prompt")
             
             return evaluation
             
         except Exception as e:
-            debug_print(f"❌ [FollowUpEvaluator] Error: {e}")
+            debug_print(f"[X] Error: {e}")
             return {
                 "sufficient": False,
                 "confidence": 0.0,
@@ -88,20 +120,20 @@ class FollowUpEvaluator:
         # Create structured cache summary
         cache_summary = []
         if cache_metadata:
-            cache_summary.append(f"📦 CACHED METADATA ({len(cache_metadata)} items):")
+            cache_summary.append(f"[DATA] CACHED METADATA ({len(cache_metadata)} items):")
             for i, meta in enumerate(cache_metadata[:5]):  # Top 5 items
                 product_name = meta.get("product_name", "Unknown")
                 content_type = meta.get("content_type", "unknown")
                 cache_summary.append(f"  {i+1}. {product_name} ({content_type})")
         
         if cache_responses:
-            cache_summary.append(f"\n🤖 PREVIOUS RESPONSES ({len(cache_responses)} items):")
+            cache_summary.append(f"\n[AI] PREVIOUS RESPONSES ({len(cache_responses)} items):")
             for i, resp in enumerate(cache_responses[-3:]):  # Last 3 responses
                 snippet = resp[:100] + "..." if len(resp) > 100 else resp
                 cache_summary.append(f"  {i+1}. {snippet}")
         
         if cache_context:
-            cache_summary.append(f"\n🎯 CONTEXT DATA:")
+            cache_summary.append(f"\n[>] CONTEXT DATA:")
             for key, value in cache_context.items():
                 if isinstance(value, list):
                     cache_summary.append(f"  {key}: {len(value)} items")
@@ -172,7 +204,7 @@ Be conservative, but you may leverage your own knowledge to complement the cache
             
         except Exception as e:
             if TEST_ENV:
-                print(f"❌ [FollowUpEvaluator] JSON parsing error: {e}")
+                print(f"[X] JSON parsing error: {e}")
                 print(f"Raw response: {response_text}")
             
             # Fallback - look for keywords

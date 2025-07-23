@@ -127,10 +127,13 @@ OPENAI_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS", "16384"))
 OPENAI_TEMPERATURE = float(os.getenv("OPENAI_TEMPERATURE", "0.3"))  # Default to Qwen3 32B
 
 # Per-node temperature configuration
-INTENT_DETECTOR_TEMPERATURE = float(os.getenv("INTENT_DETECTOR_TEMPERATURE", str(OPENAI_TEMPERATURE)))  # Intent detection temperature
+INTENT_DETECTOR_TEMPERATURE = float(os.getenv("INTENT_DETECTOR_TEMPERATURE", "0.3"))  # Intent detection temperature
 
 # Business Reasoner Configuration  
-BUSINESS_REASONER_TEMPERATURE = float(os.getenv("BUSINESS_REASONER_TEMPERATURE", str(OPENAI_TEMPERATURE)))  # Business reasoning temperature
+BUSINESS_REASONER_TEMPERATURE = float(os.getenv("BUSINESS_REASONER_TEMPERATURE", "0.3"))  # Business reasoning temperature
+
+# Follow-up Evaluator Configuration
+FOLLOW_UP_TEMPERATURE = float(os.getenv("FOLLOW_UP_TEMPERATURE", "0.1"))  # Low temperature for consistent cache evaluation
 
 # ICP Analysis Configuration
 ICP_TEMPERATURE = float(os.getenv("ICP_TEMPERATURE", "0.1"))  # Low temperature for consistent JSON output
