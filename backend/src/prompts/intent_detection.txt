@@ -6,16 +6,14 @@ You are a precise and highly efficient intent and language detection engine. You
 
 **2. CRITICAL: OUTPUT FORMAT**
 
-You MUST return ONLY a single, raw JSON object. Do not provide any explanation or introductory text. The JSON object must have the following structure:
+Your output must be a single, structured JSON object with the following structure:
 
-```json
 {
   "intent": "exact_intent_value_from_the_list_below",
   "language": "detected_language_code_eg_pl_en_de",
   "confidence": 1.0,
   "context_note": "A brief, neutral, one-sentence explanation for your intent choice."
 }
-```
 
 **3. INTENT DEFINITIONS (IN ORDER OF PRIORITY)**
 

@@ -3,7 +3,6 @@ Configuration module for Aquaforest RAG System
 Handles all environment variables and system settings
 """
 import os
-import hashlib
 from pathlib import Path
 from env_loader import load_environment
 
@@ -60,18 +59,15 @@ ICP_MODEL = os.getenv("ICP_MODEL") or INTENT_DETECTOR_MODEL
 # Fallback API Keys
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # Keep for backwards compatibility
 
-# 🚀 GEMINI API CONFIGURATION (2025)
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+# 🚀 GOOGLE CLOUD VERTEX AI CONFIGURATION (2025)
+# Minimal credentials for Vertex AI
+GOOGLE_CLOUD_PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT_ID")
+GOOGLE_CLOUD_API_KEY = os.getenv("GOOGLE_CLOUD_API_KEY")
+GOOGLE_CLOUD_LOCATION = os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
+GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")  # Alternative: service account JSON path
 
-# 🔥 DUAL GEMINI API KEYS FOR RATE LIMIT OPTIMIZATION
-# Use separate API keys for different nodes to maximize free tier usage
-GEMINI_API_KEY_BUSINESS = os.getenv("GEMINI_API_KEY_BUSINESS") or GEMINI_API_KEY
-GEMINI_API_KEY_RESPONSE = os.getenv("GEMINI_API_KEY_RESPONSE") or GEMINI_API_KEY
-GEMINI_API_KEY_INTENT = os.getenv("GEMINI_API_KEY_INTENT") or GEMINI_API_KEY
-GEMINI_API_KEY_QUERY = os.getenv("GEMINI_API_KEY_QUERY") or GEMINI_API_KEY
-GEMINI_API_KEY_FOLLOWUP = os.getenv("GEMINI_API_KEY_FOLLOWUP") or GEMINI_API_KEY
-GEMINI_API_KEY_IMAGE = os.getenv("GEMINI_API_KEY_IMAGE") or GEMINI_API_KEY
-GEMINI_API_KEY_ICP = os.getenv("GEMINI_API_KEY_ICP") or GEMINI_API_KEY
+# Force Vertex AI usage (set automatically in client)
+GOOGLE_GENAI_USE_VERTEXAI = os.getenv("GOOGLE_GENAI_USE_VERTEXAI", "true").lower() == "true"
 
 # LLM Provider Selection - per-node configuration
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "openrouter")  # Default to OpenRouter
@@ -109,6 +105,21 @@ RESPONSE_FORMATTER_THINKING_BUDGET = os.getenv("RESPONSE_FORMATTER_THINKING_BUDG
 FOLLOW_UP_THINKING_BUDGET = os.getenv("FOLLOW_UP_THINKING_BUDGET")
 IMAGE_THINKING_BUDGET = os.getenv("IMAGE_THINKING_BUDGET")
 ICP_THINKING_BUDGET = os.getenv("ICP_THINKING_BUDGET")
+
+# 🎛️ GEMINI GENERATION PARAMETERS (COMMENTED OUT - using Gemini defaults)
+# See: backend/src/temperature_topp_topk_gemini.md for detailed explanation
+# Let Gemini use its optimized default parameters (temp=1.0, top_p=0.95, top_k=default)
+# Uncomment and configure below if responses need fine-tuning:
+
+# GEMINI_TEMPERATURE = float(os.getenv("GEMINI_TEMPERATURE", "1.0"))  # Gemini default
+# GEMINI_TOP_P = float(os.getenv("GEMINI_TOP_P", "0.95"))  # Gemini default
+# GEMINI_TOP_K = os.getenv("GEMINI_TOP_K")  # Empty = default Gemini
+
+# Convert TOP_K to int if provided, otherwise None for default Gemini behavior
+# if GEMINI_TOP_K and GEMINI_TOP_K.strip():
+#     GEMINI_TOP_K = int(GEMINI_TOP_K)
+# else:
+#     GEMINI_TOP_K = None
 
 # Common settings
 OPENAI_EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
@@ -173,22 +184,22 @@ if FOLLOW_UP_PROVIDER == "openrouter" and not FOLLOW_UP_API:
 if missing_api_keys:
     raise ValueError(f"Missing per-node API keys for OpenRouter: {', '.join(missing_api_keys)}")
 
-# Validate Gemini API keys per-node (smart validation)
-# Check each node individually - per-node key OR global key required
-def get_node_gemini_api_key(node_name: str) -> str:
-    """Get API key for node (per-node or fallback to global)"""
-    node_key_map = {
-        "intent_detector": GEMINI_API_KEY_INTENT,
-        "business_reasoner": GEMINI_API_KEY_BUSINESS,
-        "query_optimizer": GEMINI_API_KEY_QUERY,
-        "response_formatter": GEMINI_API_KEY_RESPONSE,
-        "follow_up": GEMINI_API_KEY_FOLLOWUP,
-        "image_analysis": GEMINI_API_KEY_IMAGE,
-        "icp_analysis": GEMINI_API_KEY_ICP
-    }
-    return node_key_map.get(node_name) or GEMINI_API_KEY
+# Validate Google Cloud Vertex AI credentials
+# Check that either API key OR service account credentials are provided
+def validate_vertex_ai_credentials():
+    """Validate that required Vertex AI credentials are available"""
+    if not GOOGLE_CLOUD_PROJECT_ID:
+        raise ValueError("GOOGLE_CLOUD_PROJECT_ID is required for Vertex AI")
+    
+    # Either API key OR service account JSON must be provided
+    has_api_key = bool(GOOGLE_CLOUD_API_KEY)
+    has_service_account = bool(GOOGLE_APPLICATION_CREDENTIALS)
+    
+    if not has_api_key and not has_service_account:
+        raise ValueError("Either GOOGLE_CLOUD_API_KEY or GOOGLE_APPLICATION_CREDENTIALS is required for Vertex AI authentication")
 
-missing_gemini_keys = []
+# Check if any node uses Vertex AI provider
+vertex_ai_nodes = []
 node_provider_map = {
     "intent_detector": INTENT_DETECTOR_PROVIDER,
     "business_reasoner": BUSINESS_REASONER_PROVIDER,
@@ -201,12 +212,11 @@ node_provider_map = {
 
 for node_name, provider in node_provider_map.items():
     if provider == "gemini":
-        api_key = get_node_gemini_api_key(node_name)
-        if not api_key:
-            missing_gemini_keys.append(f"{node_name} (set GEMINI_API_KEY_{node_name.upper()} or GEMINI_API_KEY)")
+        vertex_ai_nodes.append(node_name)
 
-if missing_gemini_keys:
-    raise ValueError(f"Missing Gemini API keys for nodes: {', '.join(missing_gemini_keys)}")
+# Only validate if any node uses Vertex AI
+if vertex_ai_nodes:
+    validate_vertex_ai_credentials()
 
 if MESSENGER_ON and not MESSENGER_PAGE_ACCESS_TOKEN:
     raise ValueError("MESSENGER_TOKEN is required when MESSENGER_ON=true")
@@ -238,7 +248,9 @@ if TEST_ENV:
     logger.configuration(f"Follow-up Evaluator: {format_node_info(FOLLOW_UP_PROVIDER, FOLLOW_UP_MODEL, FOLLOW_UP_GEMINI_MODEL, FOLLOW_UP_THINKING_BUDGET)}", "SUB")
     logger.configuration(f"Image Analysis: {format_node_info(IMAGE_PROVIDER, IMAGE_MODEL, IMAGE_GEMINI_MODEL, IMAGE_THINKING_BUDGET)}", "SUB")
     logger.configuration(f"ICP Analysis: {format_node_info(ICP_PROVIDER, ICP_MODEL, ICP_GEMINI_MODEL, ICP_THINKING_BUDGET)}", "SUB")
-    logger.configuration(f"Gemini API: {'CONFIGURED' if GEMINI_API_KEY else 'NOT SET'}", "SUB")
+    logger.configuration(f"Google Cloud Project ID: {'CONFIGURED' if GOOGLE_CLOUD_PROJECT_ID else 'NOT SET'}", "SUB")
+    logger.configuration(f"Google Cloud Location: {GOOGLE_CLOUD_LOCATION}", "SUB")
+    logger.configuration(f"Vertex AI Auth: {'API KEY' if GOOGLE_CLOUD_API_KEY else 'SERVICE ACCOUNT' if GOOGLE_APPLICATION_CREDENTIALS else 'NOT SET'}", "SUB")
     
     if GEMINI_DEFAULT_THINKING_BUDGET is not None and GEMINI_DEFAULT_THINKING_BUDGET.strip() != "":
         logger.configuration(f"Default Thinking Budget: {GEMINI_DEFAULT_THINKING_BUDGET}", "SUB")
@@ -264,8 +276,3 @@ if TEST_ENV:
     logger.separator()
 
 
-def hash_api_key(api_key: str) -> str:
-    """Hash API key for safe database storage"""
-    if not api_key:
-        return ""
-    return hashlib.sha256(api_key.encode('utf-8')).hexdigest()[:16]  # First 16 chars for uniqueness

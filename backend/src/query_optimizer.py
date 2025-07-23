@@ -13,6 +13,33 @@ from prompts import load_prompt_template
 from llm_client_factory import create_query_optimizer_client
 
 class QueryOptimizer:
+    
+    def robust_json_parse(self, text: str) -> Dict:
+        """Attempt to extract and parse a JSON object from arbitrary LLM output."""
+        try:
+            # Direct parse
+            return json.loads(text)
+        except Exception:
+            # Strip code fences ```json ... ``` or ``` ... ```
+            if "```" in text:
+                # Keep everything between the first pair of fences that contains '{'
+                blocks = text.split("```")
+                for block in blocks:
+                    if "{" in block and "}" in block:
+                        candidate = block[block.find("{") : block.rfind("}")+1]
+                        try:
+                            return json.loads(candidate)
+                        except Exception:
+                            continue
+            # Fallback: extract substring between first '{' and last '}'
+            if "{" in text and "}" in text:
+                candidate = text[text.find("{") : text.rfind("}")+1]
+                try:
+                    return json.loads(candidate)
+                except Exception:
+                    pass
+            # Give up
+            raise ValueError("Unable to parse JSON from LLM output")
     def __init__(self):
         self.client, self.model_name = create_query_optimizer_client()
         
@@ -251,7 +278,7 @@ Return JSON: {{"optimized_queries": ["{query}"]}}
             
             response = self.client.chat.completions.create(
                 model=self.model_name,
-                temperature=OPENAI_TEMPERATURE,
+                # temperature removed - let Vertex AI/OpenRouter use defaults for better JSON generation
                 messages=[
                     {
                         "role": "system", 
@@ -261,7 +288,11 @@ Return JSON: {{"optimized_queries": ["{query}"]}}
                 response_format={"type": "json_object"}
             )
             
-            result = json.loads(response.choices[0].message.content)
+            # Use robust JSON parsing to handle Gemini response variations
+            raw_content = response.choices[0].message.content
+            if TEST_ENV:
+                debug_print(f"🤖 [QueryOptimizer] Raw Gemini response: {raw_content[:200]}...")
+            result = self.robust_json_parse(raw_content)
             llm_queries = result.get("optimized_queries", [query])
             
             # 🆕 ENHANCED: Combine critical queries with LLM queries

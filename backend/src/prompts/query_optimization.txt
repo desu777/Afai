@@ -108,7 +108,7 @@ Optimal queries: ["phosphate reduction methods", "nitrate control strategies", "
 - For ICP analysis: Create queries that address the specific parameter issues identified
 
 ---------------- OUTPUT FORMAT ----------------
-Return ONLY a valid JSON object with this exact structure:
-{{
+Your output must be a single, structured JSON object with this exact structure:
+{
   "optimized_queries": ["query1", "query2", "query3", "query4", "query5", "query6"]
-}} 
+} 

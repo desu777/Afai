@@ -83,10 +83,10 @@ Return JSON with product recommendations and business analysis.
             # Create comprehensive prompt with all mapping data
             prompt = self.create_comprehensive_llm_prompt(state)
             
-            # Call GPT-4.1-mini with JSON mode (more reliable than structured outputs)
+            # Call Vertex AI Gemini with JSON mode (using default temperature for better JSON generation)
             response = self.client.chat.completions.create(
                 model=self.model_name,  # OpenRouter per-node model
-                temperature=0.1,  # Low for consistency
+                # temperature removed - let Gemini use default (1.0) for better JSON generation
                 messages=[{"role": "system", "content": prompt}],
                 response_format={"type": "json_object"}  # JSON mode
             )

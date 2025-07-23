@@ -16,6 +16,33 @@ from llm_client_factory import create_intent_detector_client, create_image_analy
 from icp_scraper import ICPScraper
 
 class IntentDetector:
+    
+    def robust_json_parse(self, text: str) -> Dict:
+        """Attempt to extract and parse a JSON object from arbitrary LLM output."""
+        try:
+            # Direct parse
+            return json.loads(text)
+        except Exception:
+            # Strip code fences ```json ... ``` or ``` ... ```
+            if "```" in text:
+                # Keep everything between the first pair of fences that contains '{'
+                blocks = text.split("```")
+                for block in blocks:
+                    if "{" in block and "}" in block:
+                        candidate = block[block.find("{") : block.rfind("}")+1]
+                        try:
+                            return json.loads(candidate)
+                        except Exception:
+                            continue
+            # Fallback: extract substring between first '{' and last '}'
+            if "{" in text and "}" in text:
+                candidate = text[text.find("{") : text.rfind("}")+1]
+                try:
+                    return json.loads(candidate)
+                except Exception:
+                    pass
+            # Give up
+            raise ValueError("Unable to parse JSON from LLM output")
     def __init__(self):
         # Intent detection client
         self.client, self.model_name = create_intent_detector_client()
@@ -201,12 +228,16 @@ Return ONLY a valid JSON object:
             # Call OpenRouter/Gemini with vision using dedicated image analysis client
             response = self.image_client.chat.completions.create(
                 model=self.image_model_name,
-                temperature=OPENAI_TEMPERATURE,
+                # temperature removed - let Vertex AI/OpenRouter use defaults for better JSON generation
                 messages=messages,
                 response_format={"type": "json_object"}
             )
             
-            result_data = json.loads(response.choices[0].message.content)
+            # Use robust JSON parsing to handle Gemini response variations  
+            raw_content = response.choices[0].message.content
+            if TEST_ENV:
+                print(f"🤖 [DEBUG IntentDetector] Raw Vision response: {raw_content[:200]}...")
+            result_data = self.robust_json_parse(raw_content)
             
             if TEST_ENV:
                 print(f"🤖 [DEBUG IntentDetector] Vision analysis result: {result_data}")
@@ -347,14 +378,18 @@ Return ONLY a valid JSON object:
                 
             response = self.client.chat.completions.create(
                 model=self.model_name,
-                temperature=OPENAI_TEMPERATURE,
+                # temperature removed - let Vertex AI/OpenRouter use defaults for better JSON generation
                 messages=[
                     {"role": "system", "content": self._create_intent_prompt(state)}
                 ],
                 response_format={"type": "json_object"}
             )
             
-            result_data = json.loads(response.choices[0].message.content)
+            # Use robust JSON parsing to handle Gemini response variations
+            raw_content = response.choices[0].message.content
+            if TEST_ENV:
+                print(f"🤖 [DEBUG IntentDetector] Raw Gemini response: {raw_content[:200]}...")
+            result_data = self.robust_json_parse(raw_content)
             
             if TEST_ENV:
                 print(f"🤖 [DEBUG IntentDetector] Text analysis result: {result_data}")

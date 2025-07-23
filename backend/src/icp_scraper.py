@@ -21,8 +21,8 @@ class ICPScraper:
         self.llm = ChatOpenAI(
             api_key=ICP_API,
             model=ICP_MODEL,
-            base_url="https://openrouter.ai/api/v1",
-            temperature=0.1
+            base_url="https://openrouter.ai/api/v1"
+            # temperature removed - let OpenRouter/model use defaults for better JSON generation
         )
         
         if TEST_ENV:

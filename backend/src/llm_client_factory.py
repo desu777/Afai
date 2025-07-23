@@ -1,7 +1,7 @@
 """
 🚀 LLM Client Factory - Dual Provider Configuration (2025)
 Universal client factory for all workflow nodes with per-node API/model selection
-Supports both OpenRouter and Google Gemini APIs
+Supports both OpenRouter and Google Cloud Vertex AI
 """
 from typing import Tuple, Optional, Union
 from openai import OpenAI
@@ -13,72 +13,51 @@ from config import (
     RESPONSE_FORMATTER_API, RESPONSE_FORMATTER_MODEL,
     FOLLOW_UP_API, FOLLOW_UP_MODEL,
     IMAGE_API, IMAGE_MODEL,
-    # Gemini configuration
-    GEMINI_API_KEY,
-    GEMINI_API_KEY_BUSINESS, GEMINI_API_KEY_RESPONSE, GEMINI_API_KEY_INTENT,
-    GEMINI_API_KEY_QUERY, GEMINI_API_KEY_FOLLOWUP, GEMINI_API_KEY_IMAGE, GEMINI_API_KEY_ICP,
+    # Provider configuration
     INTENT_DETECTOR_PROVIDER, BUSINESS_REASONER_PROVIDER,
     QUERY_OPTIMIZER_PROVIDER, RESPONSE_FORMATTER_PROVIDER,
     FOLLOW_UP_PROVIDER, IMAGE_PROVIDER, ICP_PROVIDER,
     TEST_ENV, debug_print
 )
-from gemini_client_factory import GeminiClientFactory, GeminiClient
-from gemini_rate_limit_manager import (
-    rate_limit_manager, can_use_gemini, record_gemini_success, 
-    record_gemini_error, get_gemini_api_key
-)
+from gemini_client_factory import VertexAIClientFactory, VertexAIGeminiClient
 
 class LLMClientFactory:
     """Factory for creating LLM clients with per-node configuration"""
     
     @staticmethod
-    def create_client(node_name: str) -> Tuple[Union[OpenAI, GeminiClient], str]:
+    def create_client(node_name: str) -> Tuple[Union[OpenAI, VertexAIGeminiClient], str]:
         """
         Create LLM client and return (client, model_name) for specified node
-        Smart fallback: Gemini (if available) → OpenRouter (fallback)
+        Simple fallback: Vertex AI → OpenRouter (on error only)
         
         Args:
-            node_name: One of 'intent_detector', 'business_reasoner', 'query_optimizer', 'response_formatter', 'follow_up', 'image_analysis'
+            node_name: One of 'intent_detector', 'business_reasoner', 'query_optimizer', 'response_formatter', 'follow_up', 'image_analysis', 'icp_analysis'
         
         Returns:
-            Tuple of (LLM client, model_name) - client can be OpenAI or GeminiClient
+            Tuple of (LLM client, model_name) - client can be OpenAI or VertexAIGeminiClient
         """
-        # Initialize rate limit manager with per-node API keys
-        LLMClientFactory._initialize_rate_limit_manager()
-        
         # Get provider for this node
         provider = LLMClientFactory._get_node_provider(node_name)
         
         if provider == "gemini":
-            # Check if Gemini can be used (rate limits, errors, etc.)
-            if can_use_gemini(node_name):
-                try:
-                    # Create Gemini client
-                    client, model_name = GeminiClientFactory.create_client(node_name)
-                    
-                    # Record successful Gemini usage
-                    record_gemini_success(node_name)
-                    
-                    debug_print(f"🚀 [LLMClientFactory] Created Gemini client for {node_name}: {model_name}")
-                    
-                    if TEST_ENV:
-                        print(f"🎯 [LLMClientFactory] {node_name} → gemini → {model_name}")
-                    
-                    return client, model_name
-                    
-                except Exception as e:
-                    # Record error and fallback to OpenRouter
-                    record_gemini_error(node_name)
-                    debug_print(f"❌ [LLMClientFactory] Gemini error for {node_name}: {e}")
-                    debug_print(f"🔄 [LLMClientFactory] Falling back to OpenRouter for {node_name}")
-                    
-                    if TEST_ENV:
-                        print(f"⚠️ [LLMClientFactory] Gemini failed for {node_name}, using OpenRouter fallback")
-            else:
-                debug_print(f"⚠️ [LLMClientFactory] Gemini rate limit exceeded for {node_name}, using OpenRouter")
+            try:
+                # Create Vertex AI Gemini client
+                client, model_name = VertexAIClientFactory.create_client(node_name)
+                
+                debug_print(f"🚀 [LLMClientFactory] Created Vertex AI client for {node_name}: {model_name}")
                 
                 if TEST_ENV:
-                    print(f"⚠️ [LLMClientFactory] Rate limit exceeded for {node_name}, using OpenRouter")
+                    print(f"🎯 [LLMClientFactory] {node_name} → vertex-ai → {model_name}")
+                
+                return client, model_name
+                
+            except Exception as e:
+                # Fallback to OpenRouter on any error
+                debug_print(f"❌ [LLMClientFactory] Vertex AI error for {node_name}: {e}")
+                debug_print(f"🔄 [LLMClientFactory] Falling back to OpenRouter for {node_name}")
+                
+                if TEST_ENV:
+                    print(f"⚠️ [LLMClientFactory] Vertex AI failed for {node_name}, using OpenRouter fallback")
         
         # Create OpenRouter client (default or fallback)
         api_key, model_name = LLMClientFactory._get_node_config(node_name)
@@ -114,27 +93,6 @@ class LLMClientFactory:
         return provider_map[node_name]
     
     @staticmethod
-    def _initialize_rate_limit_manager():
-        """Initialize rate limit manager with per-node API keys"""
-        # Mapping of node names to their respective API keys
-        api_key_map = {
-            "intent_detector": GEMINI_API_KEY_INTENT,
-            "business_reasoner": GEMINI_API_KEY_BUSINESS,
-            "query_optimizer": GEMINI_API_KEY_QUERY,
-            "response_formatter": GEMINI_API_KEY_RESPONSE,
-            "follow_up": GEMINI_API_KEY_FOLLOWUP,
-            "image_analysis": GEMINI_API_KEY_IMAGE,
-            "icp_analysis": GEMINI_API_KEY_ICP
-        }
-        
-        # Register API keys with rate limit manager
-        for node_name, api_key in api_key_map.items():
-            if api_key:  # Only register if API key exists
-                rate_limit_manager.register_api_key(node_name, api_key)
-                if TEST_ENV:
-                    debug_print(f"🔑 [LLMClientFactory] Registered API key for {node_name}: {api_key[:12]}...")
-    
-    @staticmethod
     def _get_node_config(node_name: str) -> Tuple[str, str]:
         """Get API key and model name for specified node (OpenRouter only)"""
         config_map = {
@@ -152,32 +110,36 @@ class LLMClientFactory:
         return config_map[node_name]
 
 # 🎯 Convenience functions for each node
-def create_intent_detector_client() -> Tuple[Union[OpenAI, GeminiClient], str]:
+def create_intent_detector_client() -> Tuple[Union[OpenAI, VertexAIGeminiClient], str]:
     """Create client for intent detector node"""
     return LLMClientFactory.create_client("intent_detector")
 
-def create_business_reasoner_client() -> Tuple[Union[OpenAI, GeminiClient], str]:
+def create_business_reasoner_client() -> Tuple[Union[OpenAI, VertexAIGeminiClient], str]:
     """Create client for business reasoner node"""
     return LLMClientFactory.create_client("business_reasoner")
 
-def create_query_optimizer_client() -> Tuple[Union[OpenAI, GeminiClient], str]:
+def create_query_optimizer_client() -> Tuple[Union[OpenAI, VertexAIGeminiClient], str]:
     """Create client for query optimizer node"""
     return LLMClientFactory.create_client("query_optimizer")
 
-def create_response_formatter_client() -> Tuple[Union[OpenAI, GeminiClient], str]:
+def create_response_formatter_client() -> Tuple[Union[OpenAI, VertexAIGeminiClient], str]:
     """Create client for response formatter node"""
     return LLMClientFactory.create_client("response_formatter")
 
-def create_follow_up_client() -> Tuple[Union[OpenAI, GeminiClient], str]:
+def create_follow_up_client() -> Tuple[Union[OpenAI, VertexAIGeminiClient], str]:
     """Create client for follow-up evaluator node"""
     return LLMClientFactory.create_client("follow_up")
 
-def create_image_analysis_client() -> Tuple[Union[OpenAI, GeminiClient], str]:
+def create_image_analysis_client() -> Tuple[Union[OpenAI, VertexAIGeminiClient], str]:
     """Create client for image analysis node"""
     return LLMClientFactory.create_client("image_analysis")
 
+def create_icp_analysis_client() -> Tuple[Union[OpenAI, VertexAIGeminiClient], str]:
+    """Create client for ICP analysis node"""
+    return LLMClientFactory.create_client("icp_analysis")
+
 # 🔧 Legacy support functions (for gradual migration)
-def create_llm_client_for_node(node_name: str) -> Union[OpenAI, GeminiClient]:
+def create_llm_client_for_node(node_name: str) -> Union[OpenAI, VertexAIGeminiClient]:
     """Legacy function - returns only client (without model name)"""
     client, _ = LLMClientFactory.create_client(node_name)
     return client
