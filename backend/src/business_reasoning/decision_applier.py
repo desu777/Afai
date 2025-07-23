@@ -58,8 +58,8 @@ class DecisionApplier:
                 "af_alternatives": competitor_alternatives,
                 "response_templates": []
             }
-            debug_print(f"🏢 [BusinessReasoner] LLM detected competitors: {competitors}")
-            debug_print(f"🔄 [BusinessReasoner] AF alternatives: {competitor_alternatives}")
+            debug_print(f"[COMP] LLM detected competitors: {competitors}")
+            debug_print(f"[RTY] AF alternatives: {competitor_alternatives}")
 
     def _apply_scenario_intelligence(self, state: ConversationState, decision: Dict):
         """Apply scenario detection and handling"""
@@ -72,7 +72,7 @@ class DecisionApplier:
                 "priority_order": scenario_data.get("priority_order", []),
                 "mandatory_categories": scenario_data.get("mandatory_categories", [])
             }
-            debug_print(f"📋 [BusinessReasoner] LLM detected scenario: {scenario}")
+            debug_print(f"[DATA] LLM detected scenario: {scenario}")
 
     def _apply_use_case_intelligence(self, state: ConversationState, decision: Dict):
         """Apply use case detection and handling"""
@@ -86,7 +86,7 @@ class DecisionApplier:
                 "priority_products": decision.get("priority_products", []),
                 "timeline": use_case_data.get("timeline", "")
             }
-            debug_print(f"🎯 [BusinessReasoner] LLM detected use case: {use_case}")
+            debug_print(f"[>] LLM detected use case: {use_case}")
 
     def _apply_product_recommendations(self, state: ConversationState, decision: Dict):
         """Apply product recommendations - CRITICAL for Pinecone search"""
@@ -113,17 +113,17 @@ class DecisionApplier:
                     product_names.append(str(product))
             
             state["af_alternatives_to_search"] = product_names
-            debug_print(f"🧠 [BusinessReasoner] LLM selected {len(product_names)} products via intelligent categorization")
+            debug_print(f"[BRAIN] LLM selected {len(product_names)} products")
         
             # Store categorized structure for Response Formatter
             state["product_recommendations"] = product_recommendations
-            debug_print(f"📊 [BusinessReasoner] Categorized into {len(product_recommendations)} categories: {list(product_recommendations.keys())}")
+            debug_print(f"[DATA] Categorized into {len(product_recommendations)} categories: {list(product_recommendations.keys())}")
         
             # Set first product as main correction for backward compatibility
             if product_names:
                 state["business_analysis"]["product_name_corrections"] = product_names[0]
         else:
-            debug_print(f"⚠️ [BusinessReasoner] No products found by LLM analysis")
+            debug_print(f"[!] No products found by LLM analysis")
 
     def _apply_business_recommendations(self, state: ConversationState, decision: Dict):
         """Apply comprehensive business recommendations"""
@@ -194,11 +194,11 @@ class DecisionApplier:
         # Store all recommendations
         if recommendations:
             state["business_recommendations"] = recommendations
-            debug_print(f"💼 [BusinessReasoner] Applied {len(recommendations)} business recommendations")
+            debug_print(f"[BIZ] Applied {len(recommendations)} recommendations")
 
     def apply_fallback_analysis(self, state: ConversationState) -> ConversationState:
         """Fallback analysis when LLM fails"""
-        debug_print("🔄 [BusinessReasoner] Using fallback analysis")
+        debug_print("[RTY] Using fallback analysis")
         
         # Simple fallback business analysis
         state["business_analysis"] = {

@@ -5,7 +5,7 @@ Uses configured provider (Vertex AI) with OpenRouter fallback
 import re
 import base64
 from typing import Dict, List, Optional
-from config import debug_print, TEST_ENV, ICP_API, ICP_MODEL, ICP_TEMPERATURE
+from config import debug_print, TEST_ENV, ICP_API, ICP_MODEL, ICP_TEMPERATURE, LLM_PROVIDER
 import json
 from langchain_openai import ChatOpenAI
 from langchain_community.document_loaders import PyMuPDFLoader
@@ -19,17 +19,10 @@ class ICPScraper:
     """ICP PDF processor for Aquaforest Lab ICP test results"""
     
     def __init__(self):
-        # Primary: Use configured provider (Vertex AI)
-        try:
-            self.primary_client, self.primary_model = create_icp_analysis_client()
-            self.use_primary = True
-            if TEST_ENV:
-                debug_print(f"🔬 [ICPScraper] Primary client initialized: {self.primary_model}")
-        except Exception as e:
-            debug_print(f"⚠️ [ICPScraper] Primary client failed: {e}")
-            self.use_primary = False
+        # Primary provider + fallback system
+        self.client, self.model_name = self._create_client_with_fallback()
         
-        # Fallback: OpenRouter
+        # Keep fallback LLM for compatibility with existing code
         self.fallback_llm = ChatOpenAI(
             api_key=ICP_API,
             model=ICP_MODEL,
@@ -38,33 +31,59 @@ class ICPScraper:
         )
         
         if TEST_ENV:
-            debug_print(f"🔬 [ICPScraper] Fallback OpenRouter ready: {ICP_MODEL}")
+            debug_print(f"[LAB] ICP client ready: {self.model_name}")
+    
+    def _create_client_with_fallback(self):
+        """Create client with primary provider + OpenRouter fallback"""
+        try:
+            if LLM_PROVIDER == "gemini":
+                # Try Gemini as primary
+                from gemini_client_factory import VertexAIClientFactory
+                client, model_name = VertexAIClientFactory.create_client("icp_analysis")
+                if TEST_ENV:
+                    debug_print(f"[>] Primary gemini: {model_name}")
+                return client, model_name
+            else:
+                # Try OpenRouter as primary
+                client, model_name = create_icp_analysis_client()
+                if TEST_ENV:
+                    debug_print(f"[>] Primary openrouter: {model_name}")
+                return client, model_name
+        except Exception as e:
+            if TEST_ENV:
+                debug_print(f"[!] Primary failed: {str(e)[:50]}")
+            
+        # Fallback to OpenRouter always
+        try:
+            client, model_name = create_icp_analysis_client()
+            if TEST_ENV:
+                debug_print(f"[RTY] Fallback openrouter: {model_name}")
+            return client, model_name
+        except Exception as e:
+            if TEST_ENV:
+                debug_print(f"[X] Fallback failed: {str(e)[:50]}")
+            raise e
     
     def _invoke_llm(self, prompt: str) -> str:
-        """Invoke LLM with primary provider and OpenRouter fallback"""
-        # Try primary provider first
-        if self.use_primary:
-            try:
-                if TEST_ENV:
-                    debug_print(f"🚀 [ICPScraper] Using primary provider: {self.primary_model}")
-                
-                response = self.primary_client.chat.completions.create(
-                    model=self.primary_model,
-                    temperature=ICP_TEMPERATURE,
-                    messages=[{"role": "user", "content": prompt}]
-                )
-                return response.choices[0].message.content.strip()
-                
-            except Exception as e:
-                debug_print(f"❌ [ICPScraper] Primary provider failed: {e}")
-                debug_print(f"🔄 [ICPScraper] Falling back to OpenRouter...")
-        
-        # Fallback to OpenRouter
-        if TEST_ENV:
-            debug_print(f"🚀 [ICPScraper] Using OpenRouter fallback: {ICP_MODEL}")
-        
-        response = self.fallback_llm.invoke(prompt)
-        return response.content.strip()
+        """Invoke LLM using configured client with temperature"""
+        try:
+            if TEST_ENV:
+                debug_print(f"[>] Using client: {self.model_name}")
+            
+            response = self.client.chat.completions.create(
+                model=self.model_name,
+                temperature=ICP_TEMPERATURE,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            return response.choices[0].message.content.strip()
+            
+        except Exception as e:
+            debug_print(f"[X] Client failed: {e}")
+            debug_print(f"[RTY] Using legacy fallback...")
+            
+            # Final fallback to legacy LLM
+            response = self.fallback_llm.invoke(prompt)
+            return response.content.strip()
 
 
 
@@ -100,18 +119,18 @@ class ICPScraper:
         """Enhanced JSON parsing using robust_json_parse from business_reasoner"""
         try:
             result = self.robust_json_parse(response_content)
-            debug_print(f"✅ [ICPScraper] Successfully parsed {source_type} JSON")
+            debug_print(f"[OK] Successfully parsed {source_type} JSON")
             return result
         except Exception as e:
-            debug_print(f"❌ [ICPScraper] {source_type} JSON parsing failed: {e}")
-            debug_print(f"🔍 [ICPScraper] Raw response preview: {response_content[:200]}...")
+            debug_print(f"[X] {source_type} JSON parsing failed: {e}")
+            debug_print(f"[?] Raw response: {response_content[:200]}")
             return None
 
 
 
     
     def _detect_aquarium_type(self, parameters: Dict) -> str:
-        """🧠 Detect aquarium type based on parameter values"""
+        """Detect aquarium type based on parameter values"""
         try:
             # Look for key saltwater indicators
             ca_value = None
@@ -149,11 +168,11 @@ class ICPScraper:
             return "unknown"
             
         except Exception as e:
-            debug_print(f"❌ [ICPScraper] Error detecting aquarium type: {e}")
+            debug_print(f"[X] Error detecting aquarium type: {e}")
             return "unknown"
     
     def _analyze_icp_parameter_status(self, element: str, recommended_range: str, user_result: str) -> str:
-        """🧠 Analyze if ICP parameter result is within recommended range"""
+        """Analyze if ICP parameter result is within recommended range"""
         try:
             # Extract numeric values from strings
             def extract_number(text):
@@ -171,7 +190,7 @@ class ICPScraper:
                 result_val = extract_number(user_result)
                 
                 if result_val is not None:
-                    debug_print(f"🧠 [ICPScraper] Analysis: {element} = {result_val} (range: {min_val}-{max_val})")
+                    debug_print(f"[THK] Analysis: {element} = {result_val} (range: {min_val}-{max_val})")
                     
                     if result_val < min_val:
                         return "too_low"
@@ -188,18 +207,18 @@ class ICPScraper:
                 elif result_val == 0:
                     return "optimal"
             
-            debug_print(f"⚠️ [ICPScraper] Could not analyze: {element} - {recommended_range} vs {user_result}")
+            debug_print(f"[!] Could not analyze: {element} - {recommended_range} vs {user_result}")
             return "unknown"
             
         except Exception as e:
-            debug_print(f"❌ [ICPScraper] Error analyzing {element}: {e}")
+            debug_print(f"[X] Error analyzing {element}: {e}")
             return "unknown"
     
     
     def process_pdf_icp_data(self, pdf_content: bytes, filename: str = "icp_results.pdf") -> Dict:
-        """🆕 Process PDF ICP results using LangChain PyMuPDF"""
+        """Process PDF ICP results using LangChain PyMuPDF"""
         try:
-            debug_print(f"📄 [ICPScraper] Processing PDF: {filename}")
+            debug_print(f"[DOC] Processing PDF: {filename}")
             
             # Save PDF to temporary file
             with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_file:
@@ -213,13 +232,13 @@ class ICPScraper:
                 
                 # Combine all document pages
                 full_text = "\n".join([doc.page_content for doc in docs])
-                debug_print(f"📋 [ICPScraper] Extracted {len(full_text)} chars from PDF")
+                debug_print(f"[LST] Extracted {len(full_text)} chars from PDF")
                 
-                # 🔍 DEBUG: Log extracted PDF content for troubleshooting
+                # DEBUG: Log extracted PDF content for troubleshooting
                 if TEST_ENV:
-                    debug_print(f"📄 [ICPScraper] Raw PDF content preview: {full_text[:300]}...")
+                    debug_print(f"[DOC] Content preview: {full_text[:300]}")
                     if len(full_text) > 300:
-                        debug_print(f"📄 [ICPScraper] Raw PDF content end: ...{full_text[-200:]}")
+                        debug_print(f"[DOC] Content end: {full_text[-100:]}")
                 
                 # Use AI as Water Chemistry Diagnostician for PDF
                 pdf_analysis_prompt = f"""
@@ -275,12 +294,12 @@ Extract ALL parameters from PDF. Return only JSON.
                 
                 response = self._invoke_llm(pdf_analysis_prompt)
                 
-                # 🔍 DEBUG: Log raw Gemini response for troubleshooting
+                # DEBUG: Log raw AI response for troubleshooting
                 if TEST_ENV:
-                    debug_print(f"🤖 [ICPScraper] PDF Raw Gemini response length: {len(response)} chars")
-                    debug_print(f"🤖 [ICPScraper] PDF Raw Gemini response preview: {response[:200]}...")
+                    debug_print(f"[AI] Response length: {len(response)} chars")
+                    debug_print(f"[AI] Response preview: {response[:200]}")
                     if len(response) > 200:
-                        debug_print(f"🤖 [ICPScraper] PDF Raw Gemini response end: ...{response[-100:]}")
+                        debug_print(f"[AI] Response end: {response[-100:]}")
                 
                 # Try to parse JSON with enhanced handling
                 structured_data = self._parse_json_response(response, "PDF")
@@ -303,7 +322,7 @@ Extract ALL parameters from PDF. Return only JSON.
                 metadata = structured_data.get("metadata", {})
                 if not metadata.get("aquarium_type") or metadata.get("aquarium_type") == "unknown":
                     metadata["aquarium_type"] = self._detect_aquarium_type(structured_data.get("parameters", {}))
-                    debug_print(f"🔍 [ICPScraper] Auto-detected aquarium type: {metadata['aquarium_type']}")
+                    debug_print(f"[?] Auto-detected aquarium type: {metadata['aquarium_type']}")
                 
                 icp_data = {
                     "source": f"PDF: {filename}",
@@ -313,12 +332,12 @@ Extract ALL parameters from PDF. Return only JSON.
                     "status": "success",
                     "debug_info": {
                         "processing_method": "pymupdf",
-                        "llm_analysis": self.primary_model if self.use_primary else ICP_MODEL,
-                        "provider": "primary" if self.use_primary else "fallback"
+                        "llm_analysis": self.model_name,
+                        "provider": "configured"
                     }
                 }
                 
-                debug_print(f"✅ [ICPScraper] Processed PDF with {len(icp_data['parameters'])} parameters")
+                debug_print(f"[OK] Processed PDF with {len(icp_data['parameters'])} parameters")
                 return icp_data
                 
             finally:
@@ -326,7 +345,7 @@ Extract ALL parameters from PDF. Return only JSON.
                 os.unlink(tmp_file_path)
                 
         except Exception as e:
-            debug_print(f"❌ [ICPScraper] Error processing PDF: {e}")
+            debug_print(f"[X] Error processing PDF: {e}")
             return {"source": f"PDF: {filename}", "parameters": {}, "status": "parse_error", "error": str(e)}
     
     def _format_corrections_needed(self, parameters: Dict) -> str:
@@ -345,10 +364,10 @@ Extract ALL parameters from PDF. Return only JSON.
     
 
     def format_icp_data_for_llm(self, parameters: Dict, metadata: Dict = None, diagnosis: Dict = None) -> str:
-        """📋 Format ICP data as water diagnostician report for BusinessReasoner"""
+        """Format ICP data as water diagnostician report for BusinessReasoner"""
         lines = []
         
-        # 🎯 AQUARIUM INFO
+        # AQUARIUM INFO
         if metadata:
             aquarium_info = metadata.get("aquarium_info", "")
             test_date = metadata.get("test_date", "")
@@ -358,18 +377,18 @@ Extract ALL parameters from PDF. Return only JSON.
             volume_match = re.search(r'(\d+)', aquarium_info) if aquarium_info else None
             volume = volume_match.group(1) if volume_match else "unknown"
             
-            lines.append(f"🔬 DIAGNOZA ICP #{test_number}")
-            lines.append(f"📅 Data: {test_date} | 🏠 Akwarium: {volume}L")
+            lines.append(f"[LAB] DIAGNOZA ICP #{test_number}")
+            lines.append(f"[DATE] Data: {test_date} | [HOME] Akwarium: {volume}L")
             lines.append("")
         
-        # 📊 SUMMARY STATISTICS
+        # SUMMARY STATISTICS
         if diagnosis:
             optimal_count = diagnosis.get("optimal_count", 0)
             problems_count = diagnosis.get("problems_count", 0)
-            lines.append(f"📊 PODSUMOWANIE: ✅ {optimal_count} OK | ⚠️ {problems_count} problemów")
+            lines.append(f"[STATS] PODSUMOWANIE: [OK] {optimal_count} OK | [!] {problems_count} problemów")
             lines.append("")
         
-        # 🎯 CATEGORIZE PARAMETERS
+        # CATEGORIZE PARAMETERS
         optimal_params = []
         too_high_params = []
         too_low_params = []
@@ -397,53 +416,53 @@ Extract ALL parameters from PDF. Return only JSON.
             elif status == "too_low" and action_needed == "increase":
                 too_low_params.append(param_info)
         
-        # ✅ OPTIMAL PARAMETERS
+        # OPTIMAL PARAMETERS
         if optimal_params:
-            lines.append("✅ PARAMETRY OPTYMALNE:")
+            lines.append("[OK] PARAMETRY OPTYMALNE:")
             for param in optimal_params:
                 lines.append(f"   • {param}")
             lines.append("")
         
-        # ❌ PARAMETERS TO FIX
+        # PARAMETERS TO FIX
         if too_high_params:
-            lines.append("❌ ZA WYSOKIE (wymagają obniżenia):")
+            lines.append("[X] ZA WYSOKIE (wymagają obniżenia):")
             for param in too_high_params:
                 lines.append(f"   • {param}")
             lines.append("")
         
         if too_low_params:
-            lines.append("⚠️ ZA NISKIE (wymagają podwyższenia):")
+            lines.append("[!] ZA NISKIE (wymagają podwyższenia):")
             for param in too_low_params:
                 lines.append(f"   • {param}")
             lines.append("")
         
-        # 🎯 PRODUCT SELECTION INSTRUCTIONS FOR BUSINESS REASONER
-        lines.append("🛒 PRODUKTY DO DOBRANIA:")
+        # PRODUCT SELECTION INSTRUCTIONS FOR BUSINESS REASONER
+        lines.append("[SHOP] PRODUKTY DO DOBRANIA:")
         
         if too_high_params:
             for param in too_high_params:
                 element_name = param.split(" (")[0]
                 if "NO3" in element_name or "Azot" in element_name:
-                    lines.append(f"🔴 Obniżyć azotany: Dobierz wszystkie produkty na obniżenie azotanów!")
+                    lines.append(f"[-] Obniżyć azotany: Dobierz wszystkie produkty na obniżenie azotanów!")
                 elif "PO4" in element_name or "Fosfor" in element_name:
-                    lines.append(f"🔴 Obniżyć fosforany: Dobierz wszystkie produkty na obniżenie fosforanów!")
+                    lines.append(f"[-] Obniżyć fosforany: Dobierz wszystkie produkty na obniżenie fosforanów!")
                 else:
-                    lines.append(f"🔴 Obniżyć {element_name}: Dobierz produkty na obniżenie {element_name}!")
+                    lines.append(f"[-] Obniżyć {element_name}: Dobierz produkty na obniżenie {element_name}!")
         
         if too_low_params:
             for param in too_low_params:
                 element_name = param.split(" (")[0]
                 if "Ca" in element_name or "Wapń" in element_name:
-                    lines.append(f"🟡 Podwyższyć wapń: Dobierz wszystkie produkty na podwyższenie wapnia!")
+                    lines.append(f"[+] Podwyższyć wapń: Dobierz wszystkie produkty na podwyższenie wapnia!")
                 elif "Mg" in element_name or "Magnez" in element_name:
-                    lines.append(f"🟡 Podwyższyć magnez: Dobierz wszystkie produkty na podwyższenie magnezu!")
+                    lines.append(f"[+] Podwyższyć magnez: Dobierz wszystkie produkty na podwyższenie magnezu!")
                 elif "KH" in element_name or "Alkalinity" in element_name:
-                    lines.append(f"🟡 Podwyższyć KH: Dobierz wszystkie produkty na podwyższenie alkaliczności!")
+                    lines.append(f"[+] Podwyższyć KH: Dobierz wszystkie produkty na podwyższenie alkaliczności!")
                 else:
-                    lines.append(f"🟡 Podwyższyć {element_name}: Dobierz produkty na podwyższenie {element_name}!")
+                    lines.append(f"[+] Podwyższyć {element_name}: Dobierz produkty na podwyższenie {element_name}!")
         
         if not too_high_params and not too_low_params:
-            lines.append("✅ Wszystkie parametry w normie - dobierz produkty do utrzymania stabilności!")
+            lines.append("[OK] Wszystkie parametry w normie - dobierz produkty do utrzymania stabilności!")
         
         return "\n".join(lines)
 

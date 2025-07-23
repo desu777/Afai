@@ -1,11 +1,12 @@
 """
 LLM Analyzer Module
 LLM analysis and JSON parsing extracted from business_reasoner.py
+Uses configured provider (Vertex AI) with OpenRouter fallback
 """
 import json
 from typing import Dict
 from models import ConversationState
-from config import TEST_ENV, debug_print
+from config import TEST_ENV, debug_print, BUSINESS_REASONER_TEMPERATURE
 from prompts import load_prompt_template
 
 class LLMAnalyzer:
@@ -40,7 +41,7 @@ class LLMAnalyzer:
         
         # Fallback if template loading fails
         if not prompt:
-            debug_print("⚠️ [BusinessReasoner] Using fallback hardcoded prompt")
+            debug_print("[!] Using fallback prompt")
             prompt = f"""
 You are an Aquaforest business intelligence specialist.
 Analyze this query: "{state['user_query']}"
@@ -77,18 +78,18 @@ Return JSON with product recommendations and business analysis.
             raise ValueError("Unable to parse JSON from LLM output")
     
     def analyze_with_full_llm(self, state: ConversationState) -> Dict:
-        """Pure LLM analysis using all mapping data with GPT-4.1-mini"""
+        """Pure LLM analysis using all mapping data with configured temperature"""
         
         try:
             # Create comprehensive prompt with all mapping data
             prompt = self.create_comprehensive_llm_prompt(state)
             
-            # Call Vertex AI Gemini with JSON mode (using default temperature for better JSON generation)
+            # Call configured client with temperature parameter
             response = self.client.chat.completions.create(
-                model=self.model_name,  # OpenRouter per-node model
-                # temperature removed - let Gemini use default (1.0) for better JSON generation
+                model=self.model_name,
+                temperature=BUSINESS_REASONER_TEMPERATURE,
                 messages=[{"role": "system", "content": prompt}],
-                response_format={"type": "json_object"}  # JSON mode
+                response_format={"type": "json_object"}
             )
             
             # Parse the JSON response
@@ -99,29 +100,28 @@ Return JSON with product recommendations and business analysis.
                 # Fallback robust parsing for models that add prose or code fences
                 decision_data = self.robust_json_parse(raw_content)
             
-            debug_print(f"🤖 [BusinessReasoner] Full LLM analysis completed")
+            debug_print(f"[AI] Analysis complete")
             
             if TEST_ENV:
-                print(f"🧠 [DEBUG BusinessReasoner] Full LLM Response Summary:")
+                print(f"[BRAIN] LLM Response Summary:")
                 print(f"   - Business interpretation: {decision_data.get('business_interpretation', 'N/A')[:100]}...")
                 print(f"   - Detected scenario: {decision_data.get('detected_scenario', 'null')}")
                 print(f"   - Detected use case: {decision_data.get('detected_use_case', 'null')}")
                 print(f"   - Detected competitors: {decision_data.get('detected_competitors', [])}")
                 
                 reasoning = decision_data.get('reasoning_steps', {})
-                print(f"   - Stage 1 products (direct): {reasoning.get('stage_1_products', 'N/A')[:50]}...")
-                print(f"   - Stage 2 products (mapping): {reasoning.get('stage_2_products', 'N/A')[:50]}...")
+                print(f"   - Stage 1 products: {reasoning.get('stage_1_products', 'N/A')[:50]}...")
+                print(f"   - Stage 2 products: {reasoning.get('stage_2_products', 'N/A')[:50]}...")
                 
-                print(f"   - Total priority products: {len(decision_data.get('priority_products', []))}")
-                print(f"   - Priority products: {decision_data.get('priority_products', [])}")
+                print(f"   - Priority products: {len(decision_data.get('priority_products', []))}")
                 print(f"   - Response strategy: {decision_data.get('response_strategy', 'direct')}")
-                print(f"   - Confidence level: {decision_data.get('confidence_level', 0.0)}")
+                print(f"   - Confidence: {decision_data.get('confidence_level', 0.0)}")
             
             return decision_data
             
         except json.JSONDecodeError as e:
-            debug_print(f"❌ [BusinessReasoner] JSON parsing error: {e}")
+            debug_print(f"[X] JSON parse error: {e}")
             return {}
         except Exception as e:
-            debug_print(f"❌ [BusinessReasoner] Full LLM analysis error: {e}")
+            debug_print(f"[X] LLM analysis error: {e}")
             return {}

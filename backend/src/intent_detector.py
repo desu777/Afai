@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Dict, Any
 from openai import OpenAI
 from models import ConversationState, Intent, IntentDetectionResult
-from config import OPENAI_TEMPERATURE, TEST_ENV, debug_print
+from config import INTENT_DETECTOR_TEMPERATURE, LLM_PROVIDER, TEST_ENV, debug_print
 from prompts import load_prompt_template
 from llm_client_factory import create_intent_detector_client, create_image_analysis_client
 from icp_scraper import ICPScraper
@@ -44,27 +44,62 @@ class IntentDetector:
             # Give up
             raise ValueError("Unable to parse JSON from LLM output")
     def __init__(self):
-        # Intent detection client
-        self.client, self.model_name = create_intent_detector_client()
-        
-        # Image analysis client (separate configuration)
-        self.image_client, self.image_model_name = create_image_analysis_client()
+        # Primary provider + fallback system
+        self.client, self.model_name = self._create_client_with_fallback("intent_detector")
+        self.image_client, self.image_model_name = self._create_client_with_fallback("image_analysis")
         
         if TEST_ENV:
-            debug_print(f"🎯 [IntentDetector] Initialized with model: {self.model_name}")
-            debug_print(f"📸 [IntentDetector] Image analysis model: {self.image_model_name}")
+            debug_print(f"[>] IntentDetector init: {self.model_name}")
+            debug_print(f"[IMG] Image model: {self.image_model_name}")
         
-        # 🆕 Load competitors mapping for better detection
+        # Load competitors mapping for better detection
         self.competitors_list = self._load_competitors()
         
         if TEST_ENV and self.competitors_list:
-            debug_print(f"🏢 [IntentDetector] Loaded {len(self.competitors_list)} competitor names for detection")
+            debug_print(f"[BIZ] Loaded {len(self.competitors_list)} competitors")
         
-        # 🆕 Initialize ICP scraper for ICP analysis
+        # Initialize ICP scraper for ICP analysis
         self.icp_scraper = ICPScraper()
         
         if TEST_ENV:
-            debug_print(f"🔬 [IntentDetector] Initialized ICP scraper for ICP analysis")
+            debug_print(f"[LAB] ICP scraper ready")
+    
+    def _create_client_with_fallback(self, node_name: str):
+        """Create client with primary provider + OpenRouter fallback"""
+        try:
+            if LLM_PROVIDER == "gemini":
+                # Try Gemini as primary
+                from gemini_client_factory import VertexAIClientFactory
+                client, model_name = VertexAIClientFactory.create_client(node_name)
+                if TEST_ENV:
+                    debug_print(f"[>] Primary gemini: {model_name}")
+                return client, model_name
+            else:
+                # Try OpenRouter as primary
+                if node_name == "intent_detector":
+                    client, model_name = create_intent_detector_client()
+                else:  # image_analysis
+                    client, model_name = create_image_analysis_client()
+                if TEST_ENV:
+                    debug_print(f"[>] Primary openrouter: {model_name}")
+                return client, model_name
+        except Exception as e:
+            if TEST_ENV:
+                debug_print(f"[!] Primary failed: {str(e)[:50]}")
+            
+        # Fallback to OpenRouter always
+        try:
+            if node_name == "intent_detector":
+                client, model_name = create_intent_detector_client()
+            else:  # image_analysis
+                client, model_name = create_image_analysis_client()
+            if TEST_ENV:
+                debug_print(f"[RTY] Fallback openrouter: {model_name}")
+            return client, model_name
+        except Exception as e:
+            if TEST_ENV:
+                debug_print(f"[X] Fallback failed: {str(e)[:50]}")
+            raise e
     
     def _load_competitors(self) -> list:
         """Load competitor names from mapping for better intent detection"""
@@ -85,7 +120,7 @@ class IntentDetector:
                 return competitor_names
         except Exception as e:
             if TEST_ENV:
-                debug_print(f"⚠️ [IntentDetector] Could not load competitors: {e}")
+                debug_print(f"[!] Could not load competitors: {e}")
         return []
 
     def _create_intent_prompt(self, state: ConversationState) -> str:
@@ -140,7 +175,7 @@ This is DEFINITELY intent: "analyze_icp" - user wants analysis of their water pa
         # Fallback to hardcoded prompt if template fails
         if not prompt:
             if TEST_ENV:
-                print("⚠️ [IntentDetector] Using fallback hardcoded prompt")
+                print("[!] Using fallback prompt")
             prompt = f"""
 You are an intent and language detection system for Aquaforest aquarium products support.
 Your task is to analyze the user's LATEST message in the context of the conversation history.
@@ -219,7 +254,7 @@ Return ONLY a valid JSON object:
             return state
             
         if TEST_ENV:
-            print(f"📸 [DEBUG IntentDetector] Analyzing image with {self.image_model_name}: {state['image_url'][:100]}...")
+            print(f"[IMG] Analyzing with {self.image_model_name}")
         
         try:
             # Create vision messages
@@ -228,7 +263,7 @@ Return ONLY a valid JSON object:
             # Call OpenRouter/Gemini with vision using dedicated image analysis client
             response = self.image_client.chat.completions.create(
                 model=self.image_model_name,
-                # temperature removed - let Vertex AI/OpenRouter use defaults for better JSON generation
+                temperature=INTENT_DETECTOR_TEMPERATURE,
                 messages=messages,
                 response_format={"type": "json_object"}
             )
@@ -236,11 +271,11 @@ Return ONLY a valid JSON object:
             # Use robust JSON parsing to handle Gemini response variations  
             raw_content = response.choices[0].message.content
             if TEST_ENV:
-                print(f"🤖 [DEBUG IntentDetector] Raw Vision response: {raw_content[:200]}...")
+                print(f"[AI] Raw Vision response: {raw_content[:200]}...")
             result_data = self.robust_json_parse(raw_content)
             
             if TEST_ENV:
-                print(f"🤖 [DEBUG IntentDetector] Vision analysis result: {result_data}")
+                print(f"[AI] Vision result: {result_data}")
             
             # Extract image analysis
             image_analysis = result_data.get("image_analysis", "")
@@ -257,17 +292,16 @@ Return ONLY a valid JSON object:
                 state["user_query"] = enhanced_query
                 
                 if TEST_ENV:
-                    print(f"📝 [DEBUG IntentDetector] Enhanced query with image analysis")
-                    print(f"🔍 [DEBUG IntentDetector] Original: {state['user_query'].split('User added image')[0].split('User dodał zdjęcie')[0]}")
-                    print(f"🖼️ [DEBUG IntentDetector] Image analysis: {image_analysis}")
-                    print(f"✅ [DEBUG IntentDetector] Vision analysis complete - keeping language: {detected_language}")
+                    print(f"[TXT] Enhanced query with image")
+                    print(f"[PIC] Analysis: {image_analysis[:100]}...")
+                    print(f"[OK] Vision complete")
                 
             return state
             
         except Exception as e:
             if TEST_ENV:
-                print(f"❌ [DEBUG IntentDetector] Vision analysis error: {e}")
-            debug_print(f"❌ [IntentDetector] Vision analysis failed: {e}")
+                print(f"[X] Vision analysis error: {e}")
+            debug_print(f"[X] Vision analysis failed: {e}")
             
             # Fallback - still process as text-only
             return state
@@ -285,12 +319,12 @@ Return ONLY a valid JSON object:
             return state  # No PDF content found
             
         if TEST_ENV:
-            debug_print(f"🔬 [IntentDetector] Analyzing PDF ICP content")
+            debug_print(f"[LAB] Analyzing PDF ICP content")
         
         try:
             # Process PDF data
             if TEST_ENV:
-                debug_print(f"📄 [IntentDetector] Processing PDF ICP data")
+                debug_print(f"[DOC] Processing PDF ICP data")
             
             # Extract PDF content from base64
             pdf_base64 = image_url.split(",")[1]
@@ -321,21 +355,21 @@ Return ONLY a valid JSON object:
                 state["user_query"] = enhanced_query
                 
                 if TEST_ENV:
-                    debug_print(f"📝 [IntentDetector] Enhanced query with ICP analysis")
-                    debug_print(f"🔬 [IntentDetector] Found {len(icp_data.get('parameters', {}))} ICP parameters")
-                    debug_print(f"✅ [IntentDetector] ICP analysis complete")
+                    debug_print(f"[TXT] Enhanced query with ICP")
+                    debug_print(f"[LAB] Found {len(icp_data.get('parameters', {}))} params")
+                    debug_print(f"[OK] ICP complete")
                 
             else:
                 if TEST_ENV:
-                    debug_print(f"❌ [IntentDetector] ICP analysis failed: {icp_data.get('error', 'Unknown error')}")
+                    debug_print(f"[X] ICP analysis failed: {icp_data.get('error', 'Unknown error')}")
                 
             return state
             
         except Exception as e:
             if TEST_ENV:
-                debug_print(f"❌ [IntentDetector] ICP analysis error: {e}")
+                debug_print(f"[X] ICP analysis error: {e}")
                 import traceback
-                debug_print(f"🔍 [IntentDetector] Error traceback: {traceback.format_exc()}")
+                debug_print(f"[?] Error traceback: {traceback.format_exc()}")
             
             # Fallback - still process as text-only
             return state
@@ -343,11 +377,11 @@ Return ONLY a valid JSON object:
     def detect(self, state: ConversationState) -> ConversationState:
         """Detect intent and language from user query"""
         if TEST_ENV:
-            print(f"\n🎯 [DEBUG IntentDetector] Analyzing query: '{state['user_query']}'")
+            print(f"\n[>] Analyzing query: '{state['user_query']}'")
             if state.get("chat_history"):
-                print(f"💬 [DEBUG IntentDetector] Conversation history: {len(state.get('chat_history', []))} messages")
+                print(f"[MSG] History: {len(state.get('chat_history', []))} messages")
             if state.get("image_url"):
-                print(f"📸 [DEBUG IntentDetector] Image provided: {state['image_url'][:100]}...")
+                print(f"[IMG] Image provided")
         
         # 🆕 CONTENT ANALYSIS FIRST - check for ICP URLs/PDFs and images BEFORE text analysis
         
@@ -359,26 +393,26 @@ Return ONLY a valid JSON object:
         # Determine what content to analyze
         if has_pdf:
             if TEST_ENV:
-                print(f"🔬 [DEBUG IntentDetector] Adding ICP analysis (PDF)...")
+                print(f"[LAB] Adding ICP analysis (PDF)")
             # Analyze ICP content and enhance user query FIRST
             state = self._analyze_icp_content(state)
         elif has_image:
             if TEST_ENV:
-                print(f"📸 [DEBUG IntentDetector] Adding vision analysis...")
+                print(f"[IMG] Adding vision analysis")
             # Analyze image content and enhance user query
             state = self._analyze_image_content(state)
         elif image_url:
             if TEST_ENV:
-                print(f"❓ [DEBUG IntentDetector] Unknown image_url type: {image_url[:100]}...")
+                print(f"[?] Unknown image_url type")
         
         # 🔄 TEXT ANALYSIS SECOND - now with enhanced query that includes ICP/image context
         try:
             if TEST_ENV:
-                print(f"🔍 [DEBUG IntentDetector] Processing text analysis...")
+                print(f"[?] Processing text analysis")
                 
             response = self.client.chat.completions.create(
                 model=self.model_name,
-                # temperature removed - let Vertex AI/OpenRouter use defaults for better JSON generation
+                temperature=INTENT_DETECTOR_TEMPERATURE,
                 messages=[
                     {"role": "system", "content": self._create_intent_prompt(state)}
                 ],
@@ -388,43 +422,43 @@ Return ONLY a valid JSON object:
             # Use robust JSON parsing to handle Gemini response variations
             raw_content = response.choices[0].message.content
             if TEST_ENV:
-                print(f"🤖 [DEBUG IntentDetector] Raw Gemini response: {raw_content[:200]}...")
+                print(f"[AI] Raw response: {raw_content[:200]}...")
             result_data = self.robust_json_parse(raw_content)
             
             if TEST_ENV:
-                print(f"🤖 [DEBUG IntentDetector] Text analysis result: {result_data}")
+                print(f"[AI] Text result: {result_data}")
             
             result = IntentDetectionResult(**result_data)
             
-            # 🚨 CRITICAL FIX: Prevent follow_up without chat history
+            # CRITICAL FIX: Prevent follow_up without chat history
             chat_history = state.get("chat_history", [])
             if result.intent == Intent.FOLLOW_UP and (not chat_history or len(chat_history) == 0):
                 if TEST_ENV:
-                    print(f"🚨 [DEBUG IntentDetector] CRITICAL FIX: Preventing FOLLOW_UP intent without chat history")
-                    print(f"📋 [DEBUG IntentDetector] Chat history length: {len(chat_history) if chat_history else 0}")
+                    print(f"[ERR] Preventing FOLLOW_UP without history")
+                    print(f"[LST] History length: {len(chat_history) if chat_history else 0}")
                 result.intent = Intent.PRODUCT_QUERY  # Default to product_query for first messages
                 if TEST_ENV:
-                    print(f"✅ [DEBUG IntentDetector] Corrected intent from follow_up to product_query")
+                    print(f"[OK] Corrected intent: follow_up -> product_query")
             
             # Update state with text analysis
             state["intent"] = result.intent
             state["detected_language"] = result.language
             
             if TEST_ENV:
-                print(f"✅ [DEBUG IntentDetector] Text analysis: Intent='{result.intent}', Language='{result.language}', Confidence={result.confidence}")
+                print(f"[OK] Intent: {result.intent}, Lang: {result.language}, Conf: {result.confidence}")
                 if result_data.get("context_note"):
-                    print(f"🧠 [DEBUG IntentDetector] Context note: {result_data['context_note']}")
+                    print(f"[THK] Context: {result_data['context_note']}")
             
             # If confidence is low, default to product_query
             if result.confidence < 0.5:
                 if TEST_ENV:
-                    print(f"⚠️ [DEBUG IntentDetector] Low confidence ({result.confidence}), changing to 'product_query'")
+                    print(f"[!] Low confidence ({result.confidence}), using product_query")
                 state["intent"] = Intent.PRODUCT_QUERY
                 
         except Exception as e:
             if TEST_ENV:
-                print(f"❌ [DEBUG IntentDetector] Text analysis error: {e}")
-                print(f"❌ [DEBUG IntentDetector] Using default values")
+                print(f"[X] Text analysis error: {e}")
+                print(f"[X] Using default values")
             # Default fallback
             state["intent"] = Intent.PRODUCT_QUERY
             state["detected_language"] = "en"
