@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
 import { Message as MessageType, WorkflowUpdate } from '../types'
 import Message from './Message'
 import StreamingLoadingMessage from './StreamingLoadingMessage'
@@ -17,6 +17,7 @@ interface MessageListProps {
 }
 
 const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, currentWorkflowUpdate, inputValue, onInputChange, onSend, selectedImage, onImageSelect }) => {
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // 🔍 DEBUG: Log currentWorkflowUpdate
   if (import.meta.env.VITE_TEST_ENV === 'true' && currentWorkflowUpdate) {
@@ -24,6 +25,24 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, currentW
   }
 
   const hasMessages = messages.length > 0 || isLoading;
+
+  // 🚀 Auto-scroll to newest message when messages change
+  const scrollToNewestMessage = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      scrollToNewestMessage();
+    }
+  }, [messages.length]);
+
+  // 🚀 Also scroll when loading state changes (for streaming messages)
+  useEffect(() => {
+    if (isLoading && messages.length > 0) {
+      scrollToNewestMessage();
+    }
+  }, [isLoading, messages.length]);
 
   return (
     <div 
@@ -43,8 +62,12 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, currentW
           />
         )}
 
-        {messages.map((message) => (
-          <Message key={message.id} message={message} />
+        {messages.map((message, index) => (
+          <React.Fragment key={message.id}>
+            {/* 🚀 Anchor before the last message for precise scrolling */}
+            {index === messages.length - 1 && <div ref={messagesEndRef} />}
+            <Message message={message} />
+          </React.Fragment>
         ))}
 
         {isLoading && (
@@ -52,6 +75,8 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, currentW
             {import.meta.env.VITE_TEST_ENV === 'true' && (
               console.log('🔄 [MessageList] isLoading=true, currentWorkflowUpdate=', currentWorkflowUpdate)
             )}
+            {/* 🚀 Anchor before loading message if there are existing messages */}
+            {messages.length > 0 && <div ref={messagesEndRef} />}
             {currentWorkflowUpdate 
               ? <StreamingLoadingMessage currentUpdate={currentWorkflowUpdate} />
               : <SkeletonLoadingMessage />}
