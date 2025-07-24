@@ -112,14 +112,14 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
                   </path>
                 </pattern>
               </defs>
-              <text textAnchor="middle" x="100" y="35" fontSize="28" fontWeight="bold" fill="#1f2937" fillOpacity="0.1">AF AI Assistant</text>
-              <text textAnchor="middle" x="100" y="35" fontSize="28" fontWeight="bold" fill="url(#splash-wave)" fillOpacity="1">AF AI Assistant</text>
+              <text textAnchor="middle" x="100" y="35" fontSize="28" fontWeight="bold" fill="#1f2937" fillOpacity="0.1">Afai by Aquaforest</text>
+              <text textAnchor="middle" x="100" y="35" fontSize="28" fontWeight="bold" fill="url(#splash-wave)" fillOpacity="1">Afai by Aquaforest</text>
             </svg>
           </div>
           
-          <div className="inline-block bg-white/80 backdrop-blur-md rounded-full px-4 py-2 shadow-lg border border-purple-200/50">
-            <span className="text-sm font-semibold text-purple-700">v2.1</span>
-          </div>
+          <p className="text-body text-lg md:text-xl text-gray-600 font-medium leading-relaxed">
+            As Far As I know, I'm here to help you make your reef even better.
+          </p>
         </div>
 
         {/* Login Form */}
@@ -168,7 +168,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
                   <span>Authenticating...</span>
                 </div>
               ) : (
-                'Access AF AI'
+                'Access Afai'
               )}
             </button>
           </form>

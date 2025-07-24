@@ -34,7 +34,7 @@ const SkeletonLoadingMessage: React.FC = () => {
             <div className="flex items-center space-x-2">
               <div className="w-2 h-2 bg-brand-600 rounded-full animate-pulse"></div>
               <span className="text-body text-xs text-gray-500 font-medium">
-                AF AI is thinking...
+                Afai is thinking...
               </span>
             </div>
             

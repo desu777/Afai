@@ -37,7 +37,7 @@ const SuggestedQueries: React.FC<SuggestedQueriesProps> = ({ onQuerySelect }) =>
             <div className="wave"></div>
           </div>
         </div>
-        <span className="text-gray-800 font-semibold text-lg">Start conversation with AF AI</span>
+        <span className="text-gray-800 font-semibold text-lg">Start conversation with Afai</span>
         
         {/* Version Badge and Info Button */}
         <div className="flex items-center space-x-2 ml-4">
@@ -95,7 +95,7 @@ const SuggestedQueries: React.FC<SuggestedQueriesProps> = ({ onQuerySelect }) =>
                     </div>
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-gray-900">AF AI v1.2</h2>
+                    <h2 className="text-xl font-bold text-gray-900">Afai v1.2</h2>
                     <p className="text-sm text-purple-600">What's new in this version?</p>
                   </div>
                 </div>

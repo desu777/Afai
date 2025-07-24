@@ -161,7 +161,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         {!hasMessages && (
           <div className="text-center mt-6 space-y-2">
             <p className="text-body text-xs text-gray-600 font-medium bg-gray-50/80 rounded-xl px-4 py-2 inline-block border border-gray-200/50 shadow-sm">
-              AF AI can make mistakes. Always verify important reef parameters.
+              Afai can make mistakes. Always verify important reef parameters.
             </p>
           </div>
         )}

@@ -64,10 +64,10 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
       {/* Welcome Message */}
       <div className="text-center max-w-md mb-8">
         <h1 className="text-display text-3xl md:text-4xl font-bold text-gray-800 mb-3 tracking-tight">
-          Welcome to AF AI
+          Meet Afai
         </h1>
         <p className="text-body text-lg md:text-xl text-gray-600 font-medium leading-relaxed">
-          I'm here to make your reef even better.
+          Wisdom from the reef's heart...
         </p>
       </div>
 
@@ -161,7 +161,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
         {/* Footer note */}
         <div className="text-center mt-6">
           <p className="text-body text-xs text-gray-600 font-medium bg-gray-50/80 rounded-xl px-4 py-2 inline-block border border-gray-200/50 shadow-sm">
-            AF AI can make mistakes. Always verify important reef parameters.
+            Afai can make mistakes. Always verify important reef parameters.
           </p>
         </div>
       </div>

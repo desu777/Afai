@@ -160,16 +160,9 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div className="sidebar-header flex items-center justify-between p-4 md:p-6 border-b border-purple-200/30">
             {!isCollapsed && (
               <div className="flex items-center space-x-4">
-                <div className="sidebar-logo w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-brand-600 via-brand-700 to-brand-800 rounded-xl flex items-center justify-center shadow-brand overflow-hidden">
-                  <img 
-                    src="/horse.png" 
-                    alt="Konik morski" 
-                    className="sidebar-logo-img w-7 h-7 md:w-8 md:h-8 object-contain"
-                  />
-                </div>
                 <div className="flex flex-col">
                   <div className="h-8 md:h-10">
-                    <svg viewBox="0 0 140 30" className="w-full h-full max-w-[200px] md:max-w-[240px]">
+                    <svg viewBox="0 0 180 30" className="w-full h-full max-w-[240px] md:max-w-[280px]">
                       <defs>
                         <linearGradient id="sidebar-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
                           <stop offset="0%" style={{stopColor: '#9333ea'}} />
@@ -189,8 +182,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                           </path>
                         </pattern>
                       </defs>
-                      <text textAnchor="middle" x="70" y="21" fontSize="18" fontWeight="bold" fill="#1f2937" fillOpacity="0.15" fontFamily="Poppins">AF AI Assistant</text>
-                      <text textAnchor="middle" x="70" y="21" fontSize="18" fontWeight="bold" fill="url(#sidebar-wave)" fillOpacity="1" fontFamily="Poppins">AF AI Assistant</text>
+                      <text textAnchor="middle" x="90" y="21" fontSize="18" fontWeight="bold" fill="#1f2937" fillOpacity="0.15" fontFamily="Poppins">Afai by Aquaforest</text>
+                      <text textAnchor="middle" x="90" y="21" fontSize="18" fontWeight="bold" fill="url(#sidebar-wave)" fillOpacity="1" fontFamily="Poppins">Afai by Aquaforest</text>
                     </svg>
                   </div>
                 </div>
@@ -343,11 +336,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               {/* Disclaimer */}
               <div className="space-y-3 text-center">
                 <p className="text-xs text-gray-600 font-medium leading-relaxed bg-gray-50/60 rounded-lg px-3 py-2 border border-gray-200/40">
-                  AF AI can make mistakes. Always verify important information in product documentation.
-                </p>
-                
-                <p className="text-xs text-gray-600 font-medium bg-blue-50/60 rounded-lg px-3 py-2 border border-blue-200/40">
-                  Average response time: 15-40 seconds
+                  Afai can make mistakes. Always verify important information in product documentation.
                 </p>
               </div>
             </div>

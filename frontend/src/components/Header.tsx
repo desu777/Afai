@@ -97,8 +97,8 @@ const Header: React.FC<HeaderProps> = ({ accessLevel, onViewChange, activeView =
                     </path>
                   </pattern>
                 </defs>
-                <text textAnchor="middle" x="80" y="28" fontSize="22" fontWeight="bold" fill="#1f2937" fillOpacity="0.15">AF AI Assistant</text>
-                <text textAnchor="middle" x="80" y="28" fontSize="22" fontWeight="bold" fill="url(#wave)" fillOpacity="1">AF AI Assistant</text>
+                <text textAnchor="middle" x="80" y="28" fontSize="22" fontWeight="bold" fill="#1f2937" fillOpacity="0.15">Afai by Aquaforest</text>
+                <text textAnchor="middle" x="80" y="28" fontSize="22" fontWeight="bold" fill="url(#wave)" fillOpacity="1">Afai by Aquaforest</text>
               </svg>
             </div>
           </div>

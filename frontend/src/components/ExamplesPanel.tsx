@@ -83,7 +83,7 @@ const ExamplesPanel: React.FC<ExamplesPanelProps> = ({ onExampleSelect }) => {
         <div className="max-w-4xl mx-auto p-6">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              AF AI Examples
+              Afai Examples
             </h1>
             <p className="text-gray-600 text-lg">
               Get inspired by these example questions to make the most of your reef aquarium consultation.

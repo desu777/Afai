@@ -86,7 +86,7 @@ const Message: React.FC<MessageProps> = ({ message }) => {
       const fullHtmlContent = `
         <html>
           <head>
-            <title>AF AI Response - Reef Expert made by Aquaforest - ${new Date().toLocaleDateString()}</title>
+            <title>Afai Response - Reef Expert made by Aquaforest - ${new Date().toLocaleDateString()}</title>
             <style>
               body { 
                 font-family: Arial, sans-serif; 
@@ -128,7 +128,7 @@ const Message: React.FC<MessageProps> = ({ message }) => {
           </head>
           <body>
                          <div class="header">
-               <h1>AF AI Response - Reef Expert made by <a href="https://aquaforest.eu/">Aquaforest</a></h1>
+               <h1>Afai Response - Reef Expert made by <a href="https://aquaforest.eu/">Aquaforest</a></h1>
                <div class="timestamp">Generated: ${message.timestamp.toLocaleString()}</div>
              </div>
             <div class="content">${htmlContent}</div>

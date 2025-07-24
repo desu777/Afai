@@ -122,7 +122,7 @@ const updates: Update[] = [
         category: "improved",
         items: [
           "10-20% faster response times by removing node confidence scorer",
-          "Enhanced AF AI user interface with better visual hierarchy",
+          "Enhanced Afai user interface with better visual hierarchy",
           "Optimized message spacing and padding for mobile devices",
           "Better word-breaking for long texts and links",
           "Improved hamburger menu behavior - hides when sidebar is open",
@@ -202,7 +202,7 @@ const updates: Update[] = [
     date: "2025-06-11",
     type: "major",
     title: "Initial Release",
-    description: "First stable release of AF AI Assistant with core functionality.",
+    description: "First stable release of Afai by Aquaforest with core functionality.",
     changes: [
       {
         category: "new",
@@ -276,7 +276,7 @@ const UpdatesPanel: React.FC = () => {
             Updates & Changelog
           </h1>
           <p className="text-gray-600 text-sm sm:text-base">
-            Track the latest improvements and features in AF AI Assistant
+            Track the latest improvements and features in Afai by Aquaforest
           </p>
         </div>
 

@@ -38,7 +38,7 @@ const RelogConfirmModal: React.FC<RelogConfirmModalProps> = ({ isOpen, onClose, 
             <LogOut className="w-5 h-5 text-gray-500 mt-0.5 flex-shrink-0" />
             <div className="space-y-2">
               <p className="text-gray-700 font-medium">
-                You are about to log out of AF AI Assistant.
+                You are about to log out of Afai by Aquaforest.
               </p>
               <p className="text-sm text-gray-600 leading-relaxed">
                 This will clear all stored data including:
