@@ -69,14 +69,17 @@ const ChatInput: React.FC<ChatInputProps> = ({
         
         {/* 🆕 Główny kontener - jeden element z textarea + button bar */}
         <div className="relative rounded-2xl sm:rounded-3xl bg-white/95 backdrop-blur-md md:bg-white md:backdrop-blur-none border border-purple-200/60 focus-within:border-brand-600 focus-within:ring-2 sm:focus-within:ring-4 focus-within:ring-brand-100/50 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden" style={{ minWidth: '0', flexShrink: '1', width: '100%' }}>
-          {/* Textarea */}
-          <textarea
+          
+          {/* 🌟 Elegant blur wrapper around textarea */}
+          <div className="backdrop-blur-lg bg-white/20 rounded-xl m-2 mb-0 transition-all duration-300 shadow-lg">
+            {/* Textarea */}
+            <textarea
             ref={textareaRef}
             value={inputValue}
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}
             placeholder="Continue the conversation..."
-            className="w-full resize-none bg-transparent outline-none px-4 sm:px-6 pt-3 sm:pt-4 pb-2 text-gray-800 placeholder-gray-500 font-medium text-sm sm:text-base"
+            className="w-full resize-none bg-transparent outline-none px-4 sm:px-6 py-3 sm:py-4 text-gray-800 placeholder-gray-500 font-medium text-sm sm:text-base"
             rows={1}
             style={{ 
               minHeight: '60px',
@@ -97,7 +100,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
               WebkitOverflowScrolling: 'touch'
             }}
             disabled={isLoading}
-          />
+            />
+          </div>
           
           {/* Button Bar */}
           <div className="flex items-center justify-between px-4 sm:px-6 py-2 sm:py-3 border-t border-purple-100/50">
