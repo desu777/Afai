@@ -5,7 +5,7 @@ Extended cache operations and cache-based response generation
 import time
 from typing import Dict, Any
 from models import ConversationState
-from config import TEST_ENV, OPENAI_TEMPERATURE, debug_print
+from config import TEST_ENV, RESPONSE_FORMATTER_TEMPERATURE, debug_print
 from prompts import load_prompt_template
 
 class CacheManager:
@@ -120,7 +120,7 @@ Respond in {lang} language, referencing previous conversation naturally.
             # Generate response using cheaper model for follow-ups
             response = self.client.chat.completions.create(
                 model=self.model_name,
-                temperature=OPENAI_TEMPERATURE,
+                temperature=RESPONSE_FORMATTER_TEMPERATURE,
                 messages=[{"role": "system", "content": prompt}]
             )
             

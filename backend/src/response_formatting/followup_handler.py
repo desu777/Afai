@@ -4,7 +4,7 @@ Follow-up question processing extracted from response_formatter.py
 """
 import json
 from models import ConversationState
-from config import TEST_ENV, OPENAI_TEMPERATURE
+from config import TEST_ENV, RESPONSE_FORMATTER_TEMPERATURE
 from prompts import load_prompt_template
 from llm_client_factory import create_response_formatter_client
 
@@ -68,7 +68,7 @@ def handle_follow_up(state: ConversationState) -> ConversationState:
         prompt = create_follow_up_prompt(state)
         response = client.chat.completions.create(
             model=model_name,
-            temperature=OPENAI_TEMPERATURE,
+            temperature=RESPONSE_FORMATTER_TEMPERATURE,
             messages=[{"role": "system", "content": prompt}]
         )
         state["final_response"] = response.choices[0].message.content
@@ -116,7 +116,7 @@ Respond in {lang} language.
         client, model_name = create_response_formatter_client()
         response = client.chat.completions.create(
             model=model_name,
-            temperature=OPENAI_TEMPERATURE,
+            temperature=RESPONSE_FORMATTER_TEMPERATURE,
             messages=[{"role": "system", "content": escalation_prompt}]
         )
         state["final_response"] = response.choices[0].message.content

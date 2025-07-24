@@ -5,7 +5,7 @@ Main ResponseFormatter class coordinating specialized modules
 import time
 from typing import Dict, Any
 from models import ConversationState, Intent
-from config import TEST_ENV, OPENAI_TEMPERATURE, debug_print
+from config import TEST_ENV, RESPONSE_FORMATTER_TEMPERATURE, debug_print
 from llm_client_factory import create_response_formatter_client
 
 from .dosage_calculator import DosageCalculator
@@ -51,7 +51,7 @@ class ResponseFormatter:
                 prompt = self.prompt_builder.create_universal_prompt(state)
                 response = self.client.chat.completions.create(
                     model=self.model_name,
-                    temperature=OPENAI_TEMPERATURE,
+                    temperature=RESPONSE_FORMATTER_TEMPERATURE,
                     messages=[{"role": "system", "content": prompt}]
                 )
                 state["final_response"] = response.choices[0].message.content
@@ -93,7 +93,7 @@ class ResponseFormatter:
         try:
             response = self.client.chat.completions.create(
                 model=self.model_name,
-                temperature=OPENAI_TEMPERATURE,
+                temperature=RESPONSE_FORMATTER_TEMPERATURE,
                 messages=[{"role": "system", "content": prompt}]
             )
             return response.choices[0].message.content

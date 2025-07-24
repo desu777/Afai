@@ -38,6 +38,7 @@ from config import (
     # GEMINI_TEMPERATURE,
     # GEMINI_TOP_P,
     # GEMINI_TOP_K,
+    GEMINI_DEFAULT_TEMPERATURE,
     TEST_ENV,
     debug_print
 )
@@ -150,8 +151,8 @@ class VertexAIGeminiClient:
             if self.thinking_budget is not None and self.thinking_budget.strip() != "":
                 thinking_config = types.ThinkingConfig(thinking_budget=int(self.thinking_budget))
             
-            # Use provided temperature or Gemini default
-            temp = temperature if temperature is not None else 1.0
+            # Use provided temperature or configured Gemini default
+            temp = temperature if temperature is not None else GEMINI_DEFAULT_TEMPERATURE
             
             # Configure generation parameters with temperature support
             # Temperature is now configurable per-node from config.py for consistency with OpenRouter

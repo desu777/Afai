@@ -9,16 +9,6 @@ from env_loader import load_environment
 # Load environment variables from external or local .env file
 load_environment()
 
-# --- DEBUG ---
-# Add test environment flag - can be dynamically changed
-TEST_ENV = os.getenv("TEST_ENV", "false").lower() == "true"
-
-# [NEW] FLAG TO DISABLE BUSINESS MAPPINGS FOR TESTING
-DISABLE_BUSINESS_MAPPINGS = os.getenv("DISABLE_BUSINESS_MAPPINGS", "false").lower() == "true"
-
-# [NEW] FLAG TO ENABLE ONLY COMPETITORS MAPPING
-ENABLE_COMPETITORS_ONLY = os.getenv("ENABLE_COMPETITORS_ONLY", "false").lower() == "true"
-
 # Import enhanced logger
 from utils.logger import logger
 
@@ -26,40 +16,60 @@ from utils.logger import logger
 def debug_print(message: str, emoji: str = "[DEBUG]"):
     """Enhanced debug print using centralized logger"""
     logger.debug(message.replace(emoji, "").strip())
-# --- END DEBUG ---
 
-# Pinecone Configuration
+
+# ==========================================
+# 🚧 DEBUG & DEVELOPMENT CONFIGURATION
+# ==========================================
+
+# Test environment flag - can be dynamically changed
+TEST_ENV = os.getenv("TEST_ENV", "false").lower() == "true"
+
+# Flag to disable business mappings for testing
+DISABLE_BUSINESS_MAPPINGS = os.getenv("DISABLE_BUSINESS_MAPPINGS", "false").lower() == "true"
+
+# Flag to enable only competitors mapping
+ENABLE_COMPETITORS_ONLY = os.getenv("ENABLE_COMPETITORS_ONLY", "false").lower() == "true"
+
+
+# ==========================================
+# 🗄️ DATABASE CONFIGURATION (PINECONE)
+# ==========================================
+
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "aqua")
 PINECONE_ENVIRONMENT = os.getenv("PINECONE_ENVIRONMENT", "us-east-1-aws")
 
-# [API] OpenRouter Per-Node Configuration (2025)
-# Per-node API keys: each workflow component has its own OpenRouter API key
+
+# ==========================================
+# 🤖 AI/LLM CONFIGURATION
+# ==========================================
+
+# --- OpenRouter API Keys (Per-Node) ---
+# Each workflow component has its own OpenRouter API key
 INTENT_DETECTOR_API = os.getenv("INTENT_DETECTOR_API")
 BUSINESS_REASONER_API = os.getenv("BUSINESS_REASONER_API")
 QUERY_OPTIMIZER_API = os.getenv("QUERY_OPTIMIZER_API")
 RESPONSE_FORMATTER_API = os.getenv("RESPONSE_FORMATTER_API")
 FOLLOW_UP_API = os.getenv("FOLLOW_UP_API")
 
-# Per-node model selection: each workflow component can use different model
+# Special nodes API configuration
+IMAGE_API = os.getenv("IMAGE_API") or INTENT_DETECTOR_API
+ICP_API = os.getenv("ICP_API") or INTENT_DETECTOR_API
+
+# --- OpenRouter Models (Per-Node) ---
+# Each workflow component can use different model
 INTENT_DETECTOR_MODEL = os.getenv("INTENT_DETECTOR_MODEL")
 BUSINESS_REASONER_MODEL = os.getenv("BUSINESS_REASONER_MODEL")
 QUERY_OPTIMIZER_MODEL = os.getenv("QUERY_OPTIMIZER_MODEL")
 RESPONSE_FORMATTER_MODEL = os.getenv("RESPONSE_FORMATTER_MODEL")
 FOLLOW_UP_MODEL = os.getenv("FOLLOW_UP_MODEL")
 
-# 📸 IMAGE ANALYSIS CONFIGURATION
-IMAGE_API = os.getenv("IMAGE_API") or INTENT_DETECTOR_API
+# Special nodes model configuration
 IMAGE_MODEL = os.getenv("IMAGE_MODEL") or INTENT_DETECTOR_MODEL
-
-# 📄 ICP ANALYSIS CONFIGURATION
-ICP_API = os.getenv("ICP_API") or INTENT_DETECTOR_API
 ICP_MODEL = os.getenv("ICP_MODEL") or INTENT_DETECTOR_MODEL
 
-# Fallback API Keys
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # Keep for backwards compatibility
-
-# [API] GOOGLE CLOUD VERTEX AI CONFIGURATION (2025)
+# --- Google Cloud Vertex AI Configuration ---
 # Minimal credentials for Vertex AI
 GOOGLE_CLOUD_PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT_ID")
 GOOGLE_CLOUD_API_KEY = os.getenv("GOOGLE_CLOUD_API_KEY")
@@ -69,6 +79,7 @@ GOOGLE_APPLICATION_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")  # 
 # Force Vertex AI usage (set automatically in client)
 GOOGLE_GENAI_USE_VERTEXAI = os.getenv("GOOGLE_GENAI_USE_VERTEXAI", "true").lower() == "true"
 
+# --- Provider Selection (Per-Node) ---
 # LLM Provider Selection - per-node configuration
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "openrouter")  # Default to OpenRouter
 INTENT_DETECTOR_PROVIDER = os.getenv("INTENT_DETECTOR_PROVIDER", LLM_PROVIDER)
@@ -79,6 +90,7 @@ FOLLOW_UP_PROVIDER = os.getenv("FOLLOW_UP_PROVIDER", LLM_PROVIDER)
 IMAGE_PROVIDER = os.getenv("IMAGE_PROVIDER", LLM_PROVIDER)
 ICP_PROVIDER = os.getenv("ICP_PROVIDER", LLM_PROVIDER)
 
+# --- Gemini Models (Per-Node) ---
 # Gemini model configuration (optimal defaults per-node)
 GEMINI_DEFAULT_MODEL = os.getenv("GEMINI_DEFAULT_MODEL", "gemini-2.5-flash")
 
@@ -91,7 +103,7 @@ FOLLOW_UP_GEMINI_MODEL = os.getenv("FOLLOW_UP_GEMINI_MODEL", "gemini-2.5-pro")  
 IMAGE_GEMINI_MODEL = os.getenv("IMAGE_GEMINI_MODEL", "gemini-2.5-flash")  # Vision optimized
 ICP_GEMINI_MODEL = os.getenv("ICP_GEMINI_MODEL", "gemini-2.5-pro")  # Analysis priority
 
-# [AI] THINKING CONFIGURATION (per-node thinking budget)
+# --- Thinking Configuration (Gemini Only) ---
 # Only for provider=gemini - OpenRouter doesn't support thinking
 # Leave empty = use Gemini's default thinking
 GEMINI_DEFAULT_THINKING_BUDGET = os.getenv("GEMINI_DEFAULT_THINKING_BUDGET")
@@ -105,6 +117,27 @@ RESPONSE_FORMATTER_THINKING_BUDGET = os.getenv("RESPONSE_FORMATTER_THINKING_BUDG
 FOLLOW_UP_THINKING_BUDGET = os.getenv("FOLLOW_UP_THINKING_BUDGET")
 IMAGE_THINKING_BUDGET = os.getenv("IMAGE_THINKING_BUDGET")
 ICP_THINKING_BUDGET = os.getenv("ICP_THINKING_BUDGET")
+
+# --- Temperature Configuration (Per-Node) ---
+# Per-node temperature configuration (used by both Gemini and OpenRouter providers)
+INTENT_DETECTOR_TEMPERATURE = float(os.getenv("INTENT_DETECTOR_TEMPERATURE", "0.3"))  # Intent detection temperature
+BUSINESS_REASONER_TEMPERATURE = float(os.getenv("BUSINESS_REASONER_TEMPERATURE", "0.3"))  # Business reasoning temperature
+QUERY_OPTIMIZER_TEMPERATURE = float(os.getenv("QUERY_OPTIMIZER_TEMPERATURE", "0.3"))  # Query optimization temperature
+RESPONSE_FORMATTER_TEMPERATURE = float(os.getenv("RESPONSE_FORMATTER_TEMPERATURE", "0.3"))  # Response formatting temperature
+FOLLOW_UP_TEMPERATURE = float(os.getenv("FOLLOW_UP_TEMPERATURE", "0.1"))  # Low temperature for consistent cache evaluation
+ICP_TEMPERATURE = float(os.getenv("ICP_TEMPERATURE", "0.1"))  # Low temperature for consistent JSON output
+
+# Gemini fallback temperature (when no temperature parameter provided)
+GEMINI_DEFAULT_TEMPERATURE = float(os.getenv("GEMINI_DEFAULT_TEMPERATURE", "0.3"))  # Default temperature when none specified
+
+# --- Legacy/Compatibility Configuration ---
+# Fallback API Keys
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # Keep for backwards compatibility
+
+# Common settings
+OPENAI_EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
+OPENAI_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS", "16384"))
+OPENAI_TEMPERATURE = float(os.getenv("OPENAI_TEMPERATURE", "0.3"))  # Default to Qwen3 32B
 
 # [CONFIG] GEMINI GENERATION PARAMETERS (COMMENTED OUT - using Gemini defaults)
 # See: backend/src/temperature_topp_topk_gemini.md for detailed explanation
@@ -121,66 +154,78 @@ ICP_THINKING_BUDGET = os.getenv("ICP_THINKING_BUDGET")
 # else:
 #     GEMINI_TOP_K = None
 
-# Common settings
-OPENAI_EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
-OPENAI_MAX_TOKENS = int(os.getenv("OPENAI_MAX_TOKENS", "16384"))
-OPENAI_TEMPERATURE = float(os.getenv("OPENAI_TEMPERATURE", "0.3"))  # Default to Qwen3 32B
 
+# ==========================================
+# ⚙️ APPLICATION CONFIGURATION
+# ==========================================
 
-
-
-####################TEMPERATURE##############################
-
-# Per-node temperature configuration
-INTENT_DETECTOR_TEMPERATURE = float(os.getenv("INTENT_DETECTOR_TEMPERATURE", "0.3"))  # Intent detection temperature
-
-# Business Reasoner Configuration  
-BUSINESS_REASONER_TEMPERATURE = float(os.getenv("BUSINESS_REASONER_TEMPERATURE", "0.3"))  # Business reasoning temperature
-
-# Follow-up Evaluator Configuration
-FOLLOW_UP_TEMPERATURE = float(os.getenv("FOLLOW_UP_TEMPERATURE", "0.1"))  # Low temperature for consistent cache evaluation
-
-# ICP Analysis Configuration
-ICP_TEMPERATURE = float(os.getenv("ICP_TEMPERATURE", "0.1"))  # Low temperature for consistent JSON output
-
-
-
-# App Configuration
+# Search configuration
 DEFAULT_K_VALUE = int(os.getenv("DEFAULT_K_VALUE", "12"))
 ENHANCED_K_VALUE = int(os.getenv("ENHANCED_K_VALUE", "12"))
 
-# [SEARCH] PINECONE PARALLEL SEARCH CONFIGURATION
+# Pinecone parallel search configuration
 MAX_CONCURRENT_QUERIES = int(os.getenv("MAX_CONCURRENT_QUERIES", "4"))
 MAX_CONCURRENT_EMBEDDINGS = int(os.getenv("MAX_CONCURRENT_EMBEDDINGS", "4"))
 PINECONE_POOL_THREADS = int(os.getenv("PINECONE_POOL_THREADS", "50"))
 PINECONE_CONNECTION_POOL_MAX = int(os.getenv("PINECONE_CONNECTION_POOL_MAX", "50"))
 ENABLE_PARALLEL_SEARCH = os.getenv("ENABLE_PARALLEL_SEARCH", "true").lower() == "true"
 
+# Language support
 SUPPORTED_LANGUAGES = os.getenv("SUPPORTED_LANGUAGES", "pl,en,de,fr,es,it").split(",")
+
+
+# ==========================================
+# 📁 PATHS & FILES CONFIGURATION
+# ==========================================
 
 # Paths - Use absolute path based on file location
 PRODUCTS_FILE_PATH = os.getenv("PRODUCTS_FILE_PATH") or str(Path(__file__).parent.parent.absolute() / "data" / "products.json")
 PRODUCTS_TURBO_FILE_PATH = os.getenv("PRODUCTS_TURBO_FILE_PATH") or str(Path(__file__).parent.parent.absolute() / "data" / "products_turbo.json")
 
+
+# ==========================================
+# 🌐 SERVER & API CONFIGURATION
+# ==========================================
+
 # Server Configuration
 CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:8080").split(",")
+
+
+# ==========================================
+# 🔐 AUTHENTICATION & SECURITY
+# ==========================================
 
 # Authentication Configuration
 AQUAFOREST_AUTH_TOKEN = os.getenv("AQUAFOREST_AUTH_TOKEN")
 ENABLE_AUTH_TOKEN = os.getenv("ENABLE_AUTH_TOKEN", "true").lower() == "true"
 
-# [API] FACEBOOK MESSENGER CONFIGURATION
+
+# ==========================================
+# 📱 EXTERNAL INTEGRATIONS
+# ==========================================
+
+# Facebook Messenger Configuration
 MESSENGER_ON = os.getenv("MESSENGER_ON", "true").lower() == "true"
 MESSENGER_PAGE_ACCESS_TOKEN = os.getenv("MESSENGER_TOKEN")
 MESSENGER_VERIFY_TOKEN = os.getenv("MESSENGER_VERIFY_TOKEN", "aquaforest_webhook_2025")
 FACEBOOK_API_VERSION = os.getenv("FACEBOOK_API_VERSION", "v22.0")
 
-# [NEW] COMPETITOR LIST
+
+# ==========================================
+# 🏢 BUSINESS CONFIGURATION
+# ==========================================
+
+# Competitor list
 COMPETITORS = [
     "Red Sea", "Seachem", "Tropic Marin", "Brightwell", "Two Little Fishies",
     "Salifert", "Continuum", "Korallen-Zucht", "ESV", "Kent Marine",
     "Aqua Medic", "Fauna Marin", "Nyos", "ATI", "Giesemann"
 ]
+
+
+# ==========================================
+# ✅ VALIDATION & STARTUP
+# ==========================================
 
 # Validate required variables
 if not PINECONE_API_KEY:
@@ -243,6 +288,10 @@ if ENABLE_AUTH_TOKEN and not AQUAFOREST_AUTH_TOKEN:
     raise ValueError("AQUAFOREST_AUTH_TOKEN is required when ENABLE_AUTH_TOKEN=true")
 
 
+# ==========================================
+# 📊 DEBUG INFORMATION DISPLAY
+# ==========================================
+
 # Print configuration status on import (only in debug mode)
 if TEST_ENV:
     logger.header("[CONFIG] CONFIGURATION LOADED")
@@ -292,5 +341,3 @@ if TEST_ENV:
     logger.configuration(f"Auth Token: {'ENABLED' if ENABLE_AUTH_TOKEN else 'DISABLED'}", "SUB")
     logger.configuration("Confidence Scorer: REMOVED for better performance", "SUB")
     logger.separator()
-
-
