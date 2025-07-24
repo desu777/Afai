@@ -47,7 +47,7 @@ class WorkflowAnalytics:
         if not message:
             message = self._get_node_message(node_name)
         
-        # 🔍 DEBUG: Check streaming callback
+        # [DEBUG] DEBUG: Check streaming callback
         logger.debug(f"node_name='{node_name}', message='{message}'", "DETAIL")
         logger.debug(f"streaming_callback={self.streaming_callback}", "DETAIL")
         
@@ -68,7 +68,7 @@ class WorkflowAnalytics:
         elapsed_time = time.time() - self.start_time
         
         if not message:
-            message = f"✅ {self._get_node_message(node_name)} - Complete"
+            message = f"[OK] {self._get_node_message(node_name)} - Complete"
         
         if self.streaming_callback:
             self.streaming_callback({
@@ -93,16 +93,16 @@ class WorkflowAnalytics:
     def _get_node_message(self, node_name: str) -> str:
         """Get human-readable message for node execution"""
         messages = {
-            "detect_intent_and_language": "🔍 Understanding your question...",
-            "load_product_names": "📋 Loading product database...",
-            "business_reasoner": "🧠 Analyzing your needs...",
-            "optimize_product_query": "🔎 Optimizing search...",
-            "search_products_k20": "🗃️ Searching product catalog...",
-            "format_final_response": "✍️ Generating response...",
-            "handle_follow_up": "🔄 Processing follow-up...",
-            "follow_up_router": "🔄 Analyzing context..."
+            "detect_intent_and_language": "[DEBUG] Understanding your question...",
+            "load_product_names": "[INFO] Loading product database...",
+            "business_reasoner": "[AI] Analyzing your needs...",
+            "optimize_product_query": "[SEARCH] Optimizing search...",
+            "search_products_k20": "[DB] Searching product catalog...",
+            "format_final_response": "[LOG] Generating response...",
+            "handle_follow_up": "[PROCESS] Processing follow-up...",
+            "follow_up_router": "[PROCESS] Analyzing context..."
         }
-        return messages.get(node_name, f"⚙️ Processing {node_name}...")
+        return messages.get(node_name, f"[CONFIG] Processing {node_name}...")
     
     def capture_state_data(self, state: ConversationState):
         """Capture comprehensive workflow data"""

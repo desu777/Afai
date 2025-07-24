@@ -12,22 +12,22 @@ class AquaforestLogger:
     Enhanced logger with elegant formatting and hierarchical structure
     """
     
-    # Log categories with consistent emoji and color coding
+    # Log categories with consistent ASCII icons
     CATEGORIES = {
-        'CONFIGURATION': '🔧',
-        'WORKFLOW': '🔍',
-        'STREAMING': '📡',
-        'SECURITY': '🔑',
-        'DATABASE': '🗄️',
-        'ERROR': '⚠️',
-        'PERFORMANCE': '⏱️',
-        'SESSION': '🆔',
-        'API': '🚀',
-        'RATE_LIMIT': '🔥',
-        'SEARCH': '🔎',
-        'ANALYSIS': '🧠',
-        'CACHE': '💾',
-        'DEBUG': '🔍'
+        'CONFIGURATION': '[CONFIG]',
+        'WORKFLOW': '[WORKFLOW]',
+        'STREAMING': '[STREAM]',
+        'SECURITY': '[AUTH]',
+        'DATABASE': '[DB]',
+        'ERROR': '[ERROR]',
+        'PERFORMANCE': '[PERF]',
+        'SESSION': '[SESSION]',
+        'API': '[API]',
+        'RATE_LIMIT': '[LIMIT]',
+        'SEARCH': '[SEARCH]',
+        'ANALYSIS': '[AI]',
+        'CACHE': '[CACHE]',
+        'DEBUG': '[DEBUG]'
     }
     
     # Indentation levels
@@ -55,7 +55,7 @@ class AquaforestLogger:
     
     def _get_emoji(self, category: str) -> str:
         """Get emoji for category"""
-        return self.CATEGORIES.get(category.upper(), '📌')
+        return self.CATEGORIES.get(category.upper(), '[INFO]')
     
     def separator(self, title: str = "", width: int = 60, char: str = "="):
         """Print elegant separator with optional title"""
@@ -203,7 +203,7 @@ class AquaforestLogger:
 logger = AquaforestLogger()
 
 # Convenience functions for backward compatibility
-def debug_print(message: str, emoji: str = "🔍", category: str = "DEBUG"):
+def debug_print(message: str, emoji: str = "[DEBUG]", category: str = "DEBUG"):
     """Legacy debug_print function for backward compatibility"""
     logger.log(category, message.replace(emoji, "").strip())
 

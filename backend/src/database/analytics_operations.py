@@ -43,10 +43,10 @@ def save_analytics_to_db(analytics_instance, global_analytics=None):
             ))
             
             conn.commit()
-            debug_print("✅ Analytics saved to database")
+            debug_print("[OK] Analytics saved to database")
             
     except Exception as e:
-        debug_print(f"❌ Error saving analytics: {e}")
+        debug_print(f"[ERROR] Error saving analytics: {e}")
 
 
 def record_gemini_usage(node_name: str, api_key_hash: str, success: bool = True):
@@ -81,10 +81,10 @@ def record_gemini_usage(node_name: str, api_key_hash: str, success: bool = True)
                 """, (node_name, api_key_hash, today, success_count, error_count))
             
             conn.commit()
-            debug_print(f"🔑 [DB] Recorded Gemini usage: {node_name} ({'success' if success else 'error'})")
+            debug_print(f"[AUTH] [DB] Recorded Gemini usage: {node_name} ({'success' if success else 'error'})")
             
     except Exception as e:
-        debug_print(f"❌ Error recording Gemini usage: {e}")
+        debug_print(f"[ERROR] Error recording Gemini usage: {e}")
 
 
 def get_daily_gemini_usage(node_name: str, api_key_hash: str, target_date: str = None) -> int:
@@ -103,11 +103,11 @@ def get_daily_gemini_usage(node_name: str, api_key_hash: str, target_date: str =
             result = cursor.fetchone()
             usage_count = result["success_count"] if result else 0
             
-            debug_print(f"🔍 [DB] Daily usage for {node_name}: {usage_count}/500")
+            debug_print(f"[DEBUG] [DB] Daily usage for {node_name}: {usage_count}/500")
             return usage_count
             
     except Exception as e:
-        debug_print(f"❌ Error getting daily Gemini usage: {e}")
+        debug_print(f"[ERROR] Error getting daily Gemini usage: {e}")
         return 0  # Safe fallback - assume no usage on error
 
 
@@ -169,5 +169,5 @@ def get_gemini_usage_stats(start_date: str = None, end_date: str = None) -> dict
             }
             
     except Exception as e:
-        debug_print(f"❌ Error getting Gemini usage stats: {e}")
+        debug_print(f"[ERROR] Error getting Gemini usage stats: {e}")
         return {"node_stats": {}, "daily_trend": [], "date_range": {}}

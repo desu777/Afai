@@ -11,7 +11,7 @@ from intent_detector import detect_intent_and_language
 from business_reasoner import business_reasoner
 from query_optimizer import optimize_product_query
 from pinecone_client import search_products_k20
-# 🗑️ REMOVED: from results_filter import intelligent_results_filter - Business Reasoner does smart filtering
+# [REMOVED] from results_filter import intelligent_results_filter - Business Reasoner does smart filtering
 from response_formatter import format_final_response
 import json
 from config import PRODUCTS_FILE_PATH, TEST_ENV, debug_print, ENHANCED_K_VALUE
@@ -22,10 +22,10 @@ def timing_wrapper(func):
     """Decorator to measure execution time of workflow nodes with analytics and streaming"""
     @wraps(func)
     def wrapper(state: ConversationState) -> ConversationState:
-        # 🆕 Get analytics instance from state instead of global variable
+        # [NEW] Get analytics instance from state instead of global variable
         session_analytics = state.get("analytics_instance")
         
-        # 🔍 DEBUG: Check if analytics is set
+        # [DEBUG] Check if analytics is set
         logger.debug(f"session_analytics is: {session_analytics}", "DETAIL")
         
         # Capture node start for streaming
@@ -102,7 +102,7 @@ def route_intent(state: ConversationState) -> str:
 
 def enhanced_follow_up_router(state: ConversationState) -> ConversationState:
     """Enhanced follow-up router with session-based cache and Flash 2.0 evaluation
-    🔧 FIXED: Removed double timing_wrapper to eliminate state synchronization issues
+    [FIXED] Removed double timing_wrapper to eliminate state synchronization issues
     """
     from session_manager import get_session_manager
     from follow_up_evaluator import evaluate_follow_up_cache
@@ -155,7 +155,7 @@ def enhanced_follow_up_router(state: ConversationState) -> ConversationState:
 
 def route_enhanced_follow_up(state: ConversationState) -> str:
     """Enhanced follow-up router based on Flash 2.0 evaluation with confidence threshold
-    🔧 ADDED: Confidence threshold 0.7 - use cache if confidence >= 0.7
+    [ADDED] Confidence threshold 0.7 - use cache if confidence >= 0.7
     """
     # Store routing decision for analytics
     if "routing_decisions" not in state:
@@ -173,7 +173,7 @@ def route_enhanced_follow_up(state: ConversationState) -> str:
         })
         return "business_reasoner"
     
-    # 🔧 NEW: Confidence threshold logic - override LLM decision if confidence >= 0.7
+    # [NEW] Confidence threshold logic - override LLM decision if confidence >= 0.7
     confidence = evaluation.get("confidence", 0.0)
     sufficient = evaluation.get("sufficient", False)
     
@@ -228,9 +228,9 @@ def create_workflow() -> StateGraph:
         ("business_reasoner", timing_wrapper(business_reasoner)),
         ("optimize_query", timing_wrapper(optimize_product_query)),
         ("search_pinecone", timing_wrapper(search_products_k20)),
-        # 🗑️ REMOVED: ("evaluate_confidence", evaluate_confidence) - CONFIDENCE SCORER DELETED
+        # [REMOVED] ("evaluate_confidence", evaluate_confidence) - CONFIDENCE SCORER DELETED
         ("format_response", timing_wrapper(format_final_response)),
-        # 🔧 FIXED: No timing_wrapper to avoid double wrapping
+        # [FIXED] No timing_wrapper to avoid double wrapping
         ("enhanced_follow_up_router", enhanced_follow_up_router)
     ]
     
@@ -241,7 +241,7 @@ def create_workflow() -> StateGraph:
     # Define edges
     workflow.set_entry_point("detect_intent")
     workflow.add_edge("detect_intent", "load_products")
-    # 🚀 OPTIMIZATION: Route directly after load_products to skip business_reasoner for special intents
+    # [OPTIMIZATION] Route directly after load_products to skip business_reasoner for special intents
     workflow.add_conditional_edges(
         "load_products", route_intent,
         {
@@ -252,7 +252,7 @@ def create_workflow() -> StateGraph:
     )
     # Business reasoner now only handles product queries
     workflow.add_edge("business_reasoner", "optimize_query")
-    # 🔧 FIXED: Enhanced follow-up router with proper conditional edge function
+    # [FIXED] Enhanced follow-up router with proper conditional edge function
     workflow.add_conditional_edges(
         "enhanced_follow_up_router", route_enhanced_follow_up,
         {
@@ -261,7 +261,7 @@ def create_workflow() -> StateGraph:
         }
     )
     workflow.add_edge("optimize_query", "search_pinecone")
-    # 🚀 DIRECT ROUTING: search_pinecone → format_response (no confidence check)
+    # [DIRECT] search_pinecone → format_response (no confidence check)
     workflow.add_edge("search_pinecone", "format_response")
     
     # All paths lead to END
@@ -274,4 +274,4 @@ def create_workflow() -> StateGraph:
 # Create and export the workflow app
 app = create_workflow()
 
-# 🗑️ REMOVED: set_workflow_analytics - analytics now passed via state
+# [REMOVED] set_workflow_analytics - analytics now passed via state

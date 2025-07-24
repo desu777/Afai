@@ -21,19 +21,19 @@ class PromptBuilder:
         intent = state.get("intent", "product_query")
         
         if TEST_ENV:
-            print(f"\n📝 [DEBUG ResponseFormatter] Formatting response for intent='{intent}', language='{lang}'")
+            print(f"\n[LOG] [DEBUG ResponseFormatter] Formatting response for intent='{intent}', language='{lang}'")
         
         # Handle ICP analysis with specialized prompt
         if intent == Intent.ANALYZE_ICP:
             if TEST_ENV:
-                print(f"🔬 [DEBUG ResponseFormatter] Using specialized ICP analysis prompt")
+                print(f"[MAGIC] [DEBUG ResponseFormatter] Using specialized ICP analysis prompt")
             return self.create_icp_analysis_prompt(state)
         
         # Handle special intents first
         if intent in [Intent.GREETING, Intent.BUSINESS, 
                      Intent.PURCHASE_INQUIRY, Intent.COMPETITOR, Intent.CENSORED, Intent.SUPPORT, Intent.OTHER]:
             if TEST_ENV:
-                print(f"🎭 [DEBUG ResponseFormatter] Handling special intent: {intent}")
+                print(f"[MASK] [DEBUG ResponseFormatter] Handling special intent: {intent}")
             return self.create_special_intent_prompt(state)
         
         # Format conversation history
@@ -54,8 +54,8 @@ class PromptBuilder:
         if is_dosage_query:
             aquarium_volume = calculation_helper.extract_volume_from_query(state.get("user_query", ""))
             if TEST_ENV:
-                print(f"💊 [DEBUG ResponseFormatter] Dosage query detected!")
-                print(f"📏 [DEBUG ResponseFormatter] Extracted volume: {aquarium_volume}L" if aquarium_volume else "📏 [DEBUG ResponseFormatter] No volume extracted")
+                print(f"[DOSE] [DEBUG ResponseFormatter] Dosage query detected!")
+                print(f"[INFO] [DEBUG ResponseFormatter] Extracted volume: {aquarium_volume}L" if aquarium_volume else "[INFO] [DEBUG ResponseFormatter] No volume extracted")
         
         # Build context sections
         category_context = self._build_category_context(state)
@@ -96,7 +96,7 @@ class PromptBuilder:
         # Fallback to simple prompt if template fails
         if not prompt:
             if TEST_ENV:
-                print("⚠️ [ResponseFormatter] Using fallback hardcoded prompt")
+                print("[WARN] [ResponseFormatter] Using fallback hardcoded prompt")
             prompt = f"""
 You are AF AI, assistant for Aquaforest. 
 Generate helpful response about: "{state.get('user_query', '')}"
@@ -113,7 +113,7 @@ Respond in {lang} language.
         user_query = state.get("user_query", "")
         
         if TEST_ENV:
-            print(f"🎯 [DEBUG ResponseFormatter] Creating prompt for special intent: {intent}")
+            print(f"[TARGET] [DEBUG ResponseFormatter] Creating prompt for special intent: {intent}")
         
         # SUPPORT intent using template
         if intent == Intent.SUPPORT:
@@ -206,7 +206,7 @@ Respond in {lang} language.
         
         # FALLBACK for unknown intents or template failures
         if TEST_ENV:
-            print(f"⚠️ [ResponseFormatter] Using fallback for intent: {intent}")
+            print(f"[WARN] [ResponseFormatter] Using fallback for intent: {intent}")
         
         return f"""
 You are AF AI, Aquaforest's passionate assistant.
@@ -221,7 +221,7 @@ Respond helpfully and professionally in {lang} language.
         user_query = state.get("user_query", "")
         
         if TEST_ENV:
-            print(f"🔬 [DEBUG PromptBuilder] Creating ICP analysis prompt")
+            print(f"[MAGIC] [DEBUG PromptBuilder] Creating ICP analysis prompt")
         
         # Format conversation history
         chat_history_formatted = ""
@@ -271,7 +271,7 @@ Respond helpfully and professionally in {lang} language.
         # Fallback if template loading fails
         if not prompt:
             if TEST_ENV:
-                print("⚠️ [PromptBuilder] Using fallback for ICP analysis")
+                print("[WARN] [PromptBuilder] Using fallback for ICP analysis")
             prompt = f"""
 You are AF AI, specialized in ICP water test analysis.
 Analyze these ICP results: {icp_analysis}
@@ -281,7 +281,7 @@ Respond in {lang} language.
 """
         
         if TEST_ENV:
-            print(f"✅ [DEBUG PromptBuilder] ICP analysis prompt created ({len(prompt)} characters)")
+            print(f"[OK] [DEBUG PromptBuilder] ICP analysis prompt created ({len(prompt)} characters)")
         
         return prompt
 
@@ -357,7 +357,7 @@ You MUST mention that Balling/Component products contain multiple elements and a
         
         if state.get("search_results"):
             if TEST_ENV:
-                print(f"📊 [DEBUG ResponseFormatter] Processing {len(state.get('search_results', []))} results")
+                print(f"[STATS] [DEBUG ResponseFormatter] Processing {len(state.get('search_results', []))} results")
             
             # Process results and prepare dosage calculations
             for i, result in enumerate(state["search_results"]):

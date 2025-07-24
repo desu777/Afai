@@ -1,6 +1,6 @@
 """
 Query Optimization Module - Version 4.0 with OpenRouter
-🚀 Migrated to OpenRouter per-node configuration (2025)
+[API] Migrated to OpenRouter per-node configuration (2025)
 Enhanced to work with business reasoner's category detection
 """
 import json
@@ -44,7 +44,7 @@ class QueryOptimizer:
         self.client, self.model_name = create_query_optimizer_client()
         
         if TEST_ENV:
-            debug_print(f"🔍 [QueryOptimizer] Initialized with model: {self.model_name}")
+            debug_print(f"[DEBUG] [QueryOptimizer] Initialized with model: {self.model_name}")
         self.product_names = self._load_product_names()
         
     def _load_product_names(self) -> List[str]:
@@ -55,7 +55,7 @@ class QueryOptimizer:
                 return data
         except Exception as e:
             if TEST_ENV:
-                print(f"❌ [DEBUG QueryOptimizer] Error loading products: {e}")
+                print(f"[ERROR] [DEBUG QueryOptimizer] Error loading products: {e}")
             return []
     
     def _detect_comparison(self, query: str) -> List[str]:
@@ -75,7 +75,7 @@ class QueryOptimizer:
                 product1 = match.group(1).strip()
                 product2 = match.group(2).strip()
                 if TEST_ENV:
-                    print(f"🔍 [QueryOptimizer] Detected comparison: '{product1}' vs '{product2}'")
+                    print(f"[DEBUG] [QueryOptimizer] Detected comparison: '{product1}' vs '{product2}'")
                 return [product1, product2]
         return []
     
@@ -133,7 +133,7 @@ Search Enhancement: {ba.get('search_enhancement', 'None')}
 ---"""
             # Special handling for category requests
             if ba.get('category_requested') and products_in_category:
-                category_context = f"""🆕 CATEGORY REQUEST DETECTED: "{ba['category_requested']}"
+                category_context = f"""[NEW] CATEGORY REQUEST DETECTED: "{ba['category_requested']}"
 Products to find: {', '.join(products_in_category)}
 
 SPECIAL INSTRUCTIONS:
@@ -145,7 +145,7 @@ SPECIAL INSTRUCTIONS:
         # ENHANCED PROMPT WITH COMPARISON SUPPORT
         comparison_instructions = ""
         if comparison_products:
-            comparison_instructions = f"""🆕 COMPARISON DETECTED: User is comparing "{comparison_products[0]}" with "{comparison_products[1]}"
+            comparison_instructions = f"""[NEW] COMPARISON DETECTED: User is comparing "{comparison_products[0]}" with "{comparison_products[1]}"
 
 SPECIAL INSTRUCTIONS FOR COMPARISONS:
 1. Create SEPARATE search queries for EACH product being compared
@@ -160,7 +160,7 @@ Example: For "lava soil vs lava soil black":
 - "black lava soil aquarium benefits"
 """
         
-        # 🆕 ENHANCED: Include guaranteed products info
+        # [NEW] ENHANCED: Include guaranteed products info
         guaranteed_products = state.get("guaranteed_products", [])
         guaranteed_products_text = ', '.join(guaranteed_products) if guaranteed_products else "None"
         
@@ -180,7 +180,7 @@ Example: For "lava soil vs lava soil black":
         # Fallback to simple prompt if template fails
         if not prompt:
             if TEST_ENV:
-                print("⚠️ [QueryOptimizer] Using fallback hardcoded prompt")
+                print("[WARN] [QueryOptimizer] Using fallback hardcoded prompt")
             prompt = f"""
 Generate search queries for: "{query}"
 Return JSON: {{"optimized_queries": ["{query}"]}}
@@ -193,25 +193,25 @@ Return JSON: {{"optimized_queries": ["{query}"]}}
         query = state["user_query"]
         chat_history = state.get("chat_history", [])
         
-        # 🔍 DEBUG: Check AF alternatives
+        # [DEBUG] DEBUG: Check AF alternatives
         if state.get('af_alternatives_to_search'):
-            debug_print(f"🎯 [QueryOptimizer] Found af_alternatives_to_search: {len(state['af_alternatives_to_search'])} products")
+            debug_print(f"[TARGET] [QueryOptimizer] Found af_alternatives_to_search: {len(state['af_alternatives_to_search'])} products")
         
-        debug_print(f"🕵️ [QueryOptimizer] Original query: '{query}'")
+        debug_print(f"[DEBUG] [QueryOptimizer] Original query: '{query}'")
         if chat_history:
-            debug_print(f"📚 [QueryOptimizer] Context: last {len(chat_history[-4:])} messages")
+            debug_print(f"[INFO] [QueryOptimizer] Context: last {len(chat_history[-4:])} messages")
         
-        # 🆕 ENHANCED: Extract mentioned products from user query
+        # [NEW] ENHANCED: Extract mentioned products from user query
         mentioned_products = self._extract_mentioned_products(query)
         if mentioned_products:
-            debug_print(f"🎯 [QueryOptimizer] User mentioned products: {mentioned_products}")
+            debug_print(f"[TARGET] [QueryOptimizer] User mentioned products: {mentioned_products}")
         
         # Check for comparison
         comparison_products = self._detect_comparison(query)
         if comparison_products:
-            debug_print(f"🔀 [QueryOptimizer] Product comparison detected: {comparison_products}")
+            debug_print(f"[PROCESS] [QueryOptimizer] Product comparison detected: {comparison_products}")
         
-        # 🆕 ENHANCED: Collect all critical queries BEFORE LLM call
+        # [NEW] ENHANCED: Collect all critical queries BEFORE LLM call
         critical_queries = []
         guaranteed_products = set()  # Track products we'll find via guaranteed search
         
@@ -219,32 +219,32 @@ Return JSON: {{"optimized_queries": ["{query}"]}}
         critical_queries.extend(mentioned_products)
         guaranteed_products.update(mentioned_products)
         
-        # 🚀 ENHANCED: Add AF alternatives from competitor detection
+        # [API] ENHANCED: Add AF alternatives from competitor detection
         if state.get("af_alternatives_to_search"):
             af_alternatives = state["af_alternatives_to_search"]
-            debug_print(f"🎯 [QueryOptimizer] Adding AF alternatives: {af_alternatives}")
+            debug_print(f"[TARGET] [QueryOptimizer] Adding AF alternatives: {af_alternatives}")
             critical_queries.extend(af_alternatives)
             guaranteed_products.update(af_alternatives)
         
         # Log business intelligence usage and extract solutions
         if state.get("business_analysis"):
-            debug_print(f"🧠 [QueryOptimizer] Using business intelligence from business_reasoner")
+            debug_print(f"[AI] [QueryOptimizer] Using business intelligence from business_reasoner")
             ba = state["business_analysis"]
             
             if ba.get("product_name_corrections") and ba["product_name_corrections"] != "None":
-                debug_print(f"🔧 [QueryOptimizer] Product corrections: {ba['product_name_corrections']}")
+                debug_print(f"[CONFIG] [QueryOptimizer] Product corrections: {ba['product_name_corrections']}")
                 critical_queries.append(ba["product_name_corrections"])
                 guaranteed_products.add(ba["product_name_corrections"])
             
             if ba.get("category_requested"):
-                debug_print(f"📦 [QueryOptimizer] Category: {ba['category_requested']} with {len(ba.get('products_in_category', []))} products")
+                debug_print(f"[INFO] [QueryOptimizer] Category: {ba['category_requested']} with {len(ba.get('products_in_category', []))} products")
                 # Add all category products as critical queries
                 products_in_category = ba.get('products_in_category', [])
                 if isinstance(products_in_category, list):
                     critical_queries.extend(products_in_category)
                     guaranteed_products.update(products_in_category)
             
-            # 🆕 ENHANCED: Add solution products as critical queries
+            # [NEW] ENHANCED: Add solution products as critical queries
             solutions_for_problem = ba.get('solutions_for_problem', [])
             if isinstance(solutions_for_problem, dict):
                 # Extract solutions from dict structure
@@ -258,21 +258,21 @@ Return JSON: {{"optimized_queries": ["{query}"]}}
                 critical_queries.extend(solutions_for_problem)
                 guaranteed_products.update(solutions_for_problem)
             
-            # 🆕 ENHANCED: Add problem-specific queries (NOT product-specific)
+            # [NEW] ENHANCED: Add problem-specific queries (NOT product-specific)
             if ba.get("problem_identified"):
                 domain = ba.get("domain_hint", "unknown")
                 problem_queries = self._create_problem_queries(ba["problem_identified"], domain)
                 critical_queries.extend(problem_queries)
-                debug_print(f"🔧 [QueryOptimizer] Added {len(problem_queries)} problem-specific queries for: {ba['problem_identified']}")
+                debug_print(f"[CONFIG] [QueryOptimizer] Added {len(problem_queries)} problem-specific queries for: {ba['problem_identified']}")
             
             if ba.get("domain_hint") and ba["domain_hint"] != "unknown":
-                debug_print(f"🎯 [QueryOptimizer] Domain hint: {ba['domain_hint']}")
+                debug_print(f"[TARGET] [QueryOptimizer] Domain hint: {ba['domain_hint']}")
         
         # Remove duplicates from critical queries
         critical_queries = list(dict.fromkeys(critical_queries))  # Preserves order
         
         try:
-            # 🆕 SMART PROMPT: Tell LLM about guaranteed products to avoid redundancy
+            # [NEW] SMART PROMPT: Tell LLM about guaranteed products to avoid redundancy
             enhanced_state = state.copy()
             enhanced_state["guaranteed_products"] = list(guaranteed_products)
             
@@ -291,11 +291,11 @@ Return JSON: {{"optimized_queries": ["{query}"]}}
             # Use robust JSON parsing to handle Gemini response variations
             raw_content = response.choices[0].message.content
             if TEST_ENV:
-                debug_print(f"🤖 [QueryOptimizer] Raw Gemini response: {raw_content[:200]}...")
+                debug_print(f"[AI] [QueryOptimizer] Raw Gemini response: {raw_content[:200]}...")
             result = self.robust_json_parse(raw_content)
             llm_queries = result.get("optimized_queries", [query])
             
-            # 🆕 ENHANCED: Combine critical queries with LLM queries
+            # [NEW] ENHANCED: Combine critical queries with LLM queries
             # Critical queries go first (higher priority in search)
             final_queries = critical_queries + [q for q in llm_queries if q not in critical_queries]
             
@@ -306,18 +306,18 @@ Return JSON: {{"optimized_queries": ["{query}"]}}
             if comparison_products:
                 state["comparison_products"] = comparison_products
             
-            debug_print(f"✅ [QueryOptimizer] Final queries ({len(critical_queries)} critical + {len(llm_queries)} LLM): {state['optimized_queries']}")
+            debug_print(f"[OK] [QueryOptimizer] Final queries ({len(critical_queries)} critical + {len(llm_queries)} LLM): {state['optimized_queries']}")
                 
         except Exception as e:
             if TEST_ENV:
-                print(f"❌ [DEBUG QueryOptimizer] Query optimization error: {e}")
+                print(f"[ERROR] [DEBUG QueryOptimizer] Query optimization error: {e}")
             state["original_query"] = query
             
-            # 🆕 ENHANCED: Smart fallback using critical queries + intelligent backup
+            # [NEW] ENHANCED: Smart fallback using critical queries + intelligent backup
             if critical_queries:
                 smart_fallback = self._create_smart_fallback(state, critical_queries)
                 state["optimized_queries"] = smart_fallback
-                debug_print(f"⚠️ [QueryOptimizer] Smart fallback with {len(smart_fallback)} queries: {state['optimized_queries']}")
+                debug_print(f"[WARN] [QueryOptimizer] Smart fallback with {len(smart_fallback)} queries: {state['optimized_queries']}")
             elif state.get("business_analysis", {}).get("products_in_category"):
                 # If category detected, use product names as queries
                 products_in_category = state["business_analysis"]["products_in_category"]
@@ -325,15 +325,15 @@ Return JSON: {{"optimized_queries": ["{query}"]}}
                     state["optimized_queries"] = products_in_category + [query]
                 else:
                     state["optimized_queries"] = [query]
-                debug_print(f"⚠️ [QueryOptimizer] Fallback to category products: {state['optimized_queries']}")
+                debug_print(f"[WARN] [QueryOptimizer] Fallback to category products: {state['optimized_queries']}")
             elif comparison_products:
                 # Fallback for comparisons
                 state["optimized_queries"] = comparison_products + [query]
-                debug_print(f"⚠️ [QueryOptimizer] Fallback for comparison: {state['optimized_queries']}")
+                debug_print(f"[WARN] [QueryOptimizer] Fallback for comparison: {state['optimized_queries']}")
             else:
                 # Generic fallback
                 state["optimized_queries"] = [query]
-                debug_print(f"⚠️ [QueryOptimizer] Fallback to original query: {[query]}")
+                debug_print(f"[WARN] [QueryOptimizer] Fallback to original query: {[query]}")
             
         return state
 

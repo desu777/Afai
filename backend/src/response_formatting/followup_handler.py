@@ -14,8 +14,8 @@ def create_follow_up_prompt(state: ConversationState) -> str:
     chat_history_formatted = "\n".join([f"{msg['role']}: {msg['content']}" for msg in state.get("chat_history", [])])
     
     if TEST_ENV:
-        print(f"\n🔄 [DEBUG Follow-up] Creating prompt for follow-up in language: {lang}")
-        print(f"📦 [DEBUG Follow-up] Cache contains {len(state.get('context_cache', []))} items")
+        print(f"\n[PROCESS] [DEBUG Follow-up] Creating prompt for follow-up in language: {lang}")
+        print(f"[CACHE] [DEBUG Follow-up] Cache contains {len(state.get('context_cache', []))} items")
     
     # Check if follow-up is about dosage
     is_dosage_followup = any(word in state["user_query"].lower() 
@@ -49,7 +49,7 @@ COMPLETE METADATA:
     # Fallback to simple prompt if template fails
     if not prompt:
         if TEST_ENV:
-            print("⚠️ [Follow-up] Using fallback hardcoded prompt")
+            print("[WARN] [Follow-up] Using fallback hardcoded prompt")
         prompt = f"""
 Answer follow-up question: "{state['user_query']}"
 Based on conversation history and cached product information.
@@ -61,7 +61,7 @@ Respond in {lang} language.
 def handle_follow_up(state: ConversationState) -> ConversationState:
     """Handle follow-up questions using cached metadata"""
     if TEST_ENV:
-        print(f"\n🔄 [DEBUG Follow-up Handler] Handling follow-up question with cache")
+        print(f"\n[PROCESS] [DEBUG Follow-up Handler] Handling follow-up question with cache")
         
     try:
         client, model_name = create_response_formatter_client()
@@ -74,11 +74,11 @@ def handle_follow_up(state: ConversationState) -> ConversationState:
         state["final_response"] = response.choices[0].message.content
         
         if TEST_ENV:
-            print(f"✅ [DEBUG Follow-up Handler] Response generated using cache")
+            print(f"[OK] [DEBUG Follow-up Handler] Response generated using cache")
             
     except Exception as e:
         if TEST_ENV:
-            print(f"❌ [DEBUG Follow-up Handler] Follow-up handling error: {e}")
+            print(f"[ERROR] [DEBUG Follow-up Handler] Follow-up handling error: {e}")
         
         # Import here to avoid circular imports
         from .response_formatter import ResponseFormatter
@@ -90,7 +90,7 @@ def handle_follow_up(state: ConversationState) -> ConversationState:
 def escalate_to_human(state: ConversationState) -> ConversationState:
     """Escalate without automatically adding support contact"""
     if TEST_ENV:
-        print(f"\n🚨 [DEBUG Escalate] Escalating due to routing decision")
+        print(f"\n[ALERT] [DEBUG Escalate] Escalating due to routing decision")
     state["escalate"] = True
     
     # Create a custom prompt for escalation that doesn't include contact info
@@ -122,7 +122,7 @@ Respond in {lang} language.
         state["final_response"] = response.choices[0].message.content
     except Exception as e:
         if TEST_ENV:
-            print(f"❌ [DEBUG Escalate] Error generating escalation response: {e}")
+            print(f"[ERROR] [DEBUG Escalate] Error generating escalation response: {e}")
         # Import here to avoid circular imports
         from .response_formatter import ResponseFormatter
         formatter = ResponseFormatter()

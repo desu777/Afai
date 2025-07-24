@@ -13,17 +13,17 @@ load_environment()
 # Add test environment flag - can be dynamically changed
 TEST_ENV = os.getenv("TEST_ENV", "false").lower() == "true"
 
-# 🆕 FLAG TO DISABLE BUSINESS MAPPINGS FOR TESTING
+# [NEW] FLAG TO DISABLE BUSINESS MAPPINGS FOR TESTING
 DISABLE_BUSINESS_MAPPINGS = os.getenv("DISABLE_BUSINESS_MAPPINGS", "false").lower() == "true"
 
-# 🆕 FLAG TO ENABLE ONLY COMPETITORS MAPPING
+# [NEW] FLAG TO ENABLE ONLY COMPETITORS MAPPING
 ENABLE_COMPETITORS_ONLY = os.getenv("ENABLE_COMPETITORS_ONLY", "false").lower() == "true"
 
 # Import enhanced logger
 from utils.logger import logger
 
 # Enhanced debug print function
-def debug_print(message: str, emoji: str = "🔍"):
+def debug_print(message: str, emoji: str = "[DEBUG]"):
     """Enhanced debug print using centralized logger"""
     logger.debug(message.replace(emoji, "").strip())
 # --- END DEBUG ---
@@ -33,7 +33,7 @@ PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME", "aqua")
 PINECONE_ENVIRONMENT = os.getenv("PINECONE_ENVIRONMENT", "us-east-1-aws")
 
-# 🚀 OpenRouter Per-Node Configuration (2025)
+# [API] OpenRouter Per-Node Configuration (2025)
 # Per-node API keys: each workflow component has its own OpenRouter API key
 INTENT_DETECTOR_API = os.getenv("INTENT_DETECTOR_API")
 BUSINESS_REASONER_API = os.getenv("BUSINESS_REASONER_API")
@@ -59,7 +59,7 @@ ICP_MODEL = os.getenv("ICP_MODEL") or INTENT_DETECTOR_MODEL
 # Fallback API Keys
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")  # Keep for backwards compatibility
 
-# 🚀 GOOGLE CLOUD VERTEX AI CONFIGURATION (2025)
+# [API] GOOGLE CLOUD VERTEX AI CONFIGURATION (2025)
 # Minimal credentials for Vertex AI
 GOOGLE_CLOUD_PROJECT_ID = os.getenv("GOOGLE_CLOUD_PROJECT_ID")
 GOOGLE_CLOUD_API_KEY = os.getenv("GOOGLE_CLOUD_API_KEY")
@@ -91,7 +91,7 @@ FOLLOW_UP_GEMINI_MODEL = os.getenv("FOLLOW_UP_GEMINI_MODEL", "gemini-2.5-pro")  
 IMAGE_GEMINI_MODEL = os.getenv("IMAGE_GEMINI_MODEL", "gemini-2.5-flash")  # Vision optimized
 ICP_GEMINI_MODEL = os.getenv("ICP_GEMINI_MODEL", "gemini-2.5-pro")  # Analysis priority
 
-# 🧠 THINKING CONFIGURATION (per-node thinking budget)
+# [AI] THINKING CONFIGURATION (per-node thinking budget)
 # Only for provider=gemini - OpenRouter doesn't support thinking
 # Leave empty = use Gemini's default thinking
 GEMINI_DEFAULT_THINKING_BUDGET = os.getenv("GEMINI_DEFAULT_THINKING_BUDGET")
@@ -106,7 +106,7 @@ FOLLOW_UP_THINKING_BUDGET = os.getenv("FOLLOW_UP_THINKING_BUDGET")
 IMAGE_THINKING_BUDGET = os.getenv("IMAGE_THINKING_BUDGET")
 ICP_THINKING_BUDGET = os.getenv("ICP_THINKING_BUDGET")
 
-# 🎛️ GEMINI GENERATION PARAMETERS (COMMENTED OUT - using Gemini defaults)
+# [CONFIG] GEMINI GENERATION PARAMETERS (COMMENTED OUT - using Gemini defaults)
 # See: backend/src/temperature_topp_topk_gemini.md for detailed explanation
 # Let Gemini use its optimized default parameters (temp=1.0, top_p=0.95, top_k=default)
 # Uncomment and configure below if responses need fine-tuning:
@@ -149,7 +149,7 @@ ICP_TEMPERATURE = float(os.getenv("ICP_TEMPERATURE", "0.1"))  # Low temperature 
 DEFAULT_K_VALUE = int(os.getenv("DEFAULT_K_VALUE", "12"))
 ENHANCED_K_VALUE = int(os.getenv("ENHANCED_K_VALUE", "12"))
 
-# 🚀 PINECONE PARALLEL SEARCH CONFIGURATION
+# [SEARCH] PINECONE PARALLEL SEARCH CONFIGURATION
 MAX_CONCURRENT_QUERIES = int(os.getenv("MAX_CONCURRENT_QUERIES", "4"))
 MAX_CONCURRENT_EMBEDDINGS = int(os.getenv("MAX_CONCURRENT_EMBEDDINGS", "4"))
 PINECONE_POOL_THREADS = int(os.getenv("PINECONE_POOL_THREADS", "50"))
@@ -169,13 +169,13 @@ CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost
 AQUAFOREST_AUTH_TOKEN = os.getenv("AQUAFOREST_AUTH_TOKEN")
 ENABLE_AUTH_TOKEN = os.getenv("ENABLE_AUTH_TOKEN", "true").lower() == "true"
 
-# 🚀 FACEBOOK MESSENGER CONFIGURATION
+# [API] FACEBOOK MESSENGER CONFIGURATION
 MESSENGER_ON = os.getenv("MESSENGER_ON", "true").lower() == "true"
 MESSENGER_PAGE_ACCESS_TOKEN = os.getenv("MESSENGER_TOKEN")
 MESSENGER_VERIFY_TOKEN = os.getenv("MESSENGER_VERIFY_TOKEN", "aquaforest_webhook_2025")
 FACEBOOK_API_VERSION = os.getenv("FACEBOOK_API_VERSION", "v22.0")
 
-# 🆕 COMPETITOR LIST
+# [NEW] COMPETITOR LIST
 COMPETITORS = [
     "Red Sea", "Seachem", "Tropic Marin", "Brightwell", "Two Little Fishies",
     "Salifert", "Continuum", "Korallen-Zucht", "ESV", "Kent Marine",
@@ -245,7 +245,7 @@ if ENABLE_AUTH_TOKEN and not AQUAFOREST_AUTH_TOKEN:
 
 # Print configuration status on import (only in debug mode)
 if TEST_ENV:
-    logger.header("🔧 CONFIGURATION LOADED")
+    logger.header("[CONFIG] CONFIGURATION LOADED")
     logger.configuration("Debug Mode: ENABLED")
     logger.configuration(f"Business Mappings: {'DISABLED' if DISABLE_BUSINESS_MAPPINGS else 'ENABLED'}")
     logger.configuration(f"Competitors Only: {'ENABLED' if ENABLE_COMPETITORS_ONLY else 'DISABLED'}")

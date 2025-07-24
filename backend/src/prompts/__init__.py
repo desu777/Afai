@@ -44,5 +44,5 @@ def load_prompt_template(template_name: str, access_level: str = None, **kwargs)
         
     except Exception as e:
         # Fallback - return empty string so calling code can handle
-        print(f"❌ Error loading prompt template '{actual_template_name if 'actual_template_name' in locals() else template_name}': {e}")
+        print(f"[ERROR] Error loading prompt template '{actual_template_name if 'actual_template_name' in locals() else template_name}': {e}")
         return "" 

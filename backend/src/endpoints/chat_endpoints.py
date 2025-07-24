@@ -193,7 +193,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
         start_time = time.time()
         
         try:
-            debug_print(f"📨 [Server] Received chat request: {chat_request.message[:50]}...", "🔍")
+            debug_print(f"[API] Received chat request: {chat_request.message[:50]}...", "[DEBUG]")
             
             # Handle session management
             from session_manager import get_session_manager
@@ -203,9 +203,9 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
             if not session_id:
                 # Generate new session for first-time users
                 session_id = session_manager.generate_session_id()
-                debug_print(f"🆕 [Server] Generated new session: {session_id}")
+                debug_print(f"[NEW] Generated new session: {session_id}")
             else:
-                debug_print(f"🔄 [Server] Using existing session: {session_id}")
+                debug_print(f"[REUSE] Using existing session: {session_id}")
             
             # Create conversation state with global analytics and session
             conversation_state = {
@@ -233,7 +233,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
                 "analytics_instance": global_analytics
             }
             
-            debug_print(f"🔄 [Server] Processing with workflow (debug={chat_request.debug})", "⚙️")
+            debug_print(f"[PROCESS] Processing with workflow (debug={chat_request.debug})", "[CONFIG]")
             
             # Create assistant instance with global analytics for non-streaming requests
             non_streaming_assistant = AquaforestAssistant(analytics_instance=global_analytics)
@@ -247,7 +247,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
             # Save extended cache to session if available
             if result_state.get("extended_cache"):
                 session_manager.update_session_cache(session_id, result_state["extended_cache"])
-                debug_print(f"💾 [Server] Updated session cache for {session_id}")
+                debug_print(f"[CACHE] Updated session cache for {session_id}")
             
             # Save analytics to database
             save_analytics_to_db(global_analytics)
@@ -255,7 +255,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
             # Calculate execution time
             execution_time = time.time() - start_time
             
-            debug_print(f"✅ [Server] Response ready in {execution_time:.3f}s", "⏱️")
+            debug_print(f"[OK] Response ready in {execution_time:.3f}s", "[TIME]")
             
             return ChatResponse(
                 response=result_state.get("final_response", "Sorry, I couldn't process your request."),
@@ -268,7 +268,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
             execution_time = time.time() - start_time
             error_msg = f"An error occurred while processing your request: {str(e)}"
             
-            debug_print(f"❌ [Server] Error: {error_msg}", "🚨")
+            debug_print(f"[ERROR] Error: {error_msg}", "[WARN]")
             
             if TEST_ENV:
                 return ChatResponse(

@@ -41,12 +41,12 @@ Generate search queries that maximize relevant results while avoiding redundancy
    - When user provides ICP test results, analyze the STATUS column for each parameter
    - Create targeted queries based on parameter status:
      
-   **HIGH parameters (⬆️ HIGH status):**
+   **HIGH parameters (HIGH status):**
    - PO4/Phosphate HIGH → "phosphate reduction methods", "PO4 control products", "high phosphate solutions"
    - NO3/Nitrate HIGH → "nitrate reduction strategies", "NO3 lowering techniques", "high nitrate management"
    - Any element HIGH → "[element_name] reduction methods", "how to lower [element_name]"
    
-   **LOW parameters (⬇️ LOW status):**
+   **LOW parameters (LOW status):**
    - Iron LOW → "iron supplementation", "Fe boost products", "iron deficiency coral"
    - Cobalt LOW → "cobalt supplements", "Co dosing methods", "cobalt importance reef"
    - Chromium LOW → "chromium supplementation", "Cr coral growth", "chromium deficiency"

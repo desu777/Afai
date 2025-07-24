@@ -18,7 +18,7 @@ def setup_debug_endpoints(app, tier3_rate_limit, global_rate_limit, vision_rate_
     async def root(request: Request):
         """Health check endpoint"""
         return {
-            "message": "🐠 Aquaforest RAG API is running",
+            "message": "[API] Aquaforest RAG API is running",
             "version": "2.2.0",
             "status": "healthy",
             "analytics_enabled": True
@@ -183,7 +183,7 @@ def setup_debug_endpoints(app, tier3_rate_limit, global_rate_limit, vision_rate_
             }
             
         except Exception as e:
-            debug_print(f"❌ [VisionTest] Error: {e}", "🚨")
+            debug_print(f"[ERROR] VisionTest Error: {e}", "[WARN]")
             raise HTTPException(status_code=500, detail=f"Vision analysis error: {str(e)}")
 
     # Vision Analysis Examples Endpoint

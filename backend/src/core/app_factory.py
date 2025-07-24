@@ -47,12 +47,12 @@ def run_server():
     """Run the FastAPI server"""
     # Always show server startup (not dependent on TEST_ENV)
     print("\n" + "="*60)
-    print("🐠 Starting Aquaforest RAG API Server with Analytics")
+    print("[API] Starting Aquaforest RAG API Server with Analytics")
     print("="*60)
-    print(f"📍 Port: 2103")
-    print(f"📍 Debug Mode: {'ON' if TEST_ENV else 'OFF'}")
-    print(f"📍 CORS Origins: {CORS_ORIGINS}")
-    print(f"📊 Analytics Database: {DB_PATH}")
+    print(f"[INFO] Port: 2103")
+    print(f"[INFO] Debug Mode: {'ON' if TEST_ENV else 'OFF'}")
+    print(f"[INFO] CORS Origins: {CORS_ORIGINS}")
+    print(f"[DB] Analytics Database: {DB_PATH}")
     
     # Clean up old messenger history on startup
     cleanup_old_messenger_history()

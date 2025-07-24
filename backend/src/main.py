@@ -24,7 +24,7 @@ class AquaforestAssistant:
         # Start timing
         start_time = time.time()
         
-        # 🆕 Add analytics instance to state for per-session streaming
+        # [NEW] Add analytics instance to state for per-session streaming
         if self.analytics_instance:
             state["analytics_instance"] = self.analytics_instance
         
@@ -97,7 +97,7 @@ def main():
     
     # Always show interactive mode header (not dependent on TEST_ENV)
     print("\n" + "="*60)
-    print("🐠 Aquaforest AI Assistant - Interactive Mode")
+    print("[AI] Aquaforest AI Assistant - Interactive Mode")
     print("="*60)
     print("\nCommands:")
     print("  • 'quit' or 'exit' - Exit the program")
@@ -121,32 +121,32 @@ def main():
             "original_query": "", "optimized_queries": [], "search_results": [],
             "iteration": 0, "final_response": "",
             "escalate": False, "domain_filter": None, "chat_history": [], "context_cache": [],
-            "session_id": session_id, "extended_cache": None,  # 🆕 Session fields
-            "image_url": None, "image_analysis": None,  # 🆕 Vision analysis fields
+            "session_id": session_id, "extended_cache": None,  # [NEW] Session fields
+            "image_url": None, "image_analysis": None,  # [NEW] Vision analysis fields
             "node_timings": {}, "routing_decisions": [], "total_execution_time": 0.0, "analytics_instance": None
         }
 
     conversation_state = get_new_state()
-    print(f"🆔 Session ID: {conversation_state['session_id']}")
+    print(f"[SESSION] Session ID: {conversation_state['session_id']}")
 
     while True:
         try:
             user_input = input("You: ").strip()
             
             if user_input.lower() in ['quit', 'exit', 'q']:
-                print("\n👋 Goodbye! Thank you for using Aquaforest AI Assistant.")
+                print("\n[EXIT] Goodbye! Thank you for using Aquaforest AI Assistant.")
                 break
                 
             if user_input.lower() == 'debug':
                 debug_mode = not debug_mode
-                print(f"\n{'🔍' if debug_mode else '🔒'} Debug mode is now {'ON' if debug_mode else 'OFF'}")
+                print(f"\n[{'DEBUG' if debug_mode else 'NORMAL'}] Debug mode is now {'ON' if debug_mode else 'OFF'}")
                 print("-"*40)
                 continue
 
             if user_input.lower() == 'new':
                 conversation_state = get_new_state()
-                print(f"\n🆕 Starting new conversation...")
-                print(f"🆔 Session ID: {conversation_state['session_id']}")
+                print(f"\n[NEW] Starting new conversation...")
+                print(f"[SESSION] Session ID: {conversation_state['session_id']}")
                 print("-"*40)
                 continue
                 
@@ -155,21 +155,21 @@ def main():
                 session_manager = get_session_manager()
                 extended_cache = session_manager.get_session_cache(conversation_state['session_id'])
                 
-                print(f"\n📊 Session Cache Stats:")
-                print(f"🆔 Session ID: {conversation_state['session_id']}")
+                print(f"\n[CACHE] Session Cache Stats:")
+                print(f"[SESSION] Session ID: {conversation_state['session_id']}")
                 if extended_cache:
-                    print(f"📦 Metadata items: {len(extended_cache.get('metadata', []))}")
-                    print(f"🤖 Model responses: {len(extended_cache.get('model_responses', []))}")
-                    print(f"🎯 Context fields: {len(extended_cache.get('conversation_context', {}))}")
-                    print(f"⏰ Last updated: {extended_cache.get('timestamp', 'unknown')}")
+                    print(f"[DATA] Metadata items: {len(extended_cache.get('metadata', []))}")
+                    print(f"[AI] Model responses: {len(extended_cache.get('model_responses', []))}")
+                    print(f"[CONTEXT] Context fields: {len(extended_cache.get('conversation_context', {}))}")
+                    print(f"[TIME] Last updated: {extended_cache.get('timestamp', 'unknown')}")
                 else:
-                    print("❌ No cache found for this session")
+                    print("[ERROR] No cache found for this session")
                 
                 global_stats = session_manager.get_session_stats()
-                print(f"\n🌍 Global Stats:")
-                print(f"📈 Total sessions: {global_stats['total_sessions']}")
-                print(f"🟢 Active sessions: {global_stats['active_sessions']}")
-                print(f"⏱️ TTL: {global_stats['ttl_minutes']} minutes")
+                print(f"\n[GLOBAL] Global Stats:")
+                print(f"[STATS] Total sessions: {global_stats['total_sessions']}")
+                print(f"[ACTIVE] Active sessions: {global_stats['active_sessions']}")
+                print(f"[TTL] TTL: {global_stats['ttl_minutes']} minutes")
                 print("-"*40)
                 continue
                 
@@ -177,12 +177,12 @@ def main():
                 from session_manager import get_session_manager
                 session_manager = get_session_manager()
                 cleaned = session_manager.manual_cleanup()
-                print(f"\n🧹 Manually cleaned {cleaned} expired sessions")
+                print(f"\n[CLEANUP] Manually cleaned {cleaned} expired sessions")
                 print("-"*40)
                 continue
                 
             if user_input.lower() == 'help':
-                print("\n📖 Available commands:")
+                print("\n[HELP] Available commands:")
                 print("  • 'quit'/'exit' - Exit the program")
                 print("  • 'debug' - Toggle debug mode (currently: {})".format('ON' if debug_mode else 'OFF'))
                 print("  • 'new' - Start a new conversation")
@@ -202,12 +202,12 @@ def main():
                 session_manager = get_session_manager()
                 cleaned = session_manager.manual_cleanup()
                 if cleaned > 0 and debug_mode:
-                    print(f"🧹 Cleaned {cleaned} expired sessions")
+                    print(f"[CLEANUP] Cleaned {cleaned} expired sessions")
                 
             conversation_state["user_query"] = user_input
             conversation_state["iteration"] = 0
 
-            # 🔧 DEBUG: Session ID tracking zgodnie z rules (TEST_ENV)
+            # [DEBUG] Session ID tracking zgodnie z rules (TEST_ENV)
             if config.TEST_ENV or debug_mode:
                 session_id = conversation_state.get('session_id', 'NONE')
                 logger.debug(f"Processing query with session_id: {session_id}")
@@ -219,7 +219,7 @@ def main():
                 else:
                     logger.debug("No existing cache found for session", "SUB")
 
-            print("\n🤖 Assistant: ", end="", flush=True)
+            print("\n[AI] Assistant: ", end="", flush=True)
             
             updated_state = assistant.process_query_sync(conversation_state, debug=debug_mode)
             
@@ -235,7 +235,7 @@ def main():
             print("\n" + "-"*60 + "\n")
             
         except KeyboardInterrupt:
-            print("\n\n⚠️  Interrupted by user. Type 'quit' to exit properly.")
+            print("\n\n[WARN] Interrupted by user. Type 'quit' to exit properly.")
             continue
         except Exception as e:
             if debug_mode:  # Only show errors in debug mode

@@ -15,7 +15,7 @@ from config import (
 from models import ConversationState
 from main import AquaforestAssistant
 
-# 🚀 MESSAGE DEDUPLICATION CACHE
+# [API] MESSAGE DEDUPLICATION CACHE
 processed_messages = set()  # Simple in-memory cache for message IDs
 
 def clean_processed_messages_cache():
@@ -24,9 +24,9 @@ def clean_processed_messages_cache():
     if len(processed_messages) > 1000:  # Keep last 500 messages
         # Convert to list, keep last 500, convert back to set
         processed_messages = set(list(processed_messages)[-500:])
-        debug_print(f"🧹 [Cache] Cleaned message cache, now has {len(processed_messages)} entries", "🧹")
+        debug_print(f"[CLEANUP] [Cache] Cleaned message cache, now has {len(processed_messages)} entries", "[CLEANUP]")
 
-# 🆕 MARKDOWN TO CLEAN TEXT CONVERTER
+# [NEW] MARKDOWN TO CLEAN TEXT CONVERTER
 def convert_markdown_to_messenger_text(text: str) -> str:
     """Convert Markdown formatting to clean, readable text for Facebook Messenger"""
     if not text:
@@ -74,7 +74,7 @@ def convert_markdown_to_messenger_text(text: str) -> str:
     
     return text.strip()
 
-# 🚀 FACEBOOK MESSENGER MODELS
+# [API] FACEBOOK MESSENGER MODELS
 class MessengerUser(BaseModel):
     """Facebook Messenger user"""
     id: str
@@ -113,7 +113,7 @@ class MessengerWebhookData(BaseModel):
     object: str
     entry: list[MessengerWebhookEntry]
 
-# 🚀 MESSENGER UTILITIES
+# [API] MESSENGER UTILITIES
 def send_messenger_message(user_id: str, message: str) -> bool:
     """Send message via Facebook Messenger API"""
     try:
@@ -133,14 +133,14 @@ def send_messenger_message(user_id: str, message: str) -> bool:
         response = requests.post(url, json=data, headers=headers)
         
         if response.status_code == 200:
-            debug_print(f"✅ [Messenger] Message sent to {user_id}", "📤")
+            debug_print(f"[OK] [Messenger] Message sent to {user_id}", "[STREAM]")
             return True
         else:
-            debug_print(f"❌ [Messenger] Failed to send message: {response.status_code} {response.text}", "📤")
+            debug_print(f"[ERROR] [Messenger] Failed to send message: {response.status_code} {response.text}", "[STREAM]")
             return False
             
     except Exception as e:
-        debug_print(f"❌ [Messenger] Error sending message: {e}", "📤")
+        debug_print(f"[ERROR] [Messenger] Error sending message: {e}", "[STREAM]")
         return False
 
 def verify_webhook_signature(payload: bytes, signature: str) -> bool:
@@ -158,7 +158,7 @@ def verify_webhook_signature(payload: bytes, signature: str) -> bool:
         
         return hmac.compare_digest(expected_signature, signature)
     except Exception as e:
-        debug_print(f"❌ [Messenger] Signature verification failed: {e}", "🔐")
+        debug_print(f"[ERROR] [Messenger] Signature verification failed: {e}", "[AUTH]")
         return False
 
 def split_long_message(message: str, max_length: int = 1950) -> list[str]:
@@ -212,12 +212,12 @@ def split_long_message(message: str, max_length: int = 1950) -> list[str]:
 def send_messenger_messages(user_id: str, message: str) -> bool:
     """Send message(s) via Facebook Messenger API with intelligent splitting"""
     try:
-        # 🆕 Convert Markdown to Messenger-friendly text
+        # [NEW] Convert Markdown to Messenger-friendly text
         cleaned_message = convert_markdown_to_messenger_text(message)
-        debug_print(f"📝 [Messenger] Converted Markdown to plain text ({len(message)} → {len(cleaned_message)} chars)", "📝")
+        debug_print(f"[LOG] [Messenger] Converted Markdown to plain text ({len(message)} chars to {len(cleaned_message)} chars)", "[LOG]")
         
         chunks = split_long_message(cleaned_message)
-        debug_print(f"📤 [Messenger] Sending {len(chunks)} message chunk(s) to {user_id}", "📤")
+        debug_print(f"[STREAM] [Messenger] Sending {len(chunks)} message chunk(s) to {user_id}", "[STREAM]")
         
         all_success = True
         for i, chunk in enumerate(chunks):
@@ -234,36 +234,36 @@ def send_messenger_messages(user_id: str, message: str) -> bool:
         return all_success
         
     except Exception as e:
-        debug_print(f"❌ [Messenger] Error sending messages: {e}", "📤")
+        debug_print(f"[ERROR] [Messenger] Error sending messages: {e}", "[STREAM]")
         return False
 
-# 🚀 WEBHOOK HANDLERS
+# [API] WEBHOOK HANDLERS
 async def webhook_verify(
     hub_mode: str = Query(None, alias="hub.mode"),
     hub_challenge: str = Query(None, alias="hub.challenge"), 
     hub_verify_token: str = Query(None, alias="hub.verify_token")
 ):
     """Webhook verification endpoint for Facebook"""
-    # 🚫 Check if Messenger is enabled
+    # [INFO] Check if Messenger is enabled
     if not MESSENGER_ON:
-        debug_print("🚫 [Webhook] Messenger integration is DISABLED (MESSENGER_ON=false)", "🚫")
+        debug_print("[INFO] [Webhook] Messenger integration is DISABLED (MESSENGER_ON=false)", "[INFO]")
         raise HTTPException(status_code=404, detail="Messenger integration disabled")
     
-    debug_print(f"🔍 [Webhook] Verification request: mode={hub_mode}, token={hub_verify_token}", "🔐")
+    debug_print(f"[DEBUG] [Webhook] Verification request: mode={hub_mode}, token={hub_verify_token}", "[AUTH]")
     
     if hub_mode == "subscribe" and hub_verify_token == MESSENGER_VERIFY_TOKEN:
-        debug_print("✅ [Webhook] Verification successful!", "🔐")
+        debug_print("[OK] [Webhook] Verification successful!", "[AUTH]")
         return int(hub_challenge)
     else:
-        debug_print("❌ [Webhook] Verification failed!", "🔐")
+        debug_print("[ERROR] [Webhook] Verification failed!", "[AUTH]")
         raise HTTPException(status_code=403, detail="Forbidden")
 
 async def webhook_handler(request: Request, assistant: AquaforestAssistant, 
                           load_history_func=None, save_message_func=None):
     """Main webhook handler for Facebook Messenger"""
-    # 🚫 Check if Messenger is enabled
+    # [INFO] Check if Messenger is enabled
     if not MESSENGER_ON:
-        debug_print("🚫 [Webhook] Messenger integration is DISABLED (MESSENGER_ON=false)", "🚫")
+        debug_print("[INFO] [Webhook] Messenger integration is DISABLED (MESSENGER_ON=false)", "[INFO]")
         raise HTTPException(status_code=404, detail="Messenger integration disabled")
     
     try:
@@ -271,56 +271,56 @@ async def webhook_handler(request: Request, assistant: AquaforestAssistant,
         body = await request.body()
         signature = request.headers.get("X-Hub-Signature-256", "")
         
-        debug_print(f"📨 [Webhook] Received webhook request", "📥")
+        debug_print(f"[STREAM] [Webhook] Received webhook request", "[STREAM]")
         
         # Verify signature (optional in development)
         if not TEST_ENV and not verify_webhook_signature(body, signature):
-            debug_print("❌ [Webhook] Invalid signature", "🔐")
+            debug_print("[ERROR] [Webhook] Invalid signature", "[AUTH]")
             raise HTTPException(status_code=403, detail="Invalid signature")
         
         # Parse webhook data
         webhook_data = MessengerWebhookData.parse_raw(body)
         
-        debug_print(f"✅ [Webhook] Valid webhook data received: {webhook_data.object}", "📥")
+        debug_print(f"[OK] [Webhook] Valid webhook data received: {webhook_data.object}", "[STREAM]")
         
         # Process each entry
         for entry in webhook_data.entry:
-            debug_print(f"📋 [Webhook] Processing entry {entry.id}", "⚙️")
+            debug_print(f"[INFO] [Webhook] Processing entry {entry.id}", "[CONFIG]")
             
             for messaging_event in entry.messaging:
                 # Only process text messages (skip delivery receipts, read receipts, etc.)
                 if messaging_event.message and messaging_event.message.text:
-                    # 🔍 CHECK FOR DUPLICATE MESSAGES
+                    # [DEBUG] CHECK FOR DUPLICATE MESSAGES
                     message_id = messaging_event.message.mid
                     if message_id in processed_messages:
-                        debug_print(f"⏭️ [Webhook] Skipping duplicate message {message_id}", "🔄")
+                        debug_print(f"[INFO] [Webhook] Skipping duplicate message {message_id}", "[PROCESS]")
                         continue
                     
                     # Mark as processed immediately
                     processed_messages.add(message_id)
-                    debug_print(f"✅ [Webhook] Processing new message {message_id}", "🆕")
+                    debug_print(f"[OK] [Webhook] Processing new message {message_id}", "[NEW]")
                     
                     # Clean cache if needed
                     clean_processed_messages_cache()
                     
-                    # 🚀 PROCESS ASYNCHRONOUSLY - don't wait for completion
+                    # [API] PROCESS ASYNCHRONOUSLY - don't wait for completion
                     import asyncio
                     task = asyncio.create_task(process_messenger_message(
                         messaging_event, assistant, load_history_func, save_message_func
                     ))
-                    debug_print(f"🚀 [Webhook] Started async processing for {message_id}", "🚀")
+                    debug_print(f"[API] [Webhook] Started async processing for {message_id}", "[API]")
                     
                 elif messaging_event.delivery:
-                    debug_print(f"📨 [Webhook] Delivery receipt received", "📨")
+                    debug_print(f"[STREAM] [Webhook] Delivery receipt received", "[STREAM]")
                 elif messaging_event.read:
-                    debug_print(f"👁️ [Webhook] Read receipt received", "👁️")
+                    debug_print(f"[INFO] [Webhook] Read receipt received", "[INFO]")
                 else:
-                    debug_print(f"⏭️ [Webhook] Skipping non-text event", "⚙️")
+                    debug_print(f"[INFO] [Webhook] Skipping non-text event", "[CONFIG]")
         
         return {"status": "EVENT_RECEIVED"}
         
     except Exception as e:
-        debug_print(f"❌ [Webhook] Error processing webhook: {e}", "🚨")
+        debug_print(f"[ERROR] [Webhook] Error processing webhook: {e}", "[ALERT]")
         # Return 200 to avoid Facebook retry loops
         return {"status": "ERROR", "message": str(e)}
 
@@ -332,16 +332,16 @@ async def process_messenger_message(messaging_event, assistant: AquaforestAssist
         user_id = messaging_event.sender.id
         message_text = messaging_event.message.text
         
-        debug_print(f"💬 [Messenger] Processing message from {user_id}: '{message_text[:50]}...'", "🧠")
+        debug_print(f"[INFO] [Messenger] Processing message from {user_id}: '{message_text[:50]}...'", "[AI]")
         
-        # 🆕 Load chat history for context (last exchange only)
+        # [NEW] Load chat history for context (last exchange only)
         chat_history = []
         if load_history_func:
             chat_history = load_history_func(user_id)
             if chat_history:
-                debug_print(f"📚 [Messenger] Using {len(chat_history)} messages for context", "📚")
+                debug_print(f"[INFO] [Messenger] Using {len(chat_history)} messages for context", "[INFO]")
         
-        # 🆕 Save user message to history
+        # [NEW] Save user message to history
         if save_message_func:
             save_message_func(user_id, "user", message_text, message_id)
         
@@ -360,14 +360,14 @@ async def process_messenger_message(messaging_event, assistant: AquaforestAssist
             "domain_filter": None,
             "chat_history": chat_history,
             "context_cache": [],
-            "image_url": None,  # 🆕 Vision analysis - TODO: add Messenger image support
-            "image_analysis": None,  # 🆕 Will be filled by intent detector
+            "image_url": None,  # [NEW] Vision analysis - TODO: add Messenger image support
+            "image_analysis": None,  # [NEW] Will be filled by intent detector
             "node_timings": {},
             "routing_decisions": [],
             "total_execution_time": 0.0
         }
         
-        debug_print(f"🔄 [Messenger] Processing with RAG workflow", "⚙️")
+        debug_print(f"[PROCESS] [Messenger] Processing with RAG workflow", "[CONFIG]")
         
         # Process with RAG system
         result_state = assistant.process_query_sync(conversation_state, debug=TEST_ENV)
@@ -375,9 +375,9 @@ async def process_messenger_message(messaging_event, assistant: AquaforestAssist
         # Extract response
         ai_response = result_state.get("final_response", "Sorry, I couldn't process your request.")
         
-        debug_print(f"✅ [Messenger] Generated response ({len(ai_response)} chars): '{ai_response[:100]}...'", "🤖")
+        debug_print(f"[OK] [Messenger] Generated response ({len(ai_response)} chars): '{ai_response[:100]}...'", "[AI]")
         
-        # 🆕 Save assistant response to history
+        # [NEW] Save assistant response to history
         if save_message_func:
             save_message_func(user_id, "assistant", ai_response)
         
@@ -385,16 +385,16 @@ async def process_messenger_message(messaging_event, assistant: AquaforestAssist
         success = send_messenger_messages(user_id, ai_response)
         
         if success:
-            debug_print(f"🎉 [Messenger] Successfully handled message {message_id} from {user_id}", "✅")
+            debug_print(f"[OK] [Messenger] Successfully handled message {message_id} from {user_id}", "[OK]")
         else:
-            debug_print(f"❌ [Messenger] Failed to send response for {message_id} to {user_id}", "📤")
+            debug_print(f"[ERROR] [Messenger] Failed to send response for {message_id} to {user_id}", "[STREAM]")
             
     except Exception as e:
-        debug_print(f"❌ [Messenger] Error processing message {message_id}: {e}", "🚨")
+        debug_print(f"[ERROR] [Messenger] Error processing message {message_id}: {e}", "[ALERT]")
         # Remove from processed cache so it can be retried
         if message_id in processed_messages:
             processed_messages.discard(message_id)
-            debug_print(f"🔄 [Messenger] Removed {message_id} from cache for retry", "🔄")
+            debug_print(f"[PROCESS] [Messenger] Removed {message_id} from cache for retry", "[PROCESS]")
         
         # Send error message to user
         error_msg = "I apologize, but I encountered an error. Please try again or contact support@aquaforest.eu"

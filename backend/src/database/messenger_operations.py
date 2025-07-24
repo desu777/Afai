@@ -32,14 +32,14 @@ def load_messenger_chat_history(user_id: str) -> List[Dict[str, str]]:
                 })
             
             if chat_history:
-                debug_print(f"📚 [Messenger] Loaded {len(chat_history)} messages for context for user {user_id}")
+                debug_print(f"[INFO] [Messenger] Loaded {len(chat_history)} messages for context for user {user_id}")
                 return chat_history
             else:
-                debug_print(f"📭 [Messenger] No chat history found for user {user_id}")
+                debug_print(f"[INFO] [Messenger] No chat history found for user {user_id}")
                 return []
                 
     except Exception as e:
-        debug_print(f"❌ [Messenger] Error loading chat history for {user_id}: {e}")
+        debug_print(f"[ERROR] [Messenger] Error loading chat history for {user_id}: {e}")
         return []
 
 def save_messenger_message(user_id: str, role: str, content: str, message_id: str = None):
@@ -54,10 +54,10 @@ def save_messenger_message(user_id: str, role: str, content: str, message_id: st
             """, (user_id, role, content, message_id))
             
             conn.commit()
-            debug_print(f"💾 [Messenger] Saved {role} message for user {user_id}")
+            debug_print(f"[CACHE] [Messenger] Saved {role} message for user {user_id}")
             
     except Exception as e:
-        debug_print(f"❌ [Messenger] Error saving message for {user_id}: {e}")
+        debug_print(f"[ERROR] [Messenger] Error saving message for {user_id}: {e}")
 
 def cleanup_old_messenger_history(days_to_keep: int = 30):
     """Clean up old messages to prevent database bloat"""
@@ -74,7 +74,7 @@ def cleanup_old_messenger_history(days_to_keep: int = 30):
             conn.commit()
             
             if deleted_count > 0:
-                debug_print(f"🧹 [Messenger] Cleaned up {deleted_count} old messages (older than {days_to_keep} days)")
+                debug_print(f"[CLEANUP] [Messenger] Cleaned up {deleted_count} old messages (older than {days_to_keep} days)")
                 
     except Exception as e:
-        debug_print(f"❌ [Messenger] Error cleaning up old messages: {e}")
+        debug_print(f"[ERROR] [Messenger] Error cleaning up old messages: {e}")

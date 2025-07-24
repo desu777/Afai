@@ -1,11 +1,11 @@
 """
 Intent and Language Detection Module - Enhanced Version 3.0 with OpenRouter
-🚀 Migrated to OpenRouter per-node configuration (2025)
+Migrated to OpenRouter per-node configuration (2025)
 Detects user intent and language from the query with better context understanding
 """
 import json
-import re  # 🆕 For ICP URL detection
-import base64  # 🆕 For PDF processing
+import re  # For ICP URL detection
+import base64  # For PDF processing
 from pathlib import Path
 from typing import Dict, Any
 from openai import OpenAI
@@ -144,7 +144,7 @@ If the user's question builds upon or continues the conversation context, it's l
 """
 
 
-        # 🆕 IMAGE ANALYSIS HINT
+        # IMAGE ANALYSIS HINT
         image_hint = ""
         if state.get("image_url") and state.get("image_analysis"):
             image_hint = f"""
@@ -153,7 +153,7 @@ Image description: {state['image_analysis']}
 This is very likely intent: "product_query" - user wants help with aquarium problems shown in image!
 """
 
-        # 🆕 ICP CONTENT HINT - For PDFs with ICP data
+        # ICP CONTENT HINT - For PDFs with ICP data
         icp_content_hint = ""
         if state.get("icp_data") or state.get("icp_analysis"):
             icp_content_hint = """
@@ -167,9 +167,9 @@ This is DEFINITELY intent: "analyze_icp" - user wants analysis of their water pa
             chat_history_formatted=chat_history_formatted,
             user_query=state['user_query'],
             conversation_context_hint=conversation_context_hint,
-            image_hint=image_hint,  # 🆕 Pass image hint to template
-            icp_content_hint=icp_content_hint,  # 🆕 Pass ICP content hint to template
-            competitors=self.competitors_list  # 🆕 Pass competitors list to template
+            image_hint=image_hint,  #  Pass image hint to template
+            icp_content_hint=icp_content_hint,  # Pass ICP content hint to template
+            competitors=self.competitors_list  #  Pass competitors list to template
         )
         
         # Fallback to hardcoded prompt if template fails
@@ -282,7 +282,7 @@ Return ONLY a valid JSON object:
             if image_analysis:
                 state["image_analysis"] = image_analysis
                 
-                # 🆕 ENHANCE USER QUERY with image description (use language from text analysis)
+                # ENHANCE USER QUERY with image description (use language from text analysis)
                 detected_language = state.get("detected_language", "en")
                 if detected_language == "pl":
                     enhanced_query = f"{state['user_query']}\n\nUser dodał zdjęcie -> Opis zdjęcia: {image_analysis}"
@@ -345,7 +345,7 @@ Return ONLY a valid JSON object:
                 
                 state["icp_analysis"] = formatted_icp_data
                 
-                # 🆕 ENHANCE USER QUERY with ICP analysis (use language from text analysis)
+                #  ENHANCE USER QUERY with ICP analysis (use language from text analysis)
                 detected_language = state.get("detected_language", "en")
                 if detected_language == "pl":
                     enhanced_query = f"{state['user_query']}\n\nUser dodał wyniki ICP -> Analiza ICP:\n{formatted_icp_data}"
@@ -383,7 +383,7 @@ Return ONLY a valid JSON object:
             if state.get("image_url"):
                 print(f"[IMG] Image provided")
         
-        # 🆕 CONTENT ANALYSIS FIRST - check for ICP URLs/PDFs and images BEFORE text analysis
+        #  CONTENT ANALYSIS FIRST - check for ICP URLs/PDFs and images BEFORE text analysis
         
         # Check image_url if provided
         image_url = state.get("image_url", "")
@@ -405,7 +405,7 @@ Return ONLY a valid JSON object:
             if TEST_ENV:
                 print(f"[?] Unknown image_url type")
         
-        # 🔄 TEXT ANALYSIS SECOND - now with enhanced query that includes ICP/image context
+        #  TEXT ANALYSIS SECOND - now with enhanced query that includes ICP/image context
         try:
             if TEST_ENV:
                 print(f"[?] Processing text analysis")

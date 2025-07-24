@@ -20,7 +20,7 @@ import time
 class PineconeSearchClient:
     def __init__(self):
         self.pc = Pinecone(api_key=PINECONE_API_KEY)
-        # 🚀 PERFORMANCE: Configure connection pool for parallel operations
+        # [PERF] PERFORMANCE: Configure connection pool for parallel operations
         self.index = self.pc.Index(
             PINECONE_INDEX_NAME,
             pool_threads=PINECONE_POOL_THREADS,
@@ -67,7 +67,7 @@ class PineconeSearchClient:
         freshwater_score = sum(1 for keyword in freshwater_keywords if keyword in context_text)
         marine_score = sum(1 for keyword in marine_keywords if keyword in context_text)
         
-        debug_print(f"🔍 [PineconeSearch] Freshwater score: {freshwater_score}, Marine score: {marine_score}")
+        debug_print(f"[SEARCH] [PineconeSearch] Freshwater score: {freshwater_score}, Marine score: {marine_score}")
         
         if freshwater_score > marine_score:
             return Domain.FRESHWATER
@@ -79,14 +79,14 @@ class PineconeSearchClient:
     def search(
         self, 
         queries: List[str], 
-        k: int = None,  # 🆕 DYNAMIC: Default to None, will use ENHANCED_K_VALUE
+        k: int = None,  # [NEW] DYNAMIC: Default to None, will use ENHANCED_K_VALUE
         state: Optional[ConversationState] = None
     ) -> List[SearchResult]:
         """
-        🆕 HYBRID SEARCH: Combines vector search with guaranteed product search
+        [NEW] HYBRID SEARCH: Combines vector search with guaranteed product search
         Now with dynamic K value from ENHANCED_K_VALUE
         """
-        # 🚀 PARALLEL SEARCH: Route to parallel or sequential based on configuration
+        # [PERF] PARALLEL SEARCH: Route to parallel or sequential based on configuration
         if ENABLE_PARALLEL_SEARCH:
             return self._parallel_search(queries, k, state)
         else:
@@ -99,23 +99,23 @@ class PineconeSearchClient:
         state: Optional[ConversationState] = None
     ) -> List[SearchResult]:
         """
-        📚 SEQUENTIAL SEARCH: Original implementation (fallback)
+        [DATA] SEQUENTIAL SEARCH: Original implementation (fallback)
         """
-        # 🆕 DYNAMIC K VALUE
+        # [NEW] DYNAMIC K VALUE
         if k is None:
             k = ENHANCED_K_VALUE
         
         if TEST_ENV:
-            print(f"🔍 [PineconeSearch] Using dynamic K={k} (ENHANCED_K_VALUE={ENHANCED_K_VALUE})")
+            print(f"[SEARCH] [PineconeSearch] Using dynamic K={k} (ENHANCED_K_VALUE={ENHANCED_K_VALUE})")
         
         # Auto-detect domain if not explicitly set
         domain_filter = None
         if state:
             domain_filter = self._detect_domain_from_context(state)
             if domain_filter:
-                debug_print(f"🎯 [PineconeSearch] Auto-detected domain filter: {domain_filter.value}")
+                debug_print(f"[TARGET] [PineconeSearch] Auto-detected domain filter: {domain_filter.value}")
         
-        # 🆕 HYBRID SEARCH: Extract critical products for guaranteed search
+        # [NEW] HYBRID SEARCH: Extract critical products for guaranteed search
         critical_products = []
         if state and state.get("business_analysis"):
             ba = state["business_analysis"]
@@ -128,10 +128,10 @@ class PineconeSearchClient:
             if isinstance(products_in_category, list):
                 critical_products.extend(products_in_category)
         
-        # 🚀 ENHANCED: Add AF alternatives from Business Reasoner
+        # [PERF] ENHANCED: Add AF alternatives from Business Reasoner
         if state and state.get("af_alternatives_to_search"):
             af_alternatives = state["af_alternatives_to_search"]
-            debug_print(f"🎯 [PineconeSearch] Adding AF alternatives to guaranteed search: {af_alternatives}")
+            debug_print(f"[TARGET] [PineconeSearch] Adding AF alternatives to guaranteed search: {af_alternatives}")
             critical_products.extend(af_alternatives)
         
         # Extract mentioned products from queries (first few queries are usually critical)
@@ -151,22 +151,22 @@ class PineconeSearchClient:
         critical_products.extend(mentioned_products)
         critical_products = list(set(critical_products))  # Remove duplicates
         
-        # 🆕 GUARANTEED SEARCH for critical products + collect not found
+        # [NEW] GUARANTEED SEARCH for critical products + collect not found
         guaranteed_results = {}
-        fallback_queries = []  # 🆕 Collect products not found for vector search
+        fallback_queries = []  # [NEW] Collect products not found for vector search
         if critical_products:
-            debug_print(f"🎯 [PineconeSearch] Performing guaranteed search for: {critical_products}")
+            debug_print(f"[TARGET] [PineconeSearch] Performing guaranteed search for: {critical_products}")
             guaranteed, not_found_products = self._guaranteed_product_search(critical_products, domain_filter)
             for result in guaranteed:
                 guaranteed_results[result.id] = result
             
-            # 🆕 FALLBACK: Add not found products to vector search
+            # [NEW] FALLBACK: Add not found products to vector search
             if not_found_products:
                 fallback_queries.extend(not_found_products)
-                debug_print(f"🔄 [PineconeSearch] Fallback: Adding {len(not_found_products)} not found products to vector search: {not_found_products}")
+                debug_print(f"[INFO] [PineconeSearch] Fallback: Adding {len(not_found_products)} not found products to vector search: {not_found_products}")
         
-        # 🆕 VECTOR SEARCH for all queries + fallback queries
-        all_queries = queries + fallback_queries  # 🆕 Include fallback queries
+        # [NEW] VECTOR SEARCH for all queries + fallback queries
+        all_queries = queries + fallback_queries  # [NEW] Include fallback queries
         all_results = {}
         for query in all_queries:
             try:
@@ -178,7 +178,7 @@ class PineconeSearchClient:
                 
                 response = self.index.query(
                     vector=embedding,
-                    top_k=k,  # 🆕 DYNAMIC K VALUE
+                    top_k=k,  # [NEW] DYNAMIC K VALUE
                     include_metadata=True,
                     filter=filter_dict if filter_dict else None,
                     namespace="aqua"
@@ -195,10 +195,10 @@ class PineconeSearchClient:
                         )
             except Exception as e:
                 if TEST_ENV:
-                    print(f"❌ [DEBUG PineconeSearch] Search error for query '{query}': {e}")
+                    print(f"[ERROR] [DEBUG PineconeSearch] Search error for query '{query}': {e}")
                 continue
         
-        # 🚀 ENHANCED: K + AF alternatives mechanism
+        # [PERF] ENHANCED: K + AF alternatives mechanism
         final_results = {}
         final_results.update(all_results)  # Add vector results first
         final_results.update(guaranteed_results)  # Override with guaranteed results (higher scores)
@@ -219,18 +219,18 @@ class PineconeSearchClient:
         guaranteed_af_results.sort(key=lambda x: x.score, reverse=True)
         other_results.sort(key=lambda x: x.score, reverse=True)
         
-        # 🎯 K + AF alternatives: Take all AF alternatives + top K others
+        # [TARGET] K + AF alternatives: Take all AF alternatives + top K others
         final_count = len(guaranteed_af_results) + min(k, len(other_results))
         sorted_results = guaranteed_af_results + other_results[:k]
         
-        debug_print(f"🎯 [PineconeSearch] K + AF alternatives: {len(guaranteed_af_results)} AF guaranteed + {min(k, len(other_results))} vector = {len(sorted_results)} total")
+        debug_print(f"[TARGET] [PineconeSearch] K + AF alternatives: {len(guaranteed_af_results)} AF guaranteed + {min(k, len(other_results))} vector = {len(sorted_results)} total")
 
-        debug_print(f"🌲 [PineconeSearch] Hybrid search: {len(guaranteed_results)} guaranteed + {len(all_results)} vector = {len(sorted_results)} final (K={k}). Top 5:")
+        debug_print(f"[DATA] [PineconeSearch] Hybrid search: {len(guaranteed_results)} guaranteed + {len(all_results)} vector = {len(sorted_results)} final (K={k}). Top 5:")
         for i, res in enumerate(sorted_results[:5]):
             product_name = res.metadata.get('product_name', 'Brak nazwy')
             domain = res.metadata.get('domain', 'N/A')
             score = res.score
-            guaranteed_marker = "🎯" if res.id in guaranteed_results else ""
+            guaranteed_marker = "[TARGET]" if res.id in guaranteed_results else ""
             debug_print(f"   {i+1}. '{product_name}' [Domain: {domain}] (Score: {score:.4f}) {guaranteed_marker}")
         
         return sorted_results
@@ -240,7 +240,7 @@ class PineconeSearchClient:
         domains = {r.metadata.get("domain") for r in results if r.metadata.get("domain")}
         # Don't warn if we have universal products
         domains.discard(Domain.UNIVERSAL.value)
-        return "⚠️ Found products for both marine and freshwater aquariums. Please specify which type!" if len(domains) > 1 else None
+        return "[WARN] Found products for both marine and freshwater aquariums. Please specify which type!" if len(domains) > 1 else None
 
     def _parallel_search(
         self, 
@@ -249,42 +249,42 @@ class PineconeSearchClient:
         state: Optional[ConversationState] = None
     ) -> List[SearchResult]:
         """
-        🚀 PARALLEL SEARCH: Concurrent guaranteed + vector search with backup
+        [PERF] PARALLEL SEARCH: Concurrent guaranteed + vector search with backup
         """
         start_time = time.time()
         
-        # 🆕 DYNAMIC K VALUE
+        # [NEW] DYNAMIC K VALUE
         if k is None:
             k = ENHANCED_K_VALUE
         
-        debug_print(f"🚀 [ParallelSearch] Starting parallel search with K={k}")
+        debug_print(f"[PERF] [ParallelSearch] Starting parallel search with K={k}")
         
         # Auto-detect domain if not explicitly set
         domain_filter = None
         if state:
             domain_filter = self._detect_domain_from_context(state)
             if domain_filter:
-                debug_print(f"🎯 [ParallelSearch] Auto-detected domain filter: {domain_filter.value}")
+                debug_print(f"[TARGET] [ParallelSearch] Auto-detected domain filter: {domain_filter.value}")
         
         # Extract critical products for guaranteed search
         critical_products = self._extract_critical_products(queries, state)
         
-        # 🚀 PARALLEL EXECUTION: Run guaranteed + vector search concurrently
+        # [PERF] PARALLEL EXECUTION: Run guaranteed + vector search concurrently
         with ThreadPoolExecutor(max_workers=MAX_CONCURRENT_QUERIES) as executor:
             futures = {}
             
-            # 🎯 GUARANTEED SEARCH (Thread 1)
+            # [TARGET] GUARANTEED SEARCH (Thread 1)
             if critical_products:
                 futures['guaranteed'] = executor.submit(
                     self._optimized_guaranteed_search, critical_products, domain_filter
                 )
             
-            # 🔍 VECTOR SEARCH (Thread 2)
+            # [SEARCH] VECTOR SEARCH (Thread 2)
             futures['vector'] = executor.submit(
                 self._parallel_vector_search, queries, k, domain_filter
             )
             
-            # 🏁 COLLECT RESULTS
+            # [OK] COLLECT RESULTS
             guaranteed_results = {}
             not_found_products = []
             vector_results = {}
@@ -299,11 +299,11 @@ class PineconeSearchClient:
                     elif future_name == 'vector':
                         vector_results = future.result()
                 except Exception as e:
-                    debug_print(f"❌ [ParallelSearch] Error in {future_name} search: {e}")
+                    debug_print(f"[ERROR] [ParallelSearch] Error in {future_name} search: {e}")
             
-            # 🔄 BACKUP SEARCH for not found products
+            # [INFO] BACKUP SEARCH for not found products
             if not_found_products:
-                debug_print(f"🔄 [ParallelSearch] Running backup search for: {not_found_products}")
+                debug_print(f"[INFO] [ParallelSearch] Running backup search for: {not_found_products}")
                 backup_future = executor.submit(
                     self._semantic_backup_search, not_found_products, k, domain_filter
                 )
@@ -314,15 +314,15 @@ class PineconeSearchClient:
                         if result_id not in vector_results:
                             vector_results[result_id] = result
                 except Exception as e:
-                    debug_print(f"❌ [ParallelSearch] Error in backup search: {e}")
+                    debug_print(f"[ERROR] [ParallelSearch] Error in backup search: {e}")
         
-        # 🎯 MERGE AND PRIORITIZE RESULTS
+        # [TARGET] MERGE AND PRIORITIZE RESULTS
         final_results = self._merge_search_results(
             guaranteed_results, vector_results, state, k
         )
         
         execution_time = time.time() - start_time
-        debug_print(f"🚀 [ParallelSearch] Completed in {execution_time:.3f}s - {len(final_results)} results")
+        debug_print(f"[PERF] [ParallelSearch] Completed in {execution_time:.3f}s - {len(final_results)} results")
         
         return final_results
 
@@ -332,7 +332,7 @@ class PineconeSearchClient:
         Returns: (found_results, not_found_product_names)
         """
         guaranteed_results = []
-        not_found_products = []  # 🆕 Track products not found for fallback
+        not_found_products = []  # [NEW] Track products not found for fallback
         
         for product_name in product_names:
             try:
@@ -359,14 +359,14 @@ class PineconeSearchClient:
                         score=0.99,  # High score to ensure it appears at top
                         metadata=match.get('metadata', {})
                     ))
-                    debug_print(f"✅ [PineconeSearch] Guaranteed found: {product_name}")
+                    debug_print(f"[OK] [PineconeSearch] Guaranteed found: {product_name}")
                 else:
-                    debug_print(f"⚠️ [PineconeSearch] Product not found in database: {product_name}")
-                    not_found_products.append(product_name)  # 🆕 Add to fallback list
+                    debug_print(f"[WARN] [PineconeSearch] Product not found in database: {product_name}")
+                    not_found_products.append(product_name)  # [NEW] Add to fallback list
                     
             except Exception as e:
-                debug_print(f"❌ [PineconeSearch] Error in guaranteed search for {product_name}: {e}")
-                not_found_products.append(product_name)  # 🆕 Add to fallback list on error
+                debug_print(f"[ERROR] [PineconeSearch] Error in guaranteed search for {product_name}: {e}")
+                not_found_products.append(product_name)  # [NEW] Add to fallback list on error
         
         return guaranteed_results, not_found_products  # �� Return both lists
 
@@ -385,10 +385,10 @@ class PineconeSearchClient:
             if isinstance(products_in_category, list):
                 critical_products.extend(products_in_category)
         
-        # 🚀 ENHANCED: Add AF alternatives from Business Reasoner
+        # [PERF] ENHANCED: Add AF alternatives from Business Reasoner
         if state and state.get("af_alternatives_to_search"):
             af_alternatives = state["af_alternatives_to_search"]
-            debug_print(f"🎯 [ExtractCritical] Adding AF alternatives: {af_alternatives}")
+            debug_print(f"[TARGET] [ExtractCritical] Adding AF alternatives: {af_alternatives}")
             critical_products.extend(af_alternatives)
         
         # Extract mentioned products from queries
@@ -410,12 +410,12 @@ class PineconeSearchClient:
 
     def _optimized_guaranteed_search(self, product_names: List[str], domain_filter: Optional[Domain] = None) -> tuple[List[SearchResult], List[str]]:
         """
-        🚀 OPTIMIZED: Guaranteed search without dummy vectors
+        [PERF] OPTIMIZED: Guaranteed search without dummy vectors
         """
         guaranteed_results = []
         not_found_products = []
         
-        debug_print(f"🎯 [OptimizedGuaranteed] Searching for: {product_names}")
+        debug_print(f"[TARGET] [OptimizedGuaranteed] Searching for: {product_names}")
         
         for product_name in product_names:
             try:
@@ -424,7 +424,7 @@ class PineconeSearchClient:
                 if domain_filter:
                     filter_dict["domain"] = {"$in": [domain_filter.value, Domain.UNIVERSAL.value]}
                 
-                # 🚀 OPTIMIZED: Use zero vector instead of dummy vector
+                # [PERF] OPTIMIZED: Use zero vector instead of dummy vector
                 zero_vector = [0.0] * 1536  # OpenAI embedding dimension
                 
                 response = self.index.query(
@@ -442,27 +442,27 @@ class PineconeSearchClient:
                         score=0.99,  # High score to ensure it appears at top
                         metadata=match.get('metadata', {})
                     ))
-                    debug_print(f"✅ [OptimizedGuaranteed] Found: {product_name}")
+                    debug_print(f"[OK] [OptimizedGuaranteed] Found: {product_name}")
                 else:
-                    debug_print(f"⚠️ [OptimizedGuaranteed] Not found: {product_name}")
+                    debug_print(f"[WARN] [OptimizedGuaranteed] Not found: {product_name}")
                     not_found_products.append(product_name)
                     
             except Exception as e:
-                debug_print(f"❌ [OptimizedGuaranteed] Error searching {product_name}: {e}")
+                debug_print(f"[ERROR] [OptimizedGuaranteed] Error searching {product_name}: {e}")
                 not_found_products.append(product_name)
         
         return guaranteed_results, not_found_products
 
     def _parallel_vector_search(self, queries: List[str], k: int, domain_filter: Optional[Domain] = None) -> Dict[str, SearchResult]:
         """
-        🚀 PARALLEL: Vector search with concurrent embedding generation
+        [PERF] PARALLEL: Vector search with concurrent embedding generation
         """
-        debug_print(f"🔍 [ParallelVector] Processing {len(queries)} queries with K={k}")
+        debug_print(f"[SEARCH] [ParallelVector] Processing {len(queries)} queries with K={k}")
         
-        # 🚀 PARALLEL EMBEDDING GENERATION
+        # [PERF] PARALLEL EMBEDDING GENERATION
         embeddings = self._parallel_embedding_generation(queries)
         
-        # 🚀 PARALLEL PINECONE QUERIES
+        # [PERF] PARALLEL PINECONE QUERIES
         all_results = {}
         with ThreadPoolExecutor(max_workers=MAX_CONCURRENT_QUERIES) as executor:
             futures = []
@@ -483,14 +483,14 @@ class PineconeSearchClient:
                         if result_id not in all_results or result.score > all_results[result_id].score:
                             all_results[result_id] = result
                 except Exception as e:
-                    debug_print(f"❌ [ParallelVector] Error in query '{query}': {e}")
+                    debug_print(f"[ERROR] [ParallelVector] Error in query '{query}': {e}")
         
-        debug_print(f"🔍 [ParallelVector] Completed - {len(all_results)} unique results")
+        debug_print(f"[SEARCH] [ParallelVector] Completed - {len(all_results)} unique results")
         return all_results
 
     def _parallel_embedding_generation(self, queries: List[str]) -> List[Optional[List[float]]]:
         """
-        🚀 PARALLEL: Generate embeddings concurrently
+        [PERF] PARALLEL: Generate embeddings concurrently
         """
         embeddings = [None] * len(queries)
         
@@ -502,14 +502,14 @@ class PineconeSearchClient:
                 try:
                     embeddings[i] = future.result()
                 except Exception as e:
-                    debug_print(f"❌ [ParallelEmbedding] Error for query {i}: {e}")
+                    debug_print(f"[ERROR] [ParallelEmbedding] Error for query {i}: {e}")
                     embeddings[i] = None
         
         return embeddings
 
     def _single_vector_query(self, query: str, embedding: List[float], k: int, domain_filter: Optional[Domain] = None) -> Dict[str, SearchResult]:
         """
-        🔍 SINGLE: Execute single vector query
+        [SEARCH] SINGLE: Execute single vector query
         """
         filter_dict = {}
         if domain_filter:
@@ -535,16 +535,16 @@ class PineconeSearchClient:
 
     def _semantic_backup_search(self, not_found_products: List[str], k: int, domain_filter: Optional[Domain] = None) -> Dict[str, SearchResult]:
         """
-        🔄 BACKUP: Semantic search for products not found in guaranteed search
+        [INFO] BACKUP: Semantic search for products not found in guaranteed search
         """
-        debug_print(f"🔄 [SemanticBackup] Searching for {len(not_found_products)} products semantically")
+        debug_print(f"[INFO] [SemanticBackup] Searching for {len(not_found_products)} products semantically")
         
         # Use parallel vector search for backup
         return self._parallel_vector_search(not_found_products, k, domain_filter)
 
     def _merge_search_results(self, guaranteed_results: Dict[str, SearchResult], vector_results: Dict[str, SearchResult], state: Optional[ConversationState] = None, k: int = 20) -> List[SearchResult]:
         """
-        🎯 MERGE: Combine guaranteed, vector, and backup results with proper prioritization
+        [TARGET] MERGE: Combine guaranteed, vector, and backup results with proper prioritization
         """
         # Merge all results
         final_results = {}
@@ -567,28 +567,28 @@ class PineconeSearchClient:
         guaranteed_af_results.sort(key=lambda x: x.score, reverse=True)
         other_results.sort(key=lambda x: x.score, reverse=True)
         
-        # 🎯 K + AF alternatives: Take all AF alternatives + top K others
+        # [TARGET] K + AF alternatives: Take all AF alternatives + top K others
         sorted_results = guaranteed_af_results + other_results[:k]
         
-        debug_print(f"🎯 [MergeResults] Final: {len(guaranteed_af_results)} AF guaranteed + {min(k, len(other_results))} others = {len(sorted_results)} total")
+        debug_print(f"[TARGET] [MergeResults] Final: {len(guaranteed_af_results)} AF guaranteed + {min(k, len(other_results))} others = {len(sorted_results)} total")
         
         # Debug output
         for i, res in enumerate(sorted_results[:5]):
             product_name = res.metadata.get('product_name', 'Brak nazwy')
             domain = res.metadata.get('domain', 'N/A')
             score = res.score
-            guaranteed_marker = "🎯" if res.id in guaranteed_results else ""
+            guaranteed_marker = "[TARGET]" if res.id in guaranteed_results else ""
             debug_print(f"   {i+1}. '{product_name}' [Domain: {domain}] (Score: {score:.4f}) {guaranteed_marker}")
         
         return sorted_results
 
-# 🆕 UPDATED FUNCTIONS - now use dynamic ENHANCED_K_VALUE
+# [NEW] UPDATED FUNCTIONS - now use dynamic ENHANCED_K_VALUE
 def search_products_k20(state: ConversationState) -> ConversationState:
-    """🆕 UPDATED: Uses dynamic ENHANCED_K_VALUE instead of hardcoded k=20"""
+    """[NEW] UPDATED: Uses dynamic ENHANCED_K_VALUE instead of hardcoded k=20"""
     client = PineconeSearchClient()
     results = client.search(
         queries=state["optimized_queries"],
-        k=ENHANCED_K_VALUE,  # 🆕 DYNAMIC K VALUE FROM ENV
+        k=ENHANCED_K_VALUE,  # [NEW] DYNAMIC K VALUE FROM ENV
         state=state  # Pass the full state for context analysis
     )
     
@@ -601,10 +601,10 @@ def search_products_k20(state: ConversationState) -> ConversationState:
     state["search_results"] = [{"id": r.id, "score": r.score, "metadata": r.metadata} for r in results]
     
     if TEST_ENV:
-        print(f"🎯 [PineconeSearch] Stored {len(state['search_results'])} results using dynamic K={ENHANCED_K_VALUE}")
+        print(f"[TARGET] [PineconeSearch] Stored {len(state['search_results'])} results using dynamic K={ENHANCED_K_VALUE}")
     
     return state
 
 def enhanced_search_k20(state: ConversationState) -> ConversationState:
-    """🆕 UPDATED: Uses dynamic ENHANCED_K_VALUE instead of hardcoded k=20"""
+    """[NEW] UPDATED: Uses dynamic ENHANCED_K_VALUE instead of hardcoded k=20"""
     return search_products_k20(state)

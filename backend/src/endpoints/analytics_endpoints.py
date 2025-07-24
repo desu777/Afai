@@ -45,19 +45,19 @@ def setup_analytics_endpoints(app, tier2_rate_limit, AnalyticsQuery):
                         result["query_optimizer_queries"] = json.loads(result.get("query_optimizer_queries") or "[]")
                     except (json.JSONDecodeError, TypeError):
                         result["query_optimizer_queries"] = []
-                        debug_print(f"⚠️ [Analytics] Failed to parse query_optimizer_queries for record {result.get('id')}")
+                        debug_print(f"[WARN] Failed to parse query_optimizer_queries for record {result.get('id')}")
                     
                     try:
                         result["pinecone_top_results"] = json.loads(result.get("pinecone_top_results") or "[]")
                     except (json.JSONDecodeError, TypeError):
                         result["pinecone_top_results"] = []
-                        debug_print(f"⚠️ [Analytics] Failed to parse pinecone_top_results for record {result.get('id')}")
+                        debug_print(f"[WARN] Failed to parse pinecone_top_results for record {result.get('id')}")
                     
                     try:
                         result["node_timings"] = json.loads(result.get("node_timings") or "{}")
                     except (json.JSONDecodeError, TypeError):
                         result["node_timings"] = {}
-                        debug_print(f"⚠️ [Analytics] Failed to parse node_timings for record {result.get('id')}")
+                        debug_print(f"[WARN] Failed to parse node_timings for record {result.get('id')}")
                     
                     # Add missing fields required by frontend types
                     result["confidence_score"] = result.get("intent_confidence", 0)
@@ -71,7 +71,7 @@ def setup_analytics_endpoints(app, tier2_rate_limit, AnalyticsQuery):
                     "data": results
                 }
         except Exception as e:
-            debug_print(f"❌ [Analytics] Error in get_analytics: {e}")
+            debug_print(f"[ERROR] Error in get_analytics: {e}")
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.get("/analytics/summary")
@@ -142,7 +142,7 @@ def setup_analytics_endpoints(app, tier2_rate_limit, AnalyticsQuery):
                     }
                 }
         except Exception as e:
-            debug_print(f"❌ [Analytics] Error in get_analytics_summary: {e}")
+            debug_print(f"[ERROR] Error in get_analytics_summary: {e}")
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.get("/analytics/vertex-ai-usage")
@@ -161,5 +161,5 @@ def setup_analytics_endpoints(app, tier2_rate_limit, AnalyticsQuery):
             }
             
         except Exception as e:
-            debug_print(f"❌ [Analytics] Error in get_vertex_ai_usage_analytics: {e}")
+            debug_print(f"[ERROR] Error in get_vertex_ai_usage_analytics: {e}")
             raise HTTPException(status_code=500, detail=str(e))

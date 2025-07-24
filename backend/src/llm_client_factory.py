@@ -1,5 +1,5 @@
 """
-🚀 LLM Client Factory - Dual Provider Configuration (2025)
+[API] LLM Client Factory - Dual Provider Configuration (2025)
 Universal client factory for all workflow nodes with per-node API/model selection
 Supports both OpenRouter and Google Cloud Vertex AI
 """
@@ -45,20 +45,20 @@ class LLMClientFactory:
                 # Create Vertex AI Gemini client
                 client, model_name = VertexAIClientFactory.create_client(node_name)
                 
-                debug_print(f"🚀 [LLMClientFactory] Created Vertex AI client for {node_name}: {model_name}")
+                debug_print(f"[API] Created Vertex AI client for {node_name}: {model_name}")
                 
                 if TEST_ENV:
-                    print(f"🎯 [LLMClientFactory] {node_name} → vertex-ai → {model_name}")
+                    print(f"[TARGET] {node_name} → vertex-ai → {model_name}")
                 
                 return client, model_name
                 
             except Exception as e:
                 # Fallback to OpenRouter on any error
-                debug_print(f"❌ [LLMClientFactory] Vertex AI error for {node_name}: {e}")
-                debug_print(f"🔄 [LLMClientFactory] Falling back to OpenRouter for {node_name}")
+                debug_print(f"[ERROR] Vertex AI error for {node_name}: {e}")
+                debug_print(f"[FALLBACK] Falling back to OpenRouter for {node_name}")
                 
                 if TEST_ENV:
-                    print(f"⚠️ [LLMClientFactory] Vertex AI failed for {node_name}, using OpenRouter fallback")
+                    print(f"[WARN] Vertex AI failed for {node_name}, using OpenRouter fallback")
         
         # Create OpenRouter client (default or fallback)
         api_key, model_name = LLMClientFactory._get_node_config(node_name)
@@ -68,10 +68,10 @@ class LLMClientFactory:
             base_url="https://openrouter.ai/api/v1"
         )
         
-        debug_print(f"🚀 [LLMClientFactory] Created OpenRouter client for {node_name}: {model_name}")
+        debug_print(f"[API] Created OpenRouter client for {node_name}: {model_name}")
         
         if TEST_ENV:
-            print(f"🎯 [LLMClientFactory] {node_name} → openrouter → {model_name}")
+            print(f"[TARGET] {node_name} → openrouter → {model_name}")
         
         return client, model_name
     
@@ -111,7 +111,7 @@ class LLMClientFactory:
         
         return config_map[node_name]
 
-# 🎯 Convenience functions for each node
+# [TARGET] Convenience functions for each node
 def create_intent_detector_client() -> Tuple[Union[OpenAI, VertexAIGeminiClient], str]:
     """Create client for intent detector node"""
     return LLMClientFactory.create_client("intent_detector")
@@ -140,7 +140,7 @@ def create_icp_analysis_client() -> Tuple[Union[OpenAI, VertexAIGeminiClient], s
     """Create client for ICP analysis node"""
     return LLMClientFactory.create_client("icp_analysis")
 
-# 🔧 Legacy support functions (for gradual migration)
+# [LEGACY] Legacy support functions (for gradual migration)
 def create_llm_client_for_node(node_name: str) -> Union[OpenAI, VertexAIGeminiClient]:
     """Legacy function - returns only client (without model name)"""
     client, _ = LLMClientFactory.create_client(node_name)

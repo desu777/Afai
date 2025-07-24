@@ -27,7 +27,7 @@ class CalculationHelper:
             match = re.search(pattern, query, re.IGNORECASE)
             if match:
                 volume = int(match.group(1))
-                debug_print(f"📏 [CalculationHelper] Extracted volume: {volume}L")
+                debug_print(f"[INFO] [CalculationHelper] Extracted volume: {volume}L")
                 return volume
         return None
     
@@ -66,11 +66,11 @@ class CalculationHelper:
                 "base_concentration": f"{base_dose} {unit} per {base_volume}L"
             }
             
-            debug_print(f"✅ [CalculationHelper] Calculated: {calculation_str}")
+            debug_print(f"[OK] [CalculationHelper] Calculated: {calculation_str}")
             return result
             
         except Exception as e:
-            debug_print(f"❌ [CalculationHelper] Calculation error: {e}")
+            debug_print(f"[ERROR] [CalculationHelper] Calculation error: {e}")
             return {
                 "success": False,
                 "error": str(e),
@@ -115,11 +115,11 @@ class CalculationHelper:
                 result["expected_value"] = round(current_value + change_rounded, 1)
                 result["calculation"] += f" (from {current_value} to {result['expected_value']} ppm)"
             
-            debug_print(f"✅ [CalculationHelper] Parameter change: {result['calculation']}")
+            debug_print(f"[OK] [CalculationHelper] Parameter change: {result['calculation']}")
             return result
             
         except Exception as e:
-            debug_print(f"❌ [CalculationHelper] Parameter calculation error: {e}")
+            debug_print(f"[ERROR] [CalculationHelper] Parameter calculation error: {e}")
             return {
                 "success": False,
                 "error": str(e),
@@ -141,11 +141,11 @@ class CalculationHelper:
                 "calculation": f"{change_percentage}% of {tank_volume}L = {change_volume_rounded}L"
             }
             
-            debug_print(f"✅ [CalculationHelper] Water change: {result['calculation']}")
+            debug_print(f"[OK] [CalculationHelper] Water change: {result['calculation']}")
             return result
             
         except Exception as e:
-            debug_print(f"❌ [CalculationHelper] Water change calculation error: {e}")
+            debug_print(f"[ERROR] [CalculationHelper] Water change calculation error: {e}")
             return {
                 "success": False,
                 "error": str(e)

@@ -15,7 +15,7 @@ class Intent(str, Enum):
     CENSORED = "censored"
     FOLLOW_UP = "follow_up"
     SUPPORT = "support"
-    ANALYZE_ICP = "analyze_icp"  # 🆕 ICP test results analysis
+    ANALYZE_ICP = "analyze_icp"  # [NEW] ICP test results analysis
     OTHER = "other"
 
 class Domain(str, Enum):
@@ -40,18 +40,18 @@ class ConversationState(TypedDict):
     chat_history: List[Dict[str, str]]
     context_cache: List[Dict[str, Any]]
     
-    # 🆕 SESSION AND EXTENDED CACHE FIELDS
+    # [NEW] SESSION AND EXTENDED CACHE FIELDS
     session_id: Optional[str]  # Session identifier for cache management
     extended_cache: Optional[Dict[str, Any]]  # Extended cache with metadata + responses + context
     
-    # 🆕 VISION ANALYSIS FIELDS
+    # [NEW] VISION ANALYSIS FIELDS
     image_url: Optional[str]  # URL do zdjęcia przesłanego przez użytkownika
     image_analysis: Optional[str]  # Opis zdjęcia wygenerowany przez LLM
     
-    # 🆕 ACCESS LEVEL FIELD
+    # [NEW] ACCESS LEVEL FIELD
     access_level: Optional[str]  # User access level: "test", "admin", "support"
     
-    # 🆕 ICP ANALYSIS FIELDS
+    # [NEW] ICP ANALYSIS FIELDS
     icp_analysis: Optional[str]  # Analiza ICP przetworzona przez LLM
     icp_data: Optional[Dict[str, Any]]  # Surowe dane ICP dla potencjalnego przyszłego użytku
     
@@ -78,7 +78,7 @@ class ConversationState(TypedDict):
     domain_assessment: Optional[str]
     category_coverage: Optional[str]
     
-    # 🚀 Business Reasoner enhanced fields
+    # [API] Business Reasoner enhanced fields
     af_alternatives_to_search: Optional[List[str]]
     competitor_info: Optional[Dict[str, Any]]
     scenario_info: Optional[Dict[str, Any]]
@@ -88,7 +88,7 @@ class ConversationState(TypedDict):
     trending_products: Optional[List[str]]
     response_strategy: Optional[str]
     
-    # 🆕 FOLLOW-UP ROUTER FIELDS
+    # [NEW] FOLLOW-UP ROUTER FIELDS
     follow_up_evaluation: Optional[Dict[str, Any]]
     cache_response_data: Optional[Dict[str, Any]]
     smart_business_prompt: Optional[str]

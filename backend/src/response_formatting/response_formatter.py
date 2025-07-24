@@ -17,8 +17,8 @@ class ResponseFormatter:
         self.client, self.model_name = create_response_formatter_client()
         
         if TEST_ENV:
-            debug_print(f"📝 [ResponseFormatter] Initialized with OpenRouter per-node configuration")
-            debug_print(f"🎯 [ResponseFormatter] Using model: {self.model_name}")
+            debug_print(f"[LOG] [ResponseFormatter] Initialized with OpenRouter per-node configuration")
+            debug_print(f"[TARGET] [ResponseFormatter] Using model: {self.model_name}")
         
         # Initialize specialized components
         self.dosage_calculator = DosageCalculator()
@@ -29,12 +29,12 @@ class ResponseFormatter:
         """Main response formatting method"""
         try:
             if TEST_ENV:
-                print(f"\n🔨 [DEBUG ResponseFormatter] Generating final response...")
+                print(f"\n[CONFIG] [DEBUG ResponseFormatter] Generating final response...")
             
             # PRIORITY: Check if this is a follow-up with cache response data
             if state.get("cache_response_data"):
                 if TEST_ENV:
-                    print(f"🔄 [DEBUG ResponseFormatter] Using cached response data for follow-up")
+                    print(f"[PROCESS] [DEBUG ResponseFormatter] Using cached response data for follow-up")
                 return self.cache_manager.generate_cache_based_response(state)
             
             # Check if this is a special intent - use cheaper model
@@ -42,12 +42,12 @@ class ResponseFormatter:
             if intent in [Intent.GREETING, Intent.BUSINESS, Intent.PURCHASE_INQUIRY, 
                          Intent.COMPETITOR, Intent.CENSORED, Intent.SUPPORT, Intent.OTHER]:
                 if TEST_ENV:
-                    print(f"🎭 [DEBUG ResponseFormatter] Using cheaper model for special intent: {intent}")
+                    print(f"[MASK] [DEBUG ResponseFormatter] Using cheaper model for special intent: {intent}")
                 state["final_response"] = self._generate_special_intent_response(state)
             else:
                 # Use expensive model for complex product queries
                 if TEST_ENV:
-                    print(f"🧠 [DEBUG ResponseFormatter] Using complex model for intent: {intent}")
+                    print(f"[AI] [DEBUG ResponseFormatter] Using complex model for intent: {intent}")
                 prompt = self.prompt_builder.create_universal_prompt(state)
                 response = self.client.chat.completions.create(
                     model=self.model_name,
@@ -57,19 +57,19 @@ class ResponseFormatter:
                 state["final_response"] = response.choices[0].message.content
             
             if TEST_ENV:
-                print(f"✅ [DEBUG ResponseFormatter] Response generated ({len(state['final_response'])} characters)")
+                print(f"[OK] [DEBUG ResponseFormatter] Response generated ({len(state['final_response'])} characters)")
             
             # Cache metadata for follow-ups (only for product queries)
             if state.get("search_results") and intent not in [Intent.GREETING, Intent.BUSINESS, Intent.SUPPORT, Intent.OTHER, Intent.CENSORED, Intent.COMPETITOR, Intent.PURCHASE_INQUIRY]:
                 # Cache ALL results (removed cache_size limit)
                 state["context_cache"] = [r['metadata'] for r in state["search_results"]]
                 if TEST_ENV:
-                    print(f"💾 [DEBUG ResponseFormatter] Cached metadata for {len(state['context_cache'])} results")
+                    print(f"[CACHE] [DEBUG ResponseFormatter] Cached metadata for {len(state['context_cache'])} results")
                 
                 # Create extended cache for session-based follow-ups
                 state["extended_cache"] = self.cache_manager.create_extended_cache(state)
                 if TEST_ENV:
-                    print(f"💾 [DEBUG ResponseFormatter] Created extended cache with {len(state['extended_cache'])} sections")
+                    print(f"[CACHE] [DEBUG ResponseFormatter] Created extended cache with {len(state['extended_cache'])} sections")
                 
                 # Save extended cache to SessionManager
                 if state.get("session_id"):
@@ -77,11 +77,11 @@ class ResponseFormatter:
                     session_manager = get_session_manager()
                     session_manager.update_session_cache(state["session_id"], state["extended_cache"])
                     if TEST_ENV:
-                        print(f"💾 [DEBUG ResponseFormatter] Saved extended cache to session: {state['session_id']}")
+                        print(f"[CACHE] [DEBUG ResponseFormatter] Saved extended cache to session: {state['session_id']}")
                     
         except Exception as e:
             if TEST_ENV:
-                print(f"❌ [DEBUG ResponseFormatter] Formatting error: {e}")
+                print(f"[ERROR] [DEBUG ResponseFormatter] Formatting error: {e}")
             state["final_response"] = self._handle_error(e, state)
         
         return state
@@ -99,7 +99,7 @@ class ResponseFormatter:
             return response.choices[0].message.content
         except Exception as e:
             if TEST_ENV:
-                print(f"❌ [DEBUG ResponseFormatter] Special intent response error: {e}")
+                print(f"[ERROR] [DEBUG ResponseFormatter] Special intent response error: {e}")
             return self._handle_error(e, state)
 
     def _handle_error(self, error: Exception, state: ConversationState) -> str:
@@ -107,7 +107,7 @@ class ResponseFormatter:
         lang = state.get("detected_language", "en")
         
         if TEST_ENV:
-            debug_print(f"❌ [ResponseFormatter] Error: {error}")
+            debug_print(f"[ERROR] [ResponseFormatter] Error: {error}")
         
         if lang == "pl":
             return "Przepraszam, wystąpił problem z przetwarzaniem Twojego zapytania. Spróbuj ponownie lub skontaktuj się z pomocą techniczną."

@@ -88,6 +88,6 @@ def init_database():
         """)
         
         conn.commit()
-        debug_print("✅ Database initialized successfully")
-        debug_print("🗄️ 📅 [Messenger] Chat history database initialized")
-        debug_print("🔑 📊 [Gemini] API usage tracking database initialized")
+        debug_print("[OK] Database initialized successfully")
+        debug_print("[DB] [INFO] [Messenger] Chat history database initialized")
+        debug_print("[AUTH] [DATA] [Gemini] API usage tracking database initialized")
