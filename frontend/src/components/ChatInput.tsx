@@ -68,7 +68,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
         />
         
         {/* 🆕 Główny kontener - jeden element z textarea + button bar */}
-        <div className="relative rounded-2xl sm:rounded-3xl bg-white/95 backdrop-blur-md border border-purple-200/60 focus-within:border-brand-600 focus-within:ring-2 sm:focus-within:ring-4 focus-within:ring-brand-100/50 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden" style={{ minWidth: '0', flexShrink: '1', width: '100%' }}>
+        <div className="relative rounded-2xl sm:rounded-3xl bg-white/95 backdrop-blur-md md:bg-white md:backdrop-blur-none border border-purple-200/60 focus-within:border-brand-600 focus-within:ring-2 sm:focus-within:ring-4 focus-within:ring-brand-100/50 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden" style={{ minWidth: '0', flexShrink: '1', width: '100%' }}>
           {/* Textarea */}
           <textarea
             ref={textareaRef}

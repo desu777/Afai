@@ -341,7 +341,7 @@ const ChatInterface: React.FC = () => {
             {/* Header with Model Selector */}
             <div className={`absolute top-0 left-0 right-0 z-30 transition-all duration-300 ${
               messages.length > 0 && isScrolled 
-                ? 'bg-white/95 backdrop-blur-md border-b border-purple-200/50 shadow-sm' 
+                ? 'bg-white/95 backdrop-blur-md border-b border-purple-200/50 shadow-sm md:bg-transparent md:border-0 md:shadow-none md:backdrop-blur-none' 
                 : 'bg-transparent'
             }`}>
               <div className="flex items-center justify-between h-16 px-4 sm:px-6">
@@ -381,7 +381,7 @@ const ChatInterface: React.FC = () => {
             
             {/* Chat Input at Bottom - only when messages exist */}
             {(messages.length > 0 || isLoading) && (
-              <div className="absolute bottom-0 left-0 right-0 z-20 bg-white/80 backdrop-blur-sm md:bg-transparent md:backdrop-blur-none">
+              <div className="absolute bottom-0 left-0 right-0 z-20">
                 <ChatInput
                   inputValue={inputValue}
                   isLoading={isLoading}
@@ -391,13 +391,6 @@ const ChatInterface: React.FC = () => {
                   selectedImage={selectedImage}
                   onImageSelect={setSelectedImage}
                 />
-                
-                {/* Disclaimer */}
-                <div className="text-center py-2 px-4">
-                  <p className="text-xs text-gray-500">
-                    AF AI can make mistakes. Always verify important reef parameters.
-                  </p>
-                </div>
               </div>
             )}
           </>

@@ -28,7 +28,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, currentW
   return (
     <div 
       data-messages-list
-      className={`h-full overflow-y-auto px-2 sm:px-4 md:px-6 pt-20 ${hasMessages ? 'pb-40' : 'pb-4'}`}
+      className={`h-full overflow-y-auto px-2 sm:px-4 md:px-6 pt-20 ${hasMessages ? 'pb-64' : 'pb-4'}`}
     >
       <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6 md:space-y-8">
         {/* Welcome Screen - only show when no messages */}
