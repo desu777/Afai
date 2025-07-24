@@ -123,12 +123,20 @@ ICP_THINKING_BUDGET = os.getenv("ICP_THINKING_BUDGET")
 INTENT_DETECTOR_TEMPERATURE = float(os.getenv("INTENT_DETECTOR_TEMPERATURE", "0.3"))  # Intent detection temperature
 BUSINESS_REASONER_TEMPERATURE = float(os.getenv("BUSINESS_REASONER_TEMPERATURE", "0.3"))  # Business reasoning temperature
 QUERY_OPTIMIZER_TEMPERATURE = float(os.getenv("QUERY_OPTIMIZER_TEMPERATURE", "0.3"))  # Query optimization temperature
-RESPONSE_FORMATTER_TEMPERATURE = float(os.getenv("RESPONSE_FORMATTER_TEMPERATURE", "0.3"))  # Response formatting temperature
+RESPONSE_FORMATTER_TEMPERATURE = float(os.getenv("RESPONSE_FORMATTER_TEMPERATURE", "0.7"))  # Response formatting temperature
 FOLLOW_UP_TEMPERATURE = float(os.getenv("FOLLOW_UP_TEMPERATURE", "0.1"))  # Low temperature for consistent cache evaluation
 ICP_TEMPERATURE = float(os.getenv("ICP_TEMPERATURE", "0.1"))  # Low temperature for consistent JSON output
 
 # Gemini fallback temperature (when no temperature parameter provided)
 GEMINI_DEFAULT_TEMPERATURE = float(os.getenv("GEMINI_DEFAULT_TEMPERATURE", "0.3"))  # Default temperature when none specified
+
+# --- Resilient Fallback Configuration ---
+# Configuration for Gemini → OpenRouter automatic fallback
+ENABLE_GEMINI_FALLBACK = os.getenv("ENABLE_GEMINI_FALLBACK", "true").lower() == "true"  # Enable/disable fallback mechanism
+GEMINI_REQUEST_TIMEOUT = float(os.getenv("GEMINI_REQUEST_TIMEOUT", "55"))  # Timeout in seconds (below 60s Gemini limit)
+GEMINI_MAX_RETRIES = int(os.getenv("GEMINI_MAX_RETRIES", "2"))  # Number of retries before fallback
+GEMINI_RETRY_DELAY = float(os.getenv("GEMINI_RETRY_DELAY", "1.0"))  # Delay between retries in seconds
+LOG_FALLBACK_EVENTS = os.getenv("LOG_FALLBACK_EVENTS", "true").lower() == "true"  # Log when fallback occurs
 
 # --- Legacy/Compatibility Configuration ---
 # Fallback API Keys
@@ -318,6 +326,15 @@ if TEST_ENV:
     logger.configuration(f"Google Cloud Project ID: {'CONFIGURED' if GOOGLE_CLOUD_PROJECT_ID else 'NOT SET'}", "SUB")
     logger.configuration(f"Google Cloud Location: {GOOGLE_CLOUD_LOCATION}", "SUB")
     logger.configuration(f"Vertex AI Auth: {'API KEY' if GOOGLE_CLOUD_API_KEY else 'SERVICE ACCOUNT' if GOOGLE_APPLICATION_CREDENTIALS else 'NOT SET'}", "SUB")
+    
+    # Resilient fallback configuration
+    logger.configuration("Resilient Fallback Configuration", "SUB")
+    logger.configuration(f"Fallback Enabled: {'YES' if ENABLE_GEMINI_FALLBACK else 'NO'}", "SUB")
+    if ENABLE_GEMINI_FALLBACK:
+        logger.configuration(f"Request Timeout: {GEMINI_REQUEST_TIMEOUT}s", "SUB")
+        logger.configuration(f"Max Retries: {GEMINI_MAX_RETRIES}", "SUB")
+        logger.configuration(f"Retry Delay: {GEMINI_RETRY_DELAY}s", "SUB")
+        logger.configuration(f"Log Fallback Events: {'YES' if LOG_FALLBACK_EVENTS else 'NO'}", "SUB")
     
     if GEMINI_DEFAULT_THINKING_BUDGET is not None and GEMINI_DEFAULT_THINKING_BUDGET.strip() != "":
         logger.configuration(f"Default Thinking Budget: {GEMINI_DEFAULT_THINKING_BUDGET}", "SUB")

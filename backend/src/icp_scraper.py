@@ -5,7 +5,7 @@ Uses configured provider (Vertex AI) with OpenRouter fallback
 import re
 import base64
 from typing import Dict, List, Optional
-from config import debug_print, TEST_ENV, ICP_API, ICP_MODEL, ICP_TEMPERATURE, LLM_PROVIDER
+from config import debug_print, TEST_ENV, ICP_API, ICP_MODEL, ICP_TEMPERATURE
 import json
 from langchain_openai import ChatOpenAI
 from langchain_community.document_loaders import PyMuPDFLoader
@@ -19,8 +19,8 @@ class ICPScraper:
     """ICP PDF processor for Aquaforest Lab ICP test results"""
     
     def __init__(self):
-        # Primary provider + fallback system
-        self.client, self.model_name = self._create_client_with_fallback()
+        # Use factory for client creation - it handles fallback internally
+        self.client, self.model_name = create_icp_analysis_client()
         
         # Keep fallback LLM for compatibility with existing code
         self.fallback_llm = ChatOpenAI(
@@ -32,37 +32,6 @@ class ICPScraper:
         
         if TEST_ENV:
             debug_print(f"[LAB] ICP client ready: {self.model_name}")
-    
-    def _create_client_with_fallback(self):
-        """Create client with primary provider + OpenRouter fallback"""
-        try:
-            if LLM_PROVIDER == "gemini":
-                # Try Gemini as primary
-                from gemini_client_factory import VertexAIClientFactory
-                client, model_name = VertexAIClientFactory.create_client("icp_analysis")
-                if TEST_ENV:
-                    debug_print(f"[>] Primary gemini: {model_name}")
-                return client, model_name
-            else:
-                # Try OpenRouter as primary
-                client, model_name = create_icp_analysis_client()
-                if TEST_ENV:
-                    debug_print(f"[>] Primary openrouter: {model_name}")
-                return client, model_name
-        except Exception as e:
-            if TEST_ENV:
-                debug_print(f"[!] Primary failed: {str(e)[:50]}")
-            
-        # Fallback to OpenRouter always
-        try:
-            client, model_name = create_icp_analysis_client()
-            if TEST_ENV:
-                debug_print(f"[RTY] Fallback openrouter: {model_name}")
-            return client, model_name
-        except Exception as e:
-            if TEST_ENV:
-                debug_print(f"[X] Fallback failed: {str(e)[:50]}")
-            raise e
     
     def _invoke_llm(self, prompt: str) -> str:
         """Invoke LLM using configured client with temperature"""

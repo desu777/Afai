@@ -5,7 +5,7 @@ Uses configured provider (Vertex AI) with OpenRouter fallback
 """
 from typing import Dict
 from models import ConversationState, Intent
-from config import TEST_ENV, debug_print, BUSINESS_REASONER_TEMPERATURE, LLM_PROVIDER
+from config import TEST_ENV, debug_print, BUSINESS_REASONER_TEMPERATURE
 from llm_client_factory import create_business_reasoner_client
 
 from .data_loader import DataLoader
@@ -18,8 +18,8 @@ class BusinessReasoner:
     Maintains same API for backward compatibility
     """
     def __init__(self):
-        # Primary provider + fallback system
-        self.client, self.model_name = self._create_client_with_fallback()
+        # Use factory for client creation - it handles fallback internally
+        self.client, self.model_name = create_business_reasoner_client()
         
         if TEST_ENV:
             debug_print(f"[BRAIN] Ready: {self.model_name}")
@@ -29,36 +29,6 @@ class BusinessReasoner:
         self.llm_analyzer = LLMAnalyzer(self.client, self.model_name, self.data_loader)
         self.decision_applier = DecisionApplier(self.data_loader)
     
-    def _create_client_with_fallback(self):
-        """Create client with primary provider + OpenRouter fallback"""
-        try:
-            if LLM_PROVIDER == "gemini":
-                # Try Gemini as primary
-                from gemini_client_factory import VertexAIClientFactory
-                client, model_name = VertexAIClientFactory.create_client("business_reasoner")
-                if TEST_ENV:
-                    debug_print(f"[>] Primary: {model_name}")
-                return client, model_name
-            else:
-                # Try OpenRouter as primary
-                client, model_name = create_business_reasoner_client()
-                if TEST_ENV:
-                    debug_print(f"[>] Primary OR: {model_name}")
-                return client, model_name
-        except Exception as e:
-            if TEST_ENV:
-                debug_print(f"[!] Primary failed: {str(e)[:30]}")
-            
-        # Fallback to OpenRouter always
-        try:
-            client, model_name = create_business_reasoner_client()
-            if TEST_ENV:
-                debug_print(f"[RTY] Fallback: {model_name}")
-            return client, model_name
-        except Exception as e:
-            if TEST_ENV:
-                debug_print(f"[X] Fallback failed: {str(e)[:30]}")
-            raise e
 
     def analyze(self, state: ConversationState) -> ConversationState:
         """

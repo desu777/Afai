@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Dict, Any
 from openai import OpenAI
 from models import ConversationState, Intent, IntentDetectionResult
-from config import INTENT_DETECTOR_TEMPERATURE, LLM_PROVIDER, TEST_ENV, debug_print
+from config import INTENT_DETECTOR_TEMPERATURE, TEST_ENV, debug_print
 from prompts import load_prompt_template
 from llm_client_factory import create_intent_detector_client, create_image_analysis_client
 from icp_scraper import ICPScraper
@@ -44,9 +44,9 @@ class IntentDetector:
             # Give up
             raise ValueError("Unable to parse JSON from LLM output")
     def __init__(self):
-        # Primary provider + fallback system
-        self.client, self.model_name = self._create_client_with_fallback("intent_detector")
-        self.image_client, self.image_model_name = self._create_client_with_fallback("image_analysis")
+        # Use factory for all client creation - it handles fallback internally
+        self.client, self.model_name = create_intent_detector_client()
+        self.image_client, self.image_model_name = create_image_analysis_client()
         
         if TEST_ENV:
             debug_print(f"[>] IntentDetector init: {self.model_name}")
@@ -63,43 +63,6 @@ class IntentDetector:
         
         if TEST_ENV:
             debug_print(f"[LAB] ICP scraper ready")
-    
-    def _create_client_with_fallback(self, node_name: str):
-        """Create client with primary provider + OpenRouter fallback"""
-        try:
-            if LLM_PROVIDER == "gemini":
-                # Try Gemini as primary
-                from gemini_client_factory import VertexAIClientFactory
-                client, model_name = VertexAIClientFactory.create_client(node_name)
-                if TEST_ENV:
-                    debug_print(f"[>] Primary gemini: {model_name}")
-                return client, model_name
-            else:
-                # Try OpenRouter as primary
-                if node_name == "intent_detector":
-                    client, model_name = create_intent_detector_client()
-                else:  # image_analysis
-                    client, model_name = create_image_analysis_client()
-                if TEST_ENV:
-                    debug_print(f"[>] Primary openrouter: {model_name}")
-                return client, model_name
-        except Exception as e:
-            if TEST_ENV:
-                debug_print(f"[!] Primary failed: {str(e)[:50]}")
-            
-        # Fallback to OpenRouter always
-        try:
-            if node_name == "intent_detector":
-                client, model_name = create_intent_detector_client()
-            else:  # image_analysis
-                client, model_name = create_image_analysis_client()
-            if TEST_ENV:
-                debug_print(f"[RTY] Fallback openrouter: {model_name}")
-            return client, model_name
-        except Exception as e:
-            if TEST_ENV:
-                debug_print(f"[X] Fallback failed: {str(e)[:50]}")
-            raise e
     
     def _load_competitors(self) -> list:
         """Load competitor names from mapping for better intent detection"""

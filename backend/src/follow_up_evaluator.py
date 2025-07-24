@@ -6,46 +6,15 @@ import json
 from typing import Dict, Any, Optional, List
 from models import ConversationState
 from llm_client_factory import create_follow_up_client
-from config import debug_print, TEST_ENV, FOLLOW_UP_TEMPERATURE, LLM_PROVIDER
+from config import debug_print, TEST_ENV, FOLLOW_UP_TEMPERATURE
 
 class FollowUpEvaluator:
     """Evaluates cache sufficiency for follow-up questions with primary provider + fallback"""
     
     def __init__(self):
-        # Primary provider + fallback system
-        self.client, self.model_name = self._create_client_with_fallback()
+        # Use factory for client creation - it handles fallback internally
+        self.client, self.model_name = create_follow_up_client()
         debug_print(f"[EVAL] Ready: {self.model_name}")
-    
-    def _create_client_with_fallback(self):
-        """Create client with primary provider + OpenRouter fallback"""
-        try:
-            if LLM_PROVIDER == "gemini":
-                # Try Gemini as primary
-                from gemini_client_factory import VertexAIClientFactory
-                client, model_name = VertexAIClientFactory.create_client("follow_up")
-                if TEST_ENV:
-                    debug_print(f"[>] Primary: {model_name}")
-                return client, model_name
-            else:
-                # Try OpenRouter as primary
-                client, model_name = create_follow_up_client()
-                if TEST_ENV:
-                    debug_print(f"[>] Primary OR: {model_name}")
-                return client, model_name
-        except Exception as e:
-            if TEST_ENV:
-                debug_print(f"[!] Primary failed: {str(e)[:30]}")
-            
-        # Fallback to OpenRouter always
-        try:
-            client, model_name = create_follow_up_client()
-            if TEST_ENV:
-                debug_print(f"[RTY] Fallback: {model_name}")
-            return client, model_name
-        except Exception as e:
-            if TEST_ENV:
-                debug_print(f"[X] Fallback failed: {str(e)[:30]}")
-            raise e
     
     def evaluate_cache_sufficiency(self, state: ConversationState, extended_cache: Dict[str, Any]) -> Dict[str, Any]:
         """
