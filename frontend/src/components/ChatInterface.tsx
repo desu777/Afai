@@ -25,6 +25,7 @@ const ChatInterface: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [responseFormat, setResponseFormat] = useState<ResponseFormat>('visionary_expert');
+  const [isScrolled, setIsScrolled] = useState(false);
 
   // 🆕 Session ID localStorage management
   useEffect(() => {
@@ -46,6 +47,23 @@ const ChatInterface: React.FC = () => {
       setResponseFormat(storedFormat as ResponseFormat);
     }
   }, []);
+
+  // Scroll detection for header background change
+  useEffect(() => {
+    const handleScroll = () => {
+      const messagesList = document.querySelector('[data-messages-list]');
+      if (messagesList) {
+        const scrollTop = messagesList.scrollTop;
+        setIsScrolled(scrollTop > 20);
+      }
+    };
+
+    const messagesList = document.querySelector('[data-messages-list]');
+    if (messagesList) {
+      messagesList.addEventListener('scroll', handleScroll);
+      return () => messagesList.removeEventListener('scroll', handleScroll);
+    }
+  }, [messages.length]);
 
   const updateResponseFormat = (format: ResponseFormat) => {
     setResponseFormat(format);
@@ -300,7 +318,7 @@ const ChatInterface: React.FC = () => {
 
   return (
     <div 
-      className={`flex h-screen bg-gradient-to-br from-slate-50 via-brand-50 to-brand-100 transition-all duration-500 ease-out ${
+      className={`fixed inset-0 flex bg-gradient-to-br from-slate-50 via-brand-50 to-brand-100 transition-all duration-500 ease-out ${
         isTransitioning ? 'opacity-0 transform translate-y-4' : 'opacity-100 transform translate-y-0'
       }`}
     >
@@ -314,42 +332,73 @@ const ChatInterface: React.FC = () => {
       />
       
       {/* Main Content Area */}
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${
+      <div className={`flex-1 flex flex-col relative h-full overflow-hidden transition-all duration-300 ${
         isSidebarCollapsed ? 'md:ml-0' : 'md:ml-0'
       } ml-0`}>
         {/* Conditional Rendering based on activeView */}
         {activeView === 'chat' && (
           <>
-            {/* Response Format Selector for Admin Users */}
-            {accessLevel === 'admin' && (
-              <div className="flex justify-start px-4 sm:px-6 pt-4 pb-2">
-                <ResponseFormatSelector
-                  selectedFormat={responseFormat}
-                  onFormatChange={updateResponseFormat}
-                />
+            {/* Header with Model Selector */}
+            <div className={`absolute top-0 left-0 right-0 z-30 transition-all duration-300 ${
+              messages.length > 0 && isScrolled 
+                ? 'bg-white/95 backdrop-blur-md border-b border-purple-200/50 shadow-sm' 
+                : 'bg-transparent'
+            }`}>
+              <div className="flex items-center justify-between h-16 px-4 sm:px-6">
+                {/* Left side - hamburger menu space (handled by Sidebar) */}
+                <div className="w-10 md:hidden"></div>
+                
+                {/* Center - Model Selector for mobile, Left for desktop */}
+                <div className="flex-1 md:flex-none">
+                  {accessLevel === 'admin' && (
+                    <div className="flex justify-center md:justify-start md:absolute md:top-4 md:left-4">
+                      <ResponseFormatSelector
+                        selectedFormat={responseFormat}
+                        onFormatChange={updateResponseFormat}
+                      />
+                    </div>
+                  )}
+                </div>
+                
+                {/* Right side - empty space */}
+                <div className="w-10"></div>
               </div>
-            )}
+            </div>
             
-            <MessageList 
-              messages={messages} 
-              isLoading={isLoading} 
-              currentWorkflowUpdate={currentWorkflowUpdate}
-              inputValue={inputValue}
-              onInputChange={setInputValue}
-              onSend={handleSend}
-              selectedImage={selectedImage}
-              onImageSelect={setSelectedImage}
-            />
-            {(messages.length > 0 || isLoading) && (
-              <ChatInput
+            {/* Messages Area */}
+            <div className="flex-1 overflow-hidden">
+              <MessageList 
+                messages={messages} 
+                isLoading={isLoading} 
+                currentWorkflowUpdate={currentWorkflowUpdate}
                 inputValue={inputValue}
-                isLoading={isLoading}
                 onInputChange={setInputValue}
                 onSend={handleSend}
-                hasMessages={true}
                 selectedImage={selectedImage}
                 onImageSelect={setSelectedImage}
               />
+            </div>
+            
+            {/* Chat Input at Bottom - only when messages exist */}
+            {(messages.length > 0 || isLoading) && (
+              <div className="absolute bottom-0 left-0 right-0 z-20 bg-white/80 backdrop-blur-sm md:bg-transparent md:backdrop-blur-none">
+                <ChatInput
+                  inputValue={inputValue}
+                  isLoading={isLoading}
+                  onInputChange={setInputValue}
+                  onSend={handleSend}
+                  hasMessages={messages.length > 0}
+                  selectedImage={selectedImage}
+                  onImageSelect={setSelectedImage}
+                />
+                
+                {/* Disclaimer */}
+                <div className="text-center py-2 px-4">
+                  <p className="text-xs text-gray-500">
+                    AF AI can make mistakes. Always verify important reef parameters.
+                  </p>
+                </div>
+              </div>
             )}
           </>
         )}

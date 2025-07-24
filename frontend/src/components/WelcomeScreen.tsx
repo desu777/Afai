@@ -119,6 +119,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                 />
               </label>
               
+              
               {/* ICP button - placeholder */}
               <button 
                 className="flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-all duration-200"

@@ -149,7 +149,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div 
         ref={sidebarRef}
         className={`
-          fixed md:relative top-0 left-0 h-full bg-white/95 backdrop-blur-md border-r border-purple-200/50 shadow-lg z-40
+          fixed md:relative top-0 left-0 h-screen h-[100dvh] bg-white/95 backdrop-blur-md border-r border-purple-200/50 shadow-lg z-40
           transition-all duration-300 ease-in-out
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
           ${isCollapsed ? 'md:w-16' : 'w-80 md:w-80'}

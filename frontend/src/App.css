@@ -75,15 +75,26 @@
   overflow-wrap: break-word;
 }
 
-/* Prevent horizontal scrolling */
+/* Prevent horizontal scrolling and ensure proper viewport */
 html, body {
   overflow-x: hidden;
   max-width: 100vw;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  overflow: hidden; /* Prevent body scrolling */
 }
 
 #root {
   overflow-x: hidden;
   max-width: 100vw;
+  height: 100vh;
+  height: 100dvh; /* Dynamic viewport height for mobile */
+  position: relative;
+  overflow: hidden;
 }
 
 /* Long text handling */
@@ -113,20 +124,7 @@ pre {
 }
 
 /* Mobile viewport fixes */
-@supports (-webkit-touch-callout: none) {
-  body {
-    position: fixed;
-    width: 100%;
-    height: 100vh;
-    overflow: hidden;
-  }
-  
-  #root {
-    height: 100vh;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-}
+/* Removed problematic iOS fixes that were causing viewport scrolling issues */
 
 /* Prevent viewport scaling on mobile */
 html {
