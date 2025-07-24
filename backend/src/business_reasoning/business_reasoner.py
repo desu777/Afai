@@ -22,7 +22,7 @@ class BusinessReasoner:
         self.client, self.model_name = self._create_client_with_fallback()
         
         if TEST_ENV:
-            debug_print(f"[BRAIN] BusinessReasoner ready: {self.model_name}")
+            debug_print(f"[BRAIN] Ready: {self.model_name}")
         
         # Initialize specialized components
         self.data_loader = DataLoader()
@@ -37,27 +37,27 @@ class BusinessReasoner:
                 from gemini_client_factory import VertexAIClientFactory
                 client, model_name = VertexAIClientFactory.create_client("business_reasoner")
                 if TEST_ENV:
-                    debug_print(f"[>] Primary gemini: {model_name}")
+                    debug_print(f"[>] Primary: {model_name}")
                 return client, model_name
             else:
                 # Try OpenRouter as primary
                 client, model_name = create_business_reasoner_client()
                 if TEST_ENV:
-                    debug_print(f"[>] Primary openrouter: {model_name}")
+                    debug_print(f"[>] Primary OR: {model_name}")
                 return client, model_name
         except Exception as e:
             if TEST_ENV:
-                debug_print(f"[!] Primary failed: {str(e)[:50]}")
+                debug_print(f"[!] Primary failed: {str(e)[:30]}")
             
         # Fallback to OpenRouter always
         try:
             client, model_name = create_business_reasoner_client()
             if TEST_ENV:
-                debug_print(f"[RTY] Fallback openrouter: {model_name}")
+                debug_print(f"[RTY] Fallback: {model_name}")
             return client, model_name
         except Exception as e:
             if TEST_ENV:
-                debug_print(f"[X] Fallback failed: {str(e)[:50]}")
+                debug_print(f"[X] Fallback failed: {str(e)[:30]}")
             raise e
 
     def analyze(self, state: ConversationState) -> ConversationState:
@@ -66,7 +66,7 @@ class BusinessReasoner:
         """
         try:
             if TEST_ENV:
-                debug_print(f"[BRAIN] Analyzing: {state.get('user_query', '')[:50]}...")
+                debug_print(f"[BRAIN] Analyzing: {state.get('user_query', '')[:30]}...")
             
             # Full LLM analysis using comprehensive mapping data
             decision = self.llm_analyzer.analyze_with_full_llm(state)
@@ -79,12 +79,12 @@ class BusinessReasoner:
                 state = self.decision_applier.apply_fallback_analysis(state)
             
             if TEST_ENV:
-                debug_print(f"[OK] Analysis complete: {state.get('intent', 'unknown')}")
+                debug_print(f"[OK] Analysis OK: {state.get('intent', 'unknown')}")
             
             return state
             
         except Exception as e:
-            debug_print(f"[X] Analysis error: {e}")
+            debug_print(f"[X] Analysis error: {str(e)[:30]}")
             return self.decision_applier.apply_fallback_analysis(state)
 
 

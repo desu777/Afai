@@ -84,19 +84,19 @@ def route_intent(state: ConversationState) -> str:
     
     if intent in [Intent.GREETING, Intent.BUSINESS, Intent.COMPETITOR, 
                   Intent.CENSORED, Intent.PURCHASE_INQUIRY, Intent.SUPPORT, Intent.OTHER]:
-        logger.workflow("Routing to: format_response (special intent)", "DETAIL")
+        logger.workflow("→ format_response (special intent)", "DETAIL")
         state["routing_decisions"][-1]["next_node"] = "format_response"
         return "format_response"
     elif intent in [Intent.PRODUCT_QUERY, Intent.ANALYZE_ICP]:
-        logger.workflow("Routing to: business_reasoner (product query/ICP analysis)", "DETAIL")
+        logger.workflow("→ business_reasoner (product query/ICP)", "DETAIL")
         state["routing_decisions"][-1]["next_node"] = "business_reasoner"
         return "optimize_query"
     elif intent == Intent.FOLLOW_UP:
-        logger.workflow("Routing to: enhanced_follow_up_router (follow-up question)", "DETAIL")
+        logger.workflow("→ enhanced_follow_up_router (follow-up)", "DETAIL")
         state["routing_decisions"][-1]["next_node"] = "enhanced_follow_up_router"
         return "enhanced_follow_up_router"
     else:
-        logger.workflow("Routing to: format_response (unknown intent)", "DETAIL")
+        logger.workflow("→ format_response (unknown intent)", "DETAIL")
         state["routing_decisions"][-1]["next_node"] = "format_response"
         return "format_response"
 
@@ -111,7 +111,7 @@ def enhanced_follow_up_router(state: ConversationState) -> ConversationState:
     
     session_id = state.get("session_id")
     if not session_id:
-        logger.workflow("No session ID - routing to business_reasoner", "DETAIL")
+        logger.workflow("No session ID → business_reasoner", "DETAIL")
         # Set default evaluation for no session scenario
         state["follow_up_evaluation"] = {
             "sufficient": False,
@@ -126,7 +126,7 @@ def enhanced_follow_up_router(state: ConversationState) -> ConversationState:
     extended_cache = session_manager.get_session_cache(session_id)
     
     if not extended_cache:
-        logger.workflow(f"No cache for session {session_id} - routing to business_reasoner", "DETAIL")
+        logger.workflow(f"No cache {session_id} → business_reasoner", "DETAIL")
         # Set default evaluation for no cache scenario
         state["follow_up_evaluation"] = {
             "sufficient": False,
@@ -142,11 +142,11 @@ def enhanced_follow_up_router(state: ConversationState) -> ConversationState:
     if evaluation["sufficient"]:
         # Cache is sufficient - prepare data for response formatter
         state["cache_response_data"] = evaluation["response_data"]
-        logger.workflow(f"Cache sufficient (confidence: {evaluation['confidence']}) - routing to format_response", "DETAIL")
+        logger.workflow(f"Cache sufficient ({evaluation['confidence']}) → format_response", "DETAIL")
     else:
         # Cache insufficient - prepare smart prompt for business reasoner
         state["smart_business_prompt"] = evaluation["business_prompt"]
-        logger.workflow("Cache insufficient - routing to business_reasoner with smart prompt", "DETAIL")
+        logger.workflow("Cache miss → business_reasoner", "DETAIL")
     
     # Store evaluation for analytics
     state["follow_up_evaluation"] = evaluation
@@ -165,7 +165,7 @@ def route_enhanced_follow_up(state: ConversationState) -> str:
     evaluation = state.get("follow_up_evaluation")
     
     if not evaluation:
-        logger.workflow("No evaluation found - routing to business_reasoner", "DETAIL")
+        logger.workflow("No evaluation → business_reasoner", "DETAIL")
         state["routing_decisions"].append({
             "router": "route_enhanced_follow_up",
             "decision": "no_evaluation",
@@ -195,7 +195,7 @@ def route_enhanced_follow_up(state: ConversationState) -> str:
                     state["cache_response_data"] = response_data
         
         decision_reason = "cache_sufficient" if sufficient else f"confidence_threshold_override_{confidence:.2f}"
-        logger.workflow(f"Using cache (sufficient={sufficient}, confidence={confidence:.2f}) - routing to format_response", "DETAIL")
+        logger.workflow(f"Using cache ({confidence:.2f}) → format_response", "DETAIL")
         state["routing_decisions"].append({
             "router": "route_enhanced_follow_up", 
             "decision": decision_reason,
@@ -203,7 +203,7 @@ def route_enhanced_follow_up(state: ConversationState) -> str:
         })
         return "format_response"
     else:
-        logger.workflow(f"Cache insufficient (sufficient={sufficient}, confidence={confidence:.2f} < 0.7) - routing to business_reasoner", "DETAIL")
+        logger.workflow(f"Cache miss ({confidence:.2f} < 0.7) → business_reasoner", "DETAIL")
         state["routing_decisions"].append({
             "router": "route_enhanced_follow_up",
             "decision": f"confidence_below_threshold_{confidence:.2f}: {evaluation['reasoning'][:50]}...",
@@ -213,11 +213,8 @@ def route_enhanced_follow_up(state: ConversationState) -> str:
 
 def create_workflow() -> StateGraph:
     """Create the enhanced LangGraph workflow with analytics"""
-    logger.workflow("Creating enhanced LangGraph workflow with analytics...")
+    logger.workflow("Creating enhanced workflow...")
     logger.workflow(f"Using ENHANCED_K_VALUE={ENHANCED_K_VALUE}", "SUB")
-    logger.workflow("REMOVED intelligent_filter - Business Reasoner provides superior filtering", "SUB")
-    logger.workflow("REMOVED confidence_scorer - Direct routing for better performance", "SUB")
-    logger.workflow("Performance improvement: ~18 seconds saved per query + reduced token usage", "SUB")
         
     workflow = StateGraph(ConversationState)
     
@@ -236,7 +233,7 @@ def create_workflow() -> StateGraph:
     
     for node_name, node_func in nodes:
         workflow.add_node(node_name, node_func)
-        logger.workflow(f"Added node: {node_name}", "SUB")
+        logger.workflow(f"Node: {node_name}", "SUB")
     
     # Define edges
     workflow.set_entry_point("detect_intent")
@@ -267,7 +264,7 @@ def create_workflow() -> StateGraph:
     # All paths lead to END
     workflow.add_edge("format_response", END)
     
-    logger.workflow("Enhanced workflow with direct routing created and compiled", "SUB")
+    logger.workflow("Enhanced workflow compiled", "SUB")
         
     return workflow.compile()
 

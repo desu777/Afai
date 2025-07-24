@@ -22,12 +22,12 @@ class DataLoader:
             debug_print("[WARN] Other mappings disabled - using LLM intelligence only")
         elif not DISABLE_BUSINESS_MAPPINGS:
             self._load_mapping_data()
-            debug_print(f"[API] VERSION 4.1 REFACTORED initialized")
-            debug_print(f"[DATA] Loaded {len(self.products_knowledge)} products")
-            debug_print(f"[COMP] Competitors: {len(self.competitors_data.get('competitors', {}))}")
-            debug_print(f"[SCENARIOS] Scenarios: {len(self.scenarios_data.get('tank_setup_scenarios', {}))}")
-            debug_print(f"[TARGET] Use cases: {len(self.use_cases_data.get('use_cases', {}))}")
-            debug_print(f"[GROUPS] Product groups: {len(self.product_groups_data.get('product_groups', {}))}")
+            debug_print(f"[API] v4.1 REFACTORED")
+            debug_print(f"[DATA] {len(self.products_knowledge)} products")
+            debug_print(f"[COMP] {len(self.competitors_data.get('competitors', {}))} competitors")
+            debug_print(f"[SCENARIOS] {len(self.scenarios_data.get('tank_setup_scenarios', {}))} scenarios")
+            debug_print(f"[TARGET] {len(self.use_cases_data.get('use_cases', {}))} use cases")
+            debug_print(f"[GROUPS] {len(self.product_groups_data.get('product_groups', {}))} groups")
         else:
             debug_print(f"[API] VERSION 4.1 MAPPINGS DISABLED - Pure LLM mode")
             debug_print(f"[DATA] Loaded {len(self.products_knowledge)} products")

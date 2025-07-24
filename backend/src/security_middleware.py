@@ -66,10 +66,10 @@ class ViolationTracker:
         # Check if should blacklist
         if len(self.violations[ip]) >= VIOLATION_THRESHOLD:
             self.auto_blacklisted[ip] = current_time
-            debug_print(f"[ALERT] [Security] Auto-blacklisted IP {ip} after {len(self.violations[ip])} violations")
+            debug_print(f"[ALERT] SEC Auto-blacklisted IP {ip} after {len(self.violations[ip])} violations")
             return True
         
-        debug_print(f"[WARN] [Security] Violation #{len(self.violations[ip])} for IP {ip}")
+        debug_print(f"[WARN] SEC Violation #{len(self.violations[ip])} for IP {ip}")
         return False
     
     def is_auto_blacklisted(self, ip: str) -> bool:
@@ -83,7 +83,7 @@ class ViolationTracker:
         if datetime.now() > expiry_time:
             # Blacklist expired, remove it
             del self.auto_blacklisted[ip]
-            debug_print(f"[OK] [Security] Auto-blacklist expired for IP {ip}")
+            debug_print(f"[OK] SEC Auto-blacklist expired for IP {ip}")
             return False
         
         return True
@@ -104,7 +104,7 @@ class ViolationTracker:
         """Manually remove IP from auto-blacklist"""
         if ip in self.auto_blacklisted:
             del self.auto_blacklisted[ip]
-            debug_print(f"[INFO] [Security] Manually removed auto-blacklist for IP {ip}")
+            debug_print(f"[INFO] SEC Manually removed auto-blacklist for IP {ip}")
             return True
         return False
     
@@ -120,7 +120,7 @@ class ViolationTracker:
         
         for ip in expired_ips:
             del self.auto_blacklisted[ip]
-            debug_print(f"[CLEANUP] [Security] Cleaned expired blacklist for IP {ip}")
+            debug_print(f"[CLEANUP] SEC Cleaned expired blacklist for IP {ip}")
         
         # Clean old violations
         window_start = current_time - timedelta(hours=VIOLATION_WINDOW_HOURS)
@@ -189,7 +189,7 @@ def create_rate_limit_handler():
         client_ip = get_client_ip(request)
         endpoint = str(request.url.path)
         
-        debug_print(f"[ALERT] [Security] Rate limit exceeded - IP: {client_ip}, Endpoint: {endpoint}")
+        debug_print(f"[ALERT] SEC Rate limit exceeded - IP: {client_ip}, Endpoint: {endpoint}")
         
         # Track violation and check for auto-blacklisting
         should_blacklist = violation_tracker.add_violation(client_ip)
@@ -232,7 +232,7 @@ def setup_security_middleware(app: FastAPI):
     """Setup security middleware and rate limiting for FastAPI app"""
     
     if not ENABLE_RATE_LIMITING:
-        debug_print("[WARN] [Security] Rate limiting DISABLED")
+        debug_print("[WARN] SEC Rate limiting DISABLED")
         return app
     
     # Add rate limiting middleware
@@ -240,12 +240,12 @@ def setup_security_middleware(app: FastAPI):
     app.add_exception_handler(RateLimitExceeded, create_rate_limit_handler())
     app.add_middleware(SlowAPIMiddleware)
     
-    debug_print("[OK] [Security] Rate limiting middleware configured")
-    debug_print(f"[CONFIG] [Security] Tier 1 (Chat): {TIER1_LIMIT}")
-    debug_print(f"[CONFIG] [Security] Tier 2 (Analytics): {TIER2_LIMIT}")
-    debug_print(f"[CONFIG] [Security] Tier 3 (Basic): {TIER3_LIMIT}")
-    debug_print(f"[CONFIG] [Security] Vision API: {VISION_LIMIT}")
-    debug_print(f"[CONFIG] [Security] CSV Export: {CSV_EXPORT_LIMIT}")
+    debug_print("[OK] SEC Rate limiting middleware configured")
+    debug_print(f"[CONFIG] SEC Tier 1 (Chat): {TIER1_LIMIT}")
+    debug_print(f"[CONFIG] SEC Tier 2 (Analytics): {TIER2_LIMIT}")
+    debug_print(f"[CONFIG] SEC Tier 3 (Basic): {TIER3_LIMIT}")
+    debug_print(f"[CONFIG] SEC Vision API: {VISION_LIMIT}")
+    debug_print(f"[CONFIG] SEC CSV Export: {CSV_EXPORT_LIMIT}")
     
     return app
 
@@ -303,7 +303,7 @@ async def security_headers_middleware(request: Request, call_next):
 def log_security_event(event_type: str, client_ip: str, details: str):
     """Log security events for monitoring"""
     timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-    debug_print(f"[SECURE] [Security] {timestamp} - {event_type} - IP: {client_ip} - {details}")
+    debug_print(f"[SECURE] SEC {timestamp} - {event_type} - IP: {client_ip} - {details}")
 
 # IP whitelist/blacklist functionality (optional)
 class IPFilter:
@@ -337,12 +337,12 @@ class IPFilter:
     def add_to_blacklist(self, ip: str):
         """Add IP to blacklist"""
         self.blacklist.add(ip)
-        debug_print(f"[INFO] [Security] Added {ip} to blacklist")
+        debug_print(f"[INFO] SEC Added {ip} to blacklist")
     
     def remove_from_blacklist(self, ip: str):
         """Remove IP from blacklist"""
         self.blacklist.discard(ip)
-        debug_print(f"[OK] [Security] Removed {ip} from blacklist")
+        debug_print(f"[OK] SEC Removed {ip} from blacklist")
 
 # Global IP filter instance
 ip_filter = IPFilter()
@@ -450,7 +450,7 @@ def create_auth_token_middleware():
             )
         
         # Valid token - proceed with request
-        debug_print(f"[OK] [Auth] Valid token for IP {client_ip} -> {endpoint}")
+        debug_print(f"[OK] AUTH Valid token for IP {client_ip} -> {endpoint}")
         return await call_next(request)
     
     return auth_token_middleware

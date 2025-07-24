@@ -103,18 +103,18 @@ Return JSON with product recommendations and business analysis.
             debug_print(f"[AI] Analysis complete")
             
             if TEST_ENV:
-                print(f"[BRAIN] LLM Response Summary:")
-                print(f"   - Business interpretation: {decision_data.get('business_interpretation', 'N/A')[:100]}...")
-                print(f"   - Detected scenario: {decision_data.get('detected_scenario', 'null')}")
-                print(f"   - Detected use case: {decision_data.get('detected_use_case', 'null')}")
-                print(f"   - Detected competitors: {decision_data.get('detected_competitors', [])}")
+                print(f"[BRAIN] LLM Summary:")
+                print(f"   - Business: {decision_data.get('business_interpretation', 'N/A')[:50]}...")
+                print(f"   - Scenario: {decision_data.get('detected_scenario', 'null')}")
+                print(f"   - Use case: {decision_data.get('detected_use_case', 'null')}")
+                print(f"   - Competitors: {decision_data.get('detected_competitors', [])}")
                 
                 reasoning = decision_data.get('reasoning_steps', {})
-                print(f"   - Stage 1 products: {reasoning.get('stage_1_products', 'N/A')[:50]}...")
-                print(f"   - Stage 2 products: {reasoning.get('stage_2_products', 'N/A')[:50]}...")
+                print(f"   - Stage 1: {reasoning.get('stage_1_products', 'N/A')[:30]}...")
+                print(f"   - Stage 2: {reasoning.get('stage_2_products', 'N/A')[:30]}...")
                 
-                print(f"   - Priority products: {len(decision_data.get('priority_products', []))}")
-                print(f"   - Response strategy: {decision_data.get('response_strategy', 'direct')}")
+                print(f"   - Priority: {len(decision_data.get('priority_products', []))}")
+                print(f"   - Strategy: {decision_data.get('response_strategy', 'direct')}")
                 print(f"   - Confidence: {decision_data.get('confidence_level', 0.0)}")
             
             return decision_data

@@ -357,7 +357,7 @@ You MUST mention that Balling/Component products contain multiple elements and a
         
         if state.get("search_results"):
             if TEST_ENV:
-                print(f"[STATS] [DEBUG ResponseFormatter] Processing {len(state.get('search_results', []))} results")
+                print(f"[STATS] PB processing: {len(state.get('search_results', []))} results")
             
             # Process results and prepare dosage calculations
             for i, result in enumerate(state["search_results"]):

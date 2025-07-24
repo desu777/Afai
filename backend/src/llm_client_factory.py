@@ -45,7 +45,7 @@ class LLMClientFactory:
                 # Create Vertex AI Gemini client
                 client, model_name = VertexAIClientFactory.create_client(node_name)
                 
-                debug_print(f"[API] Created Vertex AI client for {node_name}: {model_name}")
+                debug_print(f"[API] Vertex AI: {node_name} → {model_name}")
                 
                 if TEST_ENV:
                     print(f"[TARGET] {node_name} → vertex-ai → {model_name}")
@@ -54,11 +54,11 @@ class LLMClientFactory:
                 
             except Exception as e:
                 # Fallback to OpenRouter on any error
-                debug_print(f"[ERROR] Vertex AI error for {node_name}: {e}")
-                debug_print(f"[FALLBACK] Falling back to OpenRouter for {node_name}")
+                debug_print(f"[ERROR] Vertex AI {node_name}: {str(e)[:30]}")
+                debug_print(f"[FALLBACK] OR fallback: {node_name}")
                 
                 if TEST_ENV:
-                    print(f"[WARN] Vertex AI failed for {node_name}, using OpenRouter fallback")
+                    print(f"[WARN] VA failed {node_name}, using OR")
         
         # Create OpenRouter client (default or fallback)
         api_key, model_name = LLMClientFactory._get_node_config(node_name)
@@ -68,7 +68,7 @@ class LLMClientFactory:
             base_url="https://openrouter.ai/api/v1"
         )
         
-        debug_print(f"[API] Created OpenRouter client for {node_name}: {model_name}")
+        debug_print(f"[API] OpenRouter: {node_name} → {model_name}")
         
         if TEST_ENV:
             print(f"[TARGET] {node_name} → openrouter → {model_name}")

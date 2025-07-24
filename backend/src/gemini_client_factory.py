@@ -98,7 +98,7 @@ class VertexAIGeminiClient:
                 auth_method = "API_KEY+VERTEX"
             except Exception as e:
                 if TEST_ENV:
-                    debug_print(f"[!] API key method failed: {e}")
+                    debug_print(f"[!] API key failed: {str(e)[:30]}")
                 # Fallback to ADC
                 self.client = genai.Client(vertexai=True)
                 auth_method = "ADC_FALLBACK"
@@ -114,9 +114,9 @@ class VertexAIGeminiClient:
         
         if TEST_ENV:
             if thinking_budget is not None and thinking_budget.strip() != "":
-                debug_print(f"[AI] Initialized with model: {model_name} (thinking: {thinking_budget}, auth: {auth_method})")
+                debug_print(f"[AI] Init: {model_name} (think: {thinking_budget}, auth: {auth_method})")
             else:
-                debug_print(f"[AI] Initialized with model: {model_name} (thinking: default, auth: {auth_method})")
+                debug_print(f"[AI] Init: {model_name} (think: default, auth: {auth_method})")
     
     def create(self, messages: List[Dict[str, str]], 
                temperature: Optional[float] = None,
@@ -169,14 +169,14 @@ class VertexAIGeminiClient:
                     params_used.append(f"thinking={self.thinking_budget}")
                 params_used.append("top_p=default")
                 params_used.append("top_k=default")
-                debug_print(f"[CFG] Generation params: {', '.join(params_used)}")
+                debug_print(f"[CFG] Params: {', '.join(params_used)}")
             
             # Log multimodal vs text-only mode
             if TEST_ENV:
                 if isinstance(prompt, list):
-                    debug_print(f"[IMG] Using multimodal mode with {len([p for p in prompt if hasattr(p, 'mime_type')])} images")
+                    debug_print(f"[IMG] Multimodal: {len([p for p in prompt if hasattr(p, 'mime_type')])} imgs")
                 else:
-                    debug_print(f"[TXT] Using text-only mode")
+                    debug_print(f"[TXT] Text-only mode")
             
             # Generate response using new API
             response = self.client.models.generate_content(
@@ -190,7 +190,7 @@ class VertexAIGeminiClient:
                 raise GeminiAPIError("Empty response from Vertex AI Gemini API")
             
             if TEST_ENV:
-                debug_print(f"[OK] Generated response: {len(response.text)} characters")
+                debug_print(f"[OK] Response: {len(response.text)} chars")
             
             return GeminiResponse(response)
             
@@ -300,7 +300,7 @@ class VertexAIGeminiClient:
                     )
                 except Exception as e:
                     if TEST_ENV:
-                        debug_print(f"[X] Failed to process base64 image: {e}")
+                        debug_print(f"[X] Base64 error: {str(e)[:30]}")
                     return None
             
             # Handle HTTP/HTTPS URLs
@@ -334,17 +334,17 @@ class VertexAIGeminiClient:
                     )
                 except Exception as e:
                     if TEST_ENV:
-                        debug_print(f"[X] Failed to download image from URL {url}: {e}")
+                        debug_print(f"[X] Download failed: {str(e)[:30]}")
                     return None
             
             else:
                 if TEST_ENV:
-                    debug_print(f"[X] Unsupported image URL format: {url[:100]}...")
+                    debug_print(f"[X] Unsupported URL: {url[:50]}...")
                 return None
                 
         except Exception as e:
             if TEST_ENV:
-                debug_print(f"[X] Error converting image to Vertex AI part: {e}")
+                debug_print(f"[X] Image convert error: {str(e)[:30]}")
             return None
     
     def _convert_vertex_ai_error(self, error: Exception) -> Exception:
@@ -393,11 +393,11 @@ class VertexAIClientFactory:
         auth_method = "API KEY" if GOOGLE_CLOUD_API_KEY else "SERVICE ACCOUNT"
         
         if thinking_budget is not None and thinking_budget.strip() != "":
-            debug_print(f"[VERTEX] Created client for {node_name}: {model_name} (thinking: {thinking_budget}, auth: {auth_method})")
+            debug_print(f"[VERTEX] {node_name}: {model_name} (think: {thinking_budget}, auth: {auth_method})")
             if TEST_ENV:
                 print(f"[>] {node_name} → vertex-ai → {model_name} (thinking: {thinking_budget}, auth: {auth_method})")
         else:
-            debug_print(f"[VERTEX] Created client for {node_name}: {model_name} (thinking: default, auth: {auth_method})")
+            debug_print(f"[VERTEX] {node_name}: {model_name} (think: default, auth: {auth_method})")
             if TEST_ENV:
                 print(f"[>] {node_name} → vertex-ai → {model_name} (thinking: default, auth: {auth_method})")
         

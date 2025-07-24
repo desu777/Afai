@@ -44,12 +44,12 @@ class AquaforestAssistant:
                 for chunk in self.workflow.stream(state):
                     node_name = list(chunk.keys())[0]
                     if node_name != "__end__":
-                        logger.workflow(f"Executing node: '{node_name}'", "SUB")
+                        logger.workflow(f"Node: '{node_name}'", "SUB")
                         logger.separator("", 40, "-")
                         final_node_output = chunk[node_name]
                 result = final_node_output
                 if not result:
-                     logger.error("Workflow did not produce any output")
+                     logger.error("Workflow: no output")
                      state["final_response"] = "I apologize, but an error occurred during the workflow."
                      return state
                 logger.workflow_end()
@@ -73,7 +73,7 @@ class AquaforestAssistant:
             return result
         except Exception as e:
             if debug:  # Only show errors in debug mode
-                logger.error(f"Error processing query: {e}")
+                logger.error(f"Error: {str(e)[:30]}...")
                 import traceback
                 traceback.print_exc()
             state["final_response"] = "I apologize, but I encountered an error. Please try again or contact support@aquaforest.eu"
@@ -97,7 +97,7 @@ def main():
     
     # Always show interactive mode header (not dependent on TEST_ENV)
     print("\n" + "="*60)
-    print("[AI] Aquaforest AI Assistant - Interactive Mode")
+    print("[AI] Aquaforest Assistant")
     print("="*60)
     print("\nCommands:")
     print("  • 'quit' or 'exit' - Exit the program")
@@ -210,14 +210,14 @@ def main():
             # [DEBUG] Session ID tracking zgodnie z rules (TEST_ENV)
             if config.TEST_ENV or debug_mode:
                 session_id = conversation_state.get('session_id', 'NONE')
-                logger.debug(f"Processing query with session_id: {session_id}")
+                logger.debug(f"Session: {session_id}")
                 from session_manager import get_session_manager
                 session_manager = get_session_manager()
                 existing_cache = session_manager.get_session_cache(session_id)
                 if existing_cache:
-                    logger.debug(f"Found existing cache with {len(existing_cache.get('metadata', []))} items", "SUB")
+                    logger.debug(f"Cache: {len(existing_cache.get('metadata', []))} items", "SUB")
                 else:
-                    logger.debug("No existing cache found for session", "SUB")
+                    logger.debug("Cache: none", "SUB")
 
             print("\n[AI] Assistant: ", end="", flush=True)
             
@@ -239,7 +239,7 @@ def main():
             continue
         except Exception as e:
             if debug_mode:  # Only show errors in debug mode
-                logger.error(f"Unexpected error: {e}")
+                logger.error(f"Error: {str(e)[:30]}...")
                 import traceback
                 traceback.print_exc()
                 print("\nTrying to continue...")

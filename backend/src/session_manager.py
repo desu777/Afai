@@ -29,7 +29,7 @@ class SessionManager:
                     self._cleanup_task = asyncio.create_task(self._cleanup_expired_sessions())
         except RuntimeError:
             # No event loop running, cleanup will be manual
-            debug_print("[WARN] [SessionManager] No event loop - cleanup will be manual")
+            debug_print("[WARN] SM no event loop - manual cleanup")
     
     async def _cleanup_expired_sessions(self):
         """Background task to cleanup expired sessions"""
@@ -44,22 +44,22 @@ class SessionManager:
                 
                 for session_id in expired_sessions:
                     del self.session_cache[session_id]
-                    debug_print(f"[CLEANUP] [SessionManager] Expired session: {session_id}")
+                    debug_print(f"[CLEANUP] SM expired: {session_id}")
                 
                 if expired_sessions:
-                    debug_print(f"[CLEANUP] [SessionManager] Cleaned up {len(expired_sessions)} expired sessions")
+                    debug_print(f"[CLEANUP] SM cleaned {len(expired_sessions)} sessions")
                 
                 # Run cleanup every minute
                 await asyncio.sleep(60)
                 
             except Exception as e:
-                debug_print(f"[ERROR] [SessionManager] Cleanup error: {e}")
+                debug_print(f"[ERROR] SM cleanup: {str(e)[:30]}")
                 await asyncio.sleep(60)
     
     def generate_session_id(self) -> str:
         """Generate new session ID"""
         session_id = str(uuid.uuid4())
-        debug_print(f"[NEW] [SessionManager] Generated new session: {session_id}")
+        debug_print(f"[NEW] SM session: {session_id}")
         return session_id
     
     def get_session_cache(self, session_id: str) -> Optional[Dict[str, Any]]:
@@ -73,12 +73,12 @@ class SessionManager:
         # Check if session expired
         if current_time - session_data.get("last_seen", 0) > self.ttl_seconds:
             del self.session_cache[session_id]
-            debug_print(f"[TIME] [SessionManager] Session expired: {session_id}")
+            debug_print(f"[TIME] SM expired: {session_id}")
             return None
         
         # Update last seen
         session_data["last_seen"] = current_time
-        debug_print(f"[OK] [SessionManager] Retrieved cache for session: {session_id}")
+        debug_print(f"[OK] SM cache: {session_id}")
         return session_data.get("extended_cache", {})
     
     def update_session_cache(self, session_id: str, extended_cache: Dict[str, Any]):
@@ -91,7 +91,7 @@ class SessionManager:
             "created_at": self.session_cache.get(session_id, {}).get("created_at", current_time)
         }
         
-        debug_print(f"[CACHE] [SessionManager] Updated cache for session: {session_id}")
+        debug_print(f"[CACHE] SM updated: {session_id}")
     
     def get_session_stats(self) -> Dict[str, Any]:
         """Get session manager statistics"""
@@ -112,7 +112,7 @@ class SessionManager:
         """Clear specific session"""
         if session_id in self.session_cache:
             del self.session_cache[session_id]
-            debug_print(f"[CLEANUP] [SessionManager] Cleared session: {session_id}")
+            debug_print(f"[CLEANUP] SM cleared: {session_id}")
             return True
         return False
     
@@ -120,7 +120,7 @@ class SessionManager:
         """Clear all sessions"""
         count = len(self.session_cache)
         self.session_cache.clear()
-        debug_print(f"[CLEANUP] [SessionManager] Cleared all {count} sessions")
+        debug_print(f"[CLEANUP] SM cleared all {count}")
     
     def manual_cleanup(self):
         """Manual cleanup for environments without event loop"""
@@ -133,10 +133,10 @@ class SessionManager:
         
         for session_id in expired_sessions:
             del self.session_cache[session_id]
-            debug_print(f"[CLEANUP] [SessionManager] Expired session: {session_id}")
+            debug_print(f"[CLEANUP] SM expired: {session_id}")
         
         if expired_sessions:
-            debug_print(f"[CLEANUP] [SessionManager] Manually cleaned up {len(expired_sessions)} expired sessions")
+            debug_print(f"[CLEANUP] SM manual clean: {len(expired_sessions)}")
         
         return len(expired_sessions)
 

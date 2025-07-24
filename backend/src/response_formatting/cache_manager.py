@@ -55,7 +55,7 @@ class CacheManager:
         """Generate response for follow-up questions using cached data"""
         try:
             if TEST_ENV:
-                print(f"[PROCESS] [DEBUG ResponseFormatter] Generating cache-based response")
+                print(f"[PROCESS] CM cache-based response")
             
             cached_data = state["cache_response_data"]
             lang = state.get("detected_language", "en")
@@ -102,7 +102,7 @@ URL: {url}
             # Fallback prompt if template fails
             if not prompt:
                 if TEST_ENV:
-                    print("[WARN] [ResponseFormatter] Using fallback cache-based prompt")
+                    print("[WARN] CM fallback prompt")
                 prompt = f"""
 You are AF AI, Aquaforest's assistant. Answer follow-up question based on previous context.
 
@@ -127,11 +127,11 @@ Respond in {lang} language, referencing previous conversation naturally.
             state["final_response"] = response.choices[0].message.content
             
             if TEST_ENV:
-                print(f"[OK] [DEBUG ResponseFormatter] Cache-based response generated ({len(state['final_response'])} characters)")
+                print(f"[OK] CM response: {len(state['final_response'])} chars")
                 
         except Exception as e:
             if TEST_ENV:
-                print(f"[ERROR] [DEBUG ResponseFormatter] Cache-based response error: {e}")
+                print(f"[ERROR] CM cache error: {str(e)[:30]}")
             state["final_response"] = self._handle_cache_error(e, state)
             
         return state

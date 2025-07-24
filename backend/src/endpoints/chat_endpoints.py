@@ -33,14 +33,14 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
             if not session_id:
                 # Generate new session for first-time users
                 session_id = session_manager.generate_session_id()
-                logger.streaming(f"Generated new session: {session_id}", session_id, "SUB")
+                logger.streaming(f"[NEW] {session_id}", session_id, "SUB")
             else:
-                logger.streaming(f"Using existing session: {session_id}", session_id, "SUB")
+                logger.streaming(f"[REUSE] {session_id}", session_id, "SUB")
             
             session_analytics = WorkflowAnalytics()
             session_analytics.reset()
             
-            logger.streaming(f"Starting session: {chat_request.message[:30]}...", session_id, "SUB")
+            logger.streaming(f"Start session: {chat_request.message[:30]}...", session_id, "SUB")
             
             # Real-time streaming with threading
             update_queue = queue.Queue()
@@ -54,7 +54,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
             def run_workflow():
                 """Run workflow in separate thread"""
                 try:
-                    logger.streaming(f"Received streaming chat request: {chat_request.message[:50]}...", session_id, "SUB")
+                    logger.streaming(f"Stream req: {chat_request.message[:30]}...", session_id, "SUB")
                     
                     # Create conversation state with session analytics and session management
                     conversation_state = {
@@ -82,7 +82,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
                         "analytics_instance": session_analytics
                     }
                     
-                    logger.streaming(f"Processing with streaming workflow (debug={chat_request.debug})", session_id, "SUB")
+                    logger.streaming(f"Stream workflow (debug={chat_request.debug})", session_id, "SUB")
                     
                     # Create dedicated assistant instance for this session
                     session_assistant = AquaforestAssistant(analytics_instance=session_analytics)
@@ -93,7 +93,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
                     # Save extended cache to session if available
                     if result_state.get("extended_cache"):
                         session_manager.update_session_cache(session_id, result_state["extended_cache"])
-                        logger.streaming(f"Updated session cache for {session_id}", session_id, "SUB")
+                        logger.streaming(f"Cache updated: {session_id}", session_id, "SUB")
                     
                     # Send final completion update
                     session_analytics.capture_workflow_complete(result_state.get("final_response", ""))
@@ -104,7 +104,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
                     # Save analytics to database
                     save_analytics_to_db(session_analytics)
                     
-                    logger.streaming(f"Streaming response completed", session_id, "SUB")
+                    logger.streaming(f"Stream complete", session_id, "SUB")
                     
                 except Exception as e:
                     error_msg = f"An error occurred while processing your request: {str(e)}"
@@ -138,7 +138,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
                     update = update_queue.get(timeout=1.0)
                     sent_count += 1
                     
-                    logger.streaming(f"Streaming update #{sent_count}: {update['node']}", session_id, "DETAIL")
+                    logger.streaming(f"[STREAM] #{sent_count}: {update['node']}", session_id, "DETAIL")
                     
                     # Handle very long messages
                     json_data = json.dumps(update)
@@ -155,7 +155,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
                             while True:
                                 update = update_queue.get_nowait()
                                 sent_count += 1
-                                logger.streaming(f"Final update #{sent_count}: {update['node']}", session_id, "DETAIL")
+                                logger.streaming(f"[FINAL] #{sent_count}: {update['node']}", session_id, "DETAIL")
                                 
                                 # Handle very long messages
                                 json_data = json.dumps(update)
@@ -170,7 +170,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
             # Wait for workflow thread to complete
             workflow_thread.join()
             
-            logger.streaming(f"Streaming completed. Total updates sent: {sent_count}", session_id, "SUB")
+            logger.streaming(f"Stream done: {sent_count} updates", session_id, "SUB")
         
         return StreamingResponse(
             generate_stream(),
@@ -193,7 +193,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
         start_time = time.time()
         
         try:
-            debug_print(f"[API] Received chat request: {chat_request.message[:50]}...", "[DEBUG]")
+            debug_print(f"[API] Chat req: {chat_request.message[:30]}...", "[DEBUG]")
             
             # Handle session management
             from session_manager import get_session_manager
@@ -203,9 +203,9 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
             if not session_id:
                 # Generate new session for first-time users
                 session_id = session_manager.generate_session_id()
-                debug_print(f"[NEW] Generated new session: {session_id}")
+                debug_print(f"[NEW] {session_id}")
             else:
-                debug_print(f"[REUSE] Using existing session: {session_id}")
+                debug_print(f"[REUSE] {session_id}")
             
             # Create conversation state with global analytics and session
             conversation_state = {
@@ -233,7 +233,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
                 "analytics_instance": global_analytics
             }
             
-            debug_print(f"[PROCESS] Processing with workflow (debug={chat_request.debug})", "[CONFIG]")
+            debug_print(f"[PROCESS] Workflow (debug={chat_request.debug})", "[CONFIG]")
             
             # Create assistant instance with global analytics for non-streaming requests
             non_streaming_assistant = AquaforestAssistant(analytics_instance=global_analytics)
@@ -247,7 +247,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
             # Save extended cache to session if available
             if result_state.get("extended_cache"):
                 session_manager.update_session_cache(session_id, result_state["extended_cache"])
-                debug_print(f"[CACHE] Updated session cache for {session_id}")
+                debug_print(f"[CACHE] Updated: {session_id}")
             
             # Save analytics to database
             save_analytics_to_db(global_analytics)
@@ -255,7 +255,7 @@ def setup_chat_endpoints(app, tier1_rate_limit, ChatRequest, ChatResponse):
             # Calculate execution time
             execution_time = time.time() - start_time
             
-            debug_print(f"[OK] Response ready in {execution_time:.3f}s", "[TIME]")
+            debug_print(f"[OK] Ready in {execution_time:.3f}s", "[TIME]")
             
             return ChatResponse(
                 response=result_state.get("final_response", "Sorry, I couldn't process your request."),

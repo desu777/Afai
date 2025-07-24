@@ -325,15 +325,15 @@ Return JSON: {{"optimized_queries": ["{query}"]}}
                     state["optimized_queries"] = products_in_category + [query]
                 else:
                     state["optimized_queries"] = [query]
-                debug_print(f"[WARN] [QueryOptimizer] Fallback to category products: {state['optimized_queries']}")
+                debug_print(f"[WARN] QO fallback to category products")
             elif comparison_products:
                 # Fallback for comparisons
                 state["optimized_queries"] = comparison_products + [query]
-                debug_print(f"[WARN] [QueryOptimizer] Fallback for comparison: {state['optimized_queries']}")
+                debug_print(f"[WARN] QO fallback for comparison")
             else:
                 # Generic fallback
                 state["optimized_queries"] = [query]
-                debug_print(f"[WARN] [QueryOptimizer] Fallback to original query: {[query]}")
+                debug_print(f"[WARN] QO fallback to original")
             
         return state
 
