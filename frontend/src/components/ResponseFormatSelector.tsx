@@ -11,7 +11,7 @@ const formatOptions: ResponseFormatOption[] = [
   {
     id: 'visionary_expert',
     label: 'Visionary Expert',
-    description: 'Enthusiastic AI assistant with passion for reefing'
+    description: 'Enthusiastic AI assistant with passion for reefing (Afai persona)'
   },
   {
     id: 'ghostwriter',

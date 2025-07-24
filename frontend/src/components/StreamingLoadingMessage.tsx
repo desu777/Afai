@@ -8,6 +8,60 @@ interface StreamingLoadingMessageProps {
   currentUpdate?: WorkflowUpdate;
 }
 
+// Rotating messages for each workflow stage
+const stageMessages: Record<string, string[]> = {
+  'detect_intent_and_language': [
+    "Listening to your question",
+    "Interpreting the whispers of your reef",
+    "Sensing your intention in the water",
+    "Tuning into the ocean's frequency",
+    "Grasping the essence of your words"
+  ],
+  'business_reasoner': [
+    "Gathering the ocean's wisdom",
+    "Deciphering the language of the corals",
+    "Diving into the heart of the matter",
+    "Consulting the ancient currents",
+    "Reading the signs left in the sand"
+  ],
+  'optimize_product_query': [
+    "Focusing the sea's energy",
+    "Formulating a charm of seeking",
+    "Charting a course through the ocean of knowledge",
+    "Drawing a map of sunken treasures",
+    "Summoning helpful spirits from the deep"
+  ],
+  'search_products_k20': [
+    "Diving for pearls of information",
+    "Searching the currents of knowledge",
+    "Exploring the sunken libraries of Aquaforest",
+    "Following the echo of your question into the abyss",
+    "Swimming towards the hidden answers"
+  ],
+  'format_final_response': [
+    "Translating the reef's whisper",
+    "Polishing the final details",
+    "Focusing the ocean's wisdom",
+    "Weaving the final answer",
+    "Revealing the path forward"
+  ],
+  // Follow-up stages
+  'handle_follow_up': [
+    "Connecting the currents of our conversation",
+    "Tracing the path of our dialogue through the waters",
+    "Remembering the echoes of your previous questions",
+    "Weaving together the threads of our discussion",
+    "Building upon the foundations we've established"
+  ],
+  'follow_up_router': [
+    "Navigating the streams of context",
+    "Reading the patterns in our conversation's wake",
+    "Sensing the deeper connections in your inquiry",
+    "Mapping the constellation of your thoughts",
+    "Aligning with the flow of your questions"
+  ]
+};
+
 const StreamingLoadingMessage: React.FC<StreamingLoadingMessageProps> = ({ currentUpdate }) => {
   const [liveTimer, setLiveTimer] = useState(1);
   const [previousProgress, setPreviousProgress] = useState(0);
@@ -15,6 +69,8 @@ const StreamingLoadingMessage: React.FC<StreamingLoadingMessageProps> = ({ curre
   const [finalThoughtTime, setFinalThoughtTime] = useState<number | null>(null);
   const [currentMessage, setCurrentMessage] = useState("");
   const [animationKey, setAnimationKey] = useState(0);
+  const [messageRotationTimer, setMessageRotationTimer] = useState(0);
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
 
   // Live timer - counts 1, 2, 3, 4, 5...
   useEffect(() => {
@@ -24,6 +80,52 @@ const StreamingLoadingMessage: React.FC<StreamingLoadingMessageProps> = ({ curre
 
     return () => clearInterval(interval);
   }, []);
+
+  // Message rotation timer for long-running stages
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMessageRotationTimer(prev => prev + 1);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Rotate message every 5 seconds for long-running stages
+  useEffect(() => {
+    if (messageRotationTimer > 0 && messageRotationTimer % 5 === 0 && currentUpdate?.node) {
+      const messages = stageMessages[currentUpdate.node];
+      if (messages && messages.length > 0) {
+        // Pick a random message, but different from current one if possible
+        let newIndex = Math.floor(Math.random() * messages.length);
+        if (messages.length > 1 && newIndex === currentMessageIndex) {
+          newIndex = (newIndex + 1) % messages.length;
+        }
+        setCurrentMessageIndex(newIndex);
+        setAnimationKey(prev => prev + 1); // Trigger re-animation
+        
+        if ((import.meta.env as any).VITE_TEST_ENV === 'true') {
+          console.log(`🔄 [Message Rotation] Stage: ${currentUpdate.node}, New message index: ${newIndex}`);
+        }
+      }
+    }
+  }, [messageRotationTimer, currentUpdate?.node, currentMessageIndex]);
+
+  // Reset message rotation when stage changes
+  useEffect(() => {
+    if (currentUpdate?.node) {
+      const messages = stageMessages[currentUpdate.node];
+      if (messages && messages.length > 0) {
+        // Pick random initial message
+        const randomIndex = Math.floor(Math.random() * messages.length);
+        setCurrentMessageIndex(randomIndex);
+        setMessageRotationTimer(0); // Reset rotation timer
+        
+        if ((import.meta.env as any).VITE_TEST_ENV === 'true') {
+          console.log(`🎲 [New Stage] Stage: ${currentUpdate.node}, Initial message index: ${randomIndex}`);
+        }
+      }
+    }
+  }, [currentUpdate?.node]);
 
   // Progressive dots animation
   useEffect(() => {
@@ -95,15 +197,14 @@ const StreamingLoadingMessage: React.FC<StreamingLoadingMessageProps> = ({ curre
     }
   }, [progress, previousProgress, currentUpdate?.node]);
 
-  // Track message changes and trigger re-animation
+  // Track message changes for logging
   useEffect(() => {
     const newMessage = getMessage();
     if (newMessage !== currentMessage) {
       console.log(`🎭 [Stage Change] "${currentMessage}" → "${newMessage}"`);
       setCurrentMessage(newMessage);
-      setAnimationKey(prev => prev + 1); // Force BlurText re-render
     }
-  }, [currentUpdate?.node, currentUpdate?.status, liveTimer, finalThoughtTime]);
+  }, [currentUpdate?.node, currentUpdate?.status, currentMessageIndex]);
 
   const getDots = () => '.'.repeat(dotCount);
 
@@ -145,7 +246,13 @@ const StreamingLoadingMessage: React.FC<StreamingLoadingMessageProps> = ({ curre
       return `AF <thought ${finalThoughtTime || liveTimer}s for prepared complex answer>`;
     }
     
-    // Find human-readable label for current node
+    // Use rotating messages if available
+    const messages = stageMessages[currentUpdate.node];
+    if (messages && messages.length > 0) {
+      return messages[currentMessageIndex];
+    }
+    
+    // Fallback to static labels if no rotating messages
     const nodeLabel = nodeInfo.find(info => info.node === currentUpdate.node)?.label;
     return nodeLabel || currentUpdate.message;
   };

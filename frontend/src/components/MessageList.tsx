@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react'
-import { Message as MessageType, WorkflowUpdate } from '../types'
+import { Message as MessageType, WorkflowUpdate, ResponseFormat } from '../types'
 import Message from './Message'
 import StreamingLoadingMessage from './StreamingLoadingMessage'
 import SkeletonLoadingMessage from './SkeletonLoadingMessage'
@@ -14,9 +14,10 @@ interface MessageListProps {
   onSend: () => void;
   selectedImage?: File | null;
   onImageSelect?: (image: File | null) => void;
+  responseFormat?: ResponseFormat;
 }
 
-const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, currentWorkflowUpdate, inputValue, onInputChange, onSend, selectedImage, onImageSelect }) => {
+const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, currentWorkflowUpdate, inputValue, onInputChange, onSend, selectedImage, onImageSelect, responseFormat }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // 🔍 DEBUG: Log currentWorkflowUpdate
@@ -59,6 +60,7 @@ const MessageList: React.FC<MessageListProps> = ({ messages, isLoading, currentW
             onSend={onSend}
             selectedImage={selectedImage}
             onImageSelect={onImageSelect}
+            responseFormat={responseFormat}
           />
         )}
 

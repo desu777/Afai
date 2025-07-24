@@ -376,6 +376,7 @@ const ChatInterface: React.FC = () => {
                 onSend={handleSend}
                 selectedImage={selectedImage}
                 onImageSelect={setSelectedImage}
+                responseFormat={responseFormat}
               />
             </div>
             

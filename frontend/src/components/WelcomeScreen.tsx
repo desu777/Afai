@@ -2,6 +2,7 @@ import React from 'react'
 import { Plus } from 'lucide-react'
 import { useImageUpload } from '../hooks/useImageUpload'
 import ImagePreview from './ImagePreview'
+import { ResponseFormat } from '../types'
 
 interface WelcomeScreenProps {
   inputValue: string;
@@ -10,6 +11,7 @@ interface WelcomeScreenProps {
   onSend: () => void;
   selectedImage?: File | null;
   onImageSelect?: (image: File | null) => void;
+  responseFormat?: ResponseFormat;
 }
 
 const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
@@ -18,7 +20,8 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   onInputChange,
   onSend,
   selectedImage,
-  onImageSelect
+  onImageSelect,
+  responseFormat
 }) => {
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   
@@ -64,10 +67,12 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
       {/* Welcome Message */}
       <div className="text-center max-w-md mb-8">
         <h1 className="text-display text-3xl md:text-4xl font-bold text-gray-800 mb-3 tracking-tight">
-          Meet Afai
+          {responseFormat === 'ghostwriter' ? 'AF Support Ghostwriter' : 'Meet Afai'}
         </h1>
         <p className="text-body text-lg md:text-xl text-gray-600 font-medium leading-relaxed">
-          Wisdom from the reef's heart...
+          {responseFormat === 'ghostwriter' 
+            ? 'Helping you respond to community messages' 
+            : 'Wisdom from the reef\'s heart...'}
         </p>
       </div>
 
