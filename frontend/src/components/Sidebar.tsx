@@ -157,14 +157,14 @@ const Sidebar: React.FC<SidebarProps> = ({
       >
         <div className="flex flex-col h-full">
           {/* Header Section */}
-          <div className="flex items-center justify-between p-4 md:p-6 border-b border-purple-200/30">
+          <div className="sidebar-header flex items-center justify-between p-4 md:p-6 border-b border-purple-200/30">
             {!isCollapsed && (
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-brand-600 via-brand-700 to-brand-800 rounded-xl flex items-center justify-center shadow-brand overflow-hidden">
+                <div className="sidebar-logo w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-brand-600 via-brand-700 to-brand-800 rounded-xl flex items-center justify-center shadow-brand overflow-hidden">
                   <img 
                     src="/horse.png" 
                     alt="Konik morski" 
-                    className="w-7 h-7 md:w-8 md:h-8 object-contain"
+                    className="sidebar-logo-img w-7 h-7 md:w-8 md:h-8 object-contain"
                   />
                 </div>
                 <div className="flex flex-col">
@@ -219,7 +219,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           </div>
 
           {/* Navigation Menu */}
-          <div className="flex-1 px-4 py-6 space-y-2">
+          <div className="sidebar-nav flex-1 px-4 py-6 space-y-2">
             {/* New Chat Button */}
             <button 
               onClick={() => handleViewChange('chat')}
@@ -306,7 +306,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
           {/* Footer Info Section */}
           {!isCollapsed && (
-            <div className="border-t border-purple-200/30 px-4 py-6 space-y-4">
+            <div className="sidebar-footer border-t border-purple-200/30 px-4 py-6 space-y-4">
               {/* User Status Badge */}
               <div className="flex justify-center">
                 {(() => {
