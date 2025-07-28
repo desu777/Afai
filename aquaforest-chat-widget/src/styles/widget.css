@@ -45,7 +45,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
 }
@@ -133,23 +133,9 @@
     height: 700px;
     bottom: 80px;
     border-radius: var(--af-radius-xl);
-    border: 8px solid #E5E7EB;
     box-shadow: var(--af-shadow-xl);
   }
   
-  /* Notch simulation */
-  .af-chat-window::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 150px;
-    height: 25px;
-    background: #E5E7EB;
-    border-radius: 0 0 15px 15px;
-    z-index: 10;
-  }
   
   .aquaforest-widget.bottom-right .af-chat-window {
     right: 0;
@@ -224,6 +210,33 @@
   z-index: 5;
 }
 
+.af-welcome-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 48px; /* 6 × 8px */
+  width: 100%;
+}
+
+.af-welcome-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px; /* 3 × 8px */
+}
+
+.af-welcome-footer {
+  position: absolute;
+  bottom: 24px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
 .af-welcome-close {
   position: absolute;
   top: 20px;
@@ -253,21 +266,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 32px;
   position: relative;
   overflow: hidden;
   box-shadow: var(--af-shadow-glow);
-  animation: float 3s ease-in-out infinite;
 }
 
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
 
 /* Glow effect */
 .af-welcome-icon::before {
@@ -279,41 +282,70 @@
   animation: pulse 2s ease-in-out infinite;
 }
 
-/* Wave Animation */
-@keyframes wave {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
+/* Circle and Wave Animation */
+.af-circle {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  border: 2px solid white;
+  box-shadow: 0 0 0 2px var(--af-primary);
+  border-radius: 50%;
+  overflow: hidden;
 }
 
-.af-wave {
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 200%;
+.af-wave-inner {
+  position: relative;
+  width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, 
-    transparent, 
-    rgba(255, 255, 255, 0.2), 
-    transparent
-  );
-  animation: wave 3s ease-in-out infinite;
+  background: var(--af-primary);
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3) inset;
+}
+
+.af-wave-inner::before {
+  content: '';
+  display: inline-block;
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: 0;
+  left: 50%;
+  border-radius: 45%;
+  transform: translate(-50%, -70%) rotate(0deg);
+  background: white;
+  animation: water 8s ease-in-out infinite;
+}
+
+@keyframes water {
+  0% {
+    transform: translate(-50%, -70%) rotate(0deg);
+  }
+  25% {
+    transform: translate(-50%, -72%) rotate(90deg);
+  }
+  50% {
+    transform: translate(-50%, -75%) rotate(180deg);
+  }
+  75% {
+    transform: translate(-50%, -72%) rotate(270deg);
+  }
+  100% {
+    transform: translate(-50%, -70%) rotate(360deg);
+  }
 }
 
 .af-welcome-title {
   font-size: 32px;
   font-weight: 700;
   color: var(--af-white);
-  margin-bottom: 8px;
+  margin-top: 0;
 }
 
 .af-welcome-subtitle {
   font-size: 18px;
   color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 40px;
+  margin-bottom: 0;
 }
 
 .af-welcome-button {
