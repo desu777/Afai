@@ -36,7 +36,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
     const greetingMessage: Message = {
       id: 'greeting',
       type: 'assistant',
-      content: "Hello, I'm Afai 🌊\n\nI'm your personal reef aquarium advisor, ready to help you with all your aquarist needs. Ask me anything about Aquaforest products, reef care, or marine life!",
+      content: "Afai can speak in any language, ask about your reef, problems, send pdf with your icp results or add pictures of your doubts. Afai will solve them all.",
       timestamp: new Date()
     };
     
@@ -135,10 +135,14 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
     >
       {state.currentView === 'chat' && (
         <div className="af-chat-header">
-          <button className="af-chat-header-close" onClick={onClose}>
-            <ArrowLeft size={24} />
-          </button>
-          <div />
+          <div className="af-chat-header-content">
+            <span className="af-chat-header-title">Meet Afai</span>
+            <div className="af-chat-header-icon">
+              <div className="af-circle">
+                <div className="af-wave-inner"></div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -151,33 +155,6 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
               {state.messages.map((message) => (
                 <MessageBubble key={message.id} message={message} />
               ))}
-              
-              {state.messages.length === 1 && state.messages[0].id === 'greeting' && (
-                <motion.div 
-                  className="af-message-action"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                >
-                  <button 
-                    className="af-action-button"
-                    onClick={() => {
-                      const ackMessage: Message = {
-                        id: 'ack',
-                        type: 'user',
-                        content: 'OK I got it',
-                        timestamp: new Date()
-                      };
-                      setState(prev => ({
-                        ...prev,
-                        messages: [...prev.messages, ackMessage]
-                      }));
-                    }}
-                  >
-                    OK I got it
-                  </button>
-                </motion.div>
-              )}
               
               {state.isLoading && (
                 <motion.div 

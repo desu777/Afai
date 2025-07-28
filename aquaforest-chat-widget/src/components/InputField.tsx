@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, FileText, Camera, X } from 'lucide-react';
+import { Send, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface InputFieldProps {
@@ -90,34 +90,7 @@ export const InputField: React.FC<InputFieldProps> = ({ onSendMessage, disabled 
         </motion.div>
       )}
 
-      <div className="af-input-top-bar">
-        <button type="button" className="af-input-close" onClick={onClose}>
-          <X size={24} />
-        </button>
-        
-        <div className="af-input-field-wrapper">
-          <textarea
-            ref={textareaRef}
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Type your message..."
-            className="af-input-field"
-            disabled={disabled}
-            rows={1}
-          />
-        </div>
-
-        <button
-          onClick={handleSubmit}
-          className="af-input-ok"
-          disabled={disabled || (!message.trim() && !selectedFile)}
-        >
-          OK
-        </button>
-      </div>
-
-      <div className="af-input-bottom-bar">
+      <div className="af-input-main">
         <input
           ref={imageInputRef}
           type="file"
@@ -136,24 +109,39 @@ export const InputField: React.FC<InputFieldProps> = ({ onSendMessage, disabled 
 
         <button
           type="button"
-          className="af-input-icon-button"
-          onClick={() => imageInputRef.current?.click()}
+          className="af-input-attach"
+          onClick={() => fileInputRef.current?.click()}
           disabled={disabled || !!selectedFile}
-          title="Attach image"
+          title="Attach file"
         >
-          <Camera size={24} />
+          <FileText size={20} />
         </button>
-
-        <span className="af-input-center-text">Message</span>
+        
+        <div className="af-input-field-wrapper">
+          <textarea
+            ref={textareaRef}
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Type your message..."
+            className="af-input-field"
+            disabled={disabled}
+            rows={1}
+          />
+        </div>
 
         <button
           type="button"
-          className="af-input-icon-button"
-          disabled={disabled || !message.trim()}
+          className="af-input-send"
+          disabled={disabled || (!message.trim() && !selectedFile)}
           onClick={handleSubmit}
         >
-          <Send size={24} />
+          <Send size={20} />
         </button>
+      </div>
+
+      <div className="af-input-footer">
+        Afai can make mistakes. Always verify important information.
       </div>
     </div>
   );
