@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, FileText } from 'lucide-react';
+import { Send, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useImageUpload } from '../hooks/useImageUpload';
+import { ImagePreview } from './ImagePreview';
 
 interface InputFieldProps {
   onSendMessage: (message: string, file?: File) => void;
@@ -12,8 +14,12 @@ export const InputField: React.FC<InputFieldProps> = ({ onSendMessage, disabled 
   const [message, setMessage] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const imageInputRef = useRef<HTMLInputElement>(null);
+  
+  // Use the image upload hook
+  const { imagePreview, handleImageSelect, removeImage, isPDF, fileType } = useImageUpload({
+    selectedImage: selectedFile,
+    onImageSelect: setSelectedFile
+  });
 
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -21,6 +27,7 @@ export const InputField: React.FC<InputFieldProps> = ({ onSendMessage, disabled 
       onSendMessage(message.trim(), selectedFile || undefined);
       setMessage('');
       setSelectedFile(null);
+      removeImage();
       if (textareaRef.current) {
         textareaRef.current.style.height = 'auto';
       }
@@ -46,76 +53,33 @@ export const InputField: React.FC<InputFieldProps> = ({ onSendMessage, disabled 
     adjustTextareaHeight();
   }, [message]);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>, type: 'document' | 'image') => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-    }
-    // Reset input
-    e.target.value = '';
-  };
 
   return (
     <div className="af-input-container">
-      {selectedFile && (
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          style={{
-            padding: '8px 12px',
-            background: 'rgba(255, 255, 255, 0.1)',
-            margin: '0 12px 8px',
-            borderRadius: '8px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'white' }}>
-            {selectedFile.type.startsWith('image/') ? <Camera size={16} /> : <FileText size={16} />}
-            <span style={{ fontSize: '14px' }}>{selectedFile.name}</span>
-          </div>
-          <button
-            onClick={() => setSelectedFile(null)}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '4px',
-              color: 'white'
-            }}
-          >
-            ×
-          </button>
-        </motion.div>
-      )}
+      {/* Image Preview */}
+      <ImagePreview 
+        imagePreview={imagePreview} 
+        onRemove={removeImage} 
+        isPDF={isPDF}
+        fileName={selectedFile?.name}
+        fileType={fileType}
+        fileSize={selectedFile?.size}
+      />
 
       <div className="af-input-main">
-        <input
-          ref={imageInputRef}
-          type="file"
-          accept="image/*"
-          onChange={(e) => handleFileSelect(e, 'image')}
-          style={{ display: 'none' }}
-        />
-        
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".pdf,.txt,.doc,.docx"
-          onChange={(e) => handleFileSelect(e, 'document')}
-          style={{ display: 'none' }}
-        />
-
-        <button
-          type="button"
+        <label 
           className="af-input-attach"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={disabled || !!selectedFile}
-          title="Attach file"
+          title="Upload image or PDF"
         >
-          <FileText size={20} />
-        </button>
+          <Plus size={20} />
+          <input
+            type="file"
+            accept="image/*,application/pdf"
+            onChange={handleImageSelect}
+            className="hidden"
+            disabled={disabled || !!selectedFile}
+          />
+        </label>
         
         <div className="af-input-field-wrapper">
           <textarea

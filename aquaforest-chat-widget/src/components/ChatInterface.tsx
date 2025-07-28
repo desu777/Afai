@@ -36,7 +36,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
     const greetingMessage: Message = {
       id: 'greeting',
       type: 'assistant',
-      content: "Afai can speak in any language, ask about your reef, problems, send pdf with your icp results or add pictures of your doubts. Afai will solve them all.",
+      content: "Talk to Afai in any language. Ask questions about your reef, send ICP test results in PDF files, or add photos to show problems. Afai will help you solve them.",
       timestamp: new Date()
     };
     
@@ -50,12 +50,19 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
   const handleSendMessage = async (content: string, file?: File) => {
     if (!content.trim() && !file) return;
 
+    // Convert file to base64 if present
+    let imageUrl: string | undefined;
+    if (file) {
+      imageUrl = await fileToBase64(file);
+    }
+
     // Create user message
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
       content,
       timestamp: new Date(),
+      imageUrl,
       fileName: file?.name,
       fileSize: file?.size,
       fileType: file?.type.startsWith('image/') ? 'image' : 'pdf'
@@ -76,17 +83,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
         content: msg.content
       }));
 
-      // Convert file to base64 if present
-      let imageUrl: string | undefined;
-      if (file && file.type.startsWith('image/')) {
-        imageUrl = await fileToBase64(file);
-      }
-
-      // Send message to API
+      // Send message to API with file if present
       const response = await api.sendMessage(
         content,
         chatHistory,
-        imageUrl,
+        userMessage.imageUrl,
         state.sessionId
       );
 
