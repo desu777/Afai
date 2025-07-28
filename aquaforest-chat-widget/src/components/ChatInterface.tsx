@@ -50,10 +50,24 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
   const handleSendMessage = async (content: string, file?: File) => {
     if (!content.trim() && !file) return;
 
-    // Convert file to base64 if present
-    let imageUrl: string | undefined;
+    // Handle file conversion - exactly like frontend
+    let imageUrlForMessage: string | undefined;
+    let fileName: string | undefined;
+    let fileSize: number | undefined;
+    let fileType: 'image' | 'pdf' | undefined;
+    
     if (file) {
-      imageUrl = await fileToBase64(file);
+      try {
+        imageUrlForMessage = await fileToBase64(file);
+        fileName = file.name;
+        fileSize = file.size;
+        fileType = file.type.startsWith('image/') ? 'image' : 'pdf';
+      } catch (error) {
+        // If base64 conversion fails, still create message with file info
+        fileName = file.name;
+        fileSize = file.size;
+        fileType = file.type.startsWith('image/') ? 'image' : 'pdf';
+      }
     }
 
     // Create user message
@@ -62,10 +76,10 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
       type: 'user',
       content,
       timestamp: new Date(),
-      imageUrl,
-      fileName: file?.name,
-      fileSize: file?.size,
-      fileType: file?.type.startsWith('image/') ? 'image' : 'pdf'
+      imageUrl: imageUrlForMessage,
+      fileName: fileName,
+      fileSize: fileSize,
+      fileType: fileType
     };
 
     // Add user message and set loading

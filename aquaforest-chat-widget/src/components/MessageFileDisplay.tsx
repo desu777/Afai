@@ -2,7 +2,7 @@ import React from 'react';
 import { FileText, CheckCircle, Image } from 'lucide-react';
 
 interface MessageFileDisplayProps {
-  imageUrl: string;
+  imageUrl?: string;
   fileName?: string;
   fileType?: 'image' | 'pdf';
   fileSize?: number;
@@ -28,26 +28,32 @@ export const MessageFileDisplay: React.FC<MessageFileDisplayProps> = ({
 
   if (fileType === 'pdf') {
     return (
-      <div className="af-message-pdf-display">
-        <div className="af-pdf-display-content">
-          <div className="af-pdf-display-icon">
-            <FileText className="af-pdf-file-icon" />
-            <CheckCircle className="af-pdf-check-badge" />
-          </div>
-          <div className="af-pdf-display-info">
-            <p className="af-pdf-filename">
-              {fileName || 'PDF Document'}
-            </p>
-            <p className="af-pdf-description">
-              ICP Analysis Document {fileSize && `• ${formatFileSize(fileSize)}`}
-            </p>
+      <div className="af-pdf-preview">
+        <div className="af-pdf-icon-wrapper">
+          <FileText className="af-pdf-icon" />
+          <CheckCircle className="af-pdf-check" />
+        </div>
+        <div className="af-pdf-info">
+          <p className="af-pdf-title">
+            {fileName || 'PDF Document'}
+          </p>
+          <p className="af-pdf-subtitle">
+            {fileSize && formatFileSize(fileSize)}
+          </p>
+          <div className="af-pdf-status">
+            <CheckCircle className="af-pdf-status-icon" />
+            <span>Attached</span>
           </div>
         </div>
       </div>
     );
   }
 
-  // For images, show the actual image with metadata overlay
+  // For images, show the actual image with metadata overlay (only if imageUrl exists)
+  if (!imageUrl) {
+    return null; // Don't render anything if no imageUrl for images
+  }
+  
   return (
     <div className="af-message-image-display">
       <div className="af-image-display-wrapper">

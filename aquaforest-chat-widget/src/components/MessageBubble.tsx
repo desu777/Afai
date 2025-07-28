@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { Copy, Download } from 'lucide-react';
 import { Message } from '../types';
 import { MessageContent } from './MessageContent';
-import { MessageFileDisplay } from './MessageFileDisplay';
 import { TruncatedMessageContent } from './TruncatedMessageContent';
 
 interface MessageBubbleProps {
@@ -113,18 +112,15 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
     >
       <div className="af-message-wrapper">
         <div className="af-message-bubble">
-          {/* Display file if present */}
-          {message.imageUrl && (
-            <MessageFileDisplay 
-              imageUrl={message.imageUrl}
-              fileName={message.fileName}
-              fileType={message.fileType}
-              fileSize={message.fileSize}
-            />
-          )}
           
           {isUser ? (
-            <MessageContent content={message.content} isUser={true} />
+            <MessageContent 
+              content={message.fileName ? 
+                `${message.content}\n\n✅ *${message.fileName}* attached` : 
+                message.content
+              } 
+              isUser={true} 
+            />
           ) : (
             <TruncatedMessageContent content={message.content} isUser={false} />
           )}
