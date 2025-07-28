@@ -121,11 +121,11 @@ ICP_THINKING_BUDGET = os.getenv("ICP_THINKING_BUDGET")
 # --- Temperature Configuration (Per-Node) ---
 # Per-node temperature configuration (used by both Gemini and OpenRouter providers)
 INTENT_DETECTOR_TEMPERATURE = float(os.getenv("INTENT_DETECTOR_TEMPERATURE", "0.3"))  # Intent detection temperature
-BUSINESS_REASONER_TEMPERATURE = float(os.getenv("BUSINESS_REASONER_TEMPERATURE", "0.3"))  # Business reasoning temperature
+BUSINESS_REASONER_TEMPERATURE = float(os.getenv("BUSINESS_REASONER_TEMPERATURE", "0.5"))  # Business reasoning temperature
 QUERY_OPTIMIZER_TEMPERATURE = float(os.getenv("QUERY_OPTIMIZER_TEMPERATURE", "0.3"))  # Query optimization temperature
 RESPONSE_FORMATTER_TEMPERATURE = float(os.getenv("RESPONSE_FORMATTER_TEMPERATURE", "0.7"))  # Response formatting temperature
-FOLLOW_UP_TEMPERATURE = float(os.getenv("FOLLOW_UP_TEMPERATURE", "0.1"))  # Low temperature for consistent cache evaluation
-ICP_TEMPERATURE = float(os.getenv("ICP_TEMPERATURE", "0.1"))  # Low temperature for consistent JSON output
+FOLLOW_UP_TEMPERATURE = float(os.getenv("FOLLOW_UP_TEMPERATURE", "0.3"))  # Low temperature for consistent cache evaluation
+ICP_TEMPERATURE = float(os.getenv("ICP_TEMPERATURE", "0.3"))  # Low temperature for consistent JSON output
 
 # Gemini fallback temperature (when no temperature parameter provided)
 GEMINI_DEFAULT_TEMPERATURE = float(os.getenv("GEMINI_DEFAULT_TEMPERATURE", "0.3"))  # Default temperature when none specified
