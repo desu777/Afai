@@ -1,22 +1,29 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { X } from 'lucide-react';
 
 interface WelcomeScreenProps {
   onStart: () => void;
+  onClose: () => void;
 }
 
-export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
+export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart, onClose }) => {
   return (
     <motion.div 
       className="af-welcome-screen"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
     >
+      <button className="af-welcome-close" onClick={onClose}>
+        <X size={24} />
+      </button>
+
       <motion.div 
         className="af-welcome-icon"
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
+        initial={{ scale: 0, rotate: -180 }}
+        animate={{ scale: 1, rotate: 0 }}
         transition={{ 
           type: "spring",
           stiffness: 200,
@@ -27,8 +34,8 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
         <div className="af-wave" />
         <svg 
           viewBox="0 0 24 24" 
-          width="40" 
-          height="40" 
+          width="50" 
+          height="50" 
           fill="none"
           style={{ position: 'relative', zIndex: 1 }}
         >
@@ -42,7 +49,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
           />
           <path
             d="M12 8.5C12 7.67 11.33 7 10.5 7C9.67 7 9 7.67 9 8.5C9 9.33 9.67 10 10.5 10C11.33 10 12 9.33 12 8.5Z"
-            fill="#47154C"
+            fill="rgba(71, 21, 76, 0.5)"
           />
           <motion.path
             d="M3 12C3 12 4 10 4 8C4 6 3 4 3 4"
@@ -74,6 +81,20 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
             }}
           />
         </svg>
+        
+        {/* Three dots on top */}
+        <div style={{
+          position: 'absolute',
+          top: '-10px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          display: 'flex',
+          gap: '4px'
+        }}>
+          <div style={{ width: '4px', height: '4px', background: 'white', borderRadius: '50%', opacity: 0.8 }} />
+          <div style={{ width: '4px', height: '4px', background: 'white', borderRadius: '50%', opacity: 0.8 }} />
+          <div style={{ width: '4px', height: '4px', background: 'white', borderRadius: '50%', opacity: 0.8 }} />
+        </div>
       </motion.div>
 
       <motion.h2 

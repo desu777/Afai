@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { WelcomeScreen } from './WelcomeScreen';
 import { MessageBubble } from './MessageBubble';
 import { InputField } from './InputField';
@@ -32,7 +32,19 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
   }, [state.messages]);
 
   const handleStart = () => {
-    setState(prev => ({ ...prev, currentView: 'chat' }));
+    // Add initial greeting message
+    const greetingMessage: Message = {
+      id: 'greeting',
+      type: 'assistant',
+      content: "Hello, I'm Afai 🌊\n\nI'm your personal reef aquarium advisor, ready to help you with all your aquarist needs. Ask me anything about Aquaforest products, reef care, or marine life!",
+      timestamp: new Date()
+    };
+    
+    setState(prev => ({ 
+      ...prev, 
+      currentView: 'chat',
+      messages: [greetingMessage]
+    }));
   };
 
   const handleSendMessage = async (content: string, file?: File) => {
@@ -121,22 +133,51 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
       exit={{ opacity: 0, scale: 0.9, y: 20 }}
       transition={{ type: 'spring', damping: 20, stiffness: 200 }}
     >
-      <div className="af-chat-header">
-        <h3 className="af-chat-header-title">Afai Assistant</h3>
-        <button className="af-chat-header-close" onClick={onClose}>
-          <X size={20} />
-        </button>
-      </div>
+      {state.currentView === 'chat' && (
+        <div className="af-chat-header">
+          <button className="af-chat-header-close" onClick={onClose}>
+            <ArrowLeft size={24} />
+          </button>
+          <div />
+        </div>
+      )}
 
       <AnimatePresence mode="wait">
         {state.currentView === 'welcome' ? (
-          <WelcomeScreen key="welcome" onStart={handleStart} />
+          <WelcomeScreen key="welcome" onStart={handleStart} onClose={onClose} />
         ) : (
           <div key="chat" className="af-chat-interface">
             <div className="af-messages-container">
               {state.messages.map((message) => (
                 <MessageBubble key={message.id} message={message} />
               ))}
+              
+              {state.messages.length === 1 && state.messages[0].id === 'greeting' && (
+                <motion.div 
+                  className="af-message-action"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                >
+                  <button 
+                    className="af-action-button"
+                    onClick={() => {
+                      const ackMessage: Message = {
+                        id: 'ack',
+                        type: 'user',
+                        content: 'OK I got it',
+                        timestamp: new Date()
+                      };
+                      setState(prev => ({
+                        ...prev,
+                        messages: [...prev.messages, ackMessage]
+                      }));
+                    }}
+                  >
+                    OK I got it
+                  </button>
+                </motion.div>
+              )}
               
               {state.isLoading && (
                 <motion.div 
@@ -177,6 +218,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
             <InputField 
               onSendMessage={handleSendMessage} 
               disabled={state.isLoading}
+              onClose={onClose}
             />
           </div>
         )}
