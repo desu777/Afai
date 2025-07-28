@@ -196,7 +196,7 @@ PRODUCTS_TURBO_FILE_PATH = os.getenv("PRODUCTS_TURBO_FILE_PATH") or str(Path(__f
 # ==========================================
 
 # Server Configuration
-CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:8080").split(",")
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:8080,http://localhost:5173").split(",")
 
 
 # ==========================================
