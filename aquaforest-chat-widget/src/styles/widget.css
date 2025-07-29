@@ -517,6 +517,35 @@
   gap: 8px;
 }
 
+/* Attachment Indicator */
+.af-attachment-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.af-attachment-icon {
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.af-attachment-text {
+  color: #fff;
+  word-break: break-word;
+}
+
+.af-attachment-text strong {
+  font-weight: 600;
+  margin-right: 4px;
+}
+
 .af-message.user .af-message-footer {
   justify-content: flex-end;
 }

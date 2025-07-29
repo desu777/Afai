@@ -9,15 +9,25 @@ interface MessageBubbleProps {
   message: Message;
 }
 
+// Attachment indicator component
+const AttachmentIndicator: React.FC<{ message: Message }> = ({ message }) => {
+  if (!message.fileName) return null;
+  
+  const isImage = message.fileType === 'image';
+  const prefix = isImage ? 'Image Added:' : 'File Added:';
+  
+  return (
+    <div className="af-attachment-indicator">
+      <CheckCircle className="af-attachment-icon" size={16} />
+      <span className="af-attachment-text">
+        <strong>{prefix}</strong> {message.fileName}
+      </span>
+    </div>
+  );
+};
+
 export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
   const isUser = message.type === 'user';
-
-  // Function to generate professional attachment message
-  const getAttachmentMessage = (message: Message): string => {
-    const isImage = message.fileType === 'image';
-    const prefix = isImage ? 'Image Added:' : 'File Added:';
-    return `✓ *${prefix}* ${message.fileName}`;
-  };
 
   // Function to copy message content
   const handleCopy = async () => {
@@ -133,13 +143,13 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
         <div className="af-message-bubble">
           
           {isUser ? (
-            <MessageContent 
-              content={message.fileName ? 
-                `${message.content}\n\n${getAttachmentMessage(message)}` : 
-                message.content
-              } 
-              isUser={true} 
-            />
+            <>
+              <MessageContent 
+                content={message.content} 
+                isUser={true} 
+              />
+              <AttachmentIndicator message={message} />
+            </>
           ) : (
             <TruncatedMessageContent content={message.content} isUser={false} />
           )}

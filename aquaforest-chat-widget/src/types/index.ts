@@ -48,4 +48,6 @@ export interface WidgetState {
   currentWorkflowUpdate?: WorkflowUpdate;
   error?: string;
   sessionId?: string;
+  sessionCreatedAt?: Date;
+  messageCount: number;
 }

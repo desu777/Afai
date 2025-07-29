@@ -13,6 +13,28 @@ interface ChatInterfaceProps {
   api: ChatAPI;
 }
 
+// Professional session ID generation with crypto API and fallback
+const generateSessionId = (): string => {
+  // Try modern crypto API first
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    const timestamp = Date.now().toString(36);
+    const randomBytes = new Uint8Array(16);
+    crypto.getRandomValues(randomBytes);
+    const random = Array.from(randomBytes)
+      .map(byte => byte.toString(16).padStart(2, '0'))
+      .join('')
+      .slice(0, 8);
+    const checksum = (timestamp.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0) % 36).toString(36);
+    return `ses_${timestamp}_${random}_${checksum}`;
+  }
+  
+  // Fallback for older browsers (WordPress compatibility)
+  const timestamp = Date.now().toString(36);
+  const random = Math.random().toString(36).substring(2, 10);
+  const checksum = ((timestamp + random).split('').reduce((sum, char) => sum + char.charCodeAt(0), 0) % 36).toString(36);
+  return `ses_${timestamp}_${random}_${checksum}`;
+};
+
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) => {
   const [state, setState] = useState<WidgetState>({
     isOpen: true,
@@ -20,7 +42,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
     messages: [],
     isLoading: false,
     currentWorkflowUpdate: undefined,
-    sessionId: undefined
+    sessionId: undefined,
+    sessionCreatedAt: undefined,
+    messageCount: 0
   });
   const [userScrolledUp, setUserScrolledUp] = useState(false);
 
@@ -48,6 +72,22 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
     container.addEventListener('scroll', handleScroll);
     return () => container.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Generate session ID when widget mounts (fresh session each time)
+  useEffect(() => {
+    const newSessionId = generateSessionId();
+    setState(prev => ({
+      ...prev,
+      sessionId: newSessionId,
+      sessionCreatedAt: new Date(),
+      messageCount: 0
+    }));
+    
+    // Log session creation in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Widget] New session created:', newSessionId);
+    }
+  }, []); // Empty deps = run once on mount
 
   // Intelligent scroll behavior - only scroll when user sends messages
   useEffect(() => {
@@ -97,6 +137,18 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
   const handleSendMessage = async (content: string, file?: File) => {
     if (!content.trim() && !file) return;
 
+    // Ensure session exists (defensive programming)
+    let currentSessionId = state.sessionId;
+    if (!currentSessionId) {
+      // Generate new session if somehow missing
+      currentSessionId = generateSessionId();
+      setState(prev => ({
+        ...prev,
+        sessionId: currentSessionId,
+        sessionCreatedAt: new Date()
+      }));
+    }
+
     // Handle file conversion - exactly like frontend
     let imageUrlForMessage: string | undefined;
     let fileName: string | undefined;
@@ -129,13 +181,14 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
       fileType: fileType
     };
 
-    // Add user message and set loading
+    // Add user message and set loading, increment message count
     setState(prev => ({
       ...prev,
       messages: [...prev.messages, userMessage],
       isLoading: true,
       currentWorkflowUpdate: undefined,
-      error: undefined
+      error: undefined,
+      messageCount: prev.messageCount + 1
     }));
 
     try {
@@ -156,7 +209,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
           }));
         },
         userMessage.imageUrl,
-        state.sessionId
+        currentSessionId  // Use the current session ID
       );
 
       // Create assistant message
@@ -196,6 +249,27 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
     });
   };
 
+  // Handle widget close - clear session to ensure fresh start next time
+  const handleClose = () => {
+    // Clear session state
+    setState(prev => ({
+      ...prev,
+      sessionId: undefined,
+      sessionCreatedAt: undefined,
+      messageCount: 0,
+      messages: [],
+      currentView: 'welcome'
+    }));
+    
+    // Log session cleanup in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Widget] Session cleared on close');
+    }
+    
+    // Call parent's onClose
+    onClose();
+  };
+
   return (
     <motion.div
       className="af-chat-window"
@@ -219,7 +293,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
 
       <AnimatePresence mode="wait">
         {state.currentView === 'welcome' ? (
-          <WelcomeScreen key="welcome" onStart={handleStart} onClose={onClose} />
+          <WelcomeScreen key="welcome" onStart={handleStart} onClose={handleClose} />
         ) : (
           <div key="chat" className="af-chat-interface">
             <div className="af-messages-container">
@@ -272,7 +346,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
             <InputField 
               onSendMessage={handleSendMessage} 
               disabled={state.isLoading}
-              onClose={onClose}
+              onClose={handleClose}
             />
           </div>
         )}
