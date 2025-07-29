@@ -33,11 +33,19 @@ export interface WidgetConfig {
   theme?: 'aquaforest' | 'custom';
 }
 
+export interface WorkflowUpdate {
+  node: string;
+  status: 'processing' | 'complete' | 'error';
+  message: string;
+  elapsed_time: number;
+}
+
 export interface WidgetState {
   isOpen: boolean;
   currentView: 'welcome' | 'chat';
   messages: Message[];
   isLoading: boolean;
+  currentWorkflowUpdate?: WorkflowUpdate;
   error?: string;
   sessionId?: string;
 }

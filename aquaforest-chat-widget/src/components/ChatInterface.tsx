@@ -4,7 +4,8 @@ import { ArrowLeft } from 'lucide-react';
 import { WelcomeScreen } from './WelcomeScreen';
 import { MessageBubble } from './MessageBubble';
 import { InputField } from './InputField';
-import { Message, WidgetState } from '../types';
+import { ProgressIndicator } from './ProgressIndicator';
+import { Message, WidgetState, WorkflowUpdate } from '../types';
 import { ChatAPI } from '../services/api';
 
 interface ChatInterfaceProps {
@@ -18,18 +19,64 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
     currentView: 'welcome',
     messages: [],
     isLoading: false,
+    currentWorkflowUpdate: undefined,
     sessionId: undefined
   });
+  const [userScrolledUp, setUserScrolledUp] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'start',
+      inline: 'nearest'
+    });
   };
 
+  // Detect user scroll position
   useEffect(() => {
-    scrollToBottom();
-  }, [state.messages]);
+    const container = document.querySelector('.af-messages-container');
+    if (!container) return;
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      const isAtBottom = scrollHeight - scrollTop <= clientHeight + 100; // 100px buffer
+      setUserScrolledUp(!isAtBottom);
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Intelligent scroll behavior - only scroll when user sends messages
+  useEffect(() => {
+    if (state.messages.length === 0) return;
+    
+    const lastMessage = state.messages[state.messages.length - 1];
+    
+    // FIXED: Only auto-scroll when user sends a new message, NOT when AI responds
+    const shouldAutoScroll = lastMessage.type === 'user' && !userScrolledUp;
+    
+    if (shouldAutoScroll) {
+      // Scroll immediately after user sends a question
+      const timeoutId = setTimeout(() => {
+        scrollToBottom();
+      }, 0);
+      
+      return () => clearTimeout(timeoutId);
+    }
+    
+    // When AI responds - DON'T scroll, let user read from the beginning
+    
+  }, [state.messages.length, userScrolledUp, state.isLoading]);
+
+  // Additional scroll when loading starts to show progress indicator
+  useEffect(() => {
+    if (state.isLoading && state.messages.length > 0) {
+      scrollToBottom(); // Show progress indicator immediately
+    }
+  }, [state.isLoading]);
 
   const handleStart = () => {
     // Add initial greeting message
@@ -87,6 +134,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
       ...prev,
       messages: [...prev.messages, userMessage],
       isLoading: true,
+      currentWorkflowUpdate: undefined,
       error: undefined
     }));
 
@@ -97,10 +145,16 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
         content: msg.content
       }));
 
-      // Send message to API with file if present
-      const response = await api.sendMessage(
+      // Use streaming API with workflow updates
+      const response = await api.sendMessageStream(
         content,
         chatHistory,
+        (update: WorkflowUpdate) => {
+          setState(prev => ({
+            ...prev,
+            currentWorkflowUpdate: update
+          }));
+        },
         userMessage.imageUrl,
         state.sessionId
       );
@@ -109,7 +163,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'assistant',
-        content: response.response,
+        content: response || 'I apologize, but I encountered an issue processing your request. Please try again.',
         timestamp: new Date()
       };
 
@@ -118,7 +172,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
         ...prev,
         messages: [...prev.messages, assistantMessage],
         isLoading: false,
-        sessionId: response.session_id || prev.sessionId
+        currentWorkflowUpdate: undefined,
+        sessionId: prev.sessionId
       }));
 
     } catch (error) {
@@ -126,6 +181,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
       setState(prev => ({
         ...prev,
         isLoading: false,
+        currentWorkflowUpdate: undefined,
         error: 'Failed to send message. Please try again.'
       }));
     }
@@ -177,11 +233,17 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                 >
-                  <div className="af-message-bubble">
-                    <div className="af-loading-dots">
-                      <div className="af-loading-dot" />
-                      <div className="af-loading-dot" />
-                      <div className="af-loading-dot" />
+                  <div className="af-message-wrapper">
+                    <div className="af-message-bubble">
+                      {state.currentWorkflowUpdate ? (
+                        <ProgressIndicator currentUpdate={state.currentWorkflowUpdate} />
+                      ) : (
+                        <div className="af-loading-dots">
+                          <div className="af-loading-dot" />
+                          <div className="af-loading-dot" />
+                          <div className="af-loading-dot" />
+                        </div>
+                      )}
                     </div>
                   </div>
                 </motion.div>
