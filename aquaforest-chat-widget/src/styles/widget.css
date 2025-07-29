@@ -68,8 +68,8 @@
 
 /* Floating Button */
 .af-floating-button {
-  width: 60px;
-  height: 60px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   background: var(--af-primary);
   border: none;
@@ -93,9 +93,19 @@
   transform: scale(0.95);
 }
 
+/* When button shows close icon */
+.af-floating-button.is-open {
+  background: var(--af-primary);
+}
+
+.af-floating-button.is-open svg {
+  width: 20px;
+  height: 20px;
+}
+
 .af-floating-button svg {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   color: var(--af-white);
 }
 

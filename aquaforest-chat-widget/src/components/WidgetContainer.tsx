@@ -14,7 +14,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
   position = 'bottom-right',
   theme = 'aquaforest'
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
   const [api] = useState(() => new ChatAPI(apiUrl, apiToken));
 
   useEffect(() => {

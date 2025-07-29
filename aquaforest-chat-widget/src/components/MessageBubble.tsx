@@ -16,7 +16,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
   const handleCopy = async () => {
     try {
       // Clean markdown formatting
-      let cleanContent = message.content
+      const cleanContent = message.content
+        .replace(/\[SHOW_MORE_START\](.*?)\[SHOW_MORE_END\]/gs, '$1')
         .replace(/^####\s+(.+)$/gm, '\n$1\n')
         .replace(/^###\s+(.+)$/gm, '\n$1\n')
         .replace(/^##\s+(.+)$/gm, '\n$1\n')
@@ -41,6 +42,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
       if (!printWindow) return;
 
       let htmlContent = message.content
+        .replace(/\[SHOW_MORE_START\](.*?)\[SHOW_MORE_END\]/gs, '$1')
         .replace(/^####\s+(.+)$/gm, '<h4>$1</h4>')
         .replace(/^###\s+(.+)$/gm, '<h3>$1</h3>')
         .replace(/^##\s+(.+)$/gm, '<h2>$1</h2>')
@@ -74,6 +76,16 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
                 padding-bottom: 10px; 
                 margin-bottom: 20px; 
               }
+              .header a {
+                color: #47154C;
+                text-decoration: none;
+                font-weight: bold;
+              }
+              .header a:after {
+                content: " ↗";
+                font-size: 0.8em;
+                opacity: 0.7;
+              }
               .timestamp { color: #666; font-size: 12px; }
               strong { color: #333; font-weight: bold; }
               ul { margin: 10px 0; padding-left: 20px; }
@@ -83,7 +95,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
           </head>
           <body>
             <div class="header">
-              <h1>Afai Response - Reef Expert by Aquaforest</h1>
+              <h1>Afai Response - Reef Expert made by <a href="https://aquaforest.eu/">Aquaforest</a></h1>
               <div class="timestamp">Generated: ${message.timestamp.toLocaleString()}</div>
             </div>
             <div>${htmlContent}</div>

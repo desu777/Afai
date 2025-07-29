@@ -1,6 +1,7 @@
 import React from 'react';
-import { MessageCircle, X } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { CrossIcon } from '../icons/CrossIcon';
 
 interface FloatingButtonProps {
   isOpen: boolean;
@@ -17,7 +18,7 @@ export const FloatingButton: React.FC<FloatingButtonProps> = ({
     <AnimatePresence mode="wait">
       <motion.button
         key={isOpen ? 'close' : 'open'}
-        className={`af-floating-button ${!isOpen ? 'pulse' : ''}`}
+        className={`af-floating-button ${!isOpen ? 'pulse' : ''} ${isOpen ? 'is-open' : ''}`}
         onClick={onClick}
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -36,7 +37,7 @@ export const FloatingButton: React.FC<FloatingButtonProps> = ({
           transition={{ duration: 0.3 }}
         >
           {isOpen ? (
-            <X />
+            <CrossIcon size={20} />
           ) : (
             <MessageCircle />
           )}
