@@ -83,7 +83,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
     const greetingMessage: Message = {
       id: 'greeting',
       type: 'assistant',
-      content: "Talk to Afai in any language. Ask questions about your reef, **send ICP test results** in PDF files, or **add photos** to show problems. Afai will help you solve them.",
+      content: "Upload a **photo** to identify pests or diseases, attach **ICP results in PDF** for detailed analysis, or simply ask a question to instantly receive a ready-to-implement plan.\n\nYou're getting **early access** to Afai – our breakthrough AI assistant, now in public Beta. This means you're among the first people in the world to use it! Please be patient with any imperfections. **Your feedback is crucial** as we work together to perfect this revolutionary tool.",
       timestamp: new Date()
     };
     

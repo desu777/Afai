@@ -24,7 +24,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart, onClose }
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            Meet Afai
+            Hi, I'm Afai
           </motion.h2>
 
           <motion.div 
@@ -62,7 +62,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart, onClose }
           whileHover={{ scale: 1.05, y: -2 }}
           whileTap={{ scale: 0.95 }}
         >
-          Ask Afai in any language!
+          Ask me about your reef
         </motion.button>
       </div>
 
