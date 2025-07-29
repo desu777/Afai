@@ -83,7 +83,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
     const greetingMessage: Message = {
       id: 'greeting',
       type: 'assistant',
-      content: "Talk to Afai in any language. Ask questions about your reef, send ICP test results in PDF files, or add photos to show problems. Afai will help you solve them.",
+      content: "Talk to Afai in any language. Ask questions about your reef, **send ICP test results** in PDF files, or **add photos** to show problems. Afai will help you solve them.",
       timestamp: new Date()
     };
     

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Copy, Download } from 'lucide-react';
+import { Copy, Download, CheckCircle } from 'lucide-react';
 import { Message } from '../types';
 import { MessageContent } from './MessageContent';
 import { TruncatedMessageContent } from './TruncatedMessageContent';
@@ -11,6 +11,13 @@ interface MessageBubbleProps {
 
 export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
   const isUser = message.type === 'user';
+
+  // Function to generate professional attachment message
+  const getAttachmentMessage = (message: Message): string => {
+    const isImage = message.fileType === 'image';
+    const prefix = isImage ? 'Image Added:' : 'File Added:';
+    return `✓ *${prefix}* ${message.fileName}`;
+  };
 
   // Function to copy message content
   const handleCopy = async () => {
@@ -128,7 +135,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
           {isUser ? (
             <MessageContent 
               content={message.fileName ? 
-                `${message.content}\n\n✅ *${message.fileName}* attached` : 
+                `${message.content}\n\n${getAttachmentMessage(message)}` : 
                 message.content
               } 
               isUser={true} 
