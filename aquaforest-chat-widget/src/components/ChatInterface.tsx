@@ -283,7 +283,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
       {state.currentView === 'chat' && (
         <div className="af-chat-header">
           <div className="af-chat-header-content">
-            <span className="af-chat-header-title">Meet Afai</span>
+            <span className="af-chat-header-title">{t.chatHeader.title}</span>
             <div className="af-chat-header-icon">
               <div className="af-circle">
                 <div className="af-wave-inner"></div>
