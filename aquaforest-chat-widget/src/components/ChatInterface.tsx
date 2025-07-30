@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+// import { ArrowLeft } from 'lucide-react';
 import { WelcomeScreen } from './WelcomeScreen';
 import { MessageBubble } from './MessageBubble';
 import { InputField } from './InputField';
 import { ProgressIndicator } from './ProgressIndicator';
-import { Message, WidgetState, WorkflowUpdate } from '../types';
+import type { Message, WidgetState, WorkflowUpdate } from '../types';
 import { ChatAPI } from '../services/api';
 
 interface ChatInterfaceProps {

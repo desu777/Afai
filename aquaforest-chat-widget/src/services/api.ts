@@ -1,4 +1,4 @@
-import { ChatRequest, ChatResponse, WorkflowUpdate } from '../types';
+import type { ChatRequest, ChatResponse, WorkflowUpdate } from '../types';
 
 export class ChatAPI {
   private baseUrl: string;

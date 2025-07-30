@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { WorkflowUpdate } from '../types';
+import type { WorkflowUpdate } from '../types';
 
 interface ProgressIndicatorProps {
   currentUpdate?: WorkflowUpdate;

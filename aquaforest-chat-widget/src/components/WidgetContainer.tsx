@@ -3,7 +3,7 @@ import { AnimatePresence } from 'framer-motion';
 import { FloatingButton } from './FloatingButton';
 import { ChatInterface } from './ChatInterface';
 import { ChatAPI } from '../services/api';
-import { WidgetConfig } from '../types';
+import type { WidgetConfig } from '../types';
 import { useIsMobile } from '../hooks/useIsMobile';
 import '../styles/widget.css';
 

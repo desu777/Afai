@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Plus } from 'lucide-react';
-import { motion } from 'framer-motion';
+// import { motion } from 'framer-motion';
 import { useImageUpload } from '../hooks/useImageUpload';
 import { ImagePreview } from './ImagePreview';
 
@@ -10,7 +10,7 @@ interface InputFieldProps {
   onClose?: () => void;
 }
 
-export const InputField: React.FC<InputFieldProps> = ({ onSendMessage, disabled = false, onClose }) => {
+export const InputField: React.FC<InputFieldProps> = ({ onSendMessage, disabled = false }) => {
   const [message, setMessage] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);

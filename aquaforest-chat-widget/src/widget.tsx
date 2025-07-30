@@ -1,11 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { WidgetContainer } from './components/WidgetContainer';
-import { WidgetConfig } from './types';
-
-// Export components for library usage
-export { WidgetContainer };
-export type { WidgetConfig };
+import type { WidgetConfig } from './types';
 
 // Global function to render widget
 interface RenderOptions extends WidgetConfig {
@@ -29,12 +25,19 @@ const render = (options: RenderOptions) => {
   );
 };
 
-// Attach to window for global access
-if (typeof window !== 'undefined') {
-  (window as any).AquaforestChatWidget = {
-    render,
-    WidgetContainer
-  };
-}
+// Export for ES modules
+export { render, WidgetContainer };
+export type { WidgetConfig };
 
-export default { render };
+// IIFE for guaranteed global assignment - ELITE PATTERN
+(function() {
+  if (typeof window !== 'undefined') {
+    (window as any).AquaforestChatWidget = { render, WidgetContainer };
+  }
+  if (typeof global !== 'undefined') {
+    (global as any).AquaforestChatWidget = { render, WidgetContainer };
+  }
+})();
+
+// Default export for UMD compatibility
+export default { render, WidgetContainer };

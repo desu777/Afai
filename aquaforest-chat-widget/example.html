@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website with Aquaforest Chat</title>
+    
+    <!-- External Dependencies - jsDelivr CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+    
+    <!-- Widget CSS -->
+    <link rel="stylesheet" href="dist/style.css">
+    
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 2rem; }
+        h1 { color: #333; }
+        p { color: #666; line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <h1>My Website</h1>
+    <p>This is a sample page showing how to integrate the Aquaforest Chat Widget.</p>
+    <p>Look for the purple chat button in the bottom-right corner!</p>
+    
+    <div style="height: 150vh;">
+        <p>Scroll down to test the floating behavior...</p>
+    </div>
+
+    <!-- Widget Container -->
+    <div id="aquaforest-chat"></div>
+
+    <!-- Widget Script -->
+    <script src="dist/aquaforest-chat-widget.umd.cjs"></script>
+    <script>
+        AquaforestChatWidget.render({
+            containerId: 'aquaforest-chat',
+            apiToken: 'aquaforest_dev_token_2025',
+            apiUrl: 'https://aiagent.aquaforest.eu',
+            position: 'bottom-right'
+        });
+    </script>
+</body>
+</html>

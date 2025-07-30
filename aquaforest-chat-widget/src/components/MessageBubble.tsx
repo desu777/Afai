@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Copy, Download, CheckCircle } from 'lucide-react';
-import { Message } from '../types';
+import type { Message } from '../types';
 import { MessageContent } from './MessageContent';
 import { TruncatedMessageContent } from './TruncatedMessageContent';
 

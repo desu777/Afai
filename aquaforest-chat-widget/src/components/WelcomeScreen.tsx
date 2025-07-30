@@ -1,13 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { X } from 'lucide-react';
+// import { X } from 'lucide-react';
 
 interface WelcomeScreenProps {
   onStart: () => void;
   onClose: () => void;
 }
 
-export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart, onClose }) => {
+export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
   return (
     <motion.div 
       className="af-welcome-screen"

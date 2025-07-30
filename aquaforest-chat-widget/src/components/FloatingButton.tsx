@@ -10,8 +10,7 @@ interface FloatingButtonProps {
 
 export const FloatingButton: React.FC<FloatingButtonProps> = ({ 
   isOpen, 
-  onClick,
-  position = 'bottom-right'
+  onClick
 }) => {
   return (
     <AnimatePresence mode="wait">

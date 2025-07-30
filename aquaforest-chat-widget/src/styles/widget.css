@@ -498,8 +498,12 @@
 
 .af-message.user .af-message-bubble {
   background: var(--af-primary);
-  color: var(--af-white);
+  color: var(--af-white) !important;
   border-bottom-right-radius: 4px;
+}
+
+.af-message.user .af-message-bubble * {
+  color: inherit !important;
 }
 
 .af-message.assistant .af-message-bubble {
