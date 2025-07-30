@@ -1,43 +1,58 @@
-# 🐠 Aquaforest Chat Widget - Integration
+# Aquaforest Chat Widget - Integracja
 
-## Files to Host
-Upload these 2 files to your web server:
-- `aquaforest-chat-widget.umd.cjs`
-- `style.css`
+## Pliki
+- `aquaforest-chat-widget.umd.cjs` (306KB)
+- `style.css` (16KB)
 
-## Integration Code
-Add this to your HTML (before `</body>`):
+## WordPress
 
-```html
-<!-- Widget CSS -->
-<link rel="stylesheet" href="dist/style.css">
+Wgraj pliki, dodaj do functions.php:
 
-<!-- Widget Container -->
+```php
+add_action('wp_footer', function() { ?>
+<link rel="stylesheet" href="<?php echo wp_upload_dir()['baseurl']; ?>/widget/style.css">
 <div id="aquaforest-chat"></div>
-
-<!-- Widget Script -->
-<script src="dist/aquaforest-chat-widget.umd.cjs"></script>
+<script src="<?php echo wp_upload_dir()['baseurl']; ?>/widget/aquaforest-chat-widget.umd.cjs"></script>
 <script>
 AquaforestChatWidget.render({
     containerId: 'aquaforest-chat',
     apiToken: 'aquaforest_dev_token_2025',
-    apiUrl: 'https://aiagent.aquaforest.eu',
-    position: 'bottom-right'
+    apiUrl: 'https://aiagent.aquaforest.eu'
+});
+</script>
+<?php });
+```
+
+## HTML
+
+Przed `</body>`:
+
+```html
+<link rel="stylesheet" href="/path/style.css">
+<div id="aquaforest-chat"></div>
+<script src="/path/aquaforest-chat-widget.umd.cjs"></script>
+<script>
+AquaforestChatWidget.render({
+    containerId: 'aquaforest-chat',
+    apiToken: 'aquaforest_dev_token_2025',
+    apiUrl: 'https://aiagent.aquaforest.eu'
 });
 </script>
 ```
 
-## That's It!
-The widget will appear as a floating chat button in the bottom-right corner.
+## Opcje
 
----
+```javascript
+AquaforestChatWidget.render({
+    containerId: 'aquaforest-chat',
+    apiToken: 'token',
+    apiUrl: 'https://aiagent.aquaforest.eu',
+    position: 'bottom-right' // lub 'bottom-left'
+});
+```
 
-### Configuration Options
-- `position`: `'bottom-right'` or `'bottom-left'`  
-- `theme`: `'aquaforest'` (default)
+## Język
 
-
-### File Size
-- Total: ~855KB (~266KB gzipped)
-- No impact on page load speed
+- URL z `/pl/` → polski
+- Inne URL → angielski
 
