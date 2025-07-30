@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from '../hooks/useTranslation';
 // import { X } from 'lucide-react';
 
 interface WelcomeScreenProps {
@@ -8,6 +9,7 @@ interface WelcomeScreenProps {
 }
 
 export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
+  const { t } = useTranslation();
   return (
     <motion.div 
       className="af-welcome-screen"
@@ -24,7 +26,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
           >
-            Hi, I'm Afai
+{t.welcome.title}
           </motion.h2>
 
           <motion.div 
@@ -49,7 +51,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
           >
-            Wisdom from the reef's heart...
+{t.welcome.subtitle}
           </motion.p>
         </div>
 
@@ -62,7 +64,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
           whileHover={{ scale: 1.05, y: -2 }}
           whileTap={{ scale: 0.95 }}
         >
-          Ask me about your reef
+{t.welcome.button}
         </motion.button>
       </div>
 
@@ -72,7 +74,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
       >
-        Afai by Aquaforest
+{t.welcome.footer}
       </motion.div>
     </motion.div>
   );

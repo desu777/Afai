@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test English - Aquaforest Chat Widget</title>
+    
+    <!-- External Dependencies - jsDelivr CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+    
+    <!-- Widget CSS -->
+    <link rel="stylesheet" href="dist/style.css">
+    
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 2rem; background: #f8f9fa; }
+        h1 { color: #47154C; margin-bottom: 0.5rem; }
+        .subtitle { color: #666; font-size: 1.1rem; margin-bottom: 2rem; }
+        .debug-info { 
+            background: #e3f2fd; 
+            padding: 1rem; 
+            border-radius: 8px; 
+            margin-bottom: 2rem;
+            border-left: 4px solid #47154C;
+        }
+        .nav-links { margin: 2rem 0; }
+        .nav-links a { 
+            display: inline-block;
+            padding: 0.5rem 1rem; 
+            margin-right: 1rem; 
+            background: #47154C; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        .nav-links a:hover { background: #5A1A5F; }
+        .nav-links a.active { background: #3B1238; }
+        p { line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <h1>🇬🇧 Test English Page</h1>
+    <div class="subtitle">URL Pattern: /en/ - Widget should be in English language</div>
+    
+    <div class="debug-info">
+        <strong>Debug Info:</strong><br>
+        Current URL: <span id="current-url"></span><br>
+        Detected Language: <span id="detected-lang"></span><br>
+        Should show: English texts in widget (default)
+    </div>
+    
+    <div class="nav-links">
+        <a href="test-pl.html">🇵🇱 Test PL</a>
+        <a href="test-en.html" class="active">🇬🇧 Test EN</a>
+        <a href="example.html">📝 Original Example</a>
+    </div>
+
+    <p><strong>Testing Instructions:</strong></p>
+    <ul>
+        <li>Click the purple chat button in the bottom-right corner</li>
+        <li>Check if WelcomeScreen has English texts:
+            <ul>
+                <li>"Hi, I'm Afai"</li>
+                <li>"Wisdom from the reef's heart..."</li>
+                <li>"Ask me about your reef"</li>
+            </ul>
+        </li>
+        <li>Click "Ask me about your reef" and check if the first message is in English</li>
+    </ul>
+    
+    <div style="height: 100vh;">
+        <p>Scroll down to test the floating behavior...</p>
+    </div>
+
+    <!-- Widget Container -->
+    <div id="aquaforest-chat"></div>
+
+    <!-- Widget Script -->
+    <script src="dist/aquaforest-chat-widget.umd.cjs"></script>
+    <script>
+        // Update debug info
+        document.getElementById('current-url').textContent = window.location.pathname;
+        
+        // This page uses normal URL (without /pl/), so should default to English
+        document.getElementById('detected-lang').textContent = 
+            window.location.pathname.includes('/pl/') ? 'PL (Polish)' : 'EN (English)';
+
+        AquaforestChatWidget.render({
+            containerId: 'aquaforest-chat',
+            apiToken: 'aquaforest_dev_token_2025',
+            apiUrl: 'http://localhost:2103',
+            position: 'bottom-right'
+        });
+    </script>
+</body>
+</html>
