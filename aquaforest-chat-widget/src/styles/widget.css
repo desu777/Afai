@@ -1191,8 +1191,12 @@
 
 /* Call-to-Action Bubble - visible only on mobile */
 .af-cta-bubble {
-  display: none; /* Hidden by default */
-  position: relative;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  opacity: 0;
+  pointer-events: none;
   background: linear-gradient(135deg, #f1005d 0%, #e8004f 100%);
   color: var(--af-white);
   padding: 10px 16px;
@@ -1201,7 +1205,7 @@
   font-weight: 600;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(241, 0, 93, 0.3), 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: var(--af-transition);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
   user-select: none;
 }
@@ -1222,6 +1226,13 @@
 .af-cta-text {
   display: block;
   line-height: 1.2;
+}
+
+/* Visible state for bubble */
+.af-cta-bubble.af-visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
 }
 
 /* Show bubble only on mobile devices */

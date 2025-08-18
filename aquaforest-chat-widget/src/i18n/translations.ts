@@ -35,7 +35,7 @@ export const translations: Record<SupportedLanguage, Translation> = {
       title: "Poznaj Afai"
     },
     callToAction: {
-      askAfai: "Zapytaj Afai"
+      askAfai: "Poznaj Afai"
     }
   },
   en: {
@@ -53,7 +53,7 @@ export const translations: Record<SupportedLanguage, Translation> = {
       title: "Meet Afai"
     },
     callToAction: {
-      askAfai: "Ask Afai"
+      askAfai: "Meet Afai"
     }
   }
 };

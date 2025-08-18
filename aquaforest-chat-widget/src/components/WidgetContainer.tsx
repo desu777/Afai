@@ -173,16 +173,16 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
     }
   }, [isMobile]);
 
-  // Timer 10 sekund - ukryj dymek gdy user spędza czas na stronie
+  // Timer 12 sekund - ukryj dymek gdy user spędza czas na stronie
   useEffect(() => {
     if (!showBubble || !isMobile || isOpen) return;
     
-    // Timer 10 sekund
+    // Timer 12 sekund
     const timer = setTimeout(() => {
-      // User spędził 10s na stronie - ukryj dymek na 30 minut
+      // User spędził 12s na stronie - ukryj dymek na 30 minut
       hideBubbleFor30Min();
       setShowBubble(false);
-    }, 10000);
+    }, 12000);
     
     return () => clearTimeout(timer);
   }, [showBubble, isMobile, isOpen]);
