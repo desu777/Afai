@@ -96,9 +96,34 @@ export const InputField: React.FC<InputFieldProps> = ({ onSendMessage, disabled 
 
         <button
           type="button"
-          className="af-input-send"
+          style={{
+            background: disabled || (!message.trim() && !selectedFile) ? '#D1D5DB' : '#47154C',
+            border: 'none',
+            borderRadius: '50%',
+            width: '36px',
+            height: '36px',
+            padding: '8px',
+            color: '#FFFFFF',
+            cursor: disabled || (!message.trim() && !selectedFile) ? 'not-allowed' : 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+          }}
           disabled={disabled || (!message.trim() && !selectedFile)}
           onClick={handleSubmit}
+          onMouseEnter={(e) => {
+            if (!disabled && (message.trim() || selectedFile)) {
+              e.currentTarget.style.background = '#52195A';
+              e.currentTarget.style.transform = 'scale(1.1)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!disabled && (message.trim() || selectedFile)) {
+              e.currentTarget.style.background = '#47154C';
+              e.currentTarget.style.transform = 'scale(1)';
+            }
+          }}
         >
           <Send size={20} />
         </button>
