@@ -116,6 +116,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         isOpen={isOpen} 
         onClick={toggleChat}
         position={position}
+        showCallToAction={isMobile && !isOpen}
       />
     </div>
   );

@@ -1179,3 +1179,112 @@
     font-size: 11px;
   }
 }
+
+/* Floating Button Container with Call-to-Action Bubble */
+.af-floating-button-container {
+  display: flex;
+  flex-direction: column; /* Naturalna kolejność: dymek na górze, przycisk na dole */
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+/* Call-to-Action Bubble - visible only on mobile */
+.af-cta-bubble {
+  display: none; /* Hidden by default */
+  position: relative;
+  background: linear-gradient(135deg, #f1005d 0%, #e8004f 100%);
+  color: var(--af-white);
+  padding: 10px 16px;
+  border-radius: 16px; /* Symetryczne zaokrąglenie dla czystego wyglądu */
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(241, 0, 93, 0.3), 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: var(--af-transition);
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* Bubble tail/arrow pointing down to the button */
+.af-cta-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  background: linear-gradient(135deg, #f1005d 0%, #e8004f 100%);
+  border-radius: 20px 0 0 0;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.af-cta-text {
+  display: block;
+  line-height: 1.2;
+}
+
+/* Show bubble only on mobile devices */
+@media (max-width: 767px) {
+  .af-cta-bubble {
+    display: block;
+  }
+}
+
+/* Hover effect for the bubble */
+.af-cta-bubble:hover {
+  background: linear-gradient(135deg, #d8004f 0%, #c20048 100%);
+  transform: scale(1.02);
+  box-shadow: 0 6px 16px rgba(241, 0, 93, 0.4), 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.af-cta-bubble:hover::after {
+  background: linear-gradient(135deg, #d8004f 0%, #c20048 100%);
+}
+
+/* Active/tap effect */
+.af-cta-bubble:active {
+  transform: scale(0.98);
+  background: linear-gradient(135deg, #c20048 0%, #a8003e 100%);
+}
+
+.af-cta-bubble:active::after {
+  background: linear-gradient(135deg, #c20048 0%, #a8003e 100%);
+}
+
+/* Responsive optimizations for different mobile sizes */
+@media (max-width: 480px) {
+  .af-cta-bubble {
+    padding: 8px 14px;
+    font-size: 13px;
+    border-radius: 14px;
+  }
+  
+  .af-cta-bubble::after {
+    width: 14px;
+    height: 14px;
+    bottom: -7px;
+  }
+  
+  .af-floating-button-container {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 360px) {
+  .af-cta-bubble {
+    padding: 7px 12px;
+    font-size: 12px;
+    border-radius: 12px;
+  }
+  
+  .af-cta-bubble::after {
+    width: 12px;
+    height: 12px;
+    bottom: -6px;
+  }
+  
+  .af-floating-button-container {
+    gap: 5px;
+  }
+}

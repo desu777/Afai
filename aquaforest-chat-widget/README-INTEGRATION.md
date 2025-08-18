@@ -6,7 +6,7 @@
 
 ## WordPress
 
-Wgraj pliki, dodaj do functions.php:
+php:
 
 ```php
 add_action('wp_footer', function() { ?>
@@ -45,7 +45,7 @@ AquaforestChatWidget.render({
 ```javascript
 AquaforestChatWidget.render({
     containerId: 'aquaforest-chat',
-    apiToken: 'token',
+    apiToken: 'aquaforest_dev_token_2025',
     apiUrl: 'https://aiagent.aquaforest.eu',
     position: 'bottom-right' // lub 'bottom-left'
 });

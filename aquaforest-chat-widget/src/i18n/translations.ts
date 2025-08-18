@@ -14,6 +14,9 @@ export interface Translation {
   chatHeader: {
     title: string;
   };
+  callToAction: {
+    askAfai: string;
+  };
 }
 
 export const translations: Record<SupportedLanguage, Translation> = {
@@ -30,6 +33,9 @@ export const translations: Record<SupportedLanguage, Translation> = {
     },
     chatHeader: {
       title: "Poznaj Afai"
+    },
+    callToAction: {
+      askAfai: "Zapytaj Afai"
     }
   },
   en: {
@@ -45,6 +51,9 @@ export const translations: Record<SupportedLanguage, Translation> = {
     },
     chatHeader: {
       title: "Meet Afai"
+    },
+    callToAction: {
+      askAfai: "Ask Afai"
     }
   }
 };
