@@ -13,10 +13,21 @@ interface WidgetContainerProps extends WidgetConfig {}
 const WIDGET_STATE_KEY = 'af_widget_state';
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes in milliseconds
 
+// Bubble session constants
+const BUBBLE_SESSION_KEY = 'af_bubble_session';
+const BUBBLE_HIDDEN_KEY = 'af_bubble_hidden_until';
+
 interface WidgetStateData {
   isOpen: boolean;
   timestamp: number;
   userClosedChat?: boolean; // Czy user świadomie zamknął czat
+}
+
+interface BubbleSessionData {
+  firstPageUrl: string;
+  entryTime: number;
+  hiddenUntil?: number;
+  pageViews: number;
 }
 
 export const WidgetContainer: React.FC<WidgetContainerProps> = ({
@@ -56,23 +67,59 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
   const [isOpen, setIsOpen] = useState(getInitialState);
   const [api] = useState(() => new ChatAPI(apiUrl, apiToken));
   
-  // State kontrolujący wyświetlanie dymku "Ask Afai"
-  const [showBubble, setShowBubble] = useState<boolean>(() => {
+  // Helper function - ukryj dymek na 30 minut
+  const hideBubbleFor30Min = () => {
+    const hideUntil = Date.now() + SESSION_TIMEOUT;
     try {
+      sessionStorage.setItem(BUBBLE_HIDDEN_KEY, hideUntil.toString());
+    } catch (error) {
+      console.debug('Could not set bubble hidden state');
+    }
+  };
+
+  // State kontrolujący wyświetlanie dymku "Ask Afai" z inteligentną logiką sesji
+  const [showBubble, setShowBubble] = useState<boolean>(() => {
+    const now = Date.now();
+    
+    // Sprawdź czy dymek jest ukryty (30 min timeout)
+    try {
+      const hiddenUntil = sessionStorage.getItem(BUBBLE_HIDDEN_KEY);
+      if (hiddenUntil && parseInt(hiddenUntil) > now) {
+        return false; // Dymek ukryty
+      }
+      
+      // Sprawdź czy user zamknął czat w localStorage
       const stored = localStorage.getItem(WIDGET_STATE_KEY);
       if (stored) {
         const data: WidgetStateData = JSON.parse(stored);
-        const now = Date.now();
-        
-        // Jeśli user zamknął czat w ciągu ostatnich 30 min, nie pokazuj dymku
         if (data.userClosedChat && (now - data.timestamp < SESSION_TIMEOUT)) {
           return false;
         }
       }
+      
+      // Sprawdź sesję nawigacji
+      const sessionData = sessionStorage.getItem(BUBBLE_SESSION_KEY);
+      if (sessionData) {
+        const session: BubbleSessionData = JSON.parse(sessionData);
+        
+        // Jeśli to nie pierwsza strona w sesji - ukryj
+        if (session.pageViews > 1) {
+          hideBubbleFor30Min();
+          return false;
+        }
+      } else {
+        // Pierwsza wizyta - utwórz sesję
+        const newSession: BubbleSessionData = {
+          firstPageUrl: window.location.href,
+          entryTime: now,
+          pageViews: 1
+        };
+        sessionStorage.setItem(BUBBLE_SESSION_KEY, JSON.stringify(newSession));
+      }
     } catch (error) {
-      // Ignore localStorage errors
-      console.debug('Could not read bubble state');
+      console.debug('Session storage error');
     }
+    
     return true; // Domyślnie pokazuj dymek
   });
 
@@ -84,6 +131,31 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
       }
     });
   }, [api]);
+
+  // Detekcja nawigacji - sprawdź czy user przeszedł na nową stronę
+  useEffect(() => {
+    try {
+      const sessionData = sessionStorage.getItem(BUBBLE_SESSION_KEY);
+      if (sessionData) {
+        const session: BubbleSessionData = JSON.parse(sessionData);
+        const currentUrl = window.location.href;
+        
+        // Sprawdź czy to zmiana strony
+        if (currentUrl !== session.firstPageUrl) {
+          // User nawiguje - zwiększ licznik i ukryj dymek
+          session.pageViews += 1;
+          sessionStorage.setItem(BUBBLE_SESSION_KEY, JSON.stringify(session));
+          
+          if (session.pageViews > 1) {
+            hideBubbleFor30Min();
+            setShowBubble(false);
+          }
+        }
+      }
+    } catch (error) {
+      console.debug('Session navigation detection error');
+    }
+  }, []); // Tylko przy mount (każde załadowanie strony)
 
   // Handle device type changes (window resize)
   useEffect(() => {
@@ -100,6 +172,20 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
       setIsOpen(!isMobile);
     }
   }, [isMobile]);
+
+  // Timer 10 sekund - ukryj dymek gdy user spędza czas na stronie
+  useEffect(() => {
+    if (!showBubble || !isMobile || isOpen) return;
+    
+    // Timer 10 sekund
+    const timer = setTimeout(() => {
+      // User spędził 10s na stronie - ukryj dymek na 30 minut
+      hideBubbleFor30Min();
+      setShowBubble(false);
+    }, 10000);
+    
+    return () => clearTimeout(timer);
+  }, [showBubble, isMobile, isOpen]);
 
   // Reset showBubble po 30 minutach jeśli jest ukryty
   useEffect(() => {
@@ -125,8 +211,9 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
         };
         localStorage.setItem(WIDGET_STATE_KEY, JSON.stringify(stateData));
         
-        // Jeśli user zamknął czat, ukryj dymek
+        // Jeśli user zamknął czat, ukryj dymek na 30 minut
         if (prev === true && newState === false && isMobile) {
+          hideBubbleFor30Min();
           setShowBubble(false);
         }
       } catch (error) {
