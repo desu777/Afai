@@ -1,6 +1,6 @@
 import React from 'react';
-import { MessageCircle, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { MessageCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useIsMobile } from '../hooks/useIsMobile';
 import { useTranslation } from '../hooks/useTranslation';
 
@@ -18,10 +18,16 @@ export const FloatingButton: React.FC<FloatingButtonProps> = ({
 }) => {
   const isMobile = useIsMobile();
   const { t } = useTranslation();
+  
+  // Ukryj floating button gdy widget jest otwarty (X jest teraz w oknach)
+  if (isOpen) {
+    return null;
+  }
+  
   return (
     <div className="af-floating-button-container">
-      {/* Call to Action Bubble - zawsze renderowany, kontrolowany przez CSS class */}
-      {isMobile && !isOpen && (
+      {/* Call to Action Bubble - tylko na mobile gdy zamknięty */}
+      {isMobile && (
         <div
           className={`af-cta-bubble ${showCallToAction ? 'af-visible' : ''}`}
           onClick={onClick}
@@ -30,30 +36,23 @@ export const FloatingButton: React.FC<FloatingButtonProps> = ({
         </div>
       )}
 
-      {/* Główny przycisk floating */}
-      <AnimatePresence mode="wait">
-        <motion.button
-          key={isOpen ? 'close' : 'open'}
-          className={`af-floating-button ${!isOpen ? 'pulse' : ''} ${isOpen ? 'is-open' : ''}`}
-          onClick={onClick}
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0, opacity: 0 }}
-          transition={{
-            type: 'spring',
-            stiffness: 200,
-            damping: 20
-          }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          {isOpen ? (
-            <X size={20} />
-          ) : (
-            <MessageCircle size={20} />
-          )}
-        </motion.button>
-      </AnimatePresence>
+      {/* Główny przycisk floating - tylko MessageCircle (do otwierania) */}
+      <motion.button
+        className="af-floating-button pulse"
+        onClick={onClick}
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0, opacity: 0 }}
+        transition={{
+          type: 'spring',
+          stiffness: 200,
+          damping: 20
+        }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <MessageCircle size={20} />
+      </motion.button>
     </div>
   );
 };

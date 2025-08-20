@@ -93,15 +93,62 @@
   transform: scale(0.95);
 }
 
-/* When button shows close icon */
-.af-floating-button.is-open {
-  background: var(--af-primary);
+/* Close button styles */
+
+/* Welcome Screen - biały X na fioletowym tle */
+.af-close-button-welcome {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--af-white);
+  border: 2px solid var(--af-white);
+  color: var(--af-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--af-shadow-md);
+  transition: var(--af-transition);
+  z-index: 10;
 }
 
-.af-floating-button.is-open svg {
-  width: 20px;
-  height: 20px;
+.af-close-button-welcome:hover {
+  background: var(--af-gray-50);
+  transform: scale(1.1);
+  box-shadow: var(--af-shadow-lg);
 }
+
+/* Chat Interface - fioletowy X na białym tle */
+.af-close-button-chat {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--af-white);
+  border: 2px solid var(--af-primary);
+  color: var(--af-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--af-shadow-sm);
+  transition: var(--af-transition);
+  z-index: 10;
+}
+
+.af-close-button-chat:hover {
+  background: var(--af-primary);
+  color: var(--af-white);
+  transform: scale(1.1);
+  box-shadow: var(--af-shadow-md);
+}
+
+/* Clean up - remove old styles for close icon logic */
 
 .af-floating-button svg {
   width: 30px;

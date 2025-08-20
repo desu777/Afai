@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-// import { ArrowLeft } from 'lucide-react';
+import { X } from 'lucide-react';
 import { WelcomeScreen } from './WelcomeScreen';
 import { MessageBubble } from './MessageBubble';
 import { InputField } from './InputField';
@@ -290,6 +290,18 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose, api }) =>
               </div>
             </div>
           </div>
+          {/* Close button - fioletowy X na białym tle */}
+          <motion.button
+            className="af-close-button-chat"
+            onClick={handleClose}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.1 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <X size={16} />
+          </motion.button>
         </div>
       )}
 

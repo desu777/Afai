@@ -1,14 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { X } from 'lucide-react';
 import { useTranslation } from '../hooks/useTranslation';
-// import { X } from 'lucide-react';
 
 interface WelcomeScreenProps {
   onStart: () => void;
   onClose: () => void;
 }
 
-export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
+export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart, onClose }) => {
   const { t } = useTranslation();
   return (
     <motion.div 
@@ -18,6 +18,18 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onStart }) => {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
     >
+      {/* Close button - biały X na fioletowym tle */}
+      <motion.button
+        className="af-close-button-welcome"
+        onClick={onClose}
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.1 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+      >
+        <X size={16} />
+      </motion.button>
       <div className="af-welcome-content">
         <div className="af-welcome-group">
           <motion.h2 
