@@ -7,6 +7,7 @@ from typing import Dict, Any
 from models import ConversationState
 from config import TEST_ENV, RESPONSE_FORMATTER_TEMPERATURE, debug_print
 from prompts import load_prompt_template
+from prompt_saver import log_prompt_if_enabled
 
 class CacheManager:
     def __init__(self, client, model_name):
@@ -116,6 +117,9 @@ Available product information:
 
 Respond in {lang} language, referencing previous conversation naturally.
 """
+            
+            # Log prompt to file if enabled
+            log_prompt_if_enabled("cache_manager_followup", prompt, state, self.model_name, RESPONSE_FORMATTER_TEMPERATURE)
             
             # Generate response using cheaper model for follow-ups
             response = self.client.chat.completions.create(

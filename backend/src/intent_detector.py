@@ -14,6 +14,7 @@ from config import INTENT_DETECTOR_TEMPERATURE, TEST_ENV, debug_print
 from prompts import load_prompt_template
 from llm_client_factory import create_intent_detector_client, create_image_analysis_client
 from icp_scraper import ICPScraper
+from prompt_saver import log_prompt_if_enabled
 
 class IntentDetector:
     
@@ -223,6 +224,12 @@ Return ONLY a valid JSON object:
             # Create vision messages
             messages = self._create_vision_messages(state)
             
+            # Extract prompt for logging
+            vision_prompt_content = messages[0]['content'][0]['text'] if messages and messages[0].get('content') else "Unknown vision prompt"
+            
+            # Log prompt to file if enabled
+            log_prompt_if_enabled("intent_detector_vision", vision_prompt_content, state, self.image_model_name, INTENT_DETECTOR_TEMPERATURE)
+            
             # Call OpenRouter/Gemini with vision using dedicated image analysis client
             response = self.image_client.chat.completions.create(
                 model=self.image_model_name,
@@ -372,12 +379,17 @@ Return ONLY a valid JSON object:
         try:
             if TEST_ENV:
                 print(f"[?] Processing text analysis")
+            
+            intent_prompt = self._create_intent_prompt(state)
+            
+            # Log prompt to file if enabled
+            log_prompt_if_enabled("intent_detector_text", intent_prompt, state, self.model_name, INTENT_DETECTOR_TEMPERATURE)
                 
             response = self.client.chat.completions.create(
                 model=self.model_name,
                 temperature=INTENT_DETECTOR_TEMPERATURE,
                 messages=[
-                    {"role": "system", "content": self._create_intent_prompt(state)}
+                    {"role": "system", "content": intent_prompt}
                 ],
                 response_format={"type": "json_object"}
             )

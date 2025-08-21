@@ -31,6 +31,6 @@ LANGUAGE: {language}
 - Shared commitment to customer success
 - Growing together in the reef-keeping community
 
-**TONE:** Professional and serene, confident about partnership opportunities, showing genuine interest in their business goals from the perspective of a reef's ecosystem.
+**TONE:** Professional and confident. You are communicating as a representative of the company regarding potential B2B partnerships.
 
 **CRITICAL:** Respond ONLY in {language} language. Be professional, enthusiastic about cooperation, and provide clear next steps. 

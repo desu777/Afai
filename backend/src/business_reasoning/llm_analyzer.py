@@ -8,6 +8,7 @@ from typing import Dict
 from models import ConversationState
 from config import TEST_ENV, debug_print, BUSINESS_REASONER_TEMPERATURE
 from prompts import load_prompt_template
+from prompt_saver import log_prompt_if_enabled
 
 class LLMAnalyzer:
     def __init__(self, client, model_name, data_loader):
@@ -83,6 +84,9 @@ Return JSON with product recommendations and business analysis.
         try:
             # Create comprehensive prompt with all mapping data
             prompt = self.create_comprehensive_llm_prompt(state)
+            
+            # Log prompt to file if enabled
+            log_prompt_if_enabled("business_reasoner", prompt, state, self.model_name, BUSINESS_REASONER_TEMPERATURE)
             
             # Call configured client with temperature parameter
             response = self.client.chat.completions.create(

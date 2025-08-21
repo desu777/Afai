@@ -10,6 +10,7 @@ from workflow import app
 from models import ConversationState
 import config
 from utils.logger import logger
+from prompt_saver import save_workflow_summary_if_enabled
 
 class AquaforestAssistant:
     def __init__(self, analytics_instance=None):
@@ -70,6 +71,9 @@ class AquaforestAssistant:
                 logger.performance("Total execution time", execution_time)
                 logger.separator("", 60, "-")
             
+            # Save workflow summary if SAVE_PROMPT is enabled
+            save_workflow_summary_if_enabled(result, execution_time)
+            
             return result
         except Exception as e:
             if debug:  # Only show errors in debug mode
@@ -84,6 +88,9 @@ class AquaforestAssistant:
             if debug:
                 logger.performance("Execution time (with error)", execution_time)
                 logger.separator("", 60, "-")
+            
+            # Save workflow summary even for errors if SAVE_PROMPT is enabled
+            save_workflow_summary_if_enabled(state, execution_time)
                 
             return state
         finally:

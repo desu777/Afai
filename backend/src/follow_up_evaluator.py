@@ -7,6 +7,7 @@ from typing import Dict, Any, Optional, List
 from models import ConversationState
 from llm_client_factory import create_follow_up_client
 from config import debug_print, TEST_ENV, FOLLOW_UP_TEMPERATURE
+from prompt_saver import log_prompt_if_enabled
 
 class FollowUpEvaluator:
     """Evaluates cache sufficiency for follow-up questions with primary provider + fallback"""
@@ -36,6 +37,9 @@ class FollowUpEvaluator:
         try:
             # Create evaluation prompt
             prompt = self._create_evaluation_prompt(state, extended_cache)
+            
+            # Log prompt to file if enabled
+            log_prompt_if_enabled("follow_up_evaluator", prompt, state, self.model_name, FOLLOW_UP_TEMPERATURE)
             
             response = self.client.chat.completions.create(
                 model=self.model_name,

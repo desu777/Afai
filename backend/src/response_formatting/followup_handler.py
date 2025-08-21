@@ -7,6 +7,7 @@ from models import ConversationState
 from config import TEST_ENV, RESPONSE_FORMATTER_TEMPERATURE
 from prompts import load_prompt_template
 from llm_client_factory import create_response_formatter_client
+from prompt_saver import log_prompt_if_enabled
 
 def create_follow_up_prompt(state: ConversationState) -> str:
     """Creates a prompt to answer a follow-up question using cached context and external template"""
@@ -66,6 +67,10 @@ def handle_follow_up(state: ConversationState) -> ConversationState:
     try:
         client, model_name = create_response_formatter_client()
         prompt = create_follow_up_prompt(state)
+        
+        # Log prompt to file if enabled
+        log_prompt_if_enabled("followup_handler", prompt, state, model_name, RESPONSE_FORMATTER_TEMPERATURE)
+        
         response = client.chat.completions.create(
             model=model_name,
             temperature=RESPONSE_FORMATTER_TEMPERATURE,
@@ -114,6 +119,10 @@ Respond in {lang} language.
     
     try:
         client, model_name = create_response_formatter_client()
+        
+        # Log prompt to file if enabled
+        log_prompt_if_enabled("followup_handler_escalation", escalation_prompt, state, model_name, RESPONSE_FORMATTER_TEMPERATURE)
+        
         response = client.chat.completions.create(
             model=model_name,
             temperature=RESPONSE_FORMATTER_TEMPERATURE,

@@ -7,6 +7,7 @@ from typing import Dict, Any
 from models import ConversationState, Intent
 from config import TEST_ENV, RESPONSE_FORMATTER_TEMPERATURE, debug_print
 from llm_client_factory import create_response_formatter_client
+from prompt_saver import log_prompt_if_enabled
 
 from .dosage_calculator import DosageCalculator
 from .prompt_builder import PromptBuilder
@@ -49,6 +50,10 @@ class ResponseFormatter:
                 if TEST_ENV:
                     print(f"[AI] RF complex model: {intent}")
                 prompt = self.prompt_builder.create_universal_prompt(state)
+                
+                # Log prompt to file if enabled
+                log_prompt_if_enabled("response_formatter_complex", prompt, state, self.model_name, RESPONSE_FORMATTER_TEMPERATURE)
+                
                 response = self.client.chat.completions.create(
                     model=self.model_name,
                     temperature=RESPONSE_FORMATTER_TEMPERATURE,
@@ -89,6 +94,9 @@ class ResponseFormatter:
     def _generate_special_intent_response(self, state: ConversationState) -> str:
         """Generate response for special intents using prompt builder"""
         prompt = self.prompt_builder.create_special_intent_prompt(state)
+        
+        # Log prompt to file if enabled
+        log_prompt_if_enabled("response_formatter_special", prompt, state, self.model_name, RESPONSE_FORMATTER_TEMPERATURE)
         
         try:
             response = self.client.chat.completions.create(

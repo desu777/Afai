@@ -25,6 +25,9 @@ def debug_print(message: str, emoji: str = "[DEBUG]"):
 # Test environment flag - can be dynamically changed
 TEST_ENV = os.getenv("TEST_ENV", "false").lower() == "true"
 
+# Flag to save prompts to files for analysis
+SAVE_PROMPT = os.getenv("SAVE_PROMPT", "false").lower() == "true"
+
 # Flag to disable business mappings for testing
 DISABLE_BUSINESS_MAPPINGS = os.getenv("DISABLE_BUSINESS_MAPPINGS", "false").lower() == "true"
 
@@ -304,6 +307,7 @@ if ENABLE_AUTH_TOKEN and not AQUAFOREST_AUTH_TOKEN:
 if TEST_ENV:
     logger.header("[CONFIG] CONFIGURATION LOADED")
     logger.configuration("Debug Mode: ENABLED")
+    logger.configuration(f"Prompt Saving: {'ENABLED' if SAVE_PROMPT else 'DISABLED'}")
     logger.configuration(f"Business Mappings: {'DISABLED' if DISABLE_BUSINESS_MAPPINGS else 'ENABLED'}")
     logger.configuration(f"Competitors Only: {'ENABLED' if ENABLE_COMPETITORS_ONLY else 'DISABLED'}")
     logger.configuration("Dual API Configuration (OpenRouter + Gemini 2.5)", "SUB")

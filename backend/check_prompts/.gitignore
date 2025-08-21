@@ -1,0 +1,13 @@
+# Ignore all prompt files and session directories
+# These files may contain sensitive information and should not be committed
+
+session_*/
+*.md
+*.json
+.counter
+
+# Keep this .gitignore file
+!.gitignore
+
+# Allow README for documentation
+!README.md

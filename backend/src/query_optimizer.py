@@ -11,6 +11,7 @@ from models import ConversationState, QueryOptimizationResult
 from config import OPENAI_TEMPERATURE, PRODUCTS_FILE_PATH, TEST_ENV, debug_print
 from prompts import load_prompt_template
 from llm_client_factory import create_query_optimizer_client
+from prompt_saver import log_prompt_if_enabled
 
 class QueryOptimizer:
     
@@ -276,13 +277,18 @@ Return JSON: {{"optimized_queries": ["{query}"]}}
             enhanced_state = state.copy()
             enhanced_state["guaranteed_products"] = list(guaranteed_products)
             
+            optimization_prompt = self._create_optimization_prompt(enhanced_state)
+            
+            # Log prompt to file if enabled
+            log_prompt_if_enabled("query_optimizer", optimization_prompt, state, self.model_name)
+            
             response = self.client.chat.completions.create(
                 model=self.model_name,
                 # temperature removed - let Vertex AI/OpenRouter use defaults for better JSON generation
                 messages=[
                     {
                         "role": "system", 
-                        "content": self._create_optimization_prompt(enhanced_state)
+                        "content": optimization_prompt
                     }
                 ],
                 response_format={"type": "json_object"}

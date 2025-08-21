@@ -14,6 +14,7 @@ import os
 
 # Import factory for primary provider
 from llm_client_factory import create_icp_analysis_client
+from prompt_saver import log_prompt_if_enabled
 
 class ICPScraper:
     """ICP PDF processor for Aquaforest Lab ICP test results"""
@@ -38,6 +39,17 @@ class ICPScraper:
         try:
             if TEST_ENV:
                 debug_print(f"[>] Using client: {self.model_name}")
+            
+            # Create basic state for logging - ICP scraper doesn't have full ConversationState
+            basic_state = {
+                "session_id": "icp_analysis", 
+                "user_query": "ICP PDF Analysis",
+                "detected_language": "en",
+                "intent": "analyze_icp"
+            }
+            
+            # Log prompt to file if enabled
+            log_prompt_if_enabled("icp_scraper", prompt, basic_state, self.model_name, ICP_TEMPERATURE)
             
             response = self.client.chat.completions.create(
                 model=self.model_name,
