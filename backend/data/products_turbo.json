@@ -658,21 +658,21 @@
     },
     {
       "product_name": "ICP Test 1",
-      "keywords": ["ICP-OES test", "water analysis", "seawater test", "RO water test", "trace elements", "39 parameters"],
-      "solves_problems": ["unknown water chemistry", "unexplained coral issues", "optimizing supplementation", "detecting contaminants"],
-      "use_case": "A professional laboratory test (ICP-OES) for a precise and comprehensive analysis of 39 chemical parameters in a single sample of marine or RO water."
+      "keywords": ["ICP-OES test", "water analysis", "seawater test", "RO water test", "trace elements", "39 parameters", "supplementation plan"],
+      "solves_problems": ["unknown water chemistry", "unexplained coral issues", "how to optimize supplementation", "detecting contaminants", "creating a custom dosing plan based on results"],
+      "use_case": "A professional laboratory test (ICP-OES) analyzing 39 parameters in marine or RO water. After testing, you receive a detailed supplementation plan with specific product recommendations to correct any detected imbalances."
     },
     {
       "product_name": "ICP Test 2",
       "keywords": ["dual sample ICP", "comparative water analysis", "RO filter check", "diagnosing contamination", "39 parameters"],
-      "solves_problems": ["diagnosing contamination sources", "evaluating RO filter performance", "finding the source of tank problems", "comparing new salt mix to tank water"],
-      "use_case": "A dual-sample ICP-OES test kit for a comprehensive comparison of 39 parameters between two water sources, typically aquarium water and fresh RO/saltwater."
+      "solves_problems": ["diagnosing contamination sources from RO water", "evaluating RO filter/membrane performance", "finding the source of tank problems by comparing water sources", "checking new salt mix before use"],
+      "use_case": "A dual-sample ICP-OES test to compare 39 parameters between two water sources (e.g., aquarium vs. RO water) using color-coded vials. Ideal for checking RO filter efficiency and diagnosing contamination. Includes a full supplementation plan for the aquarium water sample."
     },
     {
       "product_name": "ICP Test 5+1",
       "keywords": ["multipack ICP test", "6-pack water analysis", "long-term monitoring", "supplementation plan", "39 parameters"],
-      "solves_problems": ["need for regular parameter monitoring", "tracking chemical changes over time", "managing multiple tanks", "long-term stability issues"],
-      "use_case": "A value multipack containing 6 individual ICP-OES tests for long-term, comprehensive monitoring of 39 water parameters."
+      "solves_problems": ["need for regular, cost-effective monitoring", "tracking chemical changes over time", "creating a precise, long-term dosing strategy", "knowing exactly how to act on test results"],
+      "use_case": "A value multipack containing 6 individual 'ICP Test 1' kits. Each test provides a comprehensive analysis of 39 parameters and comes with its own tailored supplementation plan, making it perfect for long-term monitoring and precise parameter management."
     }
   ],
   "aquascaping_and_adhesives": [

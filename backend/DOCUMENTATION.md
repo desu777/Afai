@@ -85,3 +85,5 @@ This section provides a detailed description of each major file and module in th
     2.  Based on the intent, it conditionally routes to different paths: simple intents go directly to formatting a response, while product-related queries go through the full RAG pipeline.
     3.  The pipeline involves business reasoning, query optimization, searching Pinecone, and finally, formatting the response.
     4.  It also includes a sophisticated path for handling follow-up questions by checking a session cache first.
+
+
