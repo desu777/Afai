@@ -40,33 +40,33 @@
   "balling_method_and_macro_elements": [
     {
       "product_name": "Component 1+2+3+",
-      "keywords": ["Balling method", "complete supplement", "ionic balance", "trace elements", "macroelements", "NaCl-free salt"],
-      "solves_problems": ["ionic imbalance", "trace element depletion", "maintaining stable Ca, Mg, KH", "hidden ionic drift from incomplete Balling"],
-      "use_case": "A complete, three-part Balling Method supplement providing balanced Ca, Mg, KH, and trace elements (Component 1+: Ca, Sr...; Component 2+: bicarb, F, I...; Component 3+: Mg, K...) to maintain correct ionic balance."
+      "keywords": ["Balling method", "complete supplement", "ionic balance", "trace elements", "macroelements", "NaCl-free salt", "ready-to-use", "original Balling"],
+      "solves_problems": ["ionic imbalance from incomplete Balling", "trace element depletion", "maintaining stable Ca, Mg, KH", "long-term parameter instability due to NaCl buildup", "how to use the original Balling method"],
+      "use_case": "A complete, ready-to-use, three-part Balling Method supplement. It provides balanced Ca, Mg, KH, and a full suite of trace elements. Crucially, it includes NaCl-free Reef Mineral Salt in Component 3+ to maintain correct ionic balance and prevent the long-term buildup of sodium chloride, a common issue with simplified 2-part dosing."
     },
     {
       "product_name": "Component 1+2+3+ Concentrate",
-      "keywords": ["Balling method", "concentrate", "calcium", "magnesium", "KH", "trace elements", "space-saving"],
-      "solves_problems": ["space-saving supplementation", "easy preparation of Balling solutions", "maintaining all major elements", "large container storage issues"],
-      "use_case": "A space-saving, concentrated Balling Method set. Each 1L bottle prepares 5L of ready-to-use solution for daily, balanced supplementation of Ca, Mg, KH, and trace elements."
+      "keywords": ["Balling method", "concentrate", "calcium", "magnesium", "KH", "trace elements", "space-saving", "easy preparation", "dosing pump"],
+      "solves_problems": ["space-saving supplementation", "easy preparation of Balling solutions", "maintaining all major elements", "large container storage issues", "how to dose Balling for beginners"],
+      "use_case": "A space-saving, concentrated Balling Method set. Each 1L bottle prepares 5L of ready-to-use solution for daily, balanced supplementation of Ca, Mg, KH, and trace elements. It's designed for easy and safe dosing, with detailed instructions for preparation, including using warm water for Component 2+. Can be dosed directly with extreme caution (5x strength)."
     },
     {
       "product_name": "Component 3 in 1",
-      "keywords": ["all-in-one supplement", "Balling method", "easy dosing", "single component", "organic calcium", "carbon source"],
-      "solves_problems": ["complex dosing schedules", "multiple dosing pumps needed", "risk of dosing errors", "lack of space for containers"],
-      "use_case": "A comprehensive all-in-one supplement combining Ca, Mg, KH, and trace elements into a single formula for easy daily dosing. Contains organic calcium salts as a carbon source. Causes serious eye damage."
+      "keywords": ["all-in-one supplement", "Balling method", "easy dosing", "single component", "organic calcium", "carbon source", "nutrient reduction"],
+      "solves_problems": ["complex dosing schedules", "needing multiple dosing pumps", "risk of dosing errors", "lack of space for containers", "high nutrient levels (NO3/PO4)"],
+      "use_case": "A comprehensive all-in-one supplement combining Ca, Mg, KH, and trace elements into a single formula for easy daily dosing with just one pump. Its unique formula contains organic calcium salts, which act as a carbon source to support beneficial bacteria and help reduce NO3 and PO4 levels. CAUSES SERIOUS EYE DAMAGE - USE PROTECTIVE GEAR."
     },
     {
       "product_name": "Components Pro",
-      "keywords": ["Balling method", "Ca, KH, Mg dosing", "ionic balance", "trace elements", "concentrated"],
-      "solves_problems": ["unstable Ca, KH, Mg", "ionic imbalance in demanding tanks", "complex dosing routines", "elemental deficiencies"],
-      "use_case": "A highly concentrated 3-part Balling set for advanced reef systems, providing precise, balanced dosing of Ca, KH, Mg, and a full suite of trace elements."
+      "keywords": ["Balling method", "highly concentrated", "Ca, KH, Mg dosing", "ionic balance", "trace elements", "advanced reefing", "SPS tank"],
+      "solves_problems": ["unstable Ca, KH, Mg in high-demand tanks", "ionic imbalance in advanced systems", "need for highly concentrated solutions", "precise parameter correction"],
+      "use_case": "A professional, highly concentrated 3-part Balling set for advanced reef systems with high macroelement consumption. Provides precise, balanced dosing of Ca, KH, Mg, and a full suite of trace elements. Each component's effect is precisely quantified (e.g., 25ml of Comp 1 Pro raises Ca by 9ppm in 100L)."
     },
     {
       "product_name": "Components Strong",
-      "keywords": ["trace element set", "Balling method", "concentrated microelements", "strontium", "heavy metals", "iodine", "potassium"],
-      "solves_problems": ["rapid trace element consumption", "faded coral colors in high-demand tanks", "maintaining specific element levels", "how to properly supplement Balling solutions"],
-      "use_case": "A concentrated trace element set (A, B, C, K) for advanced Balling Method users. Each component is added to a specific Balling solution (e.g., Strong A to Calcium) to replenish rapidly consumed microelements."
+      "keywords": ["trace element set", "Balling method", "concentrated microelements", "strontium", "heavy metals", "iodine", "potassium", "color enhancement"],
+      "solves_problems": ["rapid trace element consumption in high-demand tanks", "faded coral colors", "how to properly supplement Balling solutions with microelements", "specific color enhancement (reds, blues)"],
+      "use_case": "A complete set of four concentrated trace element supplements (A, B, C, K) designed to be added directly to your main Balling solutions (Calcium, KH Buffer, etc.). It replenishes rapidly consumed microelements to enhance specific coral colors (e.g., Strong K for reds/pinks) and maintain overall health in advanced reef systems."
     }
   ],
   "macro_elements_correction": [
@@ -210,21 +210,21 @@
     },
     {
       "product_name": "Component A",
-      "keywords": ["strontium supplement", "barium supplement", "trace elements", "SPS corals", "Component B", "Component C"],
+      "keywords": ["strontium supplement", "barium supplement", "trace elements", "SPS corals", "calcium uptake", "beginner-safe"],
       "solves_problems": ["strontium and barium deficiency", "poor calcium uptake", "slow coral skeletal formation", "trace elements removed by skimmer"],
-      "use_case": "A liquid supplement to correct minor deficiencies of strontium and barium, supporting coral skeletal formation. Dose weekly or based on Ca consumption, waiting 5 minutes before other components."
+      "use_case": "A liquid supplement to correct minor deficiencies of strontium and barium, supporting coral skeletal formation and improving calcium absorption. Safe concentration makes it ideal for beginners. Can be dosed weekly, based on Ca consumption, or added to a Balling Calcium solution."
     },
     {
       "product_name": "Component B",
-      "keywords": ["heavy metal supplement", "trace elements", "cobalt", "copper", "manganese", "zinc", "coloration"],
-      "solves_problems": ["heavy metal deficiency", "poor coral coloration", "faded coral colors", "trace elements removed by skimmer"],
-      "use_case": "A liquid supplement to replenish essential heavy metals (Co, Cu, Mn, Zn, etc.) removed by filtration, supporting intense coral coloration. Wait 5 minutes before dosing other components."
+      "keywords": ["heavy metal supplement", "trace elements", "cobalt", "copper", "manganese", "coloration", "beginner-safe"],
+      "solves_problems": ["heavy metal deficiency", "poor coral coloration (faded blues, greens)", "trace elements removed by skimmer and filtration"],
+      "use_case": "A liquid supplement to replenish essential heavy metals (Co, Cu, Mn, Fe, etc.) removed by filtration. These elements are crucial for metabolic processes and pigment synthesis, directly supporting intense coral coloration. Safe concentration makes it ideal for beginners."
     },
     {
       "product_name": "Component C",
-      "keywords": ["iodine supplement", "fluorine supplement", "SPS coloration", "polyp extension", "blue color", "violet color"],
-      "solves_problems": ["iodine and fluorine deficiency", "faded blue and violet colors", "poor polyp extension", "lack of UV protection for corals"],
-      "use_case": "A liquid supplement to replenish iodine and fluorine, which enhances blue, violet, and white coloration in corals and promotes polyp extension. Wait 5 minutes before dosing other components."
+      "keywords": ["iodine supplement", "fluorine supplement", "SPS coloration", "polyp extension", "blue color", "violet color", "beginner-safe"],
+      "solves_problems": ["iodine and fluorine deficiency", "faded blue, violet, and white colors", "poor polyp extension", "lack of UV protection for corals"],
+      "use_case": "A liquid supplement to replenish iodine and fluorine. It enhances blue, violet, and white coloration in corals (especially SPS) and promotes polyp extension. Safe concentration makes it ideal for beginners. In a Balling system, it's added to the KH Buffer solution."
     }
   ],
     "boron_supplements": [
@@ -740,9 +740,9 @@
     },
     {
       "product_name": "AF Media Reactor Series",
-      "keywords": ["fluidized bed reactor", "media reactor", "carbon reactor", "phosphate reactor", "zeolite reactor", "in-sump", "external"],
-      "solves_problems": ["inefficient use of filter media", "media clumping", "poor water flow through media", "high nutrient levels", "limited sump space"],
-      "use_case": "A series of three universal fluidized bed reactors (AF90, AF110, AF130) for high-efficiency use of media like carbon, GFO, or zeolites. Features an easy-change system and can be installed in-sump or externally."
+      "keywords": ["fluidized bed reactor", "media reactor", "filtration efficiency", "carbon", "GFO", "zeolites", "in-sump", "external", "smart-twist"],
+      "solves_problems": ["inefficient use of filter media", "media clumping or channeling", "poor water flow through media", "high nutrient levels", "difficult media changes"],
+      "use_case": "A universal fluidized bed reactor that maximizes filtration efficiency by forcing water evenly through the entire media bed, preventing channeling. Features a tool-free, smart-twist lid for easy media changes. Available in 3 sizes for in-sump or external use."
     },
     {
       "product_name": "AF Air Scrubber",
