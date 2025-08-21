@@ -1,6 +1,6 @@
 # Business Reasoner Prompt
 
-**LLM Response Time:** 18064.60ms  
+**LLM Response Time:** 18064.60ms  - 23% (Było 25sekund)
 **Session:** session_1755781298750_6lsg42bu1  
 **Timestamp:** 2025-08-21 15:02:00  
 **User Query:** I want to build a new tank, how should I use Pro Bio S in the early stages?  

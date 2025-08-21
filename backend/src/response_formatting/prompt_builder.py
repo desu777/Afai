@@ -10,6 +10,7 @@ from prompts import load_prompt_template
 from calculation_helper import calculation_helper
 from .domain_helpers import has_mixed_domains, get_product_url
 from .dosage_calculator import DosageCalculator
+from .xml_transformer import XMLMetadataTransformer
 
 class PromptBuilder:
     def __init__(self):
@@ -358,6 +359,7 @@ You MUST mention that Balling/Component products contain multiple elements and a
         if state.get("search_results"):
             if TEST_ENV:
                 print(f"[STATS] PB processing: {len(state.get('search_results', []))} results")
+                print(f"[XML] Converting metadata to XML format for LLM optimization")
             
             # Process results and prepare dosage calculations
             for i, result in enumerate(state["search_results"]):
@@ -379,15 +381,26 @@ You MUST mention that Balling/Component products contain multiple elements and a
                                 "calculation": calc_result
                             })
                 
-                metadata_json = json.dumps(meta, indent=2, ensure_ascii=False)
+                # Transform metadata to XML format instead of JSON
+                xml_formatted = XMLMetadataTransformer.transform_metadata(meta)
                 all_results_metadata.append(f"""
 Result {i+1}:
-COMPLETE METADATA:
-{metadata_json}
+{xml_formatted}
 
 """)
+                
+                if TEST_ENV:
+                    content_type = meta.get("content_type", "unknown")
+                    print(f"[XML] Result {i+1}: Transformed {content_type} to XML format")
         
         formatted_all_results = "".join(all_results_metadata) if all_results_metadata else "No search results found."
+        
+        if TEST_ENV and all_results_metadata:
+            # Calculate size reduction
+            original_size = sum(len(json.dumps(r.get('metadata', {}))) for r in state.get("search_results", []))
+            xml_size = len(formatted_all_results)
+            reduction = ((original_size - xml_size) / original_size * 100) if original_size > 0 else 0
+            print(f"[PERF] XML transformation: {original_size} → {xml_size} chars ({reduction:.1f}% reduction)")
         
         # Format dosage calculations
         dosage_context = ""
