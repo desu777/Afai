@@ -22,6 +22,10 @@ class LLMAnalyzer:
     def create_comprehensive_llm_prompt(self, state: ConversationState) -> str:
         """Create comprehensive prompt using external template"""
         
+        # Check for ICP analysis - use specialized ICP prompt
+        if state.get("icp_analysis_xml"):
+            return self._create_icp_specialized_prompt(state)
+        
         # Format conversation history
         chat_history = ""
         if state.get("chat_history"):
@@ -86,6 +90,52 @@ INSTRUCTIONS:
 3. Return response in JSON format with: recommended_products, reasoning, category_detected
 """
 
+        return prompt
+    
+    def _create_icp_specialized_prompt(self, state: ConversationState) -> str:
+        """Create specialized prompt for ICP analysis with XML formatting"""
+        
+        # Format conversation history
+        chat_history = ""
+        if state.get("chat_history"):
+            recent_messages = state["chat_history"][-4:]
+            chat_history = "\n".join([f"{msg['role'].upper()}: {msg['content']}" for msg in recent_messages])
+        
+        # Format data using XML formatters
+        formatted_products = self.formatter.format_products_catalog(
+            self.data_loader.products_knowledge
+        )
+        
+        # Format ICP corrections mapping as XML
+        icp_corrections_xml = self.formatter.format_icp_corrections_map(
+            self.data_loader.product_groups_data.get("icp_parameter_correction", {})
+        )
+        
+        # Build specialized ICP prompt with XML data
+        prompt = f"""You are an Aquaforest ICP specialist and water chemistry expert.
+
+USER QUERY: {state['user_query']}
+DETECTED LANGUAGE: {state.get('detected_language', 'en')}
+
+CONVERSATION HISTORY:
+{chat_history if chat_history else "No previous conversation"}
+
+ICP CORRECTION PRODUCTS MAPPING:
+{icp_corrections_xml}
+
+PRODUCT CATALOG:
+{formatted_products}
+
+INSTRUCTIONS:
+1. The user query contains ICP_RESULTS XML with parameter analysis
+2. For each parameter with STATUS "too_high" or "too_low", recommend specific AF products
+3. Use the ICP_CORRECTION mapping to find exact products for each parameter
+4. Provide specific dosage recommendations when possible
+5. Return JSON with product recommendations and detailed reasoning
+
+Focus on ICP parameter corrections using the provided product mappings.
+"""
+        
         return prompt
     
     def robust_json_parse(self, text: str) -> Dict:

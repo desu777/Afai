@@ -317,31 +317,36 @@ Return ONLY a valid JSON object:
             icp_data = self.icp_scraper.process_pdf_icp_data(pdf_content, "icp_results.pdf")
             
             if icp_data and icp_data.get("status") == "success":
-                # Store raw ICP data
+                # Store raw ICP data for compatibility
                 state["icp_data"] = icp_data
                 
-                # Format ICP data for LLM analysis with diagnosis
-                formatted_icp_data = self.icp_scraper.format_icp_data_for_llm(
-                    icp_data.get("parameters", {}), 
-                    icp_data.get("metadata", {}),
-                    icp_data.get("diagnosis", {})
-                )
+                # Get XML data directly from scraper
+                icp_xml = icp_data.get("xml_data", "")
                 
-                state["icp_analysis"] = formatted_icp_data
+                # Store XML in state
+                state["icp_analysis_xml"] = icp_xml
                 
-                #  ENHANCE USER QUERY with ICP analysis (use language from text analysis)
+                # ENHANCE USER QUERY with ICP XML (use language from text analysis)
                 detected_language = state.get("detected_language", "en")
                 if detected_language == "pl":
-                    enhanced_query = f"{state['user_query']}\n\nUser dodał wyniki ICP -> Analiza ICP:\n{formatted_icp_data}"
+                    enhanced_query = f"""{state['user_query']}
+
+<ICP_RESULTS>
+{icp_xml}
+</ICP_RESULTS>"""
                 else:
-                    enhanced_query = f"{state['user_query']}\n\nUser added ICP results -> ICP Analysis:\n{formatted_icp_data}"
+                    enhanced_query = f"""{state['user_query']}
+
+<ICP_RESULTS>
+{icp_xml}
+</ICP_RESULTS>"""
                 
                 state["user_query"] = enhanced_query
                 
                 if TEST_ENV:
-                    debug_print(f"[TXT] Enhanced query with ICP")
-                    debug_print(f"[LAB] Found {len(icp_data.get('parameters', {}))} params")
-                    debug_print(f"[OK] ICP complete")
+                    debug_print(f"[TXT] Enhanced query with ICP XML")
+                    debug_print(f"[XML] ICP XML length: {len(icp_xml)} chars")
+                    debug_print(f"[OK] ICP XML complete")
                 
             else:
                 if TEST_ENV:

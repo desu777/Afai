@@ -101,3 +101,34 @@ class PromptDataFormatter:
   <ALIASES>{aliases}</ALIASES>
   <AQUAFOREST_ALTERNATIVE>{af_alternative}</AQUAFOREST_ALTERNATIVE>
 </COMPETITOR_MAP>"""
+    
+    @staticmethod
+    def format_icp_corrections_map(icp_corrections: Dict[str, Any]) -> str:
+        """
+        Convert ICP parameter correction mapping to structured XML format
+        
+        Args:
+            icp_corrections: Dictionary containing ICP correction mapping from products_groups.json
+            
+        Returns:
+            Formatted string with ICP_CORRECTION blocks
+        """
+        formatted_corrections = []
+        
+        # Process icp_parameter_correction section
+        parameter_map = icp_corrections.get("parameter_map", {})
+        
+        for param, conditions in parameter_map.items():
+            if isinstance(conditions, dict):
+                for condition, products in conditions.items():
+                    if isinstance(products, list) and products:
+                        products_str = ", ".join(products)
+                        
+                        correction_block = f"""<ICP_CORRECTION>
+  <PARAMETER>{param}</PARAMETER>
+  <CONDITION>{condition}</CONDITION>
+  <PRODUCTS>{products_str}</PRODUCTS>
+</ICP_CORRECTION>"""
+                        formatted_corrections.append(correction_block)
+        
+        return "\n\n".join(formatted_corrections)

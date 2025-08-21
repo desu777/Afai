@@ -96,6 +96,38 @@ class ICPScraper:
             # Give up
             raise ValueError("Unable to parse JSON from LLM output")
     
+    def _parse_xml_response(self, response_content: str) -> str:
+        """Parse XML response from LLM, extracting clean XML block"""
+        try:
+            # Remove markdown code blocks if present
+            if "```xml" in response_content:
+                parts = response_content.split("```xml")
+                if len(parts) > 1:
+                    xml_part = parts[1].split("```")[0]
+                    response_content = xml_part.strip()
+            elif "```" in response_content:
+                parts = response_content.split("```")
+                if len(parts) > 1:
+                    xml_part = parts[1].split("```")[0]
+                    response_content = xml_part.strip()
+            
+            # Find XML block boundaries
+            if "<ICP_ANALYSIS>" in response_content and "</ICP_ANALYSIS>" in response_content:
+                start = response_content.find("<ICP_ANALYSIS>")
+                end = response_content.find("</ICP_ANALYSIS>") + len("</ICP_ANALYSIS>")
+                xml_data = response_content[start:end].strip()
+                
+                debug_print("[OK] Successfully extracted XML from LLM response")
+                return xml_data
+            else:
+                debug_print("[!] No valid ICP_ANALYSIS XML block found")
+                return response_content.strip()  # Return cleaned response as-is
+                
+        except Exception as e:
+            debug_print(f"[X] XML parsing failed: {e}")
+            debug_print(f"[?] Raw response: {response_content[:200]}")
+            return ""
+    
     def _parse_json_response(self, response_content: str, source_type: str) -> dict:
         """Enhanced JSON parsing using robust_json_parse from business_reasoner"""
         try:
@@ -221,56 +253,58 @@ class ICPScraper:
                     if len(full_text) > 300:
                         debug_print(f"[DOC] Content end: {full_text[-100:]}")
                 
-                # Use AI as Water Chemistry Diagnostician for PDF
+                # Use AI as Water Chemistry Diagnostician for PDF - Return XML directly
                 pdf_analysis_prompt = f"""
-You are an expert marine water chemistry diagnostician for reef aquariums. Analyze the ICP test results from the PDF and create a professional diagnosis.
+You are an expert marine water chemistry diagnostician for reef aquariums. Analyze the ICP test results from the PDF and return structured XML format.
 
 PDF Content: {full_text}
 
 TASKS:
 1. Extract ALL chemical parameters (Ca, Mg, KH, NO3, PO4, all trace elements like I, Fe, Zn, etc.)
 2. Determine status of each parameter for reef aquarium: optimal/too_high/too_low
-3. Create action list required for Business Reasoner
-4. Return ONLY valid JSON - no explanations, no markdown
+3. Return results in XML format - no JSON, no explanations, no markdown
 
-JSON FORMAT (extract ALL found parameters):
-{{
-    "metadata": {{
-        "test_number": "ICP test number",
-        "aquarium_info": "aquarium information",
-        "test_date": "test date", 
-        "aquarium_volume": "volume if provided",
-        "aquarium_type": "saltwater/freshwater (detect based on parameters - if Ca>300mg/l and Mg>1000mg/l then saltwater, else freshwater)"
-    }},
-    "parameters": {{
-        "Calcium": {{
-            "element": "Calcium (Ca)",
-            "recommended_range": "420-460 mg/l",
-            "user_result": "measured value",
-            "change": "change from previous test",
-            "status": "optimal/too_high/too_low",
-            "action_needed": "none/increase/decrease"
-        }},
-        "Iodine": {{
-            "element": "Iodine (I)",
-            "recommended_range": "0.055-0.07 mg/l", 
-            "user_result": "measured value",
-            "change": "change from previous test",
-            "status": "optimal/too_high/too_low",
-            "action_needed": "none/increase/decrease"
-        }}
-    }},
-    "diagnosis": {{
-        "optimal_count": "number of OK parameters",
-        "problems_count": "number of parameters to fix",
-        "priority_actions": [
-            "Reduce nitrates (12→5 mg/l)",
-            "Increase calcium (350→430 mg/l)"
-        ]
-    }}
-}}
+XML FORMAT TO RETURN:
+<ICP_ANALYSIS>
+  <TEST_INFO>
+    <TEST_NUMBER>ICP test number</TEST_NUMBER>
+    <TEST_DATE>test date</TEST_DATE>
+    <AQUARIUM_VOLUME>volume if provided</AQUARIUM_VOLUME>
+    <AQUARIUM_TYPE>saltwater/freshwater (detect: if Ca>300mg/l and Mg>1000mg/l then saltwater)</AQUARIUM_TYPE>
+  </TEST_INFO>
+  
+  <PARAMETERS>
+    <PARAMETER>
+      <ELEMENT>Calcium</ELEMENT>
+      <SYMBOL>Ca</SYMBOL>
+      <RESULT>measured value</RESULT>
+      <UNIT>mg/l</UNIT>
+      <RANGE>420-460</RANGE>
+      <STATUS>optimal/too_high/too_low</STATUS>
+      <ACTION>none/increase/decrease</ACTION>
+    </PARAMETER>
+    <PARAMETER>
+      <ELEMENT>Iodine</ELEMENT>
+      <SYMBOL>I</SYMBOL>
+      <RESULT>measured value</RESULT>
+      <UNIT>mg/l</UNIT>
+      <RANGE>0.055-0.07</RANGE>
+      <STATUS>optimal/too_high/too_low</STATUS>
+      <ACTION>none/increase/decrease</ACTION>
+    </PARAMETER>
+  </PARAMETERS>
+  
+  <SUMMARY>
+    <OPTIMAL_COUNT>number of OK parameters</OPTIMAL_COUNT>
+    <PROBLEMS_COUNT>number of parameters to fix</PROBLEMS_COUNT>
+    <PRIORITY_ACTIONS>
+      <ACTION>Reduce nitrates (12→5 mg/l)</ACTION>
+      <ACTION>Increase calcium (350→430 mg/l)</ACTION>
+    </PRIORITY_ACTIONS>
+  </SUMMARY>
+</ICP_ANALYSIS>
 
-Extract ALL parameters from PDF. Return only JSON.
+Extract ALL parameters from PDF. Return ONLY XML, no additional text.
 """
                 
                 response = self._invoke_llm(pdf_analysis_prompt)
@@ -282,43 +316,24 @@ Extract ALL parameters from PDF. Return only JSON.
                     if len(response) > 200:
                         debug_print(f"[AI] Response end: {response[-100:]}")
                 
-                # Try to parse JSON with enhanced handling
-                structured_data = self._parse_json_response(response, "PDF")
-                if structured_data is None:
-                    return {"source": f"PDF: {filename}", "parameters": {}, "status": "json_parse_error", "error": f"Could not parse JSON from response: {response[:200]}"}
-                
-                # Enhance with our analysis
-                for param_name, param_data in structured_data.get("parameters", {}).items():
-                    if param_data.get("status") == "unknown":
-                        status = self._analyze_icp_parameter_status(
-                            param_data.get("element", ""),
-                            param_data.get("recommended_range", ""),
-                            param_data.get("user_result", "")
-                        )
-                        param_data["status"] = status
-                    
-                    param_data["needs_correction"] = param_data["status"] in ["too_high", "too_low"]
-                
-                # Fallback aquarium type detection if AI didn't set it properly
-                metadata = structured_data.get("metadata", {})
-                if not metadata.get("aquarium_type") or metadata.get("aquarium_type") == "unknown":
-                    metadata["aquarium_type"] = self._detect_aquarium_type(structured_data.get("parameters", {}))
-                    debug_print(f"[?] Auto-detected aquarium type: {metadata['aquarium_type']}")
+                # Parse XML response instead of JSON
+                xml_data = self._parse_xml_response(response)
+                if not xml_data:
+                    return {"source": f"PDF: {filename}", "xml_data": "", "status": "xml_parse_error", "error": f"Could not parse XML from response: {response[:200]}"}
                 
                 icp_data = {
                     "source": f"PDF: {filename}",
-                    "parameters": structured_data.get("parameters", {}),
-                    "metadata": structured_data.get("metadata", {}),
-                    "raw_data": full_text,
+                    "xml_data": xml_data,  # Store XML directly
+                    "raw_pdf_text": full_text,
                     "status": "success",
                     "debug_info": {
-                        "processing_method": "pymupdf",
+                        "processing_method": "pymupdf_xml",
                         "llm_analysis": self.model_name,
                         "provider": "configured"
                     }
                 }
                 
-                debug_print(f"[OK] Processed PDF with {len(icp_data['parameters'])} parameters")
+                debug_print(f"[OK] Processed PDF with XML format ({len(xml_data)} chars)")
                 return icp_data
                 
             finally:
