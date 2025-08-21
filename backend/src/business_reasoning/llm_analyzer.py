@@ -10,12 +10,14 @@ from models import ConversationState
 from config import TEST_ENV, debug_print, BUSINESS_REASONER_TEMPERATURE
 from prompts import load_prompt_template
 from prompt_saver import log_prompt_if_enabled
+from .prompt_formatter import PromptDataFormatter
 
 class LLMAnalyzer:
     def __init__(self, client, model_name, data_loader):
         self.client = client
         self.model_name = model_name
         self.data_loader = data_loader
+        self.formatter = PromptDataFormatter()
 
     def create_comprehensive_llm_prompt(self, state: ConversationState) -> str:
         """Create comprehensive prompt using external template"""
@@ -26,6 +28,25 @@ class LLMAnalyzer:
             recent_messages = state["chat_history"][-4:]
             chat_history = "\n".join([f"{msg['role'].upper()}: {msg['content']}" for msg in recent_messages])
         
+        # Format data using XML-structured formatters instead of JSON dumps
+        formatted_products = self.formatter.format_products_catalog(
+            self.data_loader.products_knowledge
+        )
+        
+        formatted_competitors = self.formatter.format_competitors_map(
+            self.data_loader.competitors_data
+        )
+        
+        # Keep smaller data as JSON for now (can be optimized later)
+        icp_parameter_mapping = json.dumps(
+            self.data_loader.product_groups_data.get("icp_corrections", {}).get("parameter_map", {}), 
+            indent=1, 
+            ensure_ascii=False
+        )
+        scenarios_data = json.dumps(self.data_loader.scenarios_data, indent=1, ensure_ascii=False)
+        use_cases_data = json.dumps(self.data_loader.use_cases_data, indent=1, ensure_ascii=False)
+        product_groups_data = json.dumps(self.data_loader.product_groups_data, indent=1, ensure_ascii=False)
+        
         # Try to load prompt from external template
         prompt = load_prompt_template(
             "business_reasoning",
@@ -33,21 +54,36 @@ class LLMAnalyzer:
             detected_language=state.get('detected_language', 'en'),
             intent=state.get('intent', 'unknown'),
             chat_history=chat_history if chat_history else "No previous conversation context",
-            icp_parameter_mapping=json.dumps(self.data_loader.product_groups_data.get("icp_corrections", {}).get("parameter_map", {}), indent=1, ensure_ascii=False),
-            products_knowledge=json.dumps(self.data_loader.products_knowledge, indent=1, ensure_ascii=False),
-            competitors_data=json.dumps(self.data_loader.competitors_data, indent=1, ensure_ascii=False),
-            scenarios_data=json.dumps(self.data_loader.scenarios_data, indent=1, ensure_ascii=False),
-            use_cases_data=json.dumps(self.data_loader.use_cases_data, indent=1, ensure_ascii=False),
-            product_groups_data=json.dumps(self.data_loader.product_groups_data, indent=1, ensure_ascii=False)
+            icp_parameter_mapping=icp_parameter_mapping,
+            products_knowledge=formatted_products,
+            competitors_data=formatted_competitors,
+            scenarios_data=scenarios_data,
+            use_cases_data=use_cases_data,
+            product_groups_data=product_groups_data
         )
         
         # Fallback if template loading fails
         if not prompt:
-            debug_print("[!] Using fallback prompt")
-            prompt = f"""
-You are an Aquaforest business intelligence specialist.
-Analyze this query: "{state['user_query']}"
-Return JSON with product recommendations and business analysis.
+            debug_print("[!] Using fallback prompt with XML formatting")
+            prompt = f"""You are an Aquaforest business intelligence specialist.
+
+USER QUERY: {state['user_query']}
+DETECTED LANGUAGE: {state.get('detected_language', 'en')}
+INTENT: {state.get('intent', 'unknown')}
+
+CONVERSATION HISTORY:
+{chat_history if chat_history else "No previous conversation"}
+
+PRODUCT CATALOG:
+{formatted_products}
+
+COMPETITOR MAPPINGS:
+{formatted_competitors}
+
+INSTRUCTIONS:
+1. Analyze the user query and provide relevant product recommendations
+2. If competitors are mentioned, acknowledge them and redirect to AF alternatives
+3. Return response in JSON format with: recommended_products, reasoning, category_detected
 """
 
         return prompt
