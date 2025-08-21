@@ -5,6 +5,7 @@ Enhanced to work with business reasoner's category detection
 """
 import json
 import re
+import time  # For LLM performance monitoring
 from typing import List, Dict
 from openai import OpenAI
 from models import ConversationState, QueryOptimizationResult
@@ -279,8 +280,8 @@ Return JSON: {{"optimized_queries": ["{query}"]}}
             
             optimization_prompt = self._create_optimization_prompt(enhanced_state)
             
-            # Log prompt to file if enabled
-            log_prompt_if_enabled("query_optimizer", optimization_prompt, state, self.model_name)
+            # Measure LLM response time
+            start_time = time.time()
             
             response = self.client.chat.completions.create(
                 model=self.model_name,
@@ -293,6 +294,19 @@ Return JSON: {{"optimized_queries": ["{query}"]}}
                 ],
                 response_format={"type": "json_object"}
             )
+            
+            # Calculate response time and log performance
+            end_time = time.time()
+            response_time_ms = (end_time - start_time) * 1000
+            
+            # Log performance to console if TEST_ENV enabled
+            if TEST_ENV:
+                print(f"[LLM_PERF] query_optimizer: {response_time_ms:.2f}ms (model: {self.model_name})")
+            
+            # Update prompt file with response time if SAVE_PROMPT enabled
+            from config import SAVE_PROMPT
+            if SAVE_PROMPT:
+                log_prompt_if_enabled("query_optimizer", optimization_prompt, state, self.model_name, None, response_time_ms)
             
             # Use robust JSON parsing to handle Gemini response variations
             raw_content = response.choices[0].message.content

@@ -3,6 +3,7 @@ Follow-up Handler Module
 Follow-up question processing extracted from response_formatter.py
 """
 import json
+import time  # For LLM performance monitoring
 from models import ConversationState
 from config import TEST_ENV, RESPONSE_FORMATTER_TEMPERATURE
 from prompts import load_prompt_template
@@ -68,14 +69,27 @@ def handle_follow_up(state: ConversationState) -> ConversationState:
         client, model_name = create_response_formatter_client()
         prompt = create_follow_up_prompt(state)
         
-        # Log prompt to file if enabled
-        log_prompt_if_enabled("followup_handler", prompt, state, model_name, RESPONSE_FORMATTER_TEMPERATURE)
+        # Measure LLM response time
+        start_time = time.time()
         
         response = client.chat.completions.create(
             model=model_name,
             temperature=RESPONSE_FORMATTER_TEMPERATURE,
             messages=[{"role": "system", "content": prompt}]
         )
+        
+        # Calculate response time and log performance
+        end_time = time.time()
+        response_time_ms = (end_time - start_time) * 1000
+        
+        # Log performance to console if TEST_ENV enabled
+        if TEST_ENV:
+            print(f"[LLM_PERF] followup_handler: {response_time_ms:.2f}ms (model: {model_name})")
+        
+        # Update prompt file with response time if SAVE_PROMPT enabled
+        from config import SAVE_PROMPT
+        if SAVE_PROMPT:
+            log_prompt_if_enabled("followup_handler", prompt, state, model_name, RESPONSE_FORMATTER_TEMPERATURE, response_time_ms)
         state["final_response"] = response.choices[0].message.content
         
         if TEST_ENV:
@@ -120,14 +134,27 @@ Respond in {lang} language.
     try:
         client, model_name = create_response_formatter_client()
         
-        # Log prompt to file if enabled
-        log_prompt_if_enabled("followup_handler_escalation", escalation_prompt, state, model_name, RESPONSE_FORMATTER_TEMPERATURE)
+        # Measure LLM response time
+        start_time = time.time()
         
         response = client.chat.completions.create(
             model=model_name,
             temperature=RESPONSE_FORMATTER_TEMPERATURE,
             messages=[{"role": "system", "content": escalation_prompt}]
         )
+        
+        # Calculate response time and log performance
+        end_time = time.time()
+        response_time_ms = (end_time - start_time) * 1000
+        
+        # Log performance to console if TEST_ENV enabled
+        if TEST_ENV:
+            print(f"[LLM_PERF] followup_handler_escalation: {response_time_ms:.2f}ms (model: {model_name})")
+        
+        # Update prompt file with response time if SAVE_PROMPT enabled
+        from config import SAVE_PROMPT
+        if SAVE_PROMPT:
+            log_prompt_if_enabled("followup_handler_escalation", escalation_prompt, state, model_name, RESPONSE_FORMATTER_TEMPERATURE, response_time_ms)
         state["final_response"] = response.choices[0].message.content
     except Exception as e:
         if TEST_ENV:

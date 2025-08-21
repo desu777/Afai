@@ -4,6 +4,7 @@ LLM analysis and JSON parsing extracted from business_reasoner.py
 Uses configured provider (Vertex AI) with OpenRouter fallback
 """
 import json
+import time  # For LLM performance monitoring
 from typing import Dict
 from models import ConversationState
 from config import TEST_ENV, debug_print, BUSINESS_REASONER_TEMPERATURE
@@ -85,8 +86,8 @@ Return JSON with product recommendations and business analysis.
             # Create comprehensive prompt with all mapping data
             prompt = self.create_comprehensive_llm_prompt(state)
             
-            # Log prompt to file if enabled
-            log_prompt_if_enabled("business_reasoner", prompt, state, self.model_name, BUSINESS_REASONER_TEMPERATURE)
+            # Measure LLM response time
+            start_time = time.time()
             
             # Call configured client with temperature parameter
             response = self.client.chat.completions.create(
@@ -95,6 +96,19 @@ Return JSON with product recommendations and business analysis.
                 messages=[{"role": "system", "content": prompt}],
                 response_format={"type": "json_object"}
             )
+            
+            # Calculate response time and log performance
+            end_time = time.time()
+            response_time_ms = (end_time - start_time) * 1000
+            
+            # Log performance to console if TEST_ENV enabled
+            if TEST_ENV:
+                print(f"[LLM_PERF] business_reasoner: {response_time_ms:.2f}ms (model: {self.model_name})")
+            
+            # Update prompt file with response time if SAVE_PROMPT enabled
+            from config import SAVE_PROMPT
+            if SAVE_PROMPT:
+                log_prompt_if_enabled("business_reasoner", prompt, state, self.model_name, BUSINESS_REASONER_TEMPERATURE, response_time_ms)
             
             # Parse the JSON response
             raw_content = response.choices[0].message.content

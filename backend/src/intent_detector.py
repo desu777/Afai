@@ -6,6 +6,7 @@ Detects user intent and language from the query with better context understandin
 import json
 import re  # For ICP URL detection
 import base64  # For PDF processing
+import time  # For LLM performance monitoring
 from pathlib import Path
 from typing import Dict, Any
 from openai import OpenAI
@@ -227,8 +228,8 @@ Return ONLY a valid JSON object:
             # Extract prompt for logging
             vision_prompt_content = messages[0]['content'][0]['text'] if messages and messages[0].get('content') else "Unknown vision prompt"
             
-            # Log prompt to file if enabled
-            log_prompt_if_enabled("intent_detector_vision", vision_prompt_content, state, self.image_model_name, INTENT_DETECTOR_TEMPERATURE)
+            # Measure LLM response time
+            start_time = time.time()
             
             # Call OpenRouter/Gemini with vision using dedicated image analysis client
             response = self.image_client.chat.completions.create(
@@ -237,6 +238,19 @@ Return ONLY a valid JSON object:
                 messages=messages,
                 response_format={"type": "json_object"}
             )
+            
+            # Calculate response time and log performance
+            end_time = time.time()
+            response_time_ms = (end_time - start_time) * 1000
+            
+            # Log performance to console if TEST_ENV enabled
+            if TEST_ENV:
+                print(f"[LLM_PERF] intent_detector_vision: {response_time_ms:.2f}ms (model: {self.image_model_name})")
+            
+            # Update prompt file with response time if SAVE_PROMPT enabled
+            from config import SAVE_PROMPT
+            if SAVE_PROMPT:
+                log_prompt_if_enabled("intent_detector_vision", vision_prompt_content, state, self.image_model_name, INTENT_DETECTOR_TEMPERATURE, response_time_ms)
             
             # Use robust JSON parsing to handle Gemini response variations  
             raw_content = response.choices[0].message.content
@@ -382,8 +396,8 @@ Return ONLY a valid JSON object:
             
             intent_prompt = self._create_intent_prompt(state)
             
-            # Log prompt to file if enabled
-            log_prompt_if_enabled("intent_detector_text", intent_prompt, state, self.model_name, INTENT_DETECTOR_TEMPERATURE)
+            # Measure LLM response time
+            start_time = time.time()
                 
             response = self.client.chat.completions.create(
                 model=self.model_name,
@@ -393,6 +407,19 @@ Return ONLY a valid JSON object:
                 ],
                 response_format={"type": "json_object"}
             )
+            
+            # Calculate response time and log performance
+            end_time = time.time()
+            response_time_ms = (end_time - start_time) * 1000
+            
+            # Log performance to console if TEST_ENV enabled
+            if TEST_ENV:
+                print(f"[LLM_PERF] intent_detector_text: {response_time_ms:.2f}ms (model: {self.model_name})")
+            
+            # Update prompt file with response time if SAVE_PROMPT enabled
+            from config import SAVE_PROMPT
+            if SAVE_PROMPT:
+                log_prompt_if_enabled("intent_detector_text", intent_prompt, state, self.model_name, INTENT_DETECTOR_TEMPERATURE, response_time_ms)
             
             # Use robust JSON parsing to handle Gemini response variations
             raw_content = response.choices[0].message.content

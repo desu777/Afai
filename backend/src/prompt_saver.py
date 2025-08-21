@@ -60,9 +60,12 @@ class PromptSaver:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
         # Create markdown content
+        llm_response_time = metadata.get('llm_response_time')
+        response_time_line = f"**LLM Response Time:** {llm_response_time:.2f}ms  \n" if llm_response_time is not None else ""
+        
         md_content = f"""# {node_name.replace('_', ' ').title()} Prompt
 
-**Session:** {self.session_id}  
+{response_time_line}**Session:** {self.session_id}  
 **Timestamp:** {timestamp}  
 **User Query:** {metadata.get('user_query', 'N/A')}  
 **Intent:** {metadata.get('intent', 'N/A')}  
@@ -134,7 +137,7 @@ def get_prompt_saver(session_id: str) -> PromptSaver:
         _prompt_savers[session_id] = PromptSaver(session_id)
     return _prompt_savers[session_id]
 
-def log_prompt_if_enabled(node_name: str, prompt: str, state: ConversationState, model_name: str = None, temperature: float = None) -> None:
+def log_prompt_if_enabled(node_name: str, prompt: str, state: ConversationState, model_name: str = None, temperature: float = None, llm_response_time: float = None) -> None:
     """
     Universal function to log prompts if SAVE_PROMPT is enabled
     
@@ -144,6 +147,7 @@ def log_prompt_if_enabled(node_name: str, prompt: str, state: ConversationState,
         state: ConversationState with session info
         model_name: Model name used for this prompt
         temperature: Temperature used for this prompt
+        llm_response_time: LLM response time in milliseconds
     """
     from config import SAVE_PROMPT
     
@@ -159,6 +163,7 @@ def log_prompt_if_enabled(node_name: str, prompt: str, state: ConversationState,
         "detected_language": state.get("detected_language", "N/A"),
         "model_name": model_name,
         "temperature": temperature,
+        "llm_response_time": llm_response_time,
         "chat_history_length": len(state.get("chat_history", []))
     }
     

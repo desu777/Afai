@@ -51,14 +51,27 @@ class ResponseFormatter:
                     print(f"[AI] RF complex model: {intent}")
                 prompt = self.prompt_builder.create_universal_prompt(state)
                 
-                # Log prompt to file if enabled
-                log_prompt_if_enabled("response_formatter_complex", prompt, state, self.model_name, RESPONSE_FORMATTER_TEMPERATURE)
+                # Measure LLM response time
+                start_time = time.time()
                 
                 response = self.client.chat.completions.create(
                     model=self.model_name,
                     temperature=RESPONSE_FORMATTER_TEMPERATURE,
                     messages=[{"role": "system", "content": prompt}]
                 )
+                
+                # Calculate response time and log performance
+                end_time = time.time()
+                response_time_ms = (end_time - start_time) * 1000
+                
+                # Log performance to console if TEST_ENV enabled
+                if TEST_ENV:
+                    print(f"[LLM_PERF] response_formatter_complex: {response_time_ms:.2f}ms (model: {self.model_name})")
+                
+                # Update prompt file with response time if SAVE_PROMPT enabled
+                from config import SAVE_PROMPT
+                if SAVE_PROMPT:
+                    log_prompt_if_enabled("response_formatter_complex", prompt, state, self.model_name, RESPONSE_FORMATTER_TEMPERATURE, response_time_ms)
                 state["final_response"] = response.choices[0].message.content
             
             if TEST_ENV:
@@ -95,15 +108,28 @@ class ResponseFormatter:
         """Generate response for special intents using prompt builder"""
         prompt = self.prompt_builder.create_special_intent_prompt(state)
         
-        # Log prompt to file if enabled
-        log_prompt_if_enabled("response_formatter_special", prompt, state, self.model_name, RESPONSE_FORMATTER_TEMPERATURE)
-        
         try:
+            # Measure LLM response time
+            start_time = time.time()
+            
             response = self.client.chat.completions.create(
                 model=self.model_name,
                 temperature=RESPONSE_FORMATTER_TEMPERATURE,
                 messages=[{"role": "system", "content": prompt}]
             )
+            
+            # Calculate response time and log performance
+            end_time = time.time()
+            response_time_ms = (end_time - start_time) * 1000
+            
+            # Log performance to console if TEST_ENV enabled
+            if TEST_ENV:
+                print(f"[LLM_PERF] response_formatter_special: {response_time_ms:.2f}ms (model: {self.model_name})")
+            
+            # Update prompt file with response time if SAVE_PROMPT enabled
+            from config import SAVE_PROMPT
+            if SAVE_PROMPT:
+                log_prompt_if_enabled("response_formatter_special", prompt, state, self.model_name, RESPONSE_FORMATTER_TEMPERATURE, response_time_ms)
             return response.choices[0].message.content
         except Exception as e:
             if TEST_ENV:

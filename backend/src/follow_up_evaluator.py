@@ -3,6 +3,7 @@ Follow-up Evaluator for Aquaforest RAG System
 Uses configured provider (Vertex AI) with OpenRouter fallback
 """
 import json
+import time  # For LLM performance monitoring
 from typing import Dict, Any, Optional, List
 from models import ConversationState
 from llm_client_factory import create_follow_up_client
@@ -38,14 +39,27 @@ class FollowUpEvaluator:
             # Create evaluation prompt
             prompt = self._create_evaluation_prompt(state, extended_cache)
             
-            # Log prompt to file if enabled
-            log_prompt_if_enabled("follow_up_evaluator", prompt, state, self.model_name, FOLLOW_UP_TEMPERATURE)
+            # Measure LLM response time
+            start_time = time.time()
             
             response = self.client.chat.completions.create(
                 model=self.model_name,
                 temperature=FOLLOW_UP_TEMPERATURE,
                 messages=[{"role": "system", "content": prompt}]
             )
+            
+            # Calculate response time and log performance
+            end_time = time.time()
+            response_time_ms = (end_time - start_time) * 1000
+            
+            # Log performance to console if TEST_ENV enabled
+            if TEST_ENV:
+                print(f"[LLM_PERF] follow_up_evaluator: {response_time_ms:.2f}ms (model: {self.model_name})")
+            
+            # Update prompt file with response time if SAVE_PROMPT enabled
+            from config import SAVE_PROMPT
+            if SAVE_PROMPT:
+                log_prompt_if_enabled("follow_up_evaluator", prompt, state, self.model_name, FOLLOW_UP_TEMPERATURE, response_time_ms)
             
             evaluation_text = response.choices[0].message.content.strip()
             
