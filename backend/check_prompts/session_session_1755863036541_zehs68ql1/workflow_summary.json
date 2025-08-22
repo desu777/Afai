@@ -1,0 +1,81 @@
+{
+  "session_id": "session_1755863036541_zehs68ql1",
+  "timestamp": "2025-08-22 13:44:35",
+  "user_query": "How to balance N:P ratio in ULNS system?",
+  "detected_language": "en",
+  "final_intent": "other",
+  "workflow_path": [
+    "intent_detector_text",
+    "business_reasoner",
+    "query_optimizer",
+    "response_formatter_complex"
+  ],
+  "total_prompts": 4,
+  "total_execution_time": 39.309492349624634,
+  "prompts": [
+    {
+      "counter": 1,
+      "node_name": "intent_detector_text",
+      "filename": "001_intent_detector_text.md",
+      "timestamp": "2025-08-22 13:43:57",
+      "prompt_length": 5716,
+      "metadata": {
+        "user_query": "How to balance N:P ratio in ULNS system?",
+        "intent": "other",
+        "detected_language": "en",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.3,
+        "llm_response_time": 976.1199951171875,
+        "chat_history_length": 0
+      }
+    },
+    {
+      "counter": 2,
+      "node_name": "business_reasoner",
+      "filename": "002_business_reasoner.md",
+      "timestamp": "2025-08-22 13:44:08",
+      "prompt_length": 360673,
+      "metadata": {
+        "user_query": "How to balance N:P ratio in ULNS system?",
+        "intent": "Intent.PRODUCT_QUERY",
+        "detected_language": "en",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.5,
+        "llm_response_time": 10597.400426864624,
+        "chat_history_length": 0
+      }
+    },
+    {
+      "counter": 3,
+      "node_name": "query_optimizer",
+      "filename": "003_query_optimizer.md",
+      "timestamp": "2025-08-22 13:44:09",
+      "prompt_length": 8685,
+      "metadata": {
+        "user_query": "How to balance N:P ratio in ULNS system?",
+        "intent": "Intent.PRODUCT_QUERY",
+        "detected_language": "en",
+        "model_name": "gemini-2.5-flash",
+        "temperature": null,
+        "llm_response_time": 1056.0250282287598,
+        "chat_history_length": 0
+      }
+    },
+    {
+      "counter": 4,
+      "node_name": "response_formatter_complex",
+      "filename": "004_response_formatter_complex.md",
+      "timestamp": "2025-08-22 13:44:35",
+      "prompt_length": 232259,
+      "metadata": {
+        "user_query": "How to balance N:P ratio in ULNS system?",
+        "intent": "Intent.PRODUCT_QUERY",
+        "detected_language": "en",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.7,
+        "llm_response_time": 22607.1035861969,
+        "chat_history_length": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "session_id": "session_1755863110273_ohuvopy6h",
+  "timestamp": "2025-08-22 13:46:35",
+  "user_query": "pro bio s z pro bio f mogę użyć razem?",
+  "detected_language": "en",
+  "final_intent": "other",
+  "workflow_path": [
+    "intent_detector_text",
+    "follow_up_evaluator",
+    "cache_manager_followup"
+  ],
+  "total_prompts": 3,
+  "total_execution_time": 7.738146781921387,
+  "prompts": [
+    {
+      "counter": 5,
+      "node_name": "intent_detector_text",
+      "filename": "005_intent_detector_text.md",
+      "timestamp": "2025-08-22 13:46:29",
+      "prompt_length": 18233,
+      "metadata": {
+        "user_query": "pro bio s z pro bio f mogę użyć razem?",
+        "intent": "other",
+        "detected_language": "en",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.3,
+        "llm_response_time": 1123.0616569519043,
+        "chat_history_length": 2
+      }
+    },
+    {
+      "counter": 6,
+      "node_name": "follow_up_evaluator",
+      "filename": "006_follow_up_evaluator.md",
+      "timestamp": "2025-08-22 13:46:31",
+      "prompt_length": 33019,
+      "metadata": {
+        "user_query": "pro bio s z pro bio f mogę użyć razem?",
+        "intent": "Intent.FOLLOW_UP",
+        "detected_language": "pl",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.3,
+        "llm_response_time": 2211.789608001709,
+        "chat_history_length": 2
+      }
+    },
+    {
+      "counter": 7,
+      "node_name": "cache_manager_followup",
+      "filename": "007_cache_manager_followup.md",
+      "timestamp": "2025-08-22 13:46:35",
+      "prompt_length": 69760,
+      "metadata": {
+        "user_query": "pro bio s z pro bio f mogę użyć razem?",
+        "intent": "Intent.FOLLOW_UP",
+        "detected_language": "pl",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.7,
+        "llm_response_time": 4093.045234680176,
+        "chat_history_length": 2
+      }
+    }
+  ]
+}
