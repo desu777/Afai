@@ -1,0 +1,64 @@
+{
+  "session_id": "session_1755877224707_e5ck9rlxr",
+  "timestamp": "2025-08-22 17:41:31",
+  "user_query": "Dzięki. Z tych wszystkich opcji, która będzie najbardziej wydajna i skoncentrowana do automatycznej dolewki przez pompę dozującą?",
+  "detected_language": "en",
+  "final_intent": "other",
+  "workflow_path": [
+    "intent_detector_text",
+    "follow_up_evaluator",
+    "cache_manager_followup"
+  ],
+  "total_prompts": 3,
+  "total_execution_time": 5.236262559890747,
+  "prompts": [
+    {
+      "counter": 5,
+      "node_name": "intent_detector_text",
+      "filename": "005_intent_detector_text.md",
+      "timestamp": "2025-08-22 17:41:27",
+      "prompt_length": 19456,
+      "metadata": {
+        "user_query": "Dzięki. Z tych wszystkich opcji, która będzie najbardziej wydajna i skoncentrowana do automatycznej dolewki przez pompę dozującą?",
+        "intent": "other",
+        "detected_language": "en",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.3,
+        "llm_response_time": 1090.2645587921143,
+        "chat_history_length": 2
+      }
+    },
+    {
+      "counter": 6,
+      "node_name": "follow_up_evaluator",
+      "filename": "006_follow_up_evaluator.md",
+      "timestamp": "2025-08-22 17:41:30",
+      "prompt_length": 29138,
+      "metadata": {
+        "user_query": "Dzięki. Z tych wszystkich opcji, która będzie najbardziej wydajna i skoncentrowana do automatycznej dolewki przez pompę dozującą?",
+        "intent": "Intent.FOLLOW_UP",
+        "detected_language": "pl",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.3,
+        "llm_response_time": 2321.9380378723145,
+        "chat_history_length": 2
+      }
+    },
+    {
+      "counter": 7,
+      "node_name": "cache_manager_followup",
+      "filename": "007_cache_manager_followup.md",
+      "timestamp": "2025-08-22 17:41:31",
+      "prompt_length": 37423,
+      "metadata": {
+        "user_query": "Dzięki. Z tych wszystkich opcji, która będzie najbardziej wydajna i skoncentrowana do automatycznej dolewki przez pompę dozującą?",
+        "intent": "Intent.FOLLOW_UP",
+        "detected_language": "pl",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.7,
+        "llm_response_time": 1368.196725845337,
+        "chat_history_length": 2
+      }
+    }
+  ]
+}
