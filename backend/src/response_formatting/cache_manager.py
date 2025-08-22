@@ -17,16 +17,30 @@ class CacheManager:
     def create_extended_cache(self, state: ConversationState) -> Dict[str, Any]:
         """Create extended cache with metadata, responses, and conversation context"""
         extended_cache = {
-            "metadata": [],
+            "metadata": [],           # Zachowujemy dla kompatybilności
+            "product_cards_xml": [],  # NOWE: Pełne XML PRODUCT_CARD
+            "knowledge_xml": [],      # NOWE: Pełne XML AQUAFOREST_KNOWLEDGE
             "model_responses": [],
             "conversation_context": {},
             "user_query": state.get("user_query", ""),
             "timestamp": time.time()
         }
         
-        # Add ALL metadata from search results (removed cache_size limit)
+        # Import XML transformer
+        from response_formatting.xml_transformer import XMLMetadataTransformer
+        
+        # Transform and save complete XML data
         if state.get("search_results"):
-            extended_cache["metadata"] = [r['metadata'] for r in state["search_results"]]
+            for result in state["search_results"]:
+                meta = result['metadata']
+                extended_cache["metadata"].append(meta)  # Dla kompatybilności
+                
+                # Generate and save XML content
+                xml_content = XMLMetadataTransformer.transform_metadata(meta)
+                if "<PRODUCT_CARD>" in xml_content:
+                    extended_cache["product_cards_xml"].append(xml_content)
+                elif "<AQUAFOREST_KNOWLEDGE>" in xml_content:
+                    extended_cache["knowledge_xml"].append(xml_content)
         
         # Add model responses from chat history
         if state.get("chat_history"):
@@ -62,24 +76,16 @@ class CacheManager:
             lang = state.get("detected_language", "en")
             user_query = state.get("user_query", "")
             
-            # Format cached metadata for prompt
-            cached_metadata = cached_data.get("metadata", [])
-            formatted_metadata = ""
+            # Get complete XML data from cache instead of reconstructing from metadata
+            product_cards = cached_data.get("product_cards_xml", [])
+            knowledge_cards = cached_data.get("knowledge_xml", [])
             
-            # Include ALL cached metadata items, not just top 5
-            for i, meta in enumerate(cached_metadata):
-                product_name = meta.get("product_name", "Unknown")
-                description = meta.get("full_content_en", meta.get("full_content_pl", ""))
-                if len(description) > 200:
-                    description = description[:200] + "..."
-                url = meta.get("url_pl" if lang == "pl" else "url_en", "")
-                
-                formatted_metadata += f"""
-Product {i+1}: {product_name}
-Description: {description}
-URL: {url}
-
-"""
+            # Build full XML context for prompt
+            formatted_context = ""
+            for card in product_cards[:10]:  # Limit for context size
+                formatted_context += card + "\n\n"
+            for card in knowledge_cards[:5]:  # Limit knowledge cards
+                formatted_context += card + "\n\n"
             
             # Get previous responses for context
             previous_responses = cached_data.get("previous_responses", [])
@@ -95,7 +101,7 @@ URL: {url}
                 "response_followup_cache",
                 language=lang,
                 user_query=user_query,
-                formatted_metadata=formatted_metadata,
+                formatted_metadata=formatted_context,  # Using full XML context
                 context_responses=context_responses,
                 language_upper=lang.upper()
             )
@@ -113,7 +119,7 @@ Previous responses context:
 {context_responses}
 
 Available product information:
-{formatted_metadata}
+{formatted_context}
 
 Respond in {lang} language, referencing previous conversation naturally.
 """

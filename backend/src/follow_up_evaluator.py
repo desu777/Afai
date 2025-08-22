@@ -101,10 +101,12 @@ class FollowUpEvaluator:
             for msg in chat_history[-6:]:  # Last 6 messages (3 exchanges)
                 chat_history_text += f"{msg['role']}: {msg['content']}\n"
         
-        # Format extended cache
+        # Format extended cache with full XML data
         cache_metadata = extended_cache.get("metadata", [])
         cache_responses = extended_cache.get("model_responses", [])
         cache_context = extended_cache.get("conversation_context", {})
+        product_cards = extended_cache.get("product_cards_xml", [])
+        knowledge_cards = extended_cache.get("knowledge_xml", [])
         
         # Create structured cache summary
         cache_summary = []
@@ -120,6 +122,20 @@ class FollowUpEvaluator:
             for i, resp in enumerate(cache_responses[-3:]):  # Last 3 responses
                 snippet = resp[:100] + "..." if len(resp) > 100 else resp
                 cache_summary.append(f"  {i+1}. {snippet}")
+        
+        # Add full XML context for better evaluation
+        if product_cards:
+            cache_summary.append(f"\n--- CACHED KNOWLEDGE & PRODUCT DATA ---")
+            for i, card in enumerate(product_cards[:5]):  # Show first 5 for evaluation
+                cache_summary.append(card)
+                if i < len(product_cards) - 1:
+                    cache_summary.append("")  # Add blank line between cards
+        
+        if knowledge_cards:
+            for i, card in enumerate(knowledge_cards[:3]):  # Show first 3 knowledge cards
+                cache_summary.append(card)
+                if i < len(knowledge_cards) - 1:
+                    cache_summary.append("")
         
         if cache_context:
             cache_summary.append(f"\n[>] CONTEXT:")
@@ -212,6 +228,8 @@ Be conservative, but you may leverage your own knowledge to complement the cache
         """Prepare response data for response formatter when cache is sufficient"""
         return {
             "metadata": extended_cache.get("metadata", []),
+            "product_cards_xml": extended_cache.get("product_cards_xml", []),  # NOWE: Pełne XML PRODUCT_CARD
+            "knowledge_xml": extended_cache.get("knowledge_xml", []),          # NOWE: Pełne XML AQUAFOREST_KNOWLEDGE
             "previous_responses": extended_cache.get("model_responses", []),
             "conversation_context": extended_cache.get("conversation_context", {}),
             "user_query": state["user_query"],
