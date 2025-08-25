@@ -15,6 +15,33 @@ interface Update {
 
 const updates: Update[] = [
   {
+    version: "2.2",
+    date: "2025-08-25",
+    type: "minor",
+    title: "Faster Responses, New Branding, and Smarter Understanding",
+    description: "A focused performance and usability release: noticeably faster answers, refreshed UI/UX aligned with the Aquaforest brand, expanded knowledge base, and better understanding of user intent and context through prompt optimizations.",
+    changes: [
+      {
+        category: "new",
+        items: [
+          "Refreshed UI/UX with modern rounded surfaces, consistent brand accents (brand-600/700), and streamlined headers",
+          "Knowledge base expansion – added detailed Aquaforest product descriptions and specs to RAG index",
+          "Consistent visual language across loading indicators and 'Read more' interactions"
+        ]
+      },
+      {
+        category: "improved",
+        items: [
+          "15–25% faster response times depending on query complexity",
+          "Stronger conversation continuation with improved context carryover and follow-up coherence",
+          "Intent Detector v2 – higher recall/precision for user intent, better paraphrase and multi-intent handling",
+          "Prompt efficiency – XML-tagged sections replace JSON dumps, reducing token usage while improving structure",
+          "Model comprehension – clearer grounding and more relevant answers thanks to explicit tagging and leaner prompts"
+        ]
+      }
+    ]
+  },
+  {
     version: "2.1",
     date: "2025-07-22",
     type: "minor",
