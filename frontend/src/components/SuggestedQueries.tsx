@@ -13,13 +13,13 @@ const SuggestedQueries: React.FC<SuggestedQueriesProps> = ({ onQuerySelect }) =>
       id: 1,
       title: "Water Parameters",
       question: "How to raise calcium levels in my reef tank?",
-      color: "#9333ea" // purple-600
+      color: "#9333ea" // brand-600
     },
     {
       id: 2, 
       title: "Algae Control",
       question: "Best solutions for green algae problems?",
-      color: "#7c3aed" // purple-700
+      color: "#7c3aed" // brand-700
     },
     {
       id: 3,
@@ -31,8 +31,8 @@ const SuggestedQueries: React.FC<SuggestedQueriesProps> = ({ onQuerySelect }) =>
 
   return (
     <div className="text-center mb-12">
-      <div className="inline-flex items-center space-x-3 bg-white/80 backdrop-blur-md rounded-2xl px-8 py-4 shadow-lg border border-purple-200/50 mb-8">
-        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 flex items-center justify-center shadow-sm">
+      <div className="inline-flex items-center space-x-3 bg-white/80 backdrop-blur-md rounded-lg px-8 py-4 shadow-lg border border-purple-200/50 mb-8">
+        <div className="w-6 h-6 rounded-full bg-brand-600 flex items-center justify-center shadow-sm">
           <div className="circle">
             <div className="wave"></div>
           </div>
@@ -41,12 +41,12 @@ const SuggestedQueries: React.FC<SuggestedQueriesProps> = ({ onQuerySelect }) =>
         
         {/* Version Badge and Info Button */}
         <div className="flex items-center space-x-2 ml-4">
-          <div className="bg-gradient-to-r from-purple-600 to-violet-700 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+          <div className="bg-gradient-to-r from-brand-600 to-violet-700 text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
             v1.2
           </div>
           <button
             onClick={() => setShowVersionModal(true)}
-            className="p-1.5 hover:bg-purple-100 rounded-full transition-colors duration-200 text-purple-600 hover:text-purple-700"
+            className="p-1.5 hover:bg-purple-100 rounded-full transition-colors duration-200 text-brand-600 hover:text-brand-700"
             title="What's new in v1.2?"
           >
             <Info className="w-4 h-4" />
@@ -76,7 +76,7 @@ const SuggestedQueries: React.FC<SuggestedQueriesProps> = ({ onQuerySelect }) =>
       </div>
       
       <div className="mt-8 text-center">
-        <p className="text-sm text-purple-600 font-medium bg-purple-50/80 rounded-2xl px-6 py-3 inline-block backdrop-blur-md border border-purple-200/40">
+        <p className="text-sm text-brand-600 font-medium bg-purple-50/80 rounded-lg px-6 py-3 inline-block backdrop-blur-md border border-purple-200/40">
           I speak all languages! Ask me in English, Polish, German, French, Spanish, and more
         </p>
       </div>
@@ -84,19 +84,19 @@ const SuggestedQueries: React.FC<SuggestedQueriesProps> = ({ onQuerySelect }) =>
       {/* Version Modal */}
       {showVersionModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl shadow-2xl border border-purple-200/50 max-w-lg w-full max-h-[80vh] overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-2xl border border-purple-200/50 max-w-lg w-full max-h-[80vh] overflow-y-auto">
             <div className="p-6">
               {/* Header */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 flex items-center justify-center shadow-lg">
+                  <div className="w-10 h-10 rounded-lg bg-brand-600 flex items-center justify-center shadow-lg">
                     <div className="circle">
                       <div className="wave"></div>
                     </div>
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-gray-900">Afai v1.2</h2>
-                    <p className="text-sm text-purple-600">What's new in this version?</p>
+                    <p className="text-sm text-brand-600">What's new in this version?</p>
                   </div>
                 </div>
                 <button
@@ -109,8 +109,8 @@ const SuggestedQueries: React.FC<SuggestedQueriesProps> = ({ onQuerySelect }) =>
 
               {/* Features List */}
               <div className="space-y-4">
-                <div className="flex items-start space-x-3 p-4 bg-purple-50/50 rounded-2xl border border-purple-200/30">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                <div className="flex items-start space-x-3 p-4 bg-purple-50/50 rounded-lg border border-purple-200/30">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-violet-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                     1
                   </div>
                   <div>
@@ -119,8 +119,8 @@ const SuggestedQueries: React.FC<SuggestedQueriesProps> = ({ onQuerySelect }) =>
                   </div>
                 </div>
 
-                <div className="flex items-start space-x-3 p-4 bg-purple-50/50 rounded-2xl border border-purple-200/30">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                <div className="flex items-start space-x-3 p-4 bg-purple-50/50 rounded-lg border border-purple-200/30">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-violet-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                     2
                   </div>
                   <div>
@@ -129,8 +129,8 @@ const SuggestedQueries: React.FC<SuggestedQueriesProps> = ({ onQuerySelect }) =>
                   </div>
                 </div>
 
-                <div className="flex items-start space-x-3 p-4 bg-purple-50/50 rounded-2xl border border-purple-200/30">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                <div className="flex items-start space-x-3 p-4 bg-purple-50/50 rounded-lg border border-purple-200/30">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-500 to-violet-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                     3
                   </div>
                   <div>

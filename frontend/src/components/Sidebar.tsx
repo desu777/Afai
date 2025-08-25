@@ -98,8 +98,8 @@ const Sidebar: React.FC<SidebarProps> = ({
         return {
           label: 'Admin',
           icon: Shield,
-          bgClass: 'bg-purple-100 text-purple-700 border-purple-200',
-          iconBgClass: 'bg-purple-600'
+          bgClass: 'bg-purple-100 text-brand-700 border-purple-200',
+          iconBgClass: 'bg-brand-600'
         };
       case 'visionary_expert':
       default:
@@ -114,15 +114,15 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const getButtonClass = (_view: 'chat' | 'feedback' | 'analytics' | 'examples' | 'updates', isActive: boolean) => {
     if (isCollapsed) {
-      const baseClassCollapsed = "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300 hover:bg-brand-50 hover:shadow-brand text-sm font-medium group mx-auto transform hover:scale-105 active:scale-95";
-      const activeClassCollapsed = "bg-brand-100 text-brand-700 border border-brand-200/50 shadow-brand";
+      const baseClassCollapsed = "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300 hover:bg-brand-50 hover:shadow-sm text-sm font-medium group mx-auto transform hover:scale-105 active:scale-95";
+      const activeClassCollapsed = "bg-brand-100 text-brand-700 border border-brand-200/50 shadow-sm";
       const inactiveClassCollapsed = "text-gray-700 hover:text-brand-700 hover:bg-brand-50";
       
       return `${baseClassCollapsed} ${isActive ? activeClassCollapsed : inactiveClassCollapsed}`;
     }
     
-    const baseClass = "flex items-center space-x-3 w-full px-4 py-3 rounded-xl transition-all duration-300 hover:bg-brand-50 hover:shadow-brand text-sm font-medium group transform hover:scale-[1.02] active:scale-[0.98]";
-    const activeClass = "bg-brand-100 text-brand-700 border border-brand-200/50 shadow-brand";
+    const baseClass = "flex items-center space-x-3 w-full px-4 py-3 rounded-xl transition-all duration-300 hover:bg-brand-50 hover:shadow-sm text-sm font-medium group transform hover:scale-[1.02] active:scale-[0.98]";
+    const activeClass = "bg-brand-100 text-brand-700 border border-brand-200/50 shadow-sm";
     const inactiveClass = "text-gray-700 hover:text-brand-700 hover:bg-brand-50";
     
     return `${baseClass} ${isActive ? activeClass : inactiveClass}`;
@@ -228,8 +228,8 @@ const Sidebar: React.FC<SidebarProps> = ({
               onClick={openFeedbackModal}
               className={
                 isCollapsed 
-                  ? "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300 hover:bg-brand-50 hover:shadow-brand text-sm font-medium text-gray-700 hover:text-brand-700 mx-auto transform hover:scale-105 active:scale-95"
-                  : "flex items-center space-x-3 w-full px-4 py-3 rounded-xl transition-all duration-300 hover:bg-brand-50 hover:shadow-brand text-sm font-medium text-gray-700 hover:text-brand-700 transform hover:scale-[1.02] active:scale-[0.98]"
+                  ? "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300 hover:bg-brand-50 hover:shadow-sm text-sm font-medium text-gray-700 hover:text-brand-700 mx-auto transform hover:scale-105 active:scale-95"
+                  : "flex items-center space-x-3 w-full px-4 py-3 rounded-xl transition-all duration-300 hover:bg-brand-50 hover:shadow-sm text-sm font-medium text-gray-700 hover:text-brand-700 transform hover:scale-[1.02] active:scale-[0.98]"
               }
               title={isCollapsed ? 'Feedback' : ''}
             >
@@ -309,7 +309,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   let badgeClasses = '';
                   switch (accessLevel) {
                     case 'admin':
-                      badgeClasses = 'bg-purple-100/80 text-purple-700 border-purple-200/50';
+                      badgeClasses = 'bg-purple-100/80 text-brand-700 border-purple-200/50';
                       break;
                     case 'visionary_expert':
                     default:
@@ -329,7 +329,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               {/* Version Badge */}
               <div className="flex justify-center">
                 <div className="inline-block bg-purple-100/80 backdrop-blur-md rounded-full px-3 py-1 shadow-sm border border-purple-200/50">
-                  <span className="text-xs font-semibold text-purple-700">Current version: 2.1</span>
+                  <span className="text-xs font-semibold text-brand-700">Current version: 2.1</span>
                 </div>
               </div>
 

@@ -33,18 +33,18 @@
   
   /* Improved text selection */
   ::selection {
-    background-color: rgba(124, 58, 237, 0.2);
+    background-color: rgba(71, 21, 76, 0.15);
     color: inherit;
   }
   
   ::-moz-selection {
-    background-color: rgba(124, 58, 237, 0.2);
+    background-color: rgba(71, 21, 76, 0.15);
     color: inherit;
   }
   
   /* Improved focus states */
   :focus-visible {
-    outline: 2px solid rgba(124, 58, 237, 0.6);
+    outline: 2px solid rgba(71, 21, 76, 0.4);
     outline-offset: 2px;
   }
 }
@@ -164,13 +164,14 @@ textarea {
   }
 }
 
+/* Wave animation - Aquaforest signature */
 .circle {
   display: inline-block;
   width: 100%;
   height: 100%;
   position: relative;
   border: 2px solid white;
-  box-shadow: 0 0 0 2px #7c3aed;
+  box-shadow: 0 0 0 2px #47154C;
   border-radius: 50%;
   overflow: hidden;
 }
@@ -179,7 +180,7 @@ textarea {
   position: relative;
   width: 100%;
   height: 100%;
-  background: #7c3aed;
+  background: #47154C;
   border-radius: 50%;
   box-shadow: 0 0 20px hsla(0, 0%, 0%, .3) inset;
 }
@@ -444,7 +445,7 @@ textarea {
   border-radius: 50%;
   height: 50px;
   width: 50px;
-  background-color: #7c3aed;
+  background-color: #47154C;
   color: white;
   font-weight: bold;
   font-size: 18px;
@@ -462,20 +463,18 @@ textarea {
 .bubble-button {
   margin-top: 15px;
   padding: 8px 16px;
-  background: linear-gradient(135deg, #7c3aed, #5b21b6);
+  background: #47154C;
   color: white;
   border: none;
   border-radius: 20px;
   font-weight: 600;
   font-size: 12px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.2s ease;
 }
 
 .bubble-button:hover {
-  background: linear-gradient(135deg, #5b21b6, #4c1d95);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+  background: #3B1238;
 }
 
 @keyframes dropdown-in {
@@ -508,14 +507,6 @@ textarea {
   animation: dropdown-out 0.3s ease-in;
 }
 
-@keyframes pulse-glow {
-  0% { 
-    box-shadow: 0 0 5px rgba(124, 58, 237, 0.5);
-  }
-  100% { 
-    box-shadow: 0 0 20px rgba(124, 58, 237, 0.8), 0 0 30px rgba(124, 58, 237, 0.6);
-  }
-}
 
 @keyframes fadeIn {
   0% {

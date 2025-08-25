@@ -129,4 +129,16 @@ export interface ResponseFormatOption {
   id: ResponseFormat;
   label: string;
   description: string;
+}
+
+// Trend Chart types
+export interface TrendDataPoint {
+  date: string;
+  count: number;
+}
+
+export interface DailyTrendResponse {
+  success: boolean;
+  data: TrendDataPoint[];
+  days_requested: number;
 } 

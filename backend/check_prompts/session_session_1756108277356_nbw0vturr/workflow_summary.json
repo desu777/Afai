@@ -1,0 +1,81 @@
+{
+  "session_id": "session_1756108277356_nbw0vturr",
+  "timestamp": "2025-08-25 09:52:17",
+  "user_query": "chciałbym kupić coś co poprawi florę bakteryjną w moim akwarium, co polecasz?",
+  "detected_language": "en",
+  "final_intent": "other",
+  "workflow_path": [
+    "intent_detector_text",
+    "business_reasoner",
+    "query_optimizer",
+    "response_formatter_complex"
+  ],
+  "total_prompts": 4,
+  "total_execution_time": 60.34871006011963,
+  "prompts": [
+    {
+      "counter": 1,
+      "node_name": "intent_detector_text",
+      "filename": "001_intent_detector_text.md",
+      "timestamp": "2025-08-25 09:51:19",
+      "prompt_length": 5753,
+      "metadata": {
+        "user_query": "chciałbym kupić coś co poprawi florę bakteryjną w moim akwarium, co polecasz?",
+        "intent": "other",
+        "detected_language": "en",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.3,
+        "llm_response_time": 1449.3739604949951,
+        "chat_history_length": 0
+      }
+    },
+    {
+      "counter": 2,
+      "node_name": "business_reasoner",
+      "filename": "002_business_reasoner.md",
+      "timestamp": "2025-08-25 09:51:37",
+      "prompt_length": 360784,
+      "metadata": {
+        "user_query": "chciałbym kupić coś co poprawi florę bakteryjną w moim akwarium, co polecasz?",
+        "intent": "Intent.PRODUCT_QUERY",
+        "detected_language": "pl",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.5,
+        "llm_response_time": 18411.0004901886,
+        "chat_history_length": 0
+      }
+    },
+    {
+      "counter": 3,
+      "node_name": "query_optimizer",
+      "filename": "003_query_optimizer.md",
+      "timestamp": "2025-08-25 09:51:39",
+      "prompt_length": 8542,
+      "metadata": {
+        "user_query": "chciałbym kupić coś co poprawi florę bakteryjną w moim akwarium, co polecasz?",
+        "intent": "Intent.PRODUCT_QUERY",
+        "detected_language": "pl",
+        "model_name": "gemini-2.5-flash",
+        "temperature": null,
+        "llm_response_time": 1663.255214691162,
+        "chat_history_length": 0
+      }
+    },
+    {
+      "counter": 4,
+      "node_name": "response_formatter_complex",
+      "filename": "004_response_formatter_complex.md",
+      "timestamp": "2025-08-25 09:52:17",
+      "prompt_length": 153884,
+      "metadata": {
+        "user_query": "chciałbym kupić coś co poprawi florę bakteryjną w moim akwarium, co polecasz?",
+        "intent": "Intent.PRODUCT_QUERY",
+        "detected_language": "pl",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.7,
+        "llm_response_time": 34575.54388046265,
+        "chat_history_length": 0
+      }
+    }
+  ]
+}

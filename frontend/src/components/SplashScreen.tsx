@@ -80,11 +80,11 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-violet-100 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         {/* Logo and Title */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 shadow-2xl mb-8">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-lg bg-brand-600 shadow-lg mb-8">
             <div className="circle">
               <div className="wave"></div>
             </div>
@@ -123,7 +123,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
         </div>
 
         {/* Login Form */}
-        <div className="bg-white/95 backdrop-blur-md rounded-3xl p-8 shadow-xl border border-purple-200/50">
+        <div className="bg-white rounded-lg p-8 shadow-md border border-gray-200">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
@@ -135,14 +135,14 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 pr-12 border border-purple-200/60 rounded-2xl focus:border-purple-500 focus:ring-4 focus:ring-purple-100/50 outline-none transition-all duration-200 font-medium"
+                  className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-lg focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 outline-none transition-all duration-200 font-medium"
                   placeholder="Enter your access code"
                   disabled={isLoading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-purple-100 rounded-lg transition-colors"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded-lg transition-colors"
                   disabled={isLoading}
                 >
                   {showPassword ? (
@@ -160,7 +160,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
             <button
               type="submit"
               disabled={!password.trim() || isLoading}
-              className="w-full bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 hover:from-purple-700 hover:via-purple-800 hover:to-violet-900 disabled:from-gray-400 disabled:via-gray-500 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-2xl shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-[1.02] active:scale-95"
+              className="w-full bg-brand-600 hover:bg-brand-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg shadow-sm transition-colors duration-200"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center space-x-2">
@@ -174,17 +174,20 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
           </form>
         </div>
 
-        {/* Footer */}
-        <div className="text-center mt-8 space-y-2">
-          <p className="text-xs text-gray-500 font-medium">
-            Aquaforest AI Assistant • Secure Access Required
-          </p>
-          <div className="flex items-center justify-center space-x-2">
-            <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
+        {/* Footer with Logo */}
+        <div className="text-center mt-12 space-y-4">
+          <img 
+            src="/aquaforest_logo.png" 
+            alt="Aquaforest" 
+            className="h-8 mx-auto opacity-60 hover:opacity-80 transition-opacity"
+          />
+          <div className="space-y-2">
+            <p className="text-xs text-gray-500 font-medium">
+              Aquaforest AI Assistant • Secure Access Required
+            </p>
             <p className="text-xs text-gray-400 font-medium">
               Access code will be remembered for 24 hours
             </p>
-            <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
           </div>
         </div>
       </div>

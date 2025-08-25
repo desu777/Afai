@@ -285,13 +285,13 @@ const StreamingLoadingMessage: React.FC<StreamingLoadingMessageProps> = ({ curre
     <div className="flex justify-start mb-4 sm:mb-6">
       <div className="flex items-start space-x-2 sm:space-x-4 max-w-[90%] sm:max-w-3xl w-full">
         {/* Avatar - ukryty na mobile */}
-        <div className="hidden sm:flex w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 items-center justify-center shadow-md flex-shrink-0">
+        <div className="hidden sm:flex w-10 h-10 rounded-lg bg-brand-600 items-center justify-center shadow-md flex-shrink-0">
           <div className="circle">
             <div className="wave"></div>
           </div>
         </div>
         
-        <div className="rounded-2xl sm:rounded-3xl px-4 py-3 sm:px-6 sm:py-4 bg-white/95 backdrop-blur-md border border-purple-200/40 shadow-sm flex-1 min-w-0">
+        <div className="rounded-lg sm:rounded-lg px-4 py-3 sm:px-6 sm:py-4 bg-white/95 backdrop-blur-md border border-purple-200/40 shadow-sm flex-1 min-w-0">
           {/* Status Message with Icon */}
           <div className="flex items-start space-x-3 sm:space-x-4 mb-4">
             <div className="flex-shrink-0 mt-1">
@@ -324,7 +324,7 @@ const StreamingLoadingMessage: React.FC<StreamingLoadingMessageProps> = ({ curre
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
-                className="bg-gradient-to-r from-purple-600 to-violet-700 h-2 rounded-full transition-all duration-500 ease-out"
+                className="bg-gradient-to-r from-brand-600 to-violet-700 h-2 rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${progress}%` }}
               ></div>
             </div>

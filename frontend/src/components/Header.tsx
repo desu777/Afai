@@ -42,8 +42,8 @@ const Header: React.FC<HeaderProps> = ({ accessLevel, onViewChange, activeView =
 
   const getButtonClass = (view: 'chat' | 'feedback' | 'analytics') => {
     const baseClass = "flex items-center space-x-2 px-3 py-2 rounded-xl transition-all duration-200 hover:scale-105 text-sm font-medium";
-    const activeClass = "bg-purple-100 text-purple-700 border border-purple-200";
-    const inactiveClass = "text-gray-700 hover:bg-purple-100 hover:text-purple-700";
+    const activeClass = "bg-gray-100 text-brand-700 border border-gray-200";
+    const inactiveClass = "text-gray-700 hover:bg-gray-100 hover:text-brand-700";
     
     return `${baseClass} ${activeView === view ? activeClass : inactiveClass}`;
   };
@@ -65,10 +65,10 @@ const Header: React.FC<HeaderProps> = ({ accessLevel, onViewChange, activeView =
   }, [isMobileMenuOpen, isClosing]);
 
   return (
-    <div className="bg-white/95 backdrop-blur-md border-b border-purple-200/50 px-4 sm:px-6 py-5 shadow-sm relative z-50">
+    <div className="bg-white/95 backdrop-blur-md border-b border-gray-200/50 px-4 sm:px-6 py-5 shadow-sm relative z-50">
       <div className="flex items-center justify-between max-w-5xl mx-auto">
         <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 rounded-2xl flex items-center justify-center shadow-lg overflow-hidden">
+          <div className="w-12 h-12 bg-brand-600 rounded-lg flex items-center justify-center shadow-lg overflow-hidden">
             <img 
               src="/horse.png" 
               alt="Konik morski" 
@@ -114,7 +114,7 @@ const Header: React.FC<HeaderProps> = ({ accessLevel, onViewChange, activeView =
           </button>
           <button 
             onClick={openFeedbackModal}
-            className="flex items-center space-x-2 px-3 py-2 hover:bg-purple-100 rounded-xl transition-all duration-200 hover:scale-105 text-sm font-medium text-gray-700 hover:text-purple-700"
+            className="flex items-center space-x-2 px-3 py-2 hover:bg-gray-100 rounded-xl transition-all duration-200 hover:scale-105 text-sm font-medium text-gray-700 hover:text-brand-700"
           >
             <Send className="w-4 h-4" />
             <span>Feedback</span>
@@ -149,21 +149,21 @@ const Header: React.FC<HeaderProps> = ({ accessLevel, onViewChange, activeView =
                 setIsMobileMenuOpen(true);
               }
             }}
-            className="p-2.5 hover:bg-purple-100 rounded-xl transition-all duration-200 hover:scale-105"
+            className="p-2.5 hover:bg-gray-100 rounded-xl transition-all duration-200 hover:scale-105"
           >
             <MoreVertical className="w-5 h-5 text-gray-600" />
           </button>
           
           {/* Mobile Dropdown */}
           {isMobileMenuOpen && (
-            <div className={`fixed right-4 top-20 w-48 bg-white/95 backdrop-blur-md border border-purple-200/50 rounded-xl shadow-xl z-[99999] ${
+            <div className={`fixed right-4 top-20 w-48 bg-white/95 backdrop-blur-md border border-gray-200/50 rounded-xl shadow-xl z-[99999] ${
               isClosing ? 'animate-dropdown-out' : 'animate-dropdown-in'
             }`}>
               <div className="py-2">
                 <button 
                   onClick={() => handleViewChange('chat')}
-                  className={`flex items-center space-x-3 w-full px-4 py-3 hover:bg-purple-50 transition-colors text-sm font-medium ${
-                    activeView === 'chat' ? 'bg-purple-50 text-purple-700' : 'text-gray-700 hover:text-purple-700'
+                  className={`flex items-center space-x-3 w-full px-4 py-3 hover:bg-gray-50 transition-colors text-sm font-medium ${
+                    activeView === 'chat' ? 'bg-gray-50 text-brand-700' : 'text-gray-700 hover:text-brand-700'
                   }`}
                 >
                   <MessageSquarePlus className="w-4 h-4" />
@@ -171,7 +171,7 @@ const Header: React.FC<HeaderProps> = ({ accessLevel, onViewChange, activeView =
                 </button>
                 <button 
                   onClick={openFeedbackModal}
-                  className="flex items-center space-x-3 w-full px-4 py-3 hover:bg-purple-50 transition-colors text-sm font-medium text-gray-700 hover:text-purple-700"
+                  className="flex items-center space-x-3 w-full px-4 py-3 hover:bg-gray-50 transition-colors text-sm font-medium text-gray-700 hover:text-brand-700"
                 >
                   <Send className="w-4 h-4" />
                   <span>Feedback</span>
@@ -180,8 +180,8 @@ const Header: React.FC<HeaderProps> = ({ accessLevel, onViewChange, activeView =
                   <>
                     <button 
                       onClick={() => handleViewChange('feedback')}
-                      className={`flex items-center space-x-3 w-full px-4 py-3 hover:bg-purple-50 transition-colors text-sm font-medium ${
-                        activeView === 'feedback' ? 'bg-purple-50 text-purple-700' : 'text-gray-700 hover:text-purple-700'
+                      className={`flex items-center space-x-3 w-full px-4 py-3 hover:bg-gray-50 transition-colors text-sm font-medium ${
+                        activeView === 'feedback' ? 'bg-gray-50 text-brand-700' : 'text-gray-700 hover:text-brand-700'
                       }`}
                     >
                       <FileText className="w-4 h-4" />
@@ -189,8 +189,8 @@ const Header: React.FC<HeaderProps> = ({ accessLevel, onViewChange, activeView =
                     </button>
                     <button 
                       onClick={() => handleViewChange('analytics')}
-                      className={`flex items-center space-x-3 w-full px-4 py-3 hover:bg-purple-50 transition-colors text-sm font-medium ${
-                        activeView === 'analytics' ? 'bg-purple-50 text-purple-700' : 'text-gray-700 hover:text-purple-700'
+                      className={`flex items-center space-x-3 w-full px-4 py-3 hover:bg-gray-50 transition-colors text-sm font-medium ${
+                        activeView === 'analytics' ? 'bg-gray-50 text-brand-700' : 'text-gray-700 hover:text-brand-700'
                       }`}
                     >
                       <BarChart3 className="w-4 h-4" />

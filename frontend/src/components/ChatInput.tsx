@@ -67,10 +67,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
           fileSize={selectedImage?.size}
         />
         
-        {/* 🌟 External blur wrapper */}
-        <div className="backdrop-blur-lg bg-white/10 rounded-3xl p-2 transition-all duration-300">
-          {/* 🆕 Główny kontener - jeden element z textarea + button bar (identical to WelcomeScreen) */}
-          <div className="relative rounded-2xl sm:rounded-3xl bg-white/95 backdrop-blur-md border border-purple-200/60 focus-within:border-brand-600 focus-within:ring-2 sm:focus-within:ring-4 focus-within:ring-brand-100/50 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden" style={{ minWidth: '0', flexShrink: '1', width: '100%' }}>
+        {/* Clean input container */}
+        <div className="relative rounded-lg bg-white border border-gray-200 focus-within:border-brand-600 focus-within:ring-2 focus-within:ring-brand-600/20 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
             {/* Textarea */}
             <textarea
             ref={textareaRef}
@@ -101,10 +99,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
             />
             
             {/* Button Bar */}
-          <div className="flex items-center justify-between px-4 sm:px-6 py-2 sm:py-3 border-t border-purple-100/50">
+          <div className="flex items-center justify-between px-4 sm:px-6 py-2 sm:py-3 border-t border-gray-100">
             {/* Left buttons */}
             <div className="flex items-center space-x-2">
-              <label className="w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-br from-brand-600 via-brand-700 to-brand-800 hover:from-brand-700 hover:via-brand-800 hover:to-brand-900 disabled:from-gray-400 disabled:via-gray-500 disabled:to-gray-600 rounded-xl flex items-center justify-center shadow-brand hover:shadow-brand-lg transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer" title="Upload image or PDF">
+              <label className="w-8 h-8 sm:w-9 sm:h-9 bg-brand-600 hover:bg-brand-700 disabled:bg-gray-400 rounded-lg flex items-center justify-center shadow-sm transition-colors duration-200 cursor-pointer" title="Upload image or PDF">
                 {selectedImage && isPDF ? (
                   <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 ) : (
@@ -148,13 +146,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
               <button
                 onClick={onSend}
                 disabled={!inputValue.trim() || isLoading}
-                className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-brand-600 via-brand-700 to-brand-800 hover:from-brand-700 hover:via-brand-800 hover:to-brand-900 disabled:from-gray-400 disabled:via-gray-500 disabled:to-gray-600 disabled:cursor-not-allowed rounded-xl sm:rounded-2xl flex items-center justify-center shadow-brand hover:shadow-brand-lg transition-all duration-300 hover:scale-105 active:scale-95"
+                className="w-8 h-8 sm:w-10 sm:h-10 bg-brand-600 hover:bg-brand-700 disabled:bg-gray-400 disabled:cursor-not-allowed rounded-lg flex items-center justify-center shadow-sm transition-colors duration-200"
               >
                 <Send className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </button>
             </div>
           </div>
-        </div>
         </div>
         
         {/* Footer note - only show when no messages */}

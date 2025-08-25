@@ -87,7 +87,7 @@ const ResponseFormatSelector: React.FC<ResponseFormatSelectorProps> = ({
           bg-white/95 backdrop-blur-md border border-purple-200/50 rounded-xl 
           shadow-sm hover:shadow-md hover:border-purple-300/60 
           transition-all duration-200 hover:scale-[1.02] active:scale-98
-          text-sm font-medium text-gray-700 hover:text-purple-700
+          text-sm font-medium text-gray-700 hover:text-brand-700
           ${isOpen ? 'ring-2 ring-purple-200/50 border-purple-300/60' : ''}
         `}
       >
@@ -117,8 +117,8 @@ const ResponseFormatSelector: React.FC<ResponseFormatSelectorProps> = ({
                   flex items-start space-x-3 w-full px-4 py-3 text-left
                   hover:bg-purple-50/80 transition-colors duration-150
                   ${option.id === selectedFormat 
-                    ? 'bg-purple-50/80 text-purple-700 border-r-2 border-purple-400' 
-                    : 'text-gray-700 hover:text-purple-700'
+                    ? 'bg-purple-50/80 text-brand-700 border-r-2 border-purple-400' 
+                    : 'text-gray-700 hover:text-brand-700'
                   }
                 `}
               >
@@ -129,7 +129,7 @@ const ResponseFormatSelector: React.FC<ResponseFormatSelectorProps> = ({
                   <div className="flex items-center space-x-2">
                     <span className="font-medium text-sm">{option.label}</span>
                     {option.id === selectedFormat && (
-                      <div className="w-1.5 h-1.5 bg-purple-500 rounded-full"></div>
+                      <div className="w-1.5 h-1.5 bg-brand-500 rounded-full"></div>
                     )}
                   </div>
                   <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">

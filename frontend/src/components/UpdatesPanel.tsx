@@ -265,96 +265,104 @@ const getVersionBadgeColor = (type: string) => {
 
 const UpdatesPanel: React.FC = () => {
   return (
-    <div className="flex-1 overflow-y-auto px-2 sm:px-4 md:px-6 pt-16 md:pt-8 pb-4 sm:pb-8">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 rounded-3xl mb-4 shadow-lg">
-            <Smartphone className="w-8 h-8 text-white" />
+    <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
+      {/* Header - fixed */}
+      <div className="bg-white border-b border-gray-200 flex-shrink-0">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex items-center space-x-3 mb-2">
+            <div className="inline-flex items-center justify-center w-10 h-10 bg-brand-600 rounded-lg">
+              <Smartphone className="w-5 h-5 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Updates & Changelog
+            </h1>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
-            Updates & Changelog
-          </h1>
-          <p className="text-gray-600 text-sm sm:text-base">
+          <p className="text-gray-600 text-sm">
             Track the latest improvements and features in Afai by Aquaforest
           </p>
         </div>
+      </div>
 
-        {/* Updates Timeline */}
-        <div className="space-y-8">
-          {updates.map((update, index) => (
-            <div key={update.version} className="relative">
-              {/* Timeline line */}
-              {index < updates.length - 1 && (
-                <div className="absolute left-8 top-20 w-0.5 h-full bg-gradient-to-b from-purple-200 to-transparent"></div>
-              )}
-              
-              {/* Update card */}
-              <div className="bg-white/95 backdrop-blur-md rounded-3xl border border-purple-200/50 shadow-lg p-6 sm:p-8 relative">
-                {/* Version badge */}
-                <div className="flex items-center space-x-4 mb-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
-                    <span className="text-white font-bold text-lg">v{update.version}</span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-3 mb-2">
-                      <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
-                        {update.title}
-                      </h2>
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getVersionBadgeColor(update.type)}`}>
-                        {update.type}
-                      </span>
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-4xl mx-auto p-4 sm:p-6">
+
+          {/* Updates Timeline */}
+          <div className="space-y-6">
+            {updates.map((update, index) => (
+              <div key={update.version} className="relative">
+                {/* Timeline line */}
+                {index < updates.length - 1 && (
+                  <div className="absolute left-8 top-16 w-0.5 h-full bg-gray-200"></div>
+                )}
+                
+                {/* Update card */}
+                <div className="bg-white rounded-lg border border-gray-200 p-6 relative">
+                  {/* Version badge */}
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-16 h-16 bg-brand-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <span className="text-white font-bold text-lg">v{update.version}</span>
                     </div>
-                    <div className="flex items-center text-gray-500 text-sm">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      <span>{new Date(update.date).toLocaleDateString('pl-PL', { 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric' 
-                      })}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Description */}
-                <p className="text-gray-600 mb-6 leading-relaxed">
-                  {update.description}
-                </p>
-
-                {/* Changes */}
-                <div className="space-y-6">
-                  {update.changes.map((changeGroup, groupIndex) => (
-                    <div key={groupIndex}>
-                      <div className="flex items-center space-x-2 mb-3">
-                        {getCategoryIcon(changeGroup.category)}
-                        <h3 className="font-semibold text-gray-800">
-                          {getCategoryLabel(changeGroup.category)}
-                        </h3>
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-3 mb-2">
+                        <h2 className="text-lg font-bold text-gray-900">
+                          {update.title}
+                        </h2>
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getVersionBadgeColor(update.type)}`}>
+                          {update.type}
+                        </span>
                       </div>
-                      <ul className="space-y-2 ml-6">
-                        {changeGroup.items.map((item, itemIndex) => (
-                          <li key={itemIndex} className="flex items-start space-x-2">
-                            <div className="w-1.5 h-1.5 bg-purple-400 rounded-full mt-2 flex-shrink-0"></div>
-                            <span className="text-gray-700 text-sm leading-relaxed">
-                              {item}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
+                      <div className="flex items-center text-gray-500 text-sm">
+                        <Calendar className="w-4 h-4 mr-2" />
+                        <span>{new Date(update.date).toLocaleDateString('pl-PL', { 
+                          year: 'numeric', 
+                          month: 'long', 
+                          day: 'numeric' 
+                        })}</span>
+                      </div>
                     </div>
-                  ))}
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-gray-600 mb-6 leading-relaxed text-sm">
+                    {update.description}
+                  </p>
+
+                  {/* Changes */}
+                  <div className="space-y-4">
+                    {update.changes.map((changeGroup, groupIndex) => (
+                      <div key={groupIndex}>
+                        <div className="flex items-center space-x-2 mb-3">
+                          {getCategoryIcon(changeGroup.category)}
+                          <h3 className="font-semibold text-gray-900 text-sm">
+                            {getCategoryLabel(changeGroup.category)}
+                          </h3>
+                        </div>
+                        <ul className="space-y-2 ml-6">
+                          {changeGroup.items.map((item, itemIndex) => (
+                            <li key={itemIndex} className="flex items-start space-x-2">
+                              <div className="w-1.5 h-1.5 bg-brand-500 rounded-full mt-2 flex-shrink-0"></div>
+                              <span className="text-gray-700 text-sm leading-relaxed">
+                                {item}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        {/* Footer */}
-        <div className="text-center mt-12 p-6 bg-purple-50/50 rounded-2xl border border-purple-200/30">
-          <p className="text-gray-600 text-sm">
-            Have suggestions for new features? Use the{' '}
-            <span className="font-semibold text-purple-700">Feedback</span> button to let us know!
-          </p>
+          {/* Footer */}
+          <div className="text-center mt-12 p-6 bg-white rounded-lg border border-gray-200">
+            <p className="text-gray-600 text-sm">
+              Have suggestions for new features? Use the{' '}
+              <span className="font-semibold text-brand-700">Feedback</span> button to let us know!
+            </p>
+          </div>
         </div>
       </div>
     </div>

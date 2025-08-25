@@ -1,0 +1,81 @@
+{
+  "session_id": "session_1756105828725_o0yuobecf",
+  "timestamp": "2025-08-25 09:11:29",
+  "user_query": "I want anemones tank with many hybrid nemos",
+  "detected_language": "en",
+  "final_intent": "other",
+  "workflow_path": [
+    "intent_detector_text",
+    "business_reasoner",
+    "query_optimizer",
+    "response_formatter_complex"
+  ],
+  "total_prompts": 4,
+  "total_execution_time": 60.594799280166626,
+  "prompts": [
+    {
+      "counter": 1,
+      "node_name": "intent_detector_text",
+      "filename": "001_intent_detector_text.md",
+      "timestamp": "2025-08-25 09:10:30",
+      "prompt_length": 5719,
+      "metadata": {
+        "user_query": "I want anemones tank with many hybrid nemos",
+        "intent": "other",
+        "detected_language": "en",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.3,
+        "llm_response_time": 1124.931812286377,
+        "chat_history_length": 0
+      }
+    },
+    {
+      "counter": 2,
+      "node_name": "business_reasoner",
+      "filename": "002_business_reasoner.md",
+      "timestamp": "2025-08-25 09:10:49",
+      "prompt_length": 360682,
+      "metadata": {
+        "user_query": "I want anemones tank with many hybrid nemos",
+        "intent": "Intent.PRODUCT_QUERY",
+        "detected_language": "en",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.5,
+        "llm_response_time": 18413.37561607361,
+        "chat_history_length": 0
+      }
+    },
+    {
+      "counter": 3,
+      "node_name": "query_optimizer",
+      "filename": "003_query_optimizer.md",
+      "timestamp": "2025-08-25 09:10:50",
+      "prompt_length": 9627,
+      "metadata": {
+        "user_query": "I want anemones tank with many hybrid nemos",
+        "intent": "Intent.PRODUCT_QUERY",
+        "detected_language": "en",
+        "model_name": "gemini-2.5-flash",
+        "temperature": null,
+        "llm_response_time": 1325.8590698242188,
+        "chat_history_length": 0
+      }
+    },
+    {
+      "counter": 4,
+      "node_name": "response_formatter_complex",
+      "filename": "004_response_formatter_complex.md",
+      "timestamp": "2025-08-25 09:11:29",
+      "prompt_length": 426932,
+      "metadata": {
+        "user_query": "I want anemones tank with many hybrid nemos",
+        "intent": "Intent.PRODUCT_QUERY",
+        "detected_language": "en",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.7,
+        "llm_response_time": 30956.86101913452,
+        "chat_history_length": 0
+      }
+    }
+  ]
+}

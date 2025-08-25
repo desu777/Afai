@@ -8,33 +8,20 @@ export default {
     extend: {
       // Custom color palette
       colors: {
-        // Brand colors
+        // Brand colors - Aquaforest elegant palette
         brand: {
-          50: '#f8f6ff',
-          100: '#f1ebff',
-          200: '#e5d9ff',
-          300: '#d1bbff',
-          400: '#b794ff',
-          500: '#9c6bff',
-          600: '#7c3aed', // Main brand color
-          700: '#6d28d9',
-          800: '#5b21b6',
-          900: '#4c1d95',
-          950: '#2e1065',
-        },
-        // Enhanced purple palette
-        purple: {
-          50: '#faf5ff',
-          100: '#f3e8ff',
-          200: '#e9d5ff',
-          300: '#d8b4fe',
-          400: '#c084fc',
-          500: '#a855f7',
-          600: '#9333ea',
-          700: '#7c3aed',
-          800: '#6b21a8',
-          900: '#581c87',
-          950: '#3b0764',
+          DEFAULT: '#47154C',
+          50: '#f9f6fa',
+          100: '#f2edf4',
+          200: '#e5dae9',
+          300: '#d1bcd6',
+          400: '#b494bb',
+          500: '#966ba0',
+          600: '#47154C', // Main Aquaforest color
+          700: '#3B1238',
+          800: '#2d0e2a',
+          900: '#1f0a1c',
+          950: '#120611',
         },
         // Neutral colors
         gray: {
@@ -133,11 +120,9 @@ export default {
         '2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
         'inner': 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)',
         'none': 'none',
-        // Brand-specific shadows
-        'brand': '0 4px 14px 0 rgba(124, 58, 237, 0.15)',
-        'brand-lg': '0 10px 25px -5px rgba(124, 58, 237, 0.25)',
-        'glow': '0 0 20px rgba(124, 58, 237, 0.3)',
-        'glow-lg': '0 0 40px rgba(124, 58, 237, 0.2)',
+        // Minimal brand shadows
+        'brand': '0 2px 4px 0 rgba(71, 21, 76, 0.08)',
+        'brand-lg': '0 4px 6px 0 rgba(71, 21, 76, 0.10)',
       },
       // Custom border radius
       borderRadius: {
@@ -159,11 +144,6 @@ export default {
         'slide-in': 'slideIn 0.3s ease-out',
         'slide-out': 'slideOut 0.3s ease-in',
         'bounce-gentle': 'bounceGentle 0.6s ease-in-out',
-        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'spin-slow': 'spin 3s linear infinite',
-        'float': 'float 3s ease-in-out infinite',
-        'glow': 'glow 2s ease-in-out infinite alternate',
-        'typing': 'typing 1.5s steps(20, end) infinite',
       },
       // Custom keyframes
       keyframes: {
@@ -186,18 +166,6 @@ export default {
         bounceGentle: {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-10px)' },
-        },
-        float: {
-          '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-10px)' },
-        },
-        glow: {
-          '0%': { boxShadow: '0 0 20px rgba(124, 58, 237, 0.3)' },
-          '100%': { boxShadow: '0 0 40px rgba(124, 58, 237, 0.6)' },
-        },
-        typing: {
-          '0%': { width: '0%' },
-          '100%': { width: '100%' },
         },
       },
       // Custom transitions

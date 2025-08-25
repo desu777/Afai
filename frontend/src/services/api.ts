@@ -8,6 +8,7 @@ import {
   AnalyticsSummaryResponse,
   AnalyticsQueryRequest,
   AnalyticsQueryResponse,
+  DailyTrendResponse,
   WorkflowUpdate
 } from '../types'
 
@@ -285,6 +286,10 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify(queryParams),
     });
+  }
+
+  async getDailyTrend(days: number = 30): Promise<DailyTrendResponse> {
+    return this.request<DailyTrendResponse>(`/analytics/daily-trend?days=${days}`);
   }
 
   async exportFeedbackCSV(startDate?: string, endDate?: string): Promise<Blob> {

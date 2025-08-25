@@ -163,3 +163,39 @@ def setup_analytics_endpoints(app, tier2_rate_limit, AnalyticsQuery):
         except Exception as e:
             debug_print(f"[ERROR] Error in get_vertex_ai_usage_analytics: {e}")
             raise HTTPException(status_code=500, detail=str(e))
+
+    @app.get("/analytics/daily-trend")
+    @tier2_rate_limit()
+    async def get_daily_trend(request: Request, days: int = 30):
+        """Get daily query count trend for the last N days"""
+        try:
+            with get_db() as conn:
+                cursor = conn.cursor()
+                
+                # Get daily counts for the last N days
+                cursor.execute("""
+                    SELECT 
+                        DATE(created_at) as date,
+                        COUNT(*) as count
+                    FROM analyze 
+                    WHERE created_at >= date('now', '-{} days')
+                    GROUP BY DATE(created_at)
+                    ORDER BY DATE(created_at) ASC
+                """.format(days))
+                
+                trend_data = []
+                for row in cursor.fetchall():
+                    trend_data.append({
+                        "date": row["date"],
+                        "count": row["count"]
+                    })
+                
+                return {
+                    "success": True,
+                    "data": trend_data,
+                    "days_requested": days
+                }
+                
+        except Exception as e:
+            debug_print(f"[ERROR] Error in get_daily_trend: {e}")
+            raise HTTPException(status_code=500, detail=str(e))

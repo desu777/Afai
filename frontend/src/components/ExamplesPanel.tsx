@@ -77,25 +77,28 @@ const ExamplesPanel: React.FC<ExamplesPanelProps> = ({ onExampleSelect }) => {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
+      {/* Header - fixed */}
+      <div className="bg-white border-b border-gray-200 flex-shrink-0">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Afai Examples
+          </h1>
+          <p className="text-gray-600 text-sm">
+            Get inspired by these example questions to make the most of your reef aquarium consultation.
+            Click on any question to use it directly or copy it to modify.
+          </p>
+        </div>
+      </div>
+
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-4xl mx-auto p-6">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              Afai Examples
-            </h1>
-            <p className="text-gray-600 text-lg">
-              Get inspired by these example questions to make the most of your reef aquarium consultation.
-              Click on any question to use it directly or copy it to modify.
-            </p>
-          </div>
-          
-          <div className="grid gap-8">
+        <div className="max-w-4xl mx-auto p-4 sm:p-6">
+          <div className="grid gap-6">
             {examples.map((category, categoryIndex) => (
-              <div key={categoryIndex} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full mr-3"></div>
+              <div key={categoryIndex} className="bg-white rounded-lg border border-gray-200 p-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                  <div className="w-2 h-2 bg-brand-500 rounded-full mr-3"></div>
                   {category.category}
                 </h2>
                 
@@ -103,11 +106,11 @@ const ExamplesPanel: React.FC<ExamplesPanelProps> = ({ onExampleSelect }) => {
                   {category.questions.map((question, questionIndex) => (
                     <div 
                       key={questionIndex}
-                      className="group flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-brand-50 transition-all duration-300 cursor-pointer transform hover:scale-[1.02] hover:shadow-brand"
+                      className="group flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
                       onClick={() => onExampleSelect(question)}
                     >
                       <div className="flex-1 mr-4">
-                        <p className="text-gray-700 group-hover:text-brand-700 transition-colors duration-300">
+                        <p className="text-gray-700 group-hover:text-brand-600 transition-colors">
                           {question}
                         </p>
                       </div>
@@ -118,7 +121,7 @@ const ExamplesPanel: React.FC<ExamplesPanelProps> = ({ onExampleSelect }) => {
                             e.stopPropagation();
                             handleCopyExample(question);
                           }}
-                          className="p-2 text-gray-400 hover:text-brand-600 transition-all duration-300 transform hover:scale-110 active:scale-95 rounded-lg hover:bg-brand-100"
+                          className="p-2 text-gray-400 hover:text-brand-600 transition-colors rounded-lg hover:bg-white"
                           title="Copy question"
                         >
                           <Copy className="w-4 h-4" />
@@ -134,25 +137,25 @@ const ExamplesPanel: React.FC<ExamplesPanelProps> = ({ onExampleSelect }) => {
           </div>
           
           {/* Tips Section */}
-          <div className="mt-12 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-8">
-            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+          <div className="mt-12 bg-white rounded-lg border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
               Tips for Better Results
             </h3>
-            <ul className="space-y-3 text-gray-700">
+            <ul className="space-y-3 text-gray-700 text-sm">
               <li className="flex items-start">
-                <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-brand-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                 <span>Be specific about your tank size, type (SPS/LPS/mixed), and current parameters</span>
               </li>
               <li className="flex items-start">
-                <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-brand-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                 <span>Include your current dosing schedule and products you're already using</span>
               </li>
               <li className="flex items-start">
-                <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-brand-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                 <span>Mention any recent changes or problems you've noticed</span>
               </li>
               <li className="flex items-start">
-                <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                <div className="w-2 h-2 bg-brand-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
                 <span>For ICP analysis, upload your PDF file with complete results</span>
               </li>
             </ul>

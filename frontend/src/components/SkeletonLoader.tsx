@@ -17,7 +17,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
     <div className={`space-y-3 ${className}`}>
       <div className="flex items-start space-x-3">
         {/* Avatar skeleton */}
-        <div className={`${baseClasses} w-10 h-10 rounded-2xl flex-shrink-0`}></div>
+        <div className={`${baseClasses} w-10 h-10 rounded-lg flex-shrink-0`}></div>
         
         {/* Message content skeleton */}
         <div className="flex-1 space-y-2">

@@ -1,0 +1,81 @@
+{
+  "session_id": "session_1756107490566_nh0tf4onc",
+  "timestamp": "2025-08-25 09:38:52",
+  "user_query": "파이토믹스도 sps 키우는데 도움이 많이 돼는편이야?",
+  "detected_language": "en",
+  "final_intent": "other",
+  "workflow_path": [
+    "intent_detector_text",
+    "business_reasoner",
+    "query_optimizer",
+    "response_formatter_complex"
+  ],
+  "total_prompts": 4,
+  "total_execution_time": 41.87603306770325,
+  "prompts": [
+    {
+      "counter": 1,
+      "node_name": "intent_detector_text",
+      "filename": "001_intent_detector_text.md",
+      "timestamp": "2025-08-25 09:38:12",
+      "prompt_length": 5705,
+      "metadata": {
+        "user_query": "파이토믹스도 sps 키우는데 도움이 많이 돼는편이야?",
+        "intent": "other",
+        "detected_language": "en",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.3,
+        "llm_response_time": 1197.9694366455078,
+        "chat_history_length": 0
+      }
+    },
+    {
+      "counter": 2,
+      "node_name": "business_reasoner",
+      "filename": "002_business_reasoner.md",
+      "timestamp": "2025-08-25 09:38:20",
+      "prompt_length": 360640,
+      "metadata": {
+        "user_query": "파이토믹스도 sps 키우는데 도움이 많이 돼는편이야?",
+        "intent": "Intent.PRODUCT_QUERY",
+        "detected_language": "ko",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.5,
+        "llm_response_time": 8015.772104263306,
+        "chat_history_length": 0
+      }
+    },
+    {
+      "counter": 3,
+      "node_name": "query_optimizer",
+      "filename": "003_query_optimizer.md",
+      "timestamp": "2025-08-25 09:38:22",
+      "prompt_length": 8462,
+      "metadata": {
+        "user_query": "파이토믹스도 sps 키우는데 도움이 많이 돼는편이야?",
+        "intent": "Intent.PRODUCT_QUERY",
+        "detected_language": "ko",
+        "model_name": "gemini-2.5-flash",
+        "temperature": null,
+        "llm_response_time": 1367.2795295715332,
+        "chat_history_length": 0
+      }
+    },
+    {
+      "counter": 4,
+      "node_name": "response_formatter_complex",
+      "filename": "004_response_formatter_complex.md",
+      "timestamp": "2025-08-25 09:38:52",
+      "prompt_length": 110544,
+      "metadata": {
+        "user_query": "파이토믹스도 sps 키우는데 도움이 많이 돼는편이야?",
+        "intent": "Intent.PRODUCT_QUERY",
+        "detected_language": "ko",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.7,
+        "llm_response_time": 24055.66143989563,
+        "chat_history_length": 0
+      }
+    }
+  ]
+}

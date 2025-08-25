@@ -101,7 +101,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, accessLe
           ? 'bg-black/50 backdrop-blur-sm' 
           : 'bg-black/0 backdrop-blur-none'
     }`}>
-      <div className={`bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-purple-200/50 w-full max-w-md mx-auto transform transition-all duration-300 ease-out overflow-visible ${
+      <div className={`bg-white/95 backdrop-blur-md rounded-lg shadow-2xl border border-purple-200/50 w-full max-w-md mx-auto transform transition-all duration-300 ease-out overflow-visible ${
         isClosing 
           ? 'scale-75 opacity-0 translate-y-8' 
           : isAnimating 
@@ -111,7 +111,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, accessLe
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-purple-200/30">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 rounded-xl flex items-center justify-center">
+            <div className="w-8 h-8 bg-brand-600 rounded-xl flex items-center justify-center">
               <Send className="w-4 h-4 text-white" />
             </div>
             <h2 className="text-lg font-bold text-gray-900">Send Feedback</h2>
@@ -183,7 +183,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, accessLe
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   placeholder="Please share your thoughts, suggestions, or report any issues..."
-                  className="w-full h-32 px-4 py-3 border border-purple-200/60 rounded-2xl focus:border-purple-500 focus:ring-4 focus:ring-purple-100/50 outline-none transition-all duration-200 resize-none font-medium"
+                  className="w-full h-32 px-4 py-3 border border-purple-200/60 rounded-lg focus:border-brand-500 focus:ring-4 focus:ring-purple-100/50 outline-none transition-all duration-200 resize-none font-medium"
                   disabled={isSubmitting || isClosing}
                 />
               </div>
@@ -196,7 +196,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, accessLe
 
               <div className="flex items-center justify-between pt-2">
                 <p className="text-xs text-gray-500">
-                  User type: <span className="font-medium text-purple-600">{accessLevel}</span>
+                  User type: <span className="font-medium text-brand-600">{accessLevel}</span>
                 </p>
                 
                 <div className="flex space-x-3">
@@ -212,7 +212,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, accessLe
                   <button
                     type="submit"
                     disabled={!comment.trim() || isSubmitting || isClosing}
-                    className="px-6 py-2 bg-gradient-to-br from-purple-600 via-purple-700 to-violet-800 hover:from-purple-700 hover:via-purple-800 hover:to-violet-900 disabled:from-gray-400 disabled:via-gray-500 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-105 active:scale-95"
+                    className="px-6 py-2 bg-brand-600 hover:bg-brand-700 disabled:from-gray-400 disabled:via-gray-500 disabled:to-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-xl shadow-lg transition-all duration-200 hover:shadow-xl hover:scale-105 active:scale-95"
                   >
                     {isSubmitting ? (
                       <div className="flex items-center space-x-2">
