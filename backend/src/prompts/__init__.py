@@ -12,7 +12,7 @@ def load_prompt_template(template_name: str, access_level: str = None, **kwargs)
     
     Args:
         template_name: Name of template file (without .txt extension)
-        access_level: User access level ("support", "admin", "test", etc.)
+        access_level: User access level ("support", "admin", "new_mode", "visionary_expert", etc.)
         **kwargs: Variables to substitute in template
         
     Returns:
@@ -23,7 +23,12 @@ def load_prompt_template(template_name: str, access_level: str = None, **kwargs)
         
         # Determine template file based on access level
         actual_template_name = template_name
-        if access_level == "support":
+        
+        # New Mode - uses assistant_1.0.txt for advanced diagnostic system
+        if access_level == "new_mode" and template_name == "response_formatting":
+            actual_template_name = "assitant_1.0"  # Note: keeping original filename with typo
+        # Ghostwriter - uses professional variant for support team responses
+        elif access_level == "support":
             # Try professional variant first
             professional_template = f"{template_name}_professional"
             professional_path = os.path.join(prompts_dir, f"{professional_template}.txt")

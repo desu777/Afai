@@ -123,7 +123,7 @@ export interface WorkflowUpdate {
 }
 
 // Response format types
-export type ResponseFormat = 'visionary_expert' | 'ghostwriter';
+export type ResponseFormat = 'visionary_expert' | 'ghostwriter' | 'new_mode';
 
 export interface ResponseFormatOption {
   id: ResponseFormat;

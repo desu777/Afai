@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { ChevronDown, Sparkles, PenTool } from 'lucide-react'
+import { ChevronDown, Sparkles, PenTool, Brain } from 'lucide-react'
 import { ResponseFormat, ResponseFormatOption } from '../types'
 
 interface ResponseFormatSelectorProps {
@@ -17,6 +17,11 @@ const formatOptions: ResponseFormatOption[] = [
     id: 'ghostwriter',
     label: 'Ghostwriter',
     description: 'Professional support team responses for forums'
+  },
+  {
+    id: 'new_mode',
+    label: 'New Mode',
+    description: 'Advanced diagnostic system with user-level adaptation'
   }
 ];
 
@@ -49,6 +54,8 @@ const ResponseFormatSelector: React.FC<ResponseFormatSelectorProps> = ({
         return <Sparkles className="w-4 h-4" />;
       case 'ghostwriter':
         return <PenTool className="w-4 h-4" />;
+      case 'new_mode':
+        return <Brain className="w-4 h-4" />;
       default:
         return <Sparkles className="w-4 h-4" />;
     }

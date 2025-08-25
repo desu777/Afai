@@ -1,4 +1,4 @@
-import { User, Copy, Download } from 'lucide-react'
+import { Copy, Download } from 'lucide-react'
 import { Message as MessageType } from '../types'
 import MessageContent from './MessageContent'
 import TruncatedMessageContent from './TruncatedMessageContent'

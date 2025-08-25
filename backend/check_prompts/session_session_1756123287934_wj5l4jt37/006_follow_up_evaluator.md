@@ -1,0 +1,223 @@
+# Follow Up Evaluator Prompt
+
+**LLM Response Time:** 2588.26ms  
+**Session:** session_1756123287934_wj5l4jt37  
+**Timestamp:** 2025-08-25 14:02:56  
+**User Query:** tylko ryby mam  
+**Intent:** Intent.FOLLOW_UP  
+**Language:** pl  
+
+## Prompt Content
+
+```
+You are an AI assistant evaluating whether cached information is sufficient to answer a follow-up question.
+
+--- CONVERSATION HISTORY ---
+user: jakie macie sole?
+assistant: Oczywiście! W Aquaforest mamy szeroką gamę soli morskich, zaprojektowanych z myślą o różnych potrzebach akwarystów i typach zbiorników. Są to:
+
+*   **Sea Salt** (Sól Morska) – [https://aquaforest.eu/pl/produkty/seawater/sole-morskie/sea-salt/](https://aquaforest.eu/pl/produkty/seawater/sole-morskie/sea-salt/)
+*   **Reef Salt** (Sól Rafowa) – [https://aquaforest.eu/pl/produkty/seawater/sole-morskie/reef-salt/](https://aquaforest.eu/pl/produkty/seawater/sole-morskie/reef-salt/)
+*   **Hybrid Pro Salt** (Sól Hybrydowa Pro) – [https://aquaforest.eu/pl/produkty/seawater/sole-morskie/hybrid-pro-salt/](https://aquaforest.eu/pl/produkty/seawater/sole-morskie/hybrid-pro-salt/)
+*   **Reef Salt Plus** (Sól Rafowa Plus) – [https://aquaforest.eu/pl/produkty/seawater/sole-morskie/reef-salt-plus/](https://aquaforest.eu/pl/produkty/seawater/sole-morskie/reef-salt-plus/)
+
+Żeby pomóc Ci wybrać tę idealną, powiedz mi proszę, jaki typ akwarium prowadzisz lub planujesz założyć (np. tylko ryby, miękkie korale, SPS, LPS, czy może mieszane)?
+
+
+--- CURRENT USER QUERY ---
+tylko ryby mam
+
+--- AVAILABLE CACHE ---
+[DATA] METADATA (12 items):
+  1. Sea Salt (product)
+  2. Reef Salt (product)
+  3. Hybrid Pro Salt (product)
+  4. Reef Mineral Salt (product)
+  5. Reef Salt Plus (product)
+
+[AI] RESPONSES (1 items):
+  1. Oczywiście! W Aquaforest mamy szeroką gamę soli morskich, zaprojektowanych z myślą o różnych potrzeb...
+
+--- CACHED KNOWLEDGE & PRODUCT DATA ---
+<PRODUCT_CARD>
+  <NAME>Sea Salt</NAME>
+  <TITLE>Sea Salt – Basic Marine Salt for Fish-Only & Soft Coral Aquariums</TITLE>
+  <CATEGORY>marine_salts</CATEGORY>
+  <DOMAIN>seawater</DOMAIN>
+  <DIFFICULTY>beginner</DIFFICULTY>
+  <DOSAGE>345-405g_per_10L per as_needed_to_target_salinity, for each water change, any time</DOSAGE>
+  <COMPATIBLE_WITH>KH Buffer, Calcium, Magnesium</COMPATIBLE_WITH>
+  <SIZES>7.5kg, 22kg, 25kg, 25kg_box(5x5kg), 25kg_bag</SIZES>
+  <FULL_CONTENT>Aquaforest Sea Salt is a high-quality, laboratory-made synthetic marine salt formulated for fish-only tanks, soft corals, and hardy invertebrates. Its balanced composition closely mimics natural seawater, ensuring optimal living conditions for marine life. Ideal for new setups and regular water changes, Sea Salt dissolves easily, leaves no dust or residue, and is manufactured from contaminant-free ingredients. Each batch is rigorously tested with ICP-OES for both macro- and micronutrients, with analytical results available online by batch number. Dosing is tailored to aquarium type: Fish only: S.G. 1.0226, 30 ppt, 345 g/10L (12.16 oz/2.7 US gal); LPS: S.G. 1.0249, 33 ppt, 380 g/10L (13.40 oz/2.7 US gal); SPS: S.G. 1.0264, 35 ppt, 405 g/10L (14.28 oz/2.7 US gal). Key macro/micro levels at 35 ppt: Alk 8.3–8.9 dKH, Ca 380–400 mg/l, Mg 1260–1300 mg/l, K 380–400 mg/l. Always use with RO/DI water at ~24°C and stir for 15 min. Store in a dry, cool, closed container. Use mixed saltwater within 3–5 days. Sea Salt is safe for fish, soft corals, jellyfish setups, and is the trusted choice of major public aquariums in Europe. Available sizes: 7.5 kg, 22 kg, 25 kg box (5 x 5 kg), 25 kg bag. Not for human consumption.</FULL_CONTENT>
+  <URL_EN>https://aquaforest.eu/en/products/seawater/marine-salts/sea-salt/</URL_EN>
+  <URL_PL>https://aquaforest.eu/pl/produkty/seawater/sole-morskie/sea-salt/</URL_PL>
+</PRODUCT_CARD>
+
+<PRODUCT_CARD>
+  <NAME>Reef Salt</NAME>
+  <TITLE>Reef Salt – Premium Marine Salt for SPS/LPS Corals & Mixed Reefs</TITLE>
+  <CATEGORY>marine_salts</CATEGORY>
+  <DOMAIN>seawater</DOMAIN>
+  <DIFFICULTY>intermediate</DIFFICULTY>
+  <DOSAGE>355-415g_per_10L per as_needed_to_target_salinity, for each water change, any time</DOSAGE>
+  <COMPATIBLE_WITH>KH Buffer, Calcium, Magnesium, Reef Mineral Salt</COMPATIBLE_WITH>
+  <SIZES>2kg, 4kg, 10kg, 20kg, 22kg, 25kg</SIZES>
+  <FULL_CONTENT>Aquaforest Reef Salt is a premium laboratory-grade synthetic sea salt, optimized for SPS and LPS reef aquariums as well as mixed reefs. Years of refinement deliver a perfectly balanced mix of macro- and microelements, essential for coral health, skeletal growth, polyp extension, and coloration. The formula is enriched with amino acids (promoting tissue growth and polyping) and vitamin C (improving immunity and overall condition). Each batch undergoes rigorous ICP-OES analysis for macro- and micronutrients, ensuring quality, purity, and stability. Salt is free from contaminants and manufactured under strict EU lab supervision. The salt dissolves rapidly and creates clear, ready-to-use seawater within minutes. Available in a wide range of sizes (2 kg, 4 kg, 10 kg, 20 kg, 22 kg, 25 kg) for every reef keeper’s needs. Recommended dosage depends on target salinity (see below), and detailed batch composition is available online by batch number. For SPS corals: S.G. 1.0264, 35 ppt, 415 g/10 L; for LPS: S.G. 1.0249, 33 ppt, 390 g/10 L; for fish only: S.G. 1.0226, 30 ppt, 355 g/10 L. Macro and microelements at various salinities: At 35 ppt – Alk 7.7–8.3 dKH, Ca 440–460 mg/l, Mg 1360–1420 mg/l, K 380–400 mg/l. Use with RO/DI water at ~24°C, mix vigorously for 15 min, and use within 3 days. Store tightly closed, dry, and cool. Freshwater evaporation or improper storage can alter parameters. For advanced mixed reefs and demanding SPS/LPS systems, additional supplementation may be needed as corals consume large amounts of elements. Aquaforest guarantees consistency, safety, and optimal reef conditions with every batch.</FULL_CONTENT>
+  <URL_EN>https://aquaforest.eu/en/products/seawater/marine-salts/reef-salt/</URL_EN>
+  <URL_PL>https://aquaforest.eu/pl/produkty/seawater/sole-morskie/reef-salt/</URL_PL>
+</PRODUCT_CARD>
+
+<PRODUCT_CARD>
+  <NAME>Hybrid Pro Salt</NAME>
+  <TITLE>Hybrid Pro Salt – Advanced Marine Salt with Probiotics and Natural Sea Salt Flakes</TITLE>
+  <CATEGORY>marine_salt_mix</CATEGORY>
+  <DOMAIN>seawater</DOMAIN>
+  <DIFFICULTY>intermediate</DIFFICULTY>
+  <DOSAGE>390g per 10L, per water change, mix 15min before use</DOSAGE>
+  <COMPATIBLE_WITH>n, o, n, e</COMPATIBLE_WITH>
+  <SIZES>5kg, 22kg</SIZES>
+  <FULL_CONTENT>Hybrid Pro Salt is Aquaforest’s most advanced reef salt, designed for the most demanding marine aquariums. It combines ultra-pure, laboratory-made synthetic salt with natural sea salt flakes from the Atlantic Ocean, delivering the best of both worlds. The unique formula is enriched with a proprietary blend of probiotic bacteria that lower nutrient levels (nitrate and phosphate) and improve coral coloration and growth, especially for SPS corals. Hybrid Pro Salt contains a complete range of macro- and microelements, with elevated strontium and iodine to match the consumption rates in closed systems. It also includes high-quality amino acids and vitamin C to support immunity and metabolic functions. Each batch is tested in a professional lab using dual ICP-OES spectrometers; results are available online. Recommended use: dissolve 390g in 10L RODI water for 33 ppt (1.025 S.G.), or see chart for other aquarium types. Stir 15 minutes until clear, check salinity before use. Use within 3 days. Maintain dKH 7.5–8.5 for optimal probiotic bacteria activity. Key macroelement levels (at 33 ppt): Alk 7.3–7.6 dKH, Ca 380–410 mg/l, Mg 1230–1300 mg/l, K 340–360 mg/l. Sizes: 5kg, 22kg. Store dry and dark. Hybrid Pro Salt is recommended for SPS and LPS corals, as well as fish-only marine tanks.</FULL_CONTENT>
+  <URL_EN>https://aquaforest.eu/en/products/seawater/marine-salts/hybrid-pro-salt/</URL_EN>
+  <URL_PL>https://aquaforest.eu/pl/produkty/seawater/sole-morskie/hybrid-pro-salt/</URL_PL>
+</PRODUCT_CARD>
+
+<PRODUCT_CARD>
+  <NAME>Reef Mineral Salt</NAME>
+  <TITLE>Reef Mineral Salt – NaCl Free Salt for Balling Method & Ionic Balance</TITLE>
+  <CATEGORY>balling_method_salts</CATEGORY>
+  <DOMAIN>seawater</DOMAIN>
+  <DIFFICULTY>intermediate</DIFFICULTY>
+  <DOSAGE>25g_per_1000ml_solution per dose_equal_to_Ca_and_KH_solutions, as needed based on tests, any time</DOSAGE>
+  <COMPATIBLE_WITH>Calcium, KH Buffer, Magnesium</COMPATIBLE_WITH>
+  <SIZES>800g, 5000g</SIZES>
+  <FULL_CONTENT>Aquaforest Reef Mineral Salt is a laboratory-grade, NaCl-free mineral salt designed to maintain optimal mineral levels and restore ionic balance in reef aquariums, especially during Balling method supplementation. This powder contains all major and trace components of natural seawater except sodium chloride, including magnesium, calcium, potassium, bromine, fluorine, barium, iodine, and microelements. Regular use prevents dangerous mineral deficiencies, growth slowdowns, and coral color fading that occur from long-term dosing of calcium chloride and sodium bicarbonate. The addition of NaCl free salt counteracts excessive sodium chloride buildup and preserves stable water chemistry. Dissolve 25 g in 1000 ml RODI water and dose the same amount as calcium and KH buffer solutions, based on water tests and daily coral consumption. Reef Mineral Salt can be combined in solution with Calcium or Magnesium. Note: dosing does not replace water changes. Stable ionic ratios are essential for the health, coloration, and skeletal growth of all hard corals, especially SPS/LPS. Package: 800 g, 5000 g.</FULL_CONTENT>
+  <URL_EN>https://aquaforest.eu/en/products/seawater/water-treatment/reef-mineral-salt/</URL_EN>
+  <URL_PL>https://aquaforest.eu/pl/produkty/seawater/parametry-wody/reef-mineral-salt/</URL_PL>
+</PRODUCT_CARD>
+
+<PRODUCT_CARD>
+  <NAME>Reef Salt Plus</NAME>
+  <TITLE>Reef Salt Plus – Salt with Elevated Levels of Key Macroelements for SPS/LPS Corals</TITLE>
+  <CATEGORY>marine_salts</CATEGORY>
+  <DOMAIN>seawater</DOMAIN>
+  <DIFFICULTY>intermediate</DIFFICULTY>
+  <DOSAGE>355-415g_per_10L per as_needed_to_target_salinity, for each water change, any time</DOSAGE>
+  <COMPATIBLE_WITH>KH Buffer, Calcium, Magnesium, Reef Mineral Salt</COMPATIBLE_WITH>
+  <SIZES>5kg, 22kg</SIZES>
+  <FULL_CONTENT>Aquaforest Reef Salt Plus is a premium marine salt with elevated, ionically balanced concentrations of key macroelements such as alkalinity, calcium, and magnesium, specifically developed for heavily stocked SPS and LPS reef tanks. Years of research led to a unique, highly concentrated formula—providing optimal growth, color, and skeletal development. Regular water changes with Reef Salt Plus replenish macro- and micronutrients consumed by corals, reducing the need for extra supplementation and simplifying maintenance. The salt is manufactured under strict laboratory conditions, with every batch ICP-OES tested for consistency, quality, and safety. Typical dosing for 33 ppt (1.025 S.G.) is 390 g/10 l RO/DI water (13.75 oz/2.7 US gal), but detailed dosing tables allow optimal adjustment for fish only, LPS, and SPS setups. At higher salinity, parameters include Alk 10.4–12.1 dKH, Ca 430–470 mg/l, Mg 1300–1440 mg/l, K 360–410 mg/l. Fast-dissolving, contaminant-free, and available in 5 kg and 22 kg buckets. Use with RO/DI water at ~24°C. Always check salinity after mixing. For advanced aquarists and coral enthusiasts seeking the highest stability and color in large, fully stocked reefs.</FULL_CONTENT>
+  <URL_EN>https://aquaforest.eu/en/products/seawater/marine-salts/reef-salt-plus/</URL_EN>
+  <URL_PL>https://aquaforest.eu/pl/produkty/seawater/sole-morskie/reef-salt-plus/</URL_PL>
+</PRODUCT_CARD>
+
+<AQUAFOREST_KNOWLEDGE>
+  <TITLE>Even Better Aquarium Salt – Discover the New Formula</TITLE>
+  <CATEGORY>aquarium_salt</CATEGORY>
+  <TOPIC>Even Better Aquarium Salt</TOPIC>
+  <APPLICABLE_PRODUCTS>
+    - none
+  </APPLICABLE_PRODUCTS>
+  <FULL_TEXT>Aquaforest’s improved aquarium salt marks a new standard in quality, purity, and consistency for marine hobbyists. Years of research and development have produced a formula tailored to the precise demands of modern reefkeeping. **Advanced production technology** ensures every batch is homogeneously blended, with parameters stable and repeatable from bag to bag. The company’s switch to smaller, optimized batch sizes gives unmatched quality control, minimizing the risk of uneven mixes and guaranteeing identical results for every aquarist.
+
+**Purity of ingredients** is now at its highest level: all raw materials are chosen only from trusted, certified suppliers, and are further purified before mixing. This attention to sourcing translates to better water quality, less contamination risk, and an ideal habitat for sensitive marine organisms, including corals and invertebrates.
+
+**Quality control** is the core of the new formula. Each ingredient is individually tested before production, and the salt mixture is monitored at every stage. Internal quality standards exceed industry and supplier benchmarks – every batch undergoes comprehensive testing: solubility, clarity, pH, kH, organic content, and advanced analysis using ICP-OES with two independent, calibrated spectrometers. Full test results are posted online for every production batch, giving customers full transparency.
+
+**Lowered iron content** – based on direct customer feedback – means the salt is less likely to cause unwanted residue, reducing deposits in brine, and supports improved chemical balance in the aquarium. The macro- and microelement ratios have also been adjusted to better reflect the needs of marine life, supporting stable biological function, vibrant coloration, and coral health.
+
+**Why choose the new Aquaforest salt?** The product delivers consistent results, highest possible purity, and constant innovation in response to user needs. Benefits include:
+- Repeatable, stable parameters in every bag
+- Premium, certified, and purified raw materials
+- Continuous improvements from customer input
+- Full quality control at every stage of manufacture
+- Publicly available batch testing for transparency
+- Optimal micro- and macronutrient content for demanding marine organisms
+- Field-proven performance: tested in Aquaforest’s own display tanks and by top aquarists
+
+With the new formula, Aquaforest continues its commitment to meeting the highest standards in marine aquaristics. Whether you’re running a reef tank or a fish-only marine aquarium, this salt provides the foundation for healthy, stable, and visually stunning aquatic life.</FULL_TEXT>
+  <URL_EN>https://aquaforest.eu/en/knowledge-base/even-better-aquarium-salt-discover-the-new-formula/</URL_EN>
+  <URL_PL>https://aquaforest.eu/pl/baza-wiedzy/jeszcze-lepsza-sol-akwarystyczna-nowa-formula-soli-aquaforest/</URL_PL>
+</AQUAFOREST_KNOWLEDGE>
+
+<AQUAFOREST_KNOWLEDGE>
+  <TITLE>The Importance of Biodiversity in Reef Aquariums</TITLE>
+  <CATEGORY>biodiversity</CATEGORY>
+  <TOPIC>The Importance of Biodiversity in Reef Aquariums</TOPIC>
+  <APPLICABLE_PRODUCTS>
+    - AF Life Source
+    - AF Life Source allows marine aquarists to achieve thriving
+    - AF Life Source as a biodiversity booster
+    - AF Life Source is unsterilized
+  </APPLICABLE_PRODUCTS>
+  <FULL_TEXT>Biodiversity in reef aquariums is essential for creating resilient, self-sustaining marine ecosystems that closely mimic natural coral reefs. In the wild, a vast array of microorganisms, algae, bacteria, and fauna form complex symbiotic relationships with corals and fish. This diversity keeps water parameters stable, supports nutrient cycling, and enhances the health of every aquarium inhabitant. 
+
+**How microbial diversity supports coral health:** Diverse bacteria and microfauna play crucial roles in breaking down organic matter, recycling nitrogen and phosphorus, and transforming waste into usable nutrients. This keeps water clean, prevents harmful accumulations, and directly improves coral growth and resilience. A tank rich in microbial and biological diversity is less susceptible to parameter swings, disease outbreaks, and ecosystem crashes when new organisms are introduced.
+
+**Improved nutrient cycling and system stability:** Biodiverse aquariums have a more efficient nutrient loop, where beneficial microbes continuously break down detritus, re-release vital minerals, and support coral, invertebrate, and fish health. Enhanced biodiversity means fewer maintenance requirements, as natural processes keep the ecosystem balanced. 
+
+**AF Life Source as a biodiversity booster:** Aquaforest Life Source is a natural mud harvested from Fiji’s rich, volcanically influenced marine environment. It introduces a wide array of beneficial microorganisms, minerals, and elements directly to the tank. By dosing Life Source, aquarists can increase biodiversity, improving coral vitality, coloration, and growth, while helping the aquarium ecosystem mimic the complexity of wild reefs. Life Source is safe for use in refugia, deep sand beds, and main displays, and is compatible with sensitive equipment, having been thoroughly tested in both laboratory and real-world setups.
+
+**Dosing and application:** The recommended dose is 10 ml per 100 liters of water once a week, poured into a high-flow area for even distribution. Temporary cloudiness may appear, but is harmless and disappears as particles settle. Life Source can be used directly or diluted, and is safe for pumps and wavemakers when used as instructed.
+
+**Product origin and composition:** AF Life Source is unsterilized, undried mud, retaining all the natural bacteria and minerals that would otherwise be lost in purification processes. Its natural state preserves unique silicates, basalt fragments, and volcanic elements shaped over millennia in Fiji’s dynamic reef environment. Magnetic particles in the mud are naturally occurring basalt, not contaminants or heavy metals, and are safe for equipment and livestock.
+
+**Quality and environmental safety:** Each batch is carefully sourced and tested to ensure safety and efficacy, though as a natural product, trace oceanic impurities are possible. These are a minor risk compared to the vast benefits of enhanced biodiversity and improved system health. Extensive in-house testing on equipment and livestock confirm the safety of the product for both the ecosystem and technical systems.
+
+**Summary:** Promoting biodiversity through products like AF Life Source allows marine aquarists to achieve thriving, resilient tanks that mirror natural coral reefs. The addition of natural mud, minerals, and microbes fosters robust coral health, more stable water chemistry, less frequent maintenance, and a more beautiful aquarium. Biodiversity isn’t just an ecological goal—it’s a practical tool for long-term reef success.</FULL_TEXT>
+  <URL_EN>https://aquaforest.eu/en/knowledge-base/the-importance-of-biodiversity-in-reef-aquariums/</URL_EN>
+  <URL_PL>https://aquaforest.eu/pl/baza-wiedzy/bioroznorodnosc-w-akwariach-morskich/</URL_PL>
+</AQUAFOREST_KNOWLEDGE>
+
+<AQUAFOREST_KNOWLEDGE>
+  <TITLE>How to Set Up a Saltwater Aquarium: Complete Step-by-Step Beginner’s Guide</TITLE>
+  <CATEGORY>setup_guide</CATEGORY>
+  <TOPIC>How to Set Up a Saltwater Aquarium</TOPIC>
+  <APPLICABLE_PRODUCTS>
+    - AF OceanGuard with moisture
+    - Hybrid Pro Salt
+    - Reef Salt
+    - Sea Salt
+  </APPLICABLE_PRODUCTS>
+  <FULL_TEXT>Setting up a saltwater aquarium is an exciting hobby, opening the door to vibrant marine life in your home. Key steps: 1) **Planning livestock** – Decide which fish, corals, or invertebrates you want. Hardy species (clownfish, firefish, basslets) are ideal for beginners. 2) **Tank size and placement** – Larger tanks are more stable but heavier; always place on a strong, level surface and away from windows or heat sources. 3) **Essential equipment** – Choose a durable cabinet (e.g. AF OceanGuard with moisture-resistant panels), powerful filtration (sump or hang-on-back), heater (22–28°C), wave pumps, and lighting (simple for fish-only, reef lighting for corals). 4) **Sump setup** – Install filter media, connect overflow, return pump, skimmer, and heater; ensure accessibility and noise reduction. If no sump, rinse and install filters and skimmer directly in tank. 5) **RO water and salt** – Never use tap water. Use RO water and a high-quality salt (Sea Salt for fish, Reef Salt/Reef Salt+/Hybrid Pro Salt for corals, tailored for specific needs). Fill the tank, add substrate (live or rinsed inert sand), then gradually dissolve salt, testing salinity throughout. 6) **Aquascaping** – Arrange rocks for biological filtration and aesthetic; rocks support bacteria and shape flow. 7) **Lighting** – Install lights (timers recommended); corals require high PAR/spectrum. 8) **Start cycling** – Allow the nitrogen cycle to complete before adding livestock. Monitor ammonia, nitrite, nitrate, and stabilize parameters. 9) **Stocking and quarantine** – Add fish/corals gradually, starting with the hardiest, and always quarantine new arrivals. 10) **Ongoing care** – Test water, adjust equipment, and enjoy connecting with other aquarists via forums and groups (like Aquaforest Group). Common mistakes: starting too small, skipping RO, rushing livestock, or underestimating weight/support needs. With patience and attention to detail, a saltwater aquarium brings years of beauty and satisfaction.</FULL_TEXT>
+  <URL_EN>https://aquaforest.eu/en/knowledge-base/how-to-set-up-a-saltwater-aquarium/</URL_EN>
+  <URL_PL>https://aquaforest.eu/pl/baza-wiedzy/jak-zalozyc-akwarium-morskie-2/</URL_PL>
+</AQUAFOREST_KNOWLEDGE>
+
+[>] CONTEXT:
+  intent: Intent.PRODUCT_QUERY...
+  detected_language: pl...
+  business_analysis: {'business_interpretation': 'User is inquiring abo...
+  business_recommendations: 1 items
+
+--- EVALUATION TASK ---
+Determine if the cached information is sufficient to provide a comprehensive answer to the user's query.
+
+Consider:
+1. Does the cache contain relevant product information?
+2. Are there previous responses that address similar questions?
+3. Is the context sufficient to understand what the user is asking about?
+4. Can you provide specific details (dosage, usage, comparisons) from the cache?
+5. Can you reliably **augment** the cached information with your own domain knowledge to fill minor gaps?
+
+If you can combine the cache **plus** your own knowledge to generate a complete, helpful answer, mark it as **sufficient**.
+
+Respond in JSON format:
+{
+    "sufficient": true/false,
+    "confidence": 0.0-1.0,
+    "reasoning": "Detailed explanation of your decision",
+    "key_findings": ["specific relevant information found in cache or domain knowledge"],
+    "missing_info": ["what information is missing if insufficient"]
+}
+
+Be conservative, but you may leverage your own knowledge to complement the cache when deciding sufficiency.
+```
+
+## Response Metadata
+
+- Model: gemini-2.5-flash
+- Temperature: 0.3
+- Response length: N/A chars
+- Node execution time: N/As
+
+---
+*Generated by Aquaforest RAG Prompt Inspector*

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Calendar, Star, Zap, Bug, Shield, Smartphone } from 'lucide-react'
+import { Calendar, Star, Zap, Bug, Shield } from 'lucide-react'
 
 interface Update {
   version: string;
@@ -18,12 +18,16 @@ const updates: Update[] = [
     version: "2.2",
     date: "2025-08-25",
     type: "minor",
-    title: "Faster Responses, New Branding, and Smarter Understanding",
-    description: "A focused performance and usability release: noticeably faster answers, refreshed UI/UX aligned with the Aquaforest brand, expanded knowledge base, and better understanding of user intent and context through prompt optimizations.",
+    title: "New Mode, Faster Responses & Advanced AI Intelligence",
+    description: "A comprehensive release introducing the revolutionary New Mode with advanced diagnostic system, alongside significant performance improvements, refreshed UI/UX, and enhanced AI intelligence for superior aquarium consulting.",
     changes: [
       {
         category: "new",
         items: [
+          "New Mode - Advanced diagnostic system with user-level adaptation (Beginner/Intermediate/Expert classification)",
+          "Response Pacing & Cross-Selling Doctrine - Intelligent query classification between 'Quick Fact' and 'Deep Dive' responses",
+          "Dynamic Response Strategy - Automatically adjusts complexity, tone, and product recommendations based on user expertise level",
+          "Three Response Modes - Choose between Visionary Expert (enthusiastic), Ghostwriter (professional), and New Mode (adaptive diagnostic)",
           "Refreshed UI/UX with modern rounded surfaces, consistent brand accents (brand-600/700), and streamlined headers",
           "Knowledge base expansion – added detailed Aquaforest product descriptions and specs to RAG index",
           "Consistent visual language across loading indicators and 'Read more' interactions"
@@ -32,6 +36,9 @@ const updates: Update[] = [
       {
         category: "improved",
         items: [
+          "Smart User Classification - AI automatically detects beginner, intermediate, or expert users based on language and terminology",
+          "Adaptive Product Recommendations - Beginners get 2-3 essential products max, experts get full advanced product suites",
+          "Cross-selling Intelligence - Quick answers pivot to detailed consultations with strategic follow-up questions",
           "15–25% faster response times depending on query complexity",
           "Stronger conversation continuation with improved context carryover and follow-up coherence",
           "Intent Detector v2 – higher recall/precision for user intent, better paraphrase and multi-intent handling",

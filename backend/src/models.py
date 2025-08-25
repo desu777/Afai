@@ -49,7 +49,7 @@ class ConversationState(TypedDict):
     image_analysis: Optional[str]  # Opis zdjęcia wygenerowany przez LLM
     
     # [NEW] ACCESS LEVEL FIELD
-    access_level: Optional[str]  # User access level: "test", "admin", "support"
+    access_level: Optional[str]  # User access level: "visionary_expert", "support", "new_mode", "admin", "test"
     
     # [NEW] ICP ANALYSIS FIELDS
     icp_analysis: Optional[str]  # Analiza ICP przetworzona przez LLM

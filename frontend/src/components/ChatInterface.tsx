@@ -43,7 +43,7 @@ const ChatInterface: React.FC = () => {
   // Response format localStorage management
   useEffect(() => {
     const storedFormat = localStorage.getItem('af_response_format');
-    if (storedFormat && (storedFormat === 'visionary_expert' || storedFormat === 'ghostwriter')) {
+    if (storedFormat && (storedFormat === 'visionary_expert' || storedFormat === 'ghostwriter' || storedFormat === 'new_mode')) {
       setResponseFormat(storedFormat as ResponseFormat);
     }
   }, []);
@@ -169,7 +169,18 @@ const ChatInterface: React.FC = () => {
       let backendAccessLevel: string;
       if (accessLevel === 'admin') {
         // For admin users, map format selection to backend access level
-        backendAccessLevel = responseFormat === 'ghostwriter' ? 'support' : 'admin';
+        switch (responseFormat) {
+          case 'ghostwriter':
+            backendAccessLevel = 'support';
+            break;
+          case 'new_mode':
+            backendAccessLevel = 'new_mode';
+            break;
+          case 'visionary_expert':
+          default:
+            backendAccessLevel = 'admin';
+            break;
+        }
       } else {
         // For visionary_expert users, always use visionary_expert
         backendAccessLevel = 'visionary_expert';
