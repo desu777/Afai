@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Globe, Facebook } from 'lucide-react'
 
 interface SplashScreenProps {
   onAuthenticate: (accessLevel: 'visionary_expert' | 'admin') => void;
@@ -84,7 +84,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
       <div className="w-full max-w-md">
         {/* Logo and Title */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-lg bg-brand-600 shadow-lg mb-8">
+          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-brand-600 shadow-lg mb-8">
             <div className="circle">
               <div className="wave"></div>
             </div>
@@ -95,9 +95,9 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
             <svg viewBox="0 0 200 50" className="w-full h-16 max-w-[320px] mx-auto">
               <defs>
                 <linearGradient id="splash-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" style={{stopColor: '#9333ea'}} />
-                  <stop offset="50%" style={{stopColor: '#7c3aed'}} />
-                  <stop offset="100%" style={{stopColor: '#5b21b6'}} />
+                  <stop offset="0%" style={{stopColor: '#47154C'}} />
+                  <stop offset="50%" style={{stopColor: '#47154C'}} />
+                  <stop offset="100%" style={{stopColor: '#47154C'}} />
                 </linearGradient>
                 <pattern id="splash-wave" x="0" y="-0.5" width="100%" height="100%" patternUnits="userSpaceOnUse">
                   <path d="M-40 25 Q-30 20 -20 25 T0 25 T20 25 T40 25 T60 25 T80 25 T100 25 T120 25 T140 25 T160 25 T180 25 T200 25 T220 25 V50 H-40z" fill="url(#splash-gradient)">
@@ -123,7 +123,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
         </div>
 
         {/* Login Form */}
-        <div className="bg-white rounded-lg p-8 shadow-md border border-gray-200">
+        <div className="bg-white rounded-2xl p-8 shadow-md border border-gray-200">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
@@ -135,7 +135,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-lg focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 outline-none transition-all duration-200 font-medium"
+                  className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-2xl focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 outline-none transition-all duration-200 font-medium"
                   placeholder="Enter your access code"
                   disabled={isLoading}
                 />
@@ -160,7 +160,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
             <button
               type="submit"
               disabled={!password.trim() || isLoading}
-              className="w-full bg-brand-600 hover:bg-brand-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-lg shadow-sm transition-colors duration-200"
+              className="w-full bg-brand-600 hover:bg-brand-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-2xl shadow-sm transition-colors duration-200"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center space-x-2">
@@ -181,10 +181,36 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
             alt="Aquaforest" 
             className="h-8 mx-auto opacity-60 hover:opacity-80 transition-opacity"
           />
-          <div className="space-y-2">
+          <div className="space-y-3">
             <p className="text-xs text-gray-500 font-medium">
               Aquaforest AI Assistant • Secure Access Required
             </p>
+            
+            {/* Social Links */}
+            <div className="flex items-center justify-center space-x-4">
+              <a 
+                href="https://aquaforest.eu/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center space-x-1 px-3 py-2 bg-white hover:bg-gray-50 border border-gray-200 rounded-2xl transition-all duration-200 hover:shadow-sm group"
+                title="Visit Aquaforest website"
+              >
+                <Globe className="w-4 h-4 text-brand-600 group-hover:text-brand-700" />
+                <span className="text-xs text-gray-600 group-hover:text-gray-700 font-medium">Website</span>
+              </a>
+              
+              <a 
+                href="https://www.facebook.com/groups/aquaforestgroup/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex items-center space-x-1 px-3 py-2 bg-white hover:bg-gray-50 border border-gray-200 rounded-2xl transition-all duration-200 hover:shadow-sm group"
+                title="Join Aquaforest Facebook Group"
+              >
+                <Facebook className="w-4 h-4 text-brand-600 group-hover:text-brand-700" />
+                <span className="text-xs text-gray-600 group-hover:text-gray-700 font-medium">Community</span>
+              </a>
+            </div>
+            
             <p className="text-xs text-gray-400 font-medium">
               Access code will be remembered for 24 hours
             </p>
