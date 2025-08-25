@@ -179,7 +179,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
           <img 
             src="/aquaforest_logo.png" 
             alt="Aquaforest" 
-            className="h-6 sm:h-8 mx-auto opacity-60 hover:opacity-80 transition-opacity"
+            className="h-6 sm:h-8 mx-auto opacity-60 hover:opacity-80 transition-all duration-200 logo-brand-filter"
           />
           <div className="space-y-3">
             <p className="text-xs text-gray-500 font-medium">

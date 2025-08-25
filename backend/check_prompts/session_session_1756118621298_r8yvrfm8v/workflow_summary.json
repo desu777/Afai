@@ -1,0 +1,81 @@
+{
+  "session_id": "session_1756118621298_r8yvrfm8v",
+  "timestamp": "2025-08-25 12:44:34",
+  "user_query": "Prowadzę dojrzały, 2-letni zbiornik SPS o pojemności 550 litrów, oparty w całości na Waszym systemie probiotycznym. Od około 3 miesięcy borykam się z trudnym do zdiagnozowania problemem, który dotyka głównie wrażliwe akropory (np. Acropora tenuis, A. millepora).\n\nProblem: Korale powoli, ale systematycznie tracą tkankę od podstawy (slow tissue necrosis - STN), polipowanie jest bardzo słabe, a kolory, mimo niskich nutrientów, stały się \"wyprane\" i matowe, tracąc głębię i fluorescencję. Problem nie dotyka korali LPS ani miękkich.\n\nMoje parametry są laboratoryjnie stabilne i mierzone regularnie testami ICP oraz fotometrem:\n\nSól: Probiotic Reef Salt\n\nSuplementacja: Balling Components 1,2,3+ (dostosowany dawkami z kalkulatora AF)\n\nKH: 7.5 dKH (stabilne, wahania +/- 0.1)\n\nCa: 440 ppm\n\nMg: 1350 ppm\n\nK (Potassium): 410 ppm\n\nNO3: 1-2 ppm (Hanna HR)\n\nPO4: 0.02 ppm (Hanna ULR)\n\nZasolenie: 1.025 (35 PPT)\n\nTemperatura: 25.5°C\n\nSystem probiotyczny:\n\nStosuję regularnie Pro Bio S i -NP Pro zgodnie z zaleceniami. Bakterie są aktywne, odpieniacz pracuje stabilnie, wyciągając ciemny, gęsty urobek. Nie ma plag sinic ani dino.\n\nMoja hipoteza i pytanie:\nWydaje mi się, że problem nie leży w makroelementach, ale w czymś głębszym, być może związanym z długotrwałym prowadzeniem systemu ULNS (Ultra-Low Nutrient System) na probiotyce. Podejrzewam, że mogło dojść do \"wyjałowienia\" wody z kluczowych mikroelementów i aminokwasów, których nie uzupełnia standardowa suplementacja, lub do jakiejś formy blokady ich przyswajalności przez konkurencyjne szczepy bakterii. Standardowe testy ICP nie wykazują drastycznych niedoborów.\n\nMoje dogłębne pytanie brzmi:\nCzy w Waszej praktyce spotkaliście się z sytuacją, gdzie długotrwałe, skuteczne obniżanie nutrientów za pomocą Pro Bio S i -NP Pro prowadzi do wtórnego, ukrytego niedoboru specyficznych pierwiastków śladowych (np. manganu, wanadu, jodu w formie organicznej) lub aminokwasów, co skutkuje objawami STN od podstawy i blaknięciem korali, mimo idealnych parametrów głównych? Jakie kroki diagnostyczne i jakie konkretnie produkty z Waszej zaawansowanej linii (np. AF Amino Mix, AF Build, AF Vitality, AF Power Elixir) powinienem zastosować w sposób systematyczny i kontrolowany, aby zdiagnozować i odwrócić ten trend, nie powodując jednocześnie szoku w zbiorniku i wzrostu niepożądanych glonów?\"\n\n",
+  "detected_language": "en",
+  "final_intent": "other",
+  "workflow_path": [
+    "intent_detector_text",
+    "business_reasoner",
+    "query_optimizer",
+    "response_formatter_complex"
+  ],
+  "total_prompts": 4,
+  "total_execution_time": 52.5795464515686,
+  "prompts": [
+    {
+      "counter": 1,
+      "node_name": "intent_detector_text",
+      "filename": "001_intent_detector_text.md",
+      "timestamp": "2025-08-25 12:43:45",
+      "prompt_length": 8015,
+      "metadata": {
+        "user_query": "Prowadzę dojrzały, 2-letni zbiornik SPS o pojemności 550 litrów, oparty w całości na Waszym systemie probiotycznym. Od około 3 miesięcy borykam się z trudnym do zdiagnozowania problemem, który dotyka głównie wrażliwe akropory (np. Acropora tenuis, A. millepora).\n\nProblem: Korale powoli, ale systematycznie tracą tkankę od podstawy (slow tissue necrosis - STN), polipowanie jest bardzo słabe, a kolory, mimo niskich nutrientów, stały się \"wyprane\" i matowe, tracąc głębię i fluorescencję. Problem nie dotyka korali LPS ani miękkich.\n\nMoje parametry są laboratoryjnie stabilne i mierzone regularnie testami ICP oraz fotometrem:\n\nSól: Probiotic Reef Salt\n\nSuplementacja: Balling Components 1,2,3+ (dostosowany dawkami z kalkulatora AF)\n\nKH: 7.5 dKH (stabilne, wahania +/- 0.1)\n\nCa: 440 ppm\n\nMg: 1350 ppm\n\nK (Potassium): 410 ppm\n\nNO3: 1-2 ppm (Hanna HR)\n\nPO4: 0.02 ppm (Hanna ULR)\n\nZasolenie: 1.025 (35 PPT)\n\nTemperatura: 25.5°C\n\nSystem probiotyczny:\n\nStosuję regularnie Pro Bio S i -NP Pro zgodnie z zaleceniami. Bakterie są aktywne, odpieniacz pracuje stabilnie, wyciągając ciemny, gęsty urobek. Nie ma plag sinic ani dino.\n\nMoja hipoteza i pytanie:\nWydaje mi się, że problem nie leży w makroelementach, ale w czymś głębszym, być może związanym z długotrwałym prowadzeniem systemu ULNS (Ultra-Low Nutrient System) na probiotyce. Podejrzewam, że mogło dojść do \"wyjałowienia\" wody z kluczowych mikroelementów i aminokwasów, których nie uzupełnia standardowa suplementacja, lub do jakiejś formy blokady ich przyswajalności przez konkurencyjne szczepy bakterii. Standardowe testy ICP nie wykazują drastycznych niedoborów.\n\nMoje dogłębne pytanie brzmi:\nCzy w Waszej praktyce spotkaliście się z sytuacją, gdzie długotrwałe, skuteczne obniżanie nutrientów za pomocą Pro Bio S i -NP Pro prowadzi do wtórnego, ukrytego niedoboru specyficznych pierwiastków śladowych (np. manganu, wanadu, jodu w formie organicznej) lub aminokwasów, co skutkuje objawami STN od podstawy i blaknięciem korali, mimo idealnych parametrów głównych? Jakie kroki diagnostyczne i jakie konkretnie produkty z Waszej zaawansowanej linii (np. AF Amino Mix, AF Build, AF Vitality, AF Power Elixir) powinienem zastosować w sposób systematyczny i kontrolowany, aby zdiagnozować i odwrócić ten trend, nie powodując jednocześnie szoku w zbiorniku i wzrostu niepożądanych glonów?\"\n\n",
+        "intent": "other",
+        "detected_language": "en",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.3,
+        "llm_response_time": 2965.4643535614014,
+        "chat_history_length": 0
+      }
+    },
+    {
+      "counter": 2,
+      "node_name": "business_reasoner",
+      "filename": "002_business_reasoner.md",
+      "timestamp": "2025-08-25 12:43:57",
+      "prompt_length": 367570,
+      "metadata": {
+        "user_query": "Prowadzę dojrzały, 2-letni zbiornik SPS o pojemności 550 litrów, oparty w całości na Waszym systemie probiotycznym. Od około 3 miesięcy borykam się z trudnym do zdiagnozowania problemem, który dotyka głównie wrażliwe akropory (np. Acropora tenuis, A. millepora).\n\nProblem: Korale powoli, ale systematycznie tracą tkankę od podstawy (slow tissue necrosis - STN), polipowanie jest bardzo słabe, a kolory, mimo niskich nutrientów, stały się \"wyprane\" i matowe, tracąc głębię i fluorescencję. Problem nie dotyka korali LPS ani miękkich.\n\nMoje parametry są laboratoryjnie stabilne i mierzone regularnie testami ICP oraz fotometrem:\n\nSól: Probiotic Reef Salt\n\nSuplementacja: Balling Components 1,2,3+ (dostosowany dawkami z kalkulatora AF)\n\nKH: 7.5 dKH (stabilne, wahania +/- 0.1)\n\nCa: 440 ppm\n\nMg: 1350 ppm\n\nK (Potassium): 410 ppm\n\nNO3: 1-2 ppm (Hanna HR)\n\nPO4: 0.02 ppm (Hanna ULR)\n\nZasolenie: 1.025 (35 PPT)\n\nTemperatura: 25.5°C\n\nSystem probiotyczny:\n\nStosuję regularnie Pro Bio S i -NP Pro zgodnie z zaleceniami. Bakterie są aktywne, odpieniacz pracuje stabilnie, wyciągając ciemny, gęsty urobek. Nie ma plag sinic ani dino.\n\nMoja hipoteza i pytanie:\nWydaje mi się, że problem nie leży w makroelementach, ale w czymś głębszym, być może związanym z długotrwałym prowadzeniem systemu ULNS (Ultra-Low Nutrient System) na probiotyce. Podejrzewam, że mogło dojść do \"wyjałowienia\" wody z kluczowych mikroelementów i aminokwasów, których nie uzupełnia standardowa suplementacja, lub do jakiejś formy blokady ich przyswajalności przez konkurencyjne szczepy bakterii. Standardowe testy ICP nie wykazują drastycznych niedoborów.\n\nMoje dogłębne pytanie brzmi:\nCzy w Waszej praktyce spotkaliście się z sytuacją, gdzie długotrwałe, skuteczne obniżanie nutrientów za pomocą Pro Bio S i -NP Pro prowadzi do wtórnego, ukrytego niedoboru specyficznych pierwiastków śladowych (np. manganu, wanadu, jodu w formie organicznej) lub aminokwasów, co skutkuje objawami STN od podstawy i blaknięciem korali, mimo idealnych parametrów głównych? Jakie kroki diagnostyczne i jakie konkretnie produkty z Waszej zaawansowanej linii (np. AF Amino Mix, AF Build, AF Vitality, AF Power Elixir) powinienem zastosować w sposób systematyczny i kontrolowany, aby zdiagnozować i odwrócić ten trend, nie powodując jednocześnie szoku w zbiorniku i wzrostu niepożądanych glonów?\"\n\n",
+        "intent": "Intent.PRODUCT_QUERY",
+        "detected_language": "pl",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.5,
+        "llm_response_time": 11389.844417572021,
+        "chat_history_length": 0
+      }
+    },
+    {
+      "counter": 3,
+      "node_name": "query_optimizer",
+      "filename": "003_query_optimizer.md",
+      "timestamp": "2025-08-25 12:43:59",
+      "prompt_length": 11014,
+      "metadata": {
+        "user_query": "Prowadzę dojrzały, 2-letni zbiornik SPS o pojemności 550 litrów, oparty w całości na Waszym systemie probiotycznym. Od około 3 miesięcy borykam się z trudnym do zdiagnozowania problemem, który dotyka głównie wrażliwe akropory (np. Acropora tenuis, A. millepora).\n\nProblem: Korale powoli, ale systematycznie tracą tkankę od podstawy (slow tissue necrosis - STN), polipowanie jest bardzo słabe, a kolory, mimo niskich nutrientów, stały się \"wyprane\" i matowe, tracąc głębię i fluorescencję. Problem nie dotyka korali LPS ani miękkich.\n\nMoje parametry są laboratoryjnie stabilne i mierzone regularnie testami ICP oraz fotometrem:\n\nSól: Probiotic Reef Salt\n\nSuplementacja: Balling Components 1,2,3+ (dostosowany dawkami z kalkulatora AF)\n\nKH: 7.5 dKH (stabilne, wahania +/- 0.1)\n\nCa: 440 ppm\n\nMg: 1350 ppm\n\nK (Potassium): 410 ppm\n\nNO3: 1-2 ppm (Hanna HR)\n\nPO4: 0.02 ppm (Hanna ULR)\n\nZasolenie: 1.025 (35 PPT)\n\nTemperatura: 25.5°C\n\nSystem probiotyczny:\n\nStosuję regularnie Pro Bio S i -NP Pro zgodnie z zaleceniami. Bakterie są aktywne, odpieniacz pracuje stabilnie, wyciągając ciemny, gęsty urobek. Nie ma plag sinic ani dino.\n\nMoja hipoteza i pytanie:\nWydaje mi się, że problem nie leży w makroelementach, ale w czymś głębszym, być może związanym z długotrwałym prowadzeniem systemu ULNS (Ultra-Low Nutrient System) na probiotyce. Podejrzewam, że mogło dojść do \"wyjałowienia\" wody z kluczowych mikroelementów i aminokwasów, których nie uzupełnia standardowa suplementacja, lub do jakiejś formy blokady ich przyswajalności przez konkurencyjne szczepy bakterii. Standardowe testy ICP nie wykazują drastycznych niedoborów.\n\nMoje dogłębne pytanie brzmi:\nCzy w Waszej praktyce spotkaliście się z sytuacją, gdzie długotrwałe, skuteczne obniżanie nutrientów za pomocą Pro Bio S i -NP Pro prowadzi do wtórnego, ukrytego niedoboru specyficznych pierwiastków śladowych (np. manganu, wanadu, jodu w formie organicznej) lub aminokwasów, co skutkuje objawami STN od podstawy i blaknięciem korali, mimo idealnych parametrów głównych? Jakie kroki diagnostyczne i jakie konkretnie produkty z Waszej zaawansowanej linii (np. AF Amino Mix, AF Build, AF Vitality, AF Power Elixir) powinienem zastosować w sposób systematyczny i kontrolowany, aby zdiagnozować i odwrócić ten trend, nie powodując jednocześnie szoku w zbiorniku i wzrostu niepożądanych glonów?\"\n\n",
+        "intent": "Intent.PRODUCT_QUERY",
+        "detected_language": "pl",
+        "model_name": "gemini-2.5-flash",
+        "temperature": null,
+        "llm_response_time": 2370.3458309173584,
+        "chat_history_length": 0
+      }
+    },
+    {
+      "counter": 4,
+      "node_name": "response_formatter_complex",
+      "filename": "004_response_formatter_complex.md",
+      "timestamp": "2025-08-25 12:44:34",
+      "prompt_length": 129253,
+      "metadata": {
+        "user_query": "Prowadzę dojrzały, 2-letni zbiornik SPS o pojemności 550 litrów, oparty w całości na Waszym systemie probiotycznym. Od około 3 miesięcy borykam się z trudnym do zdiagnozowania problemem, który dotyka głównie wrażliwe akropory (np. Acropora tenuis, A. millepora).\n\nProblem: Korale powoli, ale systematycznie tracą tkankę od podstawy (slow tissue necrosis - STN), polipowanie jest bardzo słabe, a kolory, mimo niskich nutrientów, stały się \"wyprane\" i matowe, tracąc głębię i fluorescencję. Problem nie dotyka korali LPS ani miękkich.\n\nMoje parametry są laboratoryjnie stabilne i mierzone regularnie testami ICP oraz fotometrem:\n\nSól: Probiotic Reef Salt\n\nSuplementacja: Balling Components 1,2,3+ (dostosowany dawkami z kalkulatora AF)\n\nKH: 7.5 dKH (stabilne, wahania +/- 0.1)\n\nCa: 440 ppm\n\nMg: 1350 ppm\n\nK (Potassium): 410 ppm\n\nNO3: 1-2 ppm (Hanna HR)\n\nPO4: 0.02 ppm (Hanna ULR)\n\nZasolenie: 1.025 (35 PPT)\n\nTemperatura: 25.5°C\n\nSystem probiotyczny:\n\nStosuję regularnie Pro Bio S i -NP Pro zgodnie z zaleceniami. Bakterie są aktywne, odpieniacz pracuje stabilnie, wyciągając ciemny, gęsty urobek. Nie ma plag sinic ani dino.\n\nMoja hipoteza i pytanie:\nWydaje mi się, że problem nie leży w makroelementach, ale w czymś głębszym, być może związanym z długotrwałym prowadzeniem systemu ULNS (Ultra-Low Nutrient System) na probiotyce. Podejrzewam, że mogło dojść do \"wyjałowienia\" wody z kluczowych mikroelementów i aminokwasów, których nie uzupełnia standardowa suplementacja, lub do jakiejś formy blokady ich przyswajalności przez konkurencyjne szczepy bakterii. Standardowe testy ICP nie wykazują drastycznych niedoborów.\n\nMoje dogłębne pytanie brzmi:\nCzy w Waszej praktyce spotkaliście się z sytuacją, gdzie długotrwałe, skuteczne obniżanie nutrientów za pomocą Pro Bio S i -NP Pro prowadzi do wtórnego, ukrytego niedoboru specyficznych pierwiastków śladowych (np. manganu, wanadu, jodu w formie organicznej) lub aminokwasów, co skutkuje objawami STN od podstawy i blaknięciem korali, mimo idealnych parametrów głównych? Jakie kroki diagnostyczne i jakie konkretnie produkty z Waszej zaawansowanej linii (np. AF Amino Mix, AF Build, AF Vitality, AF Power Elixir) powinienem zastosować w sposób systematyczny i kontrolowany, aby zdiagnozować i odwrócić ten trend, nie powodując jednocześnie szoku w zbiorniku i wzrostu niepożądanych glonów?\"\n\n",
+        "intent": "Intent.PRODUCT_QUERY",
+        "detected_language": "pl",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.7,
+        "llm_response_time": 30210.13855934143,
+        "chat_history_length": 0
+      }
+    }
+  ]
+}

@@ -168,7 +168,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           <img 
             src="/aquaforest_logo.png" 
             alt="Aquaforest" 
-            className="h-8 mx-auto opacity-60 hover:opacity-80 transition-opacity"
+            className="h-8 mx-auto opacity-60 hover:opacity-80 transition-all duration-200 logo-brand-filter"
           />
           <p className="text-body text-xs text-gray-500 font-medium">
             Afai can make mistakes. Always verify important reef parameters.

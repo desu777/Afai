@@ -302,7 +302,7 @@ const AdminFeedbackPanel: React.FC<AdminFeedbackPanelProps> = ({ accessLevel }) 
               <img 
                 src="/aquaforest_logo.png" 
                 alt="Aquaforest" 
-                className="h-5 sm:h-6 opacity-60"
+                className="h-5 sm:h-6 opacity-60 hover:opacity-80 transition-all duration-200 logo-brand-filter"
               />
             </div>
           </div>

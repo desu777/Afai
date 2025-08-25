@@ -534,4 +534,14 @@ textarea {
 
 .animate-shimmer {
   animation: shimmer 2s ease-in-out infinite;
+}
+
+/* Logo brand color filter */
+.logo-brand-filter {
+  filter: brightness(0.78) saturate(1.15) contrast(1.08);
+  transition: filter 0.2s ease;
+}
+
+.logo-brand-filter:hover {
+  filter: brightness(0.88) saturate(1.15) contrast(1.08);
 } 
