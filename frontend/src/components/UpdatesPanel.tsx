@@ -24,8 +24,9 @@ const updates: Update[] = [
       {
         category: "new",
         items: [
-          "New Mode - Advanced diagnostic system with user-level adaptation (Beginner/Intermediate/Expert classification)",
-          "Response Pacing & Cross-Selling Doctrine - Intelligent query classification between 'Quick Fact' and 'Deep Dive' responses",
+          "New Mode - Smart response length adjustment - LLM model automatically adapts answer length to user's question type, saving time",
+          "Advanced diagnostic system with user-level adaptation (Beginner/Intermediate/Expert classification)",
+          "Query Urgency & Depth Analysis - Intelligent classification between 'Quick Fact' and 'Deep Dive' responses with dynamic length strategy",
           "Dynamic Response Strategy - Automatically adjusts complexity, tone, and product recommendations based on user expertise level",
           "Three Response Modes - Choose between Visionary Expert (enthusiastic), Ghostwriter (professional), and New Mode (adaptive diagnostic)",
           "Refreshed UI/UX with modern rounded surfaces, consistent brand accents (brand-600/700), and streamlined headers",
