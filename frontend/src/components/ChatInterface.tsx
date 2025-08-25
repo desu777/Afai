@@ -182,8 +182,16 @@ const ChatInterface: React.FC = () => {
             break;
         }
       } else {
-        // For visionary_expert users, always use visionary_expert
-        backendAccessLevel = 'visionary_expert';
+        // For visionary_expert users, map based on selected format
+        switch (responseFormat) {
+          case 'new_mode':
+            backendAccessLevel = 'new_mode';
+            break;
+          case 'visionary_expert':
+          default:
+            backendAccessLevel = 'visionary_expert';
+            break;
+        }
       }
 
       if (debugMode) {
@@ -361,14 +369,13 @@ const ChatInterface: React.FC = () => {
                 
                 {/* Center - Model Selector for mobile, Left for desktop */}
                 <div className="flex-1 md:flex-none">
-                  {accessLevel === 'admin' && (
-                    <div className="flex justify-center md:justify-start md:absolute md:top-4 md:left-16">
-                      <ResponseFormatSelector
-                        selectedFormat={responseFormat}
-                        onFormatChange={updateResponseFormat}
-                      />
-                    </div>
-                  )}
+                  <div className="flex justify-center md:justify-start md:absolute md:top-4 md:left-16">
+                    <ResponseFormatSelector
+                      selectedFormat={responseFormat}
+                      onFormatChange={updateResponseFormat}
+                      accessLevel={accessLevel}
+                    />
+                  </div>
                 </div>
                 
                 {/* Right side - empty space */}

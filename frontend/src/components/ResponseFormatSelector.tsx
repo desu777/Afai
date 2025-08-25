@@ -5,13 +5,14 @@ import { ResponseFormat, ResponseFormatOption } from '../types'
 interface ResponseFormatSelectorProps {
   selectedFormat: ResponseFormat;
   onFormatChange: (format: ResponseFormat) => void;
+  accessLevel: 'visionary_expert' | 'admin';
 }
 
 const formatOptions: ResponseFormatOption[] = [
   {
     id: 'visionary_expert',
     label: 'Visionary Expert',
-    description: 'Enthusiastic AI assistant with passion for reefing (Afai persona)'
+    description: 'Enthusiastic AI assistant with passion for reefing'
   },
   {
     id: 'ghostwriter',
@@ -27,13 +28,23 @@ const formatOptions: ResponseFormatOption[] = [
 
 const ResponseFormatSelector: React.FC<ResponseFormatSelectorProps> = ({
   selectedFormat,
-  onFormatChange
+  onFormatChange,
+  accessLevel
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const selectedOption = formatOptions.find(option => option.id === selectedFormat) || formatOptions[0];
+  // Filter options based on access level
+  const availableOptions = formatOptions.filter(option => {
+    if (accessLevel === 'admin') {
+      return true; // Admin sees all options
+    } else {
+      return option.id !== 'ghostwriter'; // Visionary expert doesn't see ghostwriter
+    }
+  });
+
+  const selectedOption = availableOptions.find(option => option.id === selectedFormat) || availableOptions[0];
 
   const closeDropdown = () => {
     setIsClosing(true);
@@ -116,7 +127,7 @@ const ResponseFormatSelector: React.FC<ResponseFormatSelectorProps> = ({
           ${isClosing ? 'animate-dropdown-out' : 'animate-dropdown-in'}
         `}>
           <div className="py-2">
-            {formatOptions.map((option) => (
+            {availableOptions.map((option) => (
               <button
                 key={option.id}
                 onClick={() => handleOptionSelect(option.id)}
