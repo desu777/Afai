@@ -174,11 +174,11 @@ OPENAI_TEMPERATURE = float(os.getenv("OPENAI_TEMPERATURE", "0.3"))  # Default to
 DEFAULT_K_VALUE = int(os.getenv("DEFAULT_K_VALUE", "12"))
 ENHANCED_K_VALUE = int(os.getenv("ENHANCED_K_VALUE", "12"))
 
-# Pinecone parallel search configuration
-MAX_CONCURRENT_QUERIES = int(os.getenv("MAX_CONCURRENT_QUERIES", "4"))
-MAX_CONCURRENT_EMBEDDINGS = int(os.getenv("MAX_CONCURRENT_EMBEDDINGS", "4"))
-PINECONE_POOL_THREADS = int(os.getenv("PINECONE_POOL_THREADS", "50"))
-PINECONE_CONNECTION_POOL_MAX = int(os.getenv("PINECONE_CONNECTION_POOL_MAX", "50"))
+# Pinecone parallel search configuration (OPTIMIZED for modular architecture)
+MAX_CONCURRENT_QUERIES = int(os.getenv("MAX_CONCURRENT_QUERIES", "8"))
+MAX_CONCURRENT_EMBEDDINGS = int(os.getenv("MAX_CONCURRENT_EMBEDDINGS", "8"))
+PINECONE_POOL_THREADS = int(os.getenv("PINECONE_POOL_THREADS", "60"))
+PINECONE_CONNECTION_POOL_MAX = int(os.getenv("PINECONE_CONNECTION_POOL_MAX", "60"))
 ENABLE_PARALLEL_SEARCH = os.getenv("ENABLE_PARALLEL_SEARCH", "true").lower() == "true"
 
 # Language support
