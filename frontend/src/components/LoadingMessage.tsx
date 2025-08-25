@@ -61,7 +61,7 @@ const LoadingMessage: React.FC = () => {
           </div>
         </div>
         
-        <div className="rounded-lg sm:rounded-lg px-4 py-3 sm:px-6 sm:py-4 bg-white/95 backdrop-blur-md border border-brand-200/40 shadow-sm hover:shadow-lg transition-all duration-300 flex-1 min-w-0">
+        <div className="rounded-2xl px-4 py-3 sm:px-6 sm:py-4 bg-white/95 backdrop-blur-md border border-brand-200/40 shadow-sm hover:shadow-lg transition-all duration-300 flex-1 min-w-0">
           <div className="flex items-center space-x-2 sm:space-x-3">
             <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 text-brand-600 animate-spin flex-shrink-0" />
             <span className="text-gray-700 text-xs sm:text-sm font-medium break-words">

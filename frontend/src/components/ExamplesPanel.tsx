@@ -79,15 +79,21 @@ const ExamplesPanel: React.FC<ExamplesPanelProps> = ({ onExampleSelect }) => {
   return (
     <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
       {/* Header - fixed */}
-      <div className="bg-white border-b border-gray-200 flex-shrink-0">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Afai Examples
-          </h1>
-          <p className="text-gray-600 text-sm">
-            Get inspired by these example questions to make the most of your reef aquarium consultation.
-            Click on any question to use it directly or copy it to modify.
-          </p>
+      <div className="bg-gray-50 flex-shrink-0 relative z-10">
+        <div className="max-w-7xl mx-auto pl-16 pr-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <h1 className="text-lg sm:text-xl font-light text-gray-900">Examples</h1>
+              <span className="text-xs sm:text-sm text-gray-500 hidden sm:inline">
+                Community
+              </span>
+            </div>
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <span className="text-xs sm:text-sm text-gray-500 hidden md:inline">
+                Get inspired by these example questions
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -96,8 +102,8 @@ const ExamplesPanel: React.FC<ExamplesPanelProps> = ({ onExampleSelect }) => {
         <div className="max-w-4xl mx-auto p-4 sm:p-6">
           <div className="grid gap-6">
             {examples.map((category, categoryIndex) => (
-              <div key={categoryIndex} className="bg-white rounded-lg border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+              <div key={categoryIndex} className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6">
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900 mb-4 flex items-center">
                   <div className="w-2 h-2 bg-brand-500 rounded-full mr-3"></div>
                   {category.category}
                 </h2>
@@ -106,11 +112,11 @@ const ExamplesPanel: React.FC<ExamplesPanelProps> = ({ onExampleSelect }) => {
                   {category.questions.map((question, questionIndex) => (
                     <div 
                       key={questionIndex}
-                      className="group flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                      className="group flex items-center justify-between p-3 sm:p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer"
                       onClick={() => onExampleSelect(question)}
                     >
-                      <div className="flex-1 mr-4">
-                        <p className="text-gray-700 group-hover:text-brand-600 transition-colors">
+                      <div className="flex-1 mr-2 sm:mr-4">
+                        <p className="text-sm sm:text-base text-gray-700 group-hover:text-brand-600 transition-colors">
                           {question}
                         </p>
                       </div>
@@ -121,7 +127,7 @@ const ExamplesPanel: React.FC<ExamplesPanelProps> = ({ onExampleSelect }) => {
                             e.stopPropagation();
                             handleCopyExample(question);
                           }}
-                          className="p-2 text-gray-400 hover:text-brand-600 transition-colors rounded-lg hover:bg-white"
+                          className="p-1.5 sm:p-2 text-gray-400 hover:text-brand-600 transition-colors rounded-xl hover:bg-white"
                           title="Copy question"
                         >
                           <Copy className="w-4 h-4" />

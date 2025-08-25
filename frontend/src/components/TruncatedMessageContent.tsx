@@ -106,7 +106,7 @@ const TruncatedMessageContent: React.FC<TruncatedMessageContentProps> = ({
             <div className="space-y-2">
               <button
                 onClick={() => toggleSection(section.id)}
-                className="group flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-violet-700 hover:from-purple-700 hover:to-violet-800 transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95 px-4 py-2.5 rounded-full shadow-md hover:shadow-lg border border-purple-500/20"
+                className="group flex items-center gap-2 text-sm font-semibold text-white bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 transition-all duration-300 ease-in-out transform hover:scale-105 active:scale-95 px-4 py-2.5 rounded-full shadow-md hover:shadow-lg border border-brand-500/20"
               >
                 <span>{expandedSections.has(section.id) ? 'Show Less' : 'Read More'}</span>
                 {expandedSections.has(section.id) ? (
@@ -117,7 +117,7 @@ const TruncatedMessageContent: React.FC<TruncatedMessageContentProps> = ({
               </button>
               
               {expandedSections.has(section.id) && (
-                <div className="animate-fadeIn pl-6 border-l-4 border-purple-400 bg-gradient-to-r from-purple-50/40 to-violet-50/40 rounded-r-lg py-4 pr-4 shadow-sm transition-all duration-300 ease-in-out">
+                <div className="animate-fadeIn pl-6 border-l-4 border-brand-400 bg-gradient-to-r from-brand-50/40 to-brand-100/40 rounded-r-lg py-4 pr-4 shadow-sm transition-all duration-300 ease-in-out">
                   <MessageContent content={section.content} isUser={false} />
                 </div>
               )}

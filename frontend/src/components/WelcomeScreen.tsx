@@ -58,7 +58,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 max-w-4xl mx-auto">
       {/* AF AI Icon */}
-      <div className="w-20 h-20 bg-brand-600 rounded-lg flex items-center justify-center shadow-lg mb-6 overflow-hidden">
+      <div className="w-20 h-20 bg-brand-600 rounded-2xl flex items-center justify-center shadow-lg mb-6 overflow-hidden">
         <div className="circle">
           <div className="wave"></div>
         </div>
@@ -89,7 +89,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
         />
         
         {/* 🆕 Główny kontener - jeden element z textarea + button bar */}
-        <div className="relative rounded-lg bg-white border border-gray-200 focus-within:border-brand-600 focus-within:ring-2 focus-within:ring-brand-600/20 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
+        <div className="relative rounded-2xl bg-white border border-gray-200 focus-within:border-brand-600 focus-within:ring-2 focus-within:ring-brand-600/20 shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden">
           {/* Textarea */}
           <textarea
             ref={textareaRef}
@@ -113,7 +113,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           <div className="flex items-center justify-between px-4 sm:px-6 py-2 sm:py-3 border-t border-gray-100">
             {/* Left buttons */}
             <div className="flex items-center space-x-2">
-              <label className="w-8 h-8 sm:w-9 sm:h-9 bg-brand-600 hover:bg-brand-700 disabled:bg-gray-400 rounded-lg flex items-center justify-center shadow-sm transition-colors duration-200 cursor-pointer">
+              <label className="w-8 h-8 sm:w-9 sm:h-9 bg-brand-600 hover:bg-brand-700 disabled:bg-gray-400 rounded-xl flex items-center justify-center shadow-sm transition-colors duration-200 cursor-pointer">
                 <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 <input
                   type="file"
@@ -127,7 +127,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
               
               {/* ICP button - placeholder */}
               <button 
-                className="flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-all duration-200"
+                className="flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-xl transition-all duration-200"
                 disabled={isLoading}
               >
                 <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -138,7 +138,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
               
               {/* Your reef pic button - placeholder */}
               <button 
-                className="flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-all duration-200"
+                className="flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-xl transition-all duration-200"
                 disabled={isLoading}
               >
                 <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -153,7 +153,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
               <button
                 onClick={onSend}
                 disabled={!inputValue.trim() || isLoading}
-                className="w-8 h-8 sm:w-10 sm:h-10 bg-brand-600 hover:bg-brand-700 disabled:bg-gray-400 disabled:cursor-not-allowed rounded-lg flex items-center justify-center shadow-sm transition-colors duration-200"
+                className="w-8 h-8 sm:w-10 sm:h-10 bg-brand-600 hover:bg-brand-700 disabled:bg-gray-400 disabled:cursor-not-allowed rounded-xl flex items-center justify-center shadow-sm transition-colors duration-200"
               >
                 <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />

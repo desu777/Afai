@@ -267,19 +267,21 @@ const UpdatesPanel: React.FC = () => {
   return (
     <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
       {/* Header - fixed */}
-      <div className="bg-white border-b border-gray-200 flex-shrink-0">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
-          <div className="flex items-center space-x-3 mb-2">
-            <div className="inline-flex items-center justify-center w-10 h-10 bg-brand-600 rounded-lg">
-              <Smartphone className="w-5 h-5 text-white" />
+      <div className="bg-gray-50 flex-shrink-0 relative z-10">
+        <div className="max-w-7xl mx-auto pl-16 pr-4 sm:px-6 lg:px-8 py-3 sm:py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <h1 className="text-lg sm:text-xl font-light text-gray-900">Updates</h1>
+              <span className="text-xs sm:text-sm text-gray-500 hidden sm:inline">
+                Admin
+              </span>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Updates & Changelog
-            </h1>
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <span className="text-xs sm:text-sm text-gray-500 hidden md:inline">
+                Latest improvements and features
+              </span>
+            </div>
           </div>
-          <p className="text-gray-600 text-sm">
-            Track the latest improvements and features in Afai by Aquaforest
-          </p>
         </div>
       </div>
 

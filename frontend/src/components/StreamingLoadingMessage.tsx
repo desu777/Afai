@@ -213,7 +213,7 @@ const StreamingLoadingMessage: React.FC<StreamingLoadingMessageProps> = ({ curre
       return (
         <ThreeDot 
           variant="pulsate"
-          color="#7c3aed" 
+          color="#47154C" 
           size="small" 
           text="" 
           textColor="" 
@@ -230,7 +230,7 @@ const StreamingLoadingMessage: React.FC<StreamingLoadingMessageProps> = ({ curre
         return (
           <ThreeDot 
             variant="pulsate"
-            color="#7c3aed" 
+            color="#47154C" 
             size="small" 
             text="" 
             textColor="" 
@@ -291,7 +291,7 @@ const StreamingLoadingMessage: React.FC<StreamingLoadingMessageProps> = ({ curre
           </div>
         </div>
         
-        <div className="rounded-lg sm:rounded-lg px-4 py-3 sm:px-6 sm:py-4 bg-white/95 backdrop-blur-md border border-purple-200/40 shadow-sm flex-1 min-w-0">
+        <div className="rounded-2xl px-4 py-3 sm:px-6 sm:py-4 bg-white/95 backdrop-blur-md border border-purple-200/40 shadow-sm flex-1 min-w-0">
           {/* Status Message with Icon */}
           <div className="flex items-start space-x-3 sm:space-x-4 mb-4">
             <div className="flex-shrink-0 mt-1">

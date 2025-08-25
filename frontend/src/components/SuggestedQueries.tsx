@@ -31,7 +31,7 @@ const SuggestedQueries: React.FC<SuggestedQueriesProps> = ({ onQuerySelect }) =>
 
   return (
     <div className="text-center mb-12">
-      <div className="inline-flex items-center space-x-3 bg-white/80 backdrop-blur-md rounded-lg px-8 py-4 shadow-lg border border-purple-200/50 mb-8">
+              <div className="inline-flex items-center space-x-3 bg-white/80 backdrop-blur-md rounded-2xl px-8 py-4 shadow-lg border border-brand-200/50 mb-8">
         <div className="w-6 h-6 rounded-full bg-brand-600 flex items-center justify-center shadow-sm">
           <div className="circle">
             <div className="wave"></div>
@@ -46,7 +46,7 @@ const SuggestedQueries: React.FC<SuggestedQueriesProps> = ({ onQuerySelect }) =>
           </div>
           <button
             onClick={() => setShowVersionModal(true)}
-            className="p-1.5 hover:bg-purple-100 rounded-full transition-colors duration-200 text-brand-600 hover:text-brand-700"
+            className="p-1.5 hover:bg-brand-100 rounded-full transition-colors duration-200 text-brand-600 hover:text-brand-700"
             title="What's new in v1.2?"
           >
             <Info className="w-4 h-4" />
@@ -84,8 +84,8 @@ const SuggestedQueries: React.FC<SuggestedQueriesProps> = ({ onQuerySelect }) =>
       {/* Version Modal */}
       {showVersionModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-2xl border border-purple-200/50 max-w-lg w-full max-h-[80vh] overflow-y-auto">
-            <div className="p-6">
+          <div className="bg-white rounded-2xl shadow-2xl border border-brand-200/50 max-w-lg w-full max-h-[80vh] overflow-y-auto mx-2 sm:mx-4">
+            <div className="p-4 sm:p-6">
               {/* Header */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
@@ -95,13 +95,13 @@ const SuggestedQueries: React.FC<SuggestedQueriesProps> = ({ onQuerySelect }) =>
                     </div>
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold text-gray-900">Afai v1.2</h2>
+                    <h2 className="text-lg sm:text-xl font-bold text-gray-900">Afai v1.2</h2>
                     <p className="text-sm text-brand-600">What's new in this version?</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setShowVersionModal(false)}
-                  className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                  className="p-2 hover:bg-brand-100 rounded-xl transition-colors"
                 >
                   <X className="w-5 h-5 text-gray-500" />
                 </button>

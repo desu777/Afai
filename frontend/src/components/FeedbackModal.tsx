@@ -101,7 +101,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, accessLe
           ? 'bg-black/50 backdrop-blur-sm' 
           : 'bg-black/0 backdrop-blur-none'
     }`}>
-      <div className={`bg-white/95 backdrop-blur-md rounded-lg shadow-2xl border border-purple-200/50 w-full max-w-md mx-auto transform transition-all duration-300 ease-out overflow-visible ${
+      <div className={`bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-brand-200/50 w-full max-w-md mx-auto transform transition-all duration-300 ease-out overflow-visible ${
         isClosing 
           ? 'scale-75 opacity-0 translate-y-8' 
           : isAnimating 
@@ -109,7 +109,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, accessLe
             : 'scale-75 opacity-0 translate-y-8'
       }`}>
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-purple-200/30">
+        <div className="flex items-center justify-between p-6 border-b border-brand-200/30">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-brand-600 rounded-xl flex items-center justify-center">
               <Send className="w-4 h-4 text-white" />
@@ -119,7 +119,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ isOpen, onClose, accessLe
           <button
             onClick={handleClose}
             disabled={isSubmitting || isClosing}
-            className="p-2 hover:bg-purple-100 rounded-xl transition-colors disabled:opacity-50"
+            className="p-2 hover:bg-brand-100 rounded-xl transition-colors disabled:opacity-50"
           >
             <X className="w-5 h-5 text-gray-500" />
           </button>

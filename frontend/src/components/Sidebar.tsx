@@ -104,10 +104,10 @@ const Sidebar: React.FC<SidebarProps> = ({
       case 'visionary_expert':
       default:
         return {
-          label: 'Visionary Expert',
+          label: 'Aquaforest Community',
           icon: User,
-          bgClass: 'bg-green-100 text-green-700 border-green-200',
-          iconBgClass: 'bg-green-600'
+          bgClass: 'bg-brand-100 text-brand-700 border-brand-200',
+          iconBgClass: 'bg-brand-600'
         };
     }
   };
@@ -165,16 +165,16 @@ const Sidebar: React.FC<SidebarProps> = ({
                     <svg viewBox="0 0 180 30" className="w-full h-full max-w-[240px] md:max-w-[280px]">
                       <defs>
                         <linearGradient id="sidebar-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" style={{stopColor: '#9333ea'}} />
-                          <stop offset="50%" style={{stopColor: '#7c3aed'}} />
-                          <stop offset="100%" style={{stopColor: '#5b21b6'}} />
+                          <stop offset="0%" style={{stopColor: '#47154C'}} />
+                          <stop offset="50%" style={{stopColor: '#47154C'}} />
+                          <stop offset="100%" style={{stopColor: '#47154C'}} />
                         </linearGradient>
                         <pattern id="sidebar-wave" x="0" y="-0.5" width="100%" height="100%" patternUnits="userSpaceOnUse">
-                          <path d="M-40 15 Q-30 12 -20 15 T0 15 T20 15 T40 15 T60 15 T80 15 T100 15 T120 15 T140 15 T160 15 V30 H-40z" fill="url(#sidebar-gradient)">
+                          <path d="M-40 15 Q-30 12 -20 15 T0 15 T20 15 T40 15 T60 15 T80 15 T100 15 T120 15 T140 15 T160 15 T180 15 T200 15 V30 H-40z" fill="url(#sidebar-gradient)">
                             <animateTransform
                               attributeName="transform"
                               begin="0s"
-                              dur="2s"
+                              dur="3s"
                               type="translate"
                               from="0,0"
                               to="40,0"
@@ -182,8 +182,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                           </path>
                         </pattern>
                       </defs>
-                      <text textAnchor="middle" x="90" y="21" fontSize="18" fontWeight="bold" fill="#1f2937" fillOpacity="0.15" fontFamily="Poppins">Afai by Aquaforest</text>
-                      <text textAnchor="middle" x="90" y="21" fontSize="18" fontWeight="bold" fill="url(#sidebar-wave)" fillOpacity="1" fontFamily="Poppins">Afai by Aquaforest</text>
+                      <text textAnchor="middle" x="90" y="21" fontSize="18" fontWeight="bold" fill="#1f2937" fillOpacity="0.1">Afai by Aquaforest</text>
+                      <text textAnchor="middle" x="90" y="21" fontSize="18" fontWeight="bold" fill="url(#sidebar-wave)" fillOpacity="1">Afai by Aquaforest</text>
                     </svg>
                   </div>
                 </div>
@@ -313,7 +313,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                       break;
                     case 'visionary_expert':
                     default:
-                      badgeClasses = 'bg-green-100/80 text-green-700 border-green-200/50';
+                      badgeClasses = 'bg-brand-100/80 text-brand-700 border-brand-200/50';
                       break;
                   }
                   

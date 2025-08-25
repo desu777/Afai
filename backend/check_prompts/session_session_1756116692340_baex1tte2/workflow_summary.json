@@ -1,0 +1,81 @@
+{
+  "session_id": "session_1756116692340_baex1tte2",
+  "timestamp": "2025-08-25 12:16:05",
+  "user_query": "My tank has high NO3 and PO4, should I use AF NitraPhos Minus or Pro Bio S?",
+  "detected_language": "en",
+  "final_intent": "other",
+  "workflow_path": [
+    "intent_detector_text",
+    "business_reasoner",
+    "query_optimizer",
+    "response_formatter_complex"
+  ],
+  "total_prompts": 4,
+  "total_execution_time": 37.08653521537781,
+  "prompts": [
+    {
+      "counter": 5,
+      "node_name": "intent_detector_text",
+      "filename": "005_intent_detector_text.md",
+      "timestamp": "2025-08-25 12:15:30",
+      "prompt_length": 5751,
+      "metadata": {
+        "user_query": "My tank has high NO3 and PO4, should I use AF NitraPhos Minus or Pro Bio S?",
+        "intent": "other",
+        "detected_language": "en",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.3,
+        "llm_response_time": 2723.461389541626,
+        "chat_history_length": 0
+      }
+    },
+    {
+      "counter": 6,
+      "node_name": "business_reasoner",
+      "filename": "006_business_reasoner.md",
+      "timestamp": "2025-08-25 12:15:40",
+      "prompt_length": 360778,
+      "metadata": {
+        "user_query": "My tank has high NO3 and PO4, should I use AF NitraPhos Minus or Pro Bio S?",
+        "intent": "Intent.PRODUCT_QUERY",
+        "detected_language": "en",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.5,
+        "llm_response_time": 9205.925941467285,
+        "chat_history_length": 0
+      }
+    },
+    {
+      "counter": 7,
+      "node_name": "query_optimizer",
+      "filename": "007_query_optimizer.md",
+      "timestamp": "2025-08-25 12:15:42",
+      "prompt_length": 8611,
+      "metadata": {
+        "user_query": "My tank has high NO3 and PO4, should I use AF NitraPhos Minus or Pro Bio S?",
+        "intent": "Intent.PRODUCT_QUERY",
+        "detected_language": "en",
+        "model_name": "gemini-2.5-flash",
+        "temperature": null,
+        "llm_response_time": 2028.4991264343262,
+        "chat_history_length": 0
+      }
+    },
+    {
+      "counter": 8,
+      "node_name": "response_formatter_complex",
+      "filename": "008_response_formatter_complex.md",
+      "timestamp": "2025-08-25 12:16:05",
+      "prompt_length": 155580,
+      "metadata": {
+        "user_query": "My tank has high NO3 and PO4, should I use AF NitraPhos Minus or Pro Bio S?",
+        "intent": "Intent.PRODUCT_QUERY",
+        "detected_language": "en",
+        "model_name": "gemini-2.5-flash",
+        "temperature": 0.7,
+        "llm_response_time": 18963.897943496704,
+        "chat_history_length": 0
+      }
+    }
+  ]
+}

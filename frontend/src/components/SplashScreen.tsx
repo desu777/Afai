@@ -80,19 +80,19 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-6 sm:py-12">
+      <div className="w-full max-w-md mx-auto">
         {/* Logo and Title */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-brand-600 shadow-lg mb-8">
+        <div className="text-center mb-8 sm:mb-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-brand-600 shadow-lg mb-6 sm:mb-8">
             <div className="circle">
               <div className="wave"></div>
             </div>
           </div>
           
           {/* Animated Title */}
-          <div className="mb-4">
-            <svg viewBox="0 0 200 50" className="w-full h-16 max-w-[320px] mx-auto">
+          <div className="mb-3 sm:mb-4">
+            <svg viewBox="0 0 200 50" className="w-full h-12 sm:h-16 max-w-[280px] sm:max-w-[320px] mx-auto">
               <defs>
                 <linearGradient id="splash-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" style={{stopColor: '#47154C'}} />
@@ -112,19 +112,19 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
                   </path>
                 </pattern>
               </defs>
-              <text textAnchor="middle" x="100" y="35" fontSize="28" fontWeight="bold" fill="#1f2937" fillOpacity="0.1">Afai by Aquaforest</text>
-              <text textAnchor="middle" x="100" y="35" fontSize="28" fontWeight="bold" fill="url(#splash-wave)" fillOpacity="1">Afai by Aquaforest</text>
+              <text textAnchor="middle" x="100" y="35" fontSize="24" fontWeight="bold" fill="#1f2937" fillOpacity="0.1" className="sm:text-[28px]">Afai by Aquaforest</text>
+              <text textAnchor="middle" x="100" y="35" fontSize="24" fontWeight="bold" fill="url(#splash-wave)" fillOpacity="1" className="sm:text-[28px]">Afai by Aquaforest</text>
             </svg>
           </div>
           
-          <p className="text-body text-lg md:text-xl text-gray-600 font-medium leading-relaxed">
+          <p className="text-body text-base sm:text-lg md:text-xl text-gray-600 font-medium leading-relaxed px-2">
             As Far As I know, I'm here to help you make your reef even better.
           </p>
         </div>
 
         {/* Login Form */}
-        <div className="bg-white rounded-2xl p-8 shadow-md border border-gray-200">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-md border border-gray-200">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                 Access Code
@@ -135,20 +135,20 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-2xl focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 outline-none transition-all duration-200 font-medium"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 pr-10 sm:pr-12 border border-gray-200 rounded-2xl focus:border-brand-600 focus:ring-2 focus:ring-brand-600/20 outline-none transition-all duration-200 font-medium text-base"
                   placeholder="Enter your access code"
                   disabled={isLoading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="absolute right-2 sm:right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded-lg transition-colors"
                   disabled={isLoading}
                 >
                   {showPassword ? (
-                    <EyeOff className="w-5 h-5 text-gray-500" />
+                    <EyeOff className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
                   ) : (
-                    <Eye className="w-5 h-5 text-gray-500" />
+                    <Eye className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
                   )}
                 </button>
               </div>
@@ -160,11 +160,11 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
             <button
               type="submit"
               disabled={!password.trim() || isLoading}
-              className="w-full bg-brand-600 hover:bg-brand-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-3 px-6 rounded-2xl shadow-sm transition-colors duration-200"
+              className="w-full bg-brand-600 hover:bg-brand-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold py-2.5 sm:py-3 px-4 sm:px-6 rounded-2xl shadow-sm transition-colors duration-200 text-base"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center space-x-2">
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                   <span>Authenticating...</span>
                 </div>
               ) : (
@@ -175,11 +175,11 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
         </div>
 
         {/* Footer with Logo */}
-        <div className="text-center mt-12 space-y-4">
+        <div className="text-center mt-8 sm:mt-12 space-y-3 sm:space-y-4">
           <img 
             src="/aquaforest_logo.png" 
             alt="Aquaforest" 
-            className="h-8 mx-auto opacity-60 hover:opacity-80 transition-opacity"
+            className="h-6 sm:h-8 mx-auto opacity-60 hover:opacity-80 transition-opacity"
           />
           <div className="space-y-3">
             <p className="text-xs text-gray-500 font-medium">
@@ -187,15 +187,15 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
             </p>
             
             {/* Social Links */}
-            <div className="flex items-center justify-center space-x-4">
+            <div className="flex items-center justify-center space-x-3 sm:space-x-4">
               <a 
                 href="https://aquaforest.eu/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex items-center space-x-1 px-3 py-2 bg-white hover:bg-gray-50 border border-gray-200 rounded-2xl transition-all duration-200 hover:shadow-sm group"
+                className="flex items-center space-x-1 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-white hover:bg-gray-50 border border-gray-200 rounded-2xl transition-all duration-200 hover:shadow-sm group"
                 title="Visit Aquaforest website"
               >
-                <Globe className="w-4 h-4 text-brand-600 group-hover:text-brand-700" />
+                <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-600 group-hover:text-brand-700" />
                 <span className="text-xs text-gray-600 group-hover:text-gray-700 font-medium">Website</span>
               </a>
               
@@ -203,10 +203,10 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onAuthenticate }) => {
                 href="https://www.facebook.com/groups/aquaforestgroup/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="flex items-center space-x-1 px-3 py-2 bg-white hover:bg-gray-50 border border-gray-200 rounded-2xl transition-all duration-200 hover:shadow-sm group"
+                className="flex items-center space-x-1 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-white hover:bg-gray-50 border border-gray-200 rounded-2xl transition-all duration-200 hover:shadow-sm group"
                 title="Join Aquaforest Facebook Group"
               >
-                <Facebook className="w-4 h-4 text-brand-600 group-hover:text-brand-700" />
+                <Facebook className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-600 group-hover:text-brand-700" />
                 <span className="text-xs text-gray-600 group-hover:text-gray-700 font-medium">Community</span>
               </a>
             </div>

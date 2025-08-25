@@ -28,7 +28,7 @@ const SkeletonLoadingMessage: React.FC = () => {
         </div>
         
         {/* Skeleton content */}
-        <div className="rounded-lg sm:rounded-lg px-4 py-3 sm:px-6 sm:py-4 bg-white/95 backdrop-blur-md border border-purple-200/40 shadow-sm flex-1 min-w-0">
+        <div className="rounded-2xl px-4 py-3 sm:px-6 sm:py-4 bg-white/95 backdrop-blur-md border border-purple-200/40 shadow-sm flex-1 min-w-0">
           <div className="space-y-3">
             {/* Status indicator */}
             <div className="flex items-center space-x-2">
@@ -55,9 +55,9 @@ const SkeletonLoadingMessage: React.FC = () => {
             {/* Typing indicator */}
             <div className="flex items-center space-x-1">
               <div className="flex space-x-1">
-                <div className="w-2 h-2 bg-brand-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-2 h-2 bg-brand-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-2 h-2 bg-brand-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                <div className="w-2 h-2 bg-brand-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-2 h-2 bg-brand-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-2 h-2 bg-brand-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
               </div>
             </div>
           </div>

@@ -35,7 +35,7 @@ const MessageContent: React.FC<MessageContentProps> = ({ content, isUser }) => {
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 className="text-sm font-bold text-purple-700 mt-3 mb-2 first:mt-0 break-words">
+            <h3 className="text-sm font-bold text-brand-700 mt-3 mb-2 first:mt-0 break-words">
               {children}
             </h3>
           ),

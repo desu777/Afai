@@ -351,7 +351,7 @@ const ChatInterface: React.FC = () => {
                 {/* Center - Model Selector for mobile, Left for desktop */}
                 <div className="flex-1 md:flex-none">
                   {accessLevel === 'admin' && (
-                    <div className="flex justify-center md:justify-start md:absolute md:top-4 md:left-4">
+                    <div className="flex justify-center md:justify-start md:absolute md:top-4 md:left-16">
                       <ResponseFormatSelector
                         selectedFormat={responseFormat}
                         onFormatChange={updateResponseFormat}

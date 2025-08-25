@@ -12,9 +12,9 @@ const RelogConfirmModal: React.FC<RelogConfirmModalProps> = ({ isOpen, onClose, 
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white/95 backdrop-blur-md rounded-lg border border-purple-200/50 shadow-2xl max-w-md w-full">
+      <div className="bg-white rounded-2xl border border-brand-200/50 shadow-2xl max-w-md w-full">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-purple-200/30">
+        <div className="flex items-center justify-between p-6 border-b border-brand-200/30">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
               <AlertTriangle className="w-5 h-5 text-orange-600" />
@@ -26,7 +26,7 @@ const RelogConfirmModal: React.FC<RelogConfirmModalProps> = ({ isOpen, onClose, 
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-purple-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-brand-100 rounded-xl transition-colors"
           >
             <X className="w-5 h-5 text-gray-600" />
           </button>
@@ -45,15 +45,15 @@ const RelogConfirmModal: React.FC<RelogConfirmModalProps> = ({ isOpen, onClose, 
               </p>
               <ul className="text-sm text-gray-600 space-y-1 ml-4">
                 <li className="flex items-center space-x-2">
-                  <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
+                  <div className="w-1.5 h-1.5 bg-brand-500 rounded-full"></div>
                   <span>Your current authentication session</span>
                 </li>
                 <li className="flex items-center space-x-2">
-                  <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
+                  <div className="w-1.5 h-1.5 bg-brand-500 rounded-full"></div>
                   <span>All conversation history</span>
                 </li>
                 <li className="flex items-center space-x-2">
-                  <div className="w-1.5 h-1.5 bg-purple-400 rounded-full"></div>
+                  <div className="w-1.5 h-1.5 bg-brand-500 rounded-full"></div>
                   <span>Session preferences and cache</span>
                 </li>
               </ul>
@@ -65,7 +65,7 @@ const RelogConfirmModal: React.FC<RelogConfirmModalProps> = ({ isOpen, onClose, 
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-end space-x-3 p-6 border-t border-purple-200/30">
+        <div className="flex items-center justify-end space-x-3 p-6 border-t border-brand-200/30">
           <button
             onClick={onClose}
             className="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-xl transition-colors font-medium"
@@ -74,7 +74,7 @@ const RelogConfirmModal: React.FC<RelogConfirmModalProps> = ({ isOpen, onClose, 
           </button>
           <button
             onClick={onConfirm}
-            className="px-6 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+            className="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-2xl transition-colors duration-200 font-medium shadow-sm"
           >
             Logout & Clear Data
           </button>
