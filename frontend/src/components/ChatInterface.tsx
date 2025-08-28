@@ -176,6 +176,9 @@ const ChatInterface: React.FC = () => {
           case 'new_mode':
             backendAccessLevel = 'new_mode';
             break;
+          case 'facebook_group':
+            backendAccessLevel = 'facebook_group';
+            break;
           case 'visionary_expert':
           default:
             backendAccessLevel = 'admin';

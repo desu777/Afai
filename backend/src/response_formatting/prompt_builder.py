@@ -75,7 +75,7 @@ class PromptBuilder:
         # Try to load prompt from template
         prompt = load_prompt_template(
             "response_formatting",
-            access_level=state.get("access_level"),
+            access_level=state.get("access_level") or state.get("response_format_mode"),
             language=lang,
             chat_history_formatted=chat_history_formatted,
             user_query=state.get('user_query', ''),

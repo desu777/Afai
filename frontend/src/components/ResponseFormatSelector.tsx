@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { ChevronDown, Sparkles, PenTool, Brain } from 'lucide-react'
+import { ChevronDown, Sparkles, PenTool, Brain, MessageSquare } from 'lucide-react'
 import { ResponseFormat, ResponseFormatOption } from '../types'
 
 interface ResponseFormatSelectorProps {
@@ -23,6 +23,11 @@ const formatOptions: ResponseFormatOption[] = [
     id: 'new_mode',
     label: 'New Mode',
     description: 'Advanced diagnostic system with user-level adaptation'
+  },
+  {
+    id: 'facebook_group',
+    label: 'Facebook Group',
+    description: 'Concise responses for Facebook (8000 char limit)'
   }
 ];
 
@@ -38,9 +43,10 @@ const ResponseFormatSelector: React.FC<ResponseFormatSelectorProps> = ({
   // Filter options based on access level
   const availableOptions = formatOptions.filter(option => {
     if (accessLevel === 'admin') {
-      return true; // Admin sees all options
+      return true; // Admin sees all 4 options
     } else {
-      return option.id !== 'ghostwriter'; // Visionary expert doesn't see ghostwriter
+      // Visionary expert sees only visionary_expert and new_mode
+      return option.id === 'visionary_expert' || option.id === 'new_mode';
     }
   });
 
@@ -67,6 +73,8 @@ const ResponseFormatSelector: React.FC<ResponseFormatSelectorProps> = ({
         return <PenTool className="w-4 h-4" />;
       case 'new_mode':
         return <Brain className="w-4 h-4" />;
+      case 'facebook_group':
+        return <MessageSquare className="w-4 h-4" />;
       default:
         return <Sparkles className="w-4 h-4" />;
     }

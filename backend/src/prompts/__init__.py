@@ -34,6 +34,9 @@ def load_prompt_template(template_name: str, access_level: str = None, **kwargs)
             professional_path = os.path.join(prompts_dir, f"{professional_template}.txt")
             if os.path.exists(professional_path):
                 actual_template_name = professional_template
+        # Facebook Group - uses facebook variant for 8000 char limit
+        elif access_level == "facebook_group" and template_name == "response_formatting":
+            actual_template_name = "facebook"
         
         template_path = os.path.join(prompts_dir, f"{actual_template_name}.txt")
         
