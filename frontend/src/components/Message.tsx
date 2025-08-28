@@ -25,8 +25,15 @@ const Message: React.FC<MessageProps> = ({ message }) => {
         .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1 ($2)')
         // Convert markdown asterisk lists to bullet points
         .replace(/^\*\s+(.+)$/gm, '• $1')
-        // Remove bold formatting
-        .replace(/\*\*(.*?)\*\*/g, '$1')
+        // Remove all markdown formatting (order matters!)
+        .replace(/\*\*\*(.*?)\*\*\*/g, '$1')  // Bold+italic ***text***
+        .replace(/\*\*(.*?)\*\*/g, '$1')       // Bold **text**
+        .replace(/__(.*?)__/g, '$1')           // Bold __text__
+        .replace(/\*(.*?)\*/g, '$1')           // Italic *text*
+        .replace(/_(.*?)_/g, '$1')             // Italic _text_
+        .replace(/~~(.*?)~~/g, '$1')           // Strikethrough ~~text~~
+        .replace(/`([^`]+)`/g, '$1')           // Inline code `code`
+        .replace(/```[\s\S]*?```/g, '')        // Code blocks (remove entirely)
         // Remove horizontal rules
         .replace(/^---$/gm, '')
         // Clean up extra whitespace/empty lines
